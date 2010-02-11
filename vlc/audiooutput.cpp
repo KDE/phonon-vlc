@@ -56,7 +56,7 @@ qreal AudioOutput::volume() const
 
 void AudioOutput::setVolume(qreal volume)
 {
-    if (vlc_instance) {
+    if (vlc_current_media_player) {
         libvlc_audio_set_volume(vlc_current_media_player, (int)(f_volume * 100));
         f_volume = volume;
         emit volumeChanged(f_volume);
