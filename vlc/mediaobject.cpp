@@ -226,6 +226,7 @@ void MediaObject::setSource(const MediaSource & source)
             << "Error: the MediaSource::Disc doesn't specify which one (Phonon::NoDisc)";
             return;
         case Phonon::Cd:
+            qDebug() << mediaSource.deviceName();
             loadMedia(mediaSource.deviceName());
             break;
         case Phonon::Dvd:
