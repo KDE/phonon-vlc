@@ -207,11 +207,18 @@ void MediaObject::setSource(const MediaSource & source)
     case MediaSource::Invalid:
         break;
     case MediaSource::LocalFile:
-        loadMedia(mediaSource.fileName());
-        break;
     case MediaSource::Url:
-        loadMedia(mediaSource.url().toString());
+        {
+            qCritical() << __FUNCTION__ << "yeap, 'tis a local file or url" << source.url().scheme();
+            const QByteArray &mrl = (source.url().scheme() == QLatin1String("") ?
+                    "file://" + source.url().toEncoded() :
+                    source.url().toEncoded());
+            loadMedia(mrl);
+        }
         break;
+/*    case MediaSource::Url:
+        loadMedia(mediaSource.url().toEncoded());
+        break;*/
     case MediaSource::Disc:
         switch (source.discType()) {
         case Phonon::NoDisc:
