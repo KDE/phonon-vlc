@@ -118,8 +118,8 @@ void VLCMediaController::chapterAdded(int titleId, const QString & name)
 void VLCMediaController::setCurrentAudioChannel(const Phonon::AudioChannelDescription & audioChannel)
 {
     current_audio_channel = audioChannel;
-    libvlc_audio_set_track(p_vlc_media_player, audioChannel.index(), vlc_exception);
-    vlcExceptionRaised();
+    if(libvlc_audio_set_track(p_vlc_media_player, audioChannel.index()))
+        qDebug() << "libvlc exception:" << libvlc_errmsg();
 }
 
 QList<Phonon::AudioChannelDescription> VLCMediaController::availableAudioChannels() const
@@ -137,9 +137,7 @@ void VLCMediaController::refreshAudioChannels()
     current_audio_channel = Phonon::AudioChannelDescription();
     available_audio_channels.clear();
 
-    libvlc_track_description_t * p_info = libvlc_audio_get_track_description(
-                                              p_vlc_media_player, vlc_exception);
-    vlcExceptionRaised();
+    libvlc_track_description_t * p_info = libvlc_audio_get_track_description(p_vlc_media_player);
     while (p_info) {
         audioChannelAdded(p_info->i_id, p_info->psz_name);
         p_info = p_info->p_next;
@@ -158,18 +156,17 @@ void VLCMediaController::setCurrentSubtitle(const Phonon::SubtitleDescription & 
     if (type == "file") {
         QString filename = current_subtitle.property("name").toString();
         if (!filename.isEmpty()) {
-            libvlc_video_set_subtitle_file(p_vlc_media_player,
-                                           filename.toAscii().data(),
-                                           vlc_exception);
-            vlcExceptionRaised();
+            if(!libvlc_video_set_subtitle_file(p_vlc_media_player,
+                                               filename.toAscii().data()))
+                qDebug() << "libvlc exception:" << libvlc_errmsg();
 
             // There is no subtitle event inside libvlc so let's send our own event...
             available_subtitles << current_subtitle;
             emit availableSubtitlesChanged();
         }
     } else {
-        libvlc_video_set_spu(p_vlc_media_player, subtitle.index(), vlc_exception);
-        vlcExceptionRaised();
+        if(libvlc_video_set_spu(p_vlc_media_player, subtitle.index()))
+            qDebug() << "libvlc exception:" << libvlc_errmsg();
     }
 }
 
@@ -189,8 +186,7 @@ void VLCMediaController::refreshSubtitles()
     available_subtitles.clear();
 
     libvlc_track_description_t *p_info = libvlc_video_get_spu_description(
-                                             p_vlc_media_player, vlc_exception);
-    vlcExceptionRaised();
+                                             p_vlc_media_player);
     while (p_info) {
         subtitleAdded(p_info->i_id, p_info->psz_name, "");
         p_info = p_info->p_next;
@@ -206,8 +202,7 @@ void VLCMediaController::setCurrentTitle(int title)
     current_title = title;
 
 //    libvlc_media_player_set_title(p_vlc_media_player, title.index(), vlc_exception);
-    libvlc_media_player_set_title(p_vlc_media_player, title, vlc_exception);
-    vlcExceptionRaised();
+    libvlc_media_player_set_title(p_vlc_media_player, title);
 }
 
 //QList<Phonon::TitleDescription> VLCMediaController::availableTitles() const
@@ -239,8 +234,7 @@ void VLCMediaController::setCurrentChapter(int chapter)
 {
     current_chapter = chapter;
 //    libvlc_media_player_set_chapter(p_vlc_media_player, chapter.index(), vlc_exception);
-    libvlc_media_player_set_chapter(p_vlc_media_player, chapter, vlc_exception);
-    vlcExceptionRaised();
+    libvlc_media_player_set_chapter(p_vlc_media_player, chapter);
 }
 
 //QList<Phonon::ChapterDescription> VLCMediaController::availableChapters() const
@@ -265,8 +259,7 @@ void VLCMediaController::refreshChapters(int i_title)
 
     // Get the description of available chapters for specific title
     libvlc_track_description_t *p_info = libvlc_video_get_chapter_description(
-                                             p_vlc_media_player, i_title, vlc_exception);
-    vlcExceptionRaised();
+                                             p_vlc_media_player, i_title);
     while (p_info) {
         chapterAdded(p_info->i_id, p_info->psz_name);
         p_info = p_info->p_next;

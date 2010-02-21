@@ -30,7 +30,6 @@
 
 // Global variables
 libvlc_instance_t *vlc_instance = 0;
-libvlc_exception_t *vlc_exception = new libvlc_exception_t();
 libvlc_media_player_t *vlc_current_media_player = 0;
 
 namespace Phonon
@@ -41,7 +40,6 @@ bool vlcInit()
 {
     // Global variables
     vlc_instance = 0;
-    vlc_exception = new libvlc_exception_t();
 
     QString path = vlcPath();
     if (!path.isEmpty()) {
@@ -69,13 +67,10 @@ bool vlcInit()
             "--no-video-title-show"
         };
 
-        libvlc_exception_init(vlc_exception);
-
         // Create and initialize a libvlc instance (it should be done only once)
-        vlc_instance = libvlc_new(sizeof(vlcArgs) / sizeof(*vlcArgs),
-                                  vlcArgs,
-                                  vlc_exception);
-        vlcExceptionRaised();
+        vlc_instance = libvlc_new(sizeof(vlcArgs) / sizeof(*vlcArgs), vlcArgs);
+        if(!vlc_instance)
+            qDebug() << "libvlc exception:" << libvlc_errmsg();
 
         return true;
     } else {
@@ -86,16 +81,7 @@ bool vlcInit()
 void vlcRelease()
 {
     libvlc_release(vlc_instance);
-    vlcExceptionRaised();
     vlcUnload();
-}
-
-void vlcExceptionRaised()
-{
-    if (libvlc_exception_raised(vlc_exception)) {
-        qDebug() << "libvlc exception:" << libvlc_errmsg();
-        libvlc_exception_clear(vlc_exception);
-    }
 }
 
 #if defined(Q_OS_UNIX)

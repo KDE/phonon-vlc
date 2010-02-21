@@ -32,11 +32,6 @@ class QString;
 extern libvlc_instance_t *vlc_instance;
 
 /**
- * VLC library exception handling global variable.
- */
-extern libvlc_exception_t *vlc_exception;
-
-/**
  * VLC library media player global variable.
  */
 extern libvlc_media_player_t *vlc_current_media_player;
@@ -58,16 +53,9 @@ QString vlcPath();
 void vlcUnload();
 
 /**
- * Check for a VLC library exception.
- *
- * show an error message when an exception has been raised.
- */
-void vlcExceptionRaised();
-
-/**
  * Initialize and launch VLC library.
  *
- * instance and exception handling global variables are initialized.
+ * instance and global variables are initialized.
  *
  * @return VLC initialization result
  */

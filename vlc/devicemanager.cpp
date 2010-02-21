@@ -101,9 +101,9 @@ void DeviceManager::updateDeviceList()
     list_hw.append("");
 
     // Get the list of available audio outputs
-    libvlc_audio_output_t *p_ao_list = libvlc_audio_output_list_get(
-                                           vlc_instance, vlc_exception);
-    vlcExceptionRaised();
+    libvlc_audio_output_t *p_ao_list = libvlc_audio_output_list_get(vlc_instance);
+    if(!p_ao_list)
+        qDebug() << "libvlc exception:" << libvlc_errmsg();
     libvlc_audio_output_t *p_start = p_ao_list;
 
     bool checkpulse = false;

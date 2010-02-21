@@ -81,20 +81,16 @@ void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspect)
     switch (aspect_ratio) {
     case Phonon::VideoWidget::AspectRatioAuto: // Let the decoder find the aspect ratio automatically from the media file (this is the default)
 //        p_libvlc_video_set_aspect_ratio(p_vlc_current_media_player, "", vlc_exception);
-        vlcExceptionRaised();
         break;
     case Phonon::VideoWidget::AspectRatioWidget: // Fit the video into the widget making the aspect ratio depend solely on the size of the widget
         // This way the aspect ratio is freely resizeable by the user
 //        p_libvlc_video_set_aspect_ratio(p_vlc_current_media_player, "", vlc_exception);
-        vlcExceptionRaised();
         break;
     case Phonon::VideoWidget::AspectRatio4_3:
 //        p_libvlc_video_set_aspect_ratio(p_vlc_current_media_player, "4:3", vlc_exception);
-        vlcExceptionRaised();
         break;
     case Phonon::VideoWidget::AspectRatio16_9:
 //        p_libvlc_video_set_aspect_ratio(p_vlc_current_media_player, "16:9", vlc_exception);
-        vlcExceptionRaised();
         break;
     default:
         qCritical() << __FUNCTION__ << "error: unsupported AspectRatio:" << (int) aspect_ratio;

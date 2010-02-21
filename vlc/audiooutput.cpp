@@ -57,8 +57,7 @@ qreal AudioOutput::volume() const
 void AudioOutput::setVolume(qreal volume)
 {
     if (vlc_instance) {
-        libvlc_audio_set_volume(vlc_instance, (int)(f_volume * 100), vlc_exception);
-        vlcExceptionRaised();
+        libvlc_audio_set_volume(vlc_current_media_player, (int)(f_volume * 100));
         f_volume = volume;
         emit volumeChanged(f_volume);
     }
@@ -88,7 +87,7 @@ bool AudioOutput::setOutputDevice(int device)
 
         i_device = device;
         const QByteArray deviceName = deviceList.at(device).vlcId;
-        libvlc_audio_output_set(vlc_instance, (char *) deviceList.at(device).vlcId.data());
+        libvlc_audio_output_set(vlc_current_media_player, (char *) deviceList.at(device).vlcId.data());
         qDebug() << "set aout " << deviceList.at(device).vlcId.data();
 //         if (deviceName == DEFAULT_ID) {
 //             libvlc_audio_device_set(p_vlc_instance, DEFAULT, vlc_exception);
