@@ -76,7 +76,7 @@ bool AudioOutput::setOutputDevice(int device)
 #ifdef PHONON_PULSESUPPORT
     if (PulseSupport::getInstance()->isActive()) {
         i_device = device;
-        libvlc_audio_output_set(vlc_instance, "pulse");
+        libvlc_audio_output_set(vlc_current_media_player, "pulse");
         qDebug() << "set aout " << "pulse";
         return true;
     }
