@@ -140,16 +140,27 @@ static QStringList findAllLibVlc()
 
     return foundVlcs;
 #elif defined(Q_OS_WIN)
-    // Read VLC version and installation directory from Windows registry
+     // Read VLC version and installation directory from Windows registry
     QSettings settings(QSettings::SystemScope, "VideoLAN", "VLC");
     QString vlcVersion = settings.value("Version").toString();
     QString vlcInstallDir = settings.value("InstallDir").toString();
     if (vlcVersion.startsWith("1.0") && !vlcInstallDir.isEmpty()) {
-        paths << vlcInstallDir + QLatin1Char('\\') + "libvlc.dll";
+        paths << vlcInstallDir + QLatin1Char('\\') + "libvlc.dll"; 
         return paths;
-    } else {
-        return QStringList();
+    }else{
+        //If nothing is found in the registry try %PATH%
+    QStringList searchPaths = QString::fromLatin1(qgetenv("PATH"))
+            .split(QLatin1Char(';'), QString::SkipEmptyParts);
+    QStringList foundVlcs;
+    foreach (const QString &sp, searchPaths) {
+        QDir dir = QDir(sp);
+        QStringList entryList = dir.entryList(QStringList() << QLatin1String("libvlc.dll"), QDir::Files);
+        foreach (const QString &entry, entryList)
+            foundVlcs << sp + QLatin1Char('\\') + entry;
     }
+    paths<<foundVlcs;
+    return paths;
+  }
 #endif
 }
 
@@ -167,7 +178,8 @@ QString vlcPath()
     foreach(path, paths) {
         vlcLibrary->setFileName(path);
 
-        if (vlcLibrary->resolve("libvlc_exception_init")) {
+        if (vlcLibrary->resolve("libvlc_get_version")) {
+            //TODO:call libvlc_get_version to test version?
             return path;
         } else {
             qDebug("Cannot resolve the symbol or load VLC library");
