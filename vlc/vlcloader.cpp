@@ -178,8 +178,7 @@ QString vlcPath()
     foreach(path, paths) {
         vlcLibrary->setFileName(path);
 
-        if (vlcLibrary->resolve("libvlc_get_version")) {
-            //TODO:call libvlc_get_version to test version?
+        if (!vlcLibrary->resolve("libvlc_exception_init")) {//"libvlc_exception_init" not contained in 1.1+
             return path;
         } else {
             qDebug("Cannot resolve the symbol or load VLC library");
