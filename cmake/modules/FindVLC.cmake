@@ -23,15 +23,15 @@ set( VLC_VERSION_OK = True )
 
 # use pkg-config to get the directories and then use these values
 # in the FIND_PATH() and FIND_LIBRARY() calls
-if(NOT WIN32)
-  find_package(PkgConfig)
-  pkg_check_modules(VLC libvlc>=1.1.0)
-  set(VLC_DEFINITIONS ${VLC_CFLAGS})
-  set(VLC_LIBRARIES ${VLC_LDFLAGS})
-  # TODO add argument support to pass version on find_package
-  include(MacroEnsureVersion)
-  macro_ensure_version(1.1.0 ${VLC_VERSION} VLC_VERSION_OK)
-endif(NOT WIN32)
+#if(NOT WIN32)
+#  find_package(PkgConfig)
+#  pkg_check_modules(VLC libvlc>=1.1.0)
+#  set(VLC_DEFINITIONS ${VLC_CFLAGS})
+#  set(VLC_LIBRARIES ${VLC_LDFLAGS})
+#  # TODO add argument support to pass version on find_package
+#  include(MacroEnsureVersion)
+#  macro_ensure_version(1.1.0 ${VLC_VERSION} VLC_VERSION_OK)
+#endif(NOT WIN32)
 
 
 if(VLC_VERSION_OK)
@@ -44,7 +44,7 @@ endif(VLC_VERSION_OK)
 
 find_path(VLC_INCLUDE_DIR
           NAMES vlc.h
-          PATHS ${VLC_INCLUDE_DIRS}
+          PATHS ${VLC_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/../../include/vlc/
           PATH_SUFFIXES vlc)
 
 find_library(VLC_LIBRARIES
