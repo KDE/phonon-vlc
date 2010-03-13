@@ -20,21 +20,18 @@ include(PhononMacros)
 include(MacroLogFeature)
 include(MacroOptionalFindPackage)
 
+# Qt4
 set(QT_MIN_VERSION 4.4.0)
 find_package(Qt4 REQUIRED)
 if (NOT QT_QTDBUS_FOUND)
    message(STATUS "Warning: Phonon won't be compiled with DBus support.")
 endif(NOT QT_QTDBUS_FOUND)
 
+# Automoc
 find_package(Automoc4 REQUIRED)
 include (CheckCXXCompilerFlag)
 include (MacroEnsureVersion)
 
-find_package(Phonon REQUIRED)
-if(PHONON_PULSESUPPORT)
-  add_definitions(-DPHONON_PULSESUPPORT)
-endif(PHONON_PULSESUPPORT)
-find_package(LIBVLC REQUIRED)
 if (NOT AUTOMOC4_VERSION)
    set(AUTOMOC4_VERSION "0.9.83")
 endif (NOT AUTOMOC4_VERSION)
@@ -42,6 +39,15 @@ macro_ensure_version("0.9.86" "${AUTOMOC4_VERSION}" _automoc4_version_ok)
 if (NOT _automoc4_version_ok)
    message(FATAL_ERROR "Your version of automoc4 is too old. You have ${AUTOMOC4_VERSION}, you need at least 0.9.86")
 endif (NOT _automoc4_version_ok)
+
+# Phonon
+find_package(Phonon REQUIRED)
+if(PHONON_PULSESUPPORT)
+  add_definitions(-DPHONON_PULSESUPPORT)
+endif(PHONON_PULSESUPPORT)
+
+# libVLC
+find_package(LIBVLC REQUIRED)
 
 if (CMAKE_COMPILER_IS_GNUCXX)
    set (KDE4_ENABLE_EXCEPTIONS -fexceptions)

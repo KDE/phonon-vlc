@@ -1,6 +1,6 @@
 project(phonon-vlc)
-include_directories(${QT_INCLUDES} 
-                    ${VLC_INCLUDE_DIRS} 
+include_directories(${QT_INCLUDES}
+                    ${VLC_INCLUDE_DIRS}
                     ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_definitions(-D_PHONON_BACKEND_VERSION_4_2)
@@ -26,7 +26,8 @@ automoc4(phonon_vlc phonon_vlc_SRCS)
 add_library(phonon_vlc MODULE ${phonon_vlc_SRCS})
 
 set_target_properties(phonon_vlc PROPERTIES PREFIX "")
-target_link_libraries(phonon_vlc ${PHONON_LIBS} ${LIBVLC_LIBRARIES})
+target_link_libraries(phonon_vlc ${PHONON_LIBS} ${LIBVLC_LIBRARY}
+    ${LIBVLCCORE_LIBRARY} )
 
 if(WIN32)
     install(TARGETS phonon_vlc DESTINATION bin/phonon_backend)
