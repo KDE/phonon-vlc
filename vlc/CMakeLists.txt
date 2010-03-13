@@ -26,7 +26,7 @@ automoc4(phonon_vlc phonon_vlc_SRCS)
 add_library(phonon_vlc MODULE ${phonon_vlc_SRCS})
 
 set_target_properties(phonon_vlc PROPERTIES PREFIX "")
-target_link_libraries(phonon_vlc ${PHONON_LIBS} ${VLC_LIBRARIES})
+target_link_libraries(phonon_vlc ${PHONON_LIBS} ${LIBVLC_LIBRARIES})
 
 if(WIN32)
     install(TARGETS phonon_vlc DESTINATION bin/phonon_backend)
