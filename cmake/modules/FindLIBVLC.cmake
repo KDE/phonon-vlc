@@ -29,7 +29,7 @@ FIND_PATH(LIBVLC_INCLUDE_DIR vlc/vlc.h
   c:/msys/local/include
   NO_DEFAULT_PATH
   )
-FIND_PATH(LIBVLC_INCLUDE_DIR vlc.h)
+FIND_PATH(LIBVLC_INCLUDE_DIR PATHS "${CMAKE_INCLUDE_PATH}/vlc" NAMES vlc.h)
 
 #Put here path to custom location
 #example: /home/user/vlc/lib etc..
