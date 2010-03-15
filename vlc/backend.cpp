@@ -49,17 +49,8 @@ Backend::Backend(QObject *parent, const QVariantList &)
         : QObject(parent)
         , m_deviceManager(NULL)
         , m_effectManager(NULL)
-        , m_debugLevel(Debug)
 {
-#ifdef PHONON_PULSESUPPORT
-    // Initialise PulseAudio support
-    PulseSupport *pulse = PulseSupport::getInstance();
-    pulse->enable();
-    connect(pulse, SIGNAL(objectDescriptionChanged(ObjectDescriptionType)), SIGNAL(objectDescriptionChanged(ObjectDescriptionType)));
-#endif
-
-    bool wasInit = vlcInit();
-
+    /* Backend information properties */
     setProperty("identifier",     QLatin1String("phonon_vlc"));
     setProperty("backendName",    QLatin1String("VLC"));
     setProperty("backendComment", QLatin1String("VLC plugin for Phonon"));
@@ -67,13 +58,13 @@ Backend::Backend(QObject *parent, const QVariantList &)
     setProperty("backendWebsite", QLatin1String("http://multimedia.kde.org/"));
 
     // Check if we should enable debug output
-    QString debugLevelString = qgetenv("PHONON_VLC_DEBUG");
-    int debugLevel = debugLevelString.toInt();
+    int debugLevel = qgetenv("PHONON_VLC_DEBUG").toInt();
     if (debugLevel > 3) // 3 is maximum
         debugLevel = 3;
     m_debugLevel = (DebugLevel)debugLevel;
 
-    if (wasInit) {
+    /* Actual libVLC initialisation */
+    if ( vlcInit() ) {
         logMessage(QString("Using VLC version %0").arg(libvlc_get_version()));
     } else {
         qWarning("Phonon::VLC::vlcInit: Failed to initialize VLC");
@@ -81,6 +72,13 @@ Backend::Backend(QObject *parent, const QVariantList &)
 
     m_deviceManager = new DeviceManager(this);
     m_effectManager = new EffectManager(this);
+
+#ifdef PHONON_PULSESUPPORT
+    // Initialise PulseAudio support
+    PulseSupport *pulse = PulseSupport::getInstance();
+    pulse->enable();
+    connect(pulse, SIGNAL(objectDescriptionChanged(ObjectDescriptionType)), SIGNAL(objectDescriptionChanged(ObjectDescriptionType)));
+#endif
 }
 
 Backend::~Backend()
@@ -219,14 +217,12 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const
         QList<AudioDevice> deviceList = deviceManager()->audioOutputDevices();
         for (int dev = 0 ; dev < deviceList.size() ; ++dev)
             list.append(deviceList[dev].id);
-        break;
     }
     break;
     case Phonon::EffectType: {
         QList<EffectInfo*> effectList = effectManager()->effects();
         for (int eff = 0; eff < effectList.size(); ++eff)
             list.append(eff);
-        break;
     }
     break;
     default:
@@ -271,6 +267,7 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
 
 bool Backend::startConnectionChange(QSet<QObject *> objects)
 {
+    //FIXME
     foreach(QObject *object, objects) {
         logMessage(QString("Object: %0").arg(object->metaObject()->className()));
     }
