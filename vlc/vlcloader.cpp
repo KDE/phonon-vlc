@@ -23,10 +23,12 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
+#include <QtCore/QFile>
 #include <QtCore/QLibrary>
 #include <QtCore/QSettings>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
+#include <QtCore/QCoreApplication>
 
 // Global variables
 libvlc_instance_t *vlc_instance = 0;
@@ -49,22 +51,24 @@ bool vlcInit(int debugLevl)
 #elif defined(Q_OS_WIN)
         pluginsPath.append("\\plugins");
 #endif
-        QByteArray p = path.toLatin1();
-        QByteArray pp = pluginsPath.toLatin1();
+        QByteArray p = QFile::encodeName(path);
+        QByteArray pp = QFile::encodeName(pluginsPath);
 
         QByteArray log;
         QByteArray logFile;
         QByteArray verboseLevl;
         if(debugLevl>0){
-            log="--extraintf=logger";
-#ifdef Q_WS_WIN
-	    logFile=QString("--logfile=").append(qgetenv("APPDATA")).append("\\vlc\\vlc-log.txt").toLatin1();
-#else
-	    logFile=QString("--logfile=").append(QDir::homePath()).append("/.vlc/vlc-log.txt").toLatin1();
-#endif //Q_WS_WIN
             verboseLevl=QString("--verbose=").append(QString::number(debugLevl)).toLatin1();
+            log="--extraintf=logger";
+            logFile="--logfile=";
+#ifdef Q_WS_WIN
+            QDir logFilePath(QString(qgetenv("APPDATA")).append("/vlc"));
+#else
+            QDir logFilePath(QDir::homePath().append("/.vlc"));
+#endif //Q_WS_WIN
+            logFilePath.mkdir("log");
+            logFile.append(QFile::encodeName(QDir::toNativeSeparators(logFilePath.path().append("/log/vlc-log-").append(QString::number(qApp->applicationPid())).append(".txt"))));
         }
-
         // VLC command line options. See vlc --full-help
         const char *vlcArgs[] = {
             p.constData(),
