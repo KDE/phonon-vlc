@@ -36,7 +36,7 @@ namespace Phonon
 {
 namespace VLC {
 
-bool vlcInit()
+bool vlcInit(int debugLevl)
 {
     // Global variables
     vlc_instance = 0;
@@ -51,20 +51,36 @@ bool vlcInit()
 #endif
         QByteArray p = path.toLatin1();
         QByteArray pp = pluginsPath.toLatin1();
+
+        QByteArray log;
+        QByteArray logFile;
+        QByteArray verboseLevl;
+        if(debugLevl>0){
+            log="--extraintf=logger";
+#ifdef Q_WS_WIN
+	    logFile=QString("--logfile=").append(qgetenv("APPDATA")).append("\\vlc\\vlc-log.txt").toLatin1();
+#else
+	    logFile=QString("--logfile=").append(QDir::homePath()).append("/.vlc/vlc-log.txt").toLatin1();
+#endif //Q_WS_WIN
+            verboseLevl=QString("--verbose=").append(QString::number(debugLevl)).toLatin1();
+        }
+
         // VLC command line options. See vlc --full-help
         const char *vlcArgs[] = {
             p.constData(),
             pp.constData(),
-            "--verbose=2",
-            "--intf=dummy",
-            "--extraintf=logger",
+            log.constData(),
+            logFile.constData(),
+            verboseLevl.constData(),
+            "--intf=dummy",            
             "--ignore-config",
             "--reset-plugins-cache",
             "--no-media-library",
             "--no-one-instance",
             "--no-osd",
             "--no-stats",
-            "--no-video-title-show"
+            "--no-video-title-show",
+            "--album-art=0"
         };
 
         // Create and initialize a libvlc instance (it should be done only once)
@@ -144,7 +160,7 @@ static QStringList findAllLibVlc()
     QSettings settings(QSettings::SystemScope, "VideoLAN", "VLC");
     QString vlcVersion = settings.value("Version").toString();
     QString vlcInstallDir = settings.value("InstallDir").toString();
-    if (vlcVersion.startsWith("1.0") && !vlcInstallDir.isEmpty()) {
+    if (vlcVersion.startsWith("1.1") && !vlcInstallDir.isEmpty()) {
         paths << vlcInstallDir + QLatin1Char('\\') + "libvlc.dll"; 
         return paths;
     }else{

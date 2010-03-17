@@ -64,7 +64,7 @@ Backend::Backend(QObject *parent, const QVariantList &)
     m_debugLevel = (DebugLevel)debugLevel;
 
     /* Actual libVLC initialisation */
-    if ( vlcInit() ) {
+    if ( vlcInit(debugLevel) ) {
         logMessage(QString("Using VLC version %0").arg(libvlc_get_version()));
     } else {
         qWarning("Phonon::VLC::vlcInit: Failed to initialize VLC");

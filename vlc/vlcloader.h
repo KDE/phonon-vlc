@@ -59,7 +59,7 @@ void vlcUnload();
  *
  * @return VLC initialization result
  */
-bool vlcInit();
+bool vlcInit(int debugLevl=0);
 
 /**
  * Stop VLC library.
