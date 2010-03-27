@@ -324,7 +324,7 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user
     if (p_event->type == libvlc_MediaPlayerEndReached) {
         i_first_time_media_player_time_changed = 0;
         p_vlc_mediaObject->clearMediaController();
-        emit p_vlc_mediaObject->stateChanged(Phonon::StoppedState);
+        emit p_vlc_mediaObject->stateChanged(Phonon::PlayingState);
         emit p_vlc_mediaObject->finished();
     }
 

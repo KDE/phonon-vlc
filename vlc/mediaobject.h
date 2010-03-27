@@ -108,6 +108,8 @@ private:
 
     void resume();
 
+    QString PhononStateToString( Phonon::State newState );
+
     MediaSource mediaSource;
 
     Phonon::State currentState;

@@ -283,8 +283,8 @@ void MediaObject::setTransitionTime(qint32 time)
 
 void MediaObject::stateChangedInternal(Phonon::State newState)
 {
-    qDebug() << __FUNCTION__ << "newState:" << newState
-    << "previousState:" << currentState ;
+    qDebug() << __FUNCTION__ << "newState:" << PhononStateToString( newState )
+    << "previousState:" << PhononStateToString( currentState ) ;
 
     if (newState == currentState) {
         // State not changed
@@ -295,6 +295,33 @@ void MediaObject::stateChangedInternal(Phonon::State newState)
     Phonon::State previousState = currentState;
     currentState = newState;
     emit stateChanged(currentState, previousState);
+}
+
+QString MediaObject::PhononStateToString( Phonon::State newState )
+{
+    QString stream;
+    switch(newState)
+    {
+        case Phonon::ErrorState:
+            stream += "ErrorState";
+            break;
+        case Phonon::LoadingState:
+            stream += "LoadingState";
+            break;
+        case Phonon::StoppedState:
+            stream += "StoppedState";
+            break;
+        case Phonon::PlayingState:
+            stream += "PlayingState";
+            break;
+        case Phonon::BufferingState:
+            stream += "BufferingState";
+            break;
+        case Phonon::PausedState:
+            stream += "PausedState";
+            break;
+    }
+    return stream;
 }
 
 }
