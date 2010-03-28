@@ -311,7 +311,7 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user
     }
 
     if (p_event->type == libvlc_MediaPlayerPlaying) {
-        if (p_vlc_mediaObject->state() != Phonon::LoadingState) {
+        if (p_vlc_mediaObject->state() != Phonon::BufferingState) {
             // Bugfix with Qt mediaplayer example
             emit p_vlc_mediaObject->stateChanged(Phonon::PlayingState);
         }

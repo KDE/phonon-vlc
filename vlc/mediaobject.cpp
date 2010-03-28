@@ -38,7 +38,7 @@ namespace VLC {
 MediaObject::MediaObject(QObject *p_parent)
         : QObject(p_parent)
 {
-    currentState = Phonon::LoadingState;
+    currentState = Phonon::BufferingState;
     i_video_widget_id = 0;
     b_prefinish_mark_reached_emitted = false;
     b_about_to_finish_emitted = false;
@@ -124,8 +124,8 @@ void MediaObject::tickInternalSlot(qint64 currentTime)
 
 void MediaObject::loadMedia(const QString & filename)
 {
-    // Default MediaObject state is Phonon::LoadingState
-    currentState = Phonon::LoadingState;
+    // Default MediaObject state is Phonon::BufferingState
+    currentState = Phonon::BufferingState;
 
     // Load the media
     loadMediaInternal(filename);
