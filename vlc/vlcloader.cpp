@@ -154,8 +154,12 @@ static QStringList findAllLibVlc()
         QStringList entryList = dir.entryList(QStringList() << QLatin1String("libvlc.*"), QDir::Files);
 
         qSort(entryList.begin(), entryList.end(), libGreaterThan);
-        foreach (const QString &entry, entryList)
-            foundVlcs << path + QLatin1Char('/') + entry;
+        foreach (const QString &entry, entryList) {
+                if( entry.contains(".debug") ) {
+                    continue;
+                }
+                foundVlcs << path + QLatin1Char('/') + entry;
+            }
     }
 
     return foundVlcs;
