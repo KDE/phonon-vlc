@@ -49,7 +49,7 @@ else(PHONON_FOUND)
          # Check if the method enable() is available in pulsesupport.h
          file(READ ${_phonon_namespace_header_file} _pulsesupport_header)
          string(REGEX MATCH "void enable" _phonon_pulse_match "${_pulsesupport_header}")
-         set(PHONON_PULSESUPPORT "${CMAKE_MATCH_1}")
+         set(PHONON_PULSESUPPORT "${_phonon_pulse_match}")
       endif(PHONON_PULSESUPPORT)
 
    else(PHONON_INCLUDE_DIR AND PHONON_LIBRARY)
