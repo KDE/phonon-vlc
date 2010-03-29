@@ -44,6 +44,12 @@ else(PHONON_FOUND)
       set(PHONON_FOUND TRUE)
       _phonon_find_version()
       find_path(PHONON_PULSESUPPORT NAMES phonon/pulsesupport.h PATHS ${PHONON_INCLUDES})
+
+      # Check if the method enable() is available in pulsesupport.h
+      file(READ ${_phonon_namespace_header_file} _pulsesupport_header)
+      string(REGEX MATCH "void enable" _phonon_pulse_match "${_pulsesupport_header}")
+      set(PHONON_PULSESUPPORT "${CMAKE_MATCH_1}")
+
    else(PHONON_INCLUDE_DIR AND PHONON_LIBRARY)
       set(PHONON_FOUND FALSE)
    endif(PHONON_INCLUDE_DIR AND PHONON_LIBRARY)
