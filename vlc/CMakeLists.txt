@@ -1,6 +1,6 @@
 project(phonon-vlc)
 include_directories(${QT_INCLUDES}
-                    ${VLC_INCLUDE_DIRS}
+                    ${LIBVLC_INCLUDE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_definitions(-D_PHONON_BACKEND_VERSION_4_2)
