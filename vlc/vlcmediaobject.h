@@ -148,6 +148,8 @@ private:
     bool b_has_video;
 
     bool b_seekable;
+
+    int firstConnect;
 };
 
 }

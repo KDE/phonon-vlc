@@ -52,6 +52,7 @@ VLCMediaObject::VLCMediaObject(QObject * parent)
     i_total_time = 0;
     b_has_video = false;
     b_seekable = false;
+    firstConnect = true;
 }
 
 VLCMediaObject::~VLCMediaObject()
@@ -90,8 +91,11 @@ void VLCMediaObject::loadMediaInternal(const QString & filename)
     // No need to keep the media now
 //    libvlc_media_release(p_vlc_media);
 
-    // connectToAllVLCEvents() at the end since it needs p_vlc_media_player
-    connectToAllVLCEvents();
+    if( firstConnect ) {
+        // connectToAllVLCEvents() at the end since it needs p_vlc_media_player
+        connectToAllVLCEvents();
+        firstConnect = false;
+    }
 
     b_play_request_reached = false;
 
