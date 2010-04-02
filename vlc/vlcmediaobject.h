@@ -84,6 +84,7 @@ signals:
     void angleChanged(int angleNumber);
     void chapterChanged(int chapterNumber);
     void titleChanged(int titleNumber);
+    void metaDataNeedsRefresh();
 
     /**
      * New widget size computed by VLC.

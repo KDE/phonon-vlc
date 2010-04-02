@@ -53,6 +53,8 @@ VLCMediaObject::VLCMediaObject(QObject * parent)
     i_total_time = 0;
     b_has_video = false;
     b_seekable = false;
+
+    connect(this, SIGNAL(metaDataNeedsRefresh()), this, SLOT(updateMetaData()));
 }
 
 VLCMediaObject::~VLCMediaObject()
@@ -350,6 +352,7 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user
     }
 
     if (p_event->type == libvlc_MediaMetaChanged) {
+        emit p_vlc_mediaObject->metaDataNeedsRefresh();
     }
 }
 
