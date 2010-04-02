@@ -40,6 +40,7 @@ VLCMediaObject::VLCMediaObject(QObject * parent)
     if(!p_vlc_media_player)
         qDebug() << "libvlc exception:" << libvlc_errmsg();
     p_vlc_media_player_event_manager = 0;
+    connectPlayerVLCEvents();
 
     // Media
     p_vlc_media = 0;
@@ -52,7 +53,6 @@ VLCMediaObject::VLCMediaObject(QObject * parent)
     i_total_time = 0;
     b_has_video = false;
     b_seekable = false;
-    firstConnect = true;
 }
 
 VLCMediaObject::~VLCMediaObject()
@@ -91,11 +91,8 @@ void VLCMediaObject::loadMediaInternal(const QString & filename)
     // No need to keep the media now
 //    libvlc_media_release(p_vlc_media);
 
-    if( firstConnect ) {
-        // connectToAllVLCEvents() at the end since it needs p_vlc_media_player
-        connectToAllVLCEvents();
-        firstConnect = false;
-    }
+    // connectToMediaVLCEvents() at the end since it needs to be done for each new libvlc_media_t instance
+    connectToMediaVLCEvents();
 
     b_play_request_reached = false;
 
@@ -180,7 +177,7 @@ bool VLCMediaObject::isSeekable() const
     return b_seekable;
 }
 
-void VLCMediaObject::connectToAllVLCEvents()
+void VLCMediaObject::connectToPlayerVLCEvents()
 {
     // Get the event manager from which the media player send event
     p_vlc_media_player_event_manager = libvlc_media_player_event_manager(p_vlc_media_player);
@@ -201,8 +198,10 @@ void VLCMediaObject::connectToAllVLCEvents()
         libvlc_event_attach(p_vlc_media_player_event_manager, eventsMediaPlayer[i],
                             libvlc_callback, this);
     }
+}
 
-
+void VLCMediaObject::connectToMediaVLCEvents()
+{
     // Get event manager from media descriptor object
     p_vlc_media_event_manager = libvlc_media_event_manager(p_vlc_media);
     libvlc_event_type_t eventsMedia[] = {
@@ -214,7 +213,7 @@ void VLCMediaObject::connectToAllVLCEvents()
         libvlc_MediaFreed,
         libvlc_MediaStateChanged,
     };
-    i_nbEvents = sizeof(eventsMedia) / sizeof(*eventsMedia);
+    int i_nbEvents = sizeof(eventsMedia) / sizeof(*eventsMedia);
     for (int i = 0; i < i_nbEvents; i++) {
         libvlc_event_attach(p_vlc_media_event_manager, eventsMedia[i], libvlc_callback, this);
     }

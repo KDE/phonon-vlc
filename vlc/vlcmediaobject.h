@@ -106,7 +106,8 @@ private:
      *
      * @see libvlc_callback()
      */
-    void connectToAllVLCEvents();
+    void connectToMediaVLCEvents();
+    void connectToPlayerVLCEvents();
 
     /**
      * Retrieve meta data of a file (i.e ARTIST, TITLE, ALBUM, etc...).
@@ -148,8 +149,6 @@ private:
     bool b_has_video;
 
     bool b_seekable;
-
-    int firstConnect;
 };
 
 }
