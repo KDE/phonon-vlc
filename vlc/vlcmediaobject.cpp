@@ -94,8 +94,6 @@ void VLCMediaObject::loadMediaInternal(const QString & filename)
     // connectToMediaVLCEvents() at the end since it needs to be done for each new libvlc_media_t instance
     connectToMediaVLCEvents();
 
-    b_play_request_reached = false;
-
     // Get meta data (artist, title, etc...)
     updateMetaData();
 
@@ -109,11 +107,7 @@ void VLCMediaObject::loadMediaInternal(const QString & filename)
     // We need to do this, otherwise we never get any events with the real length
     libvlc_media_get_duration(p_vlc_media);
 
-    if (b_play_request_reached) {
-        // The media is playing, no need to load it
-        return;
-    }
-
+    // Why is this needed???
     emit stateChanged(Phonon::StoppedState);
 }
 
@@ -131,8 +125,6 @@ void VLCMediaObject::setVLCWidgetId()
 
 void VLCMediaObject::playInternal()
 {
-    b_play_request_reached = true;
-
     // Clear subtitles/chapters/etc...
     clearMediaController();
 

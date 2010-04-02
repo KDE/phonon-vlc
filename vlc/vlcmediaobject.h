@@ -142,8 +142,6 @@ private:
     libvlc_media_discoverer_t * p_vlc_media_discoverer;
     libvlc_event_manager_t * p_vlc_media_discoverer_event_manager;
 
-    bool b_play_request_reached;
-
     qint64 i_total_time;
 
     bool b_has_video;
