@@ -40,7 +40,7 @@ VLCMediaObject::VLCMediaObject(QObject * parent)
     if(!p_vlc_media_player)
         qDebug() << "libvlc exception:" << libvlc_errmsg();
     p_vlc_media_player_event_manager = 0;
-    connectPlayerVLCEvents();
+    connectToPlayerVLCEvents();
 
     // Media
     p_vlc_media = 0;
@@ -79,6 +79,11 @@ void VLCMediaObject::unloadMedia()
 void VLCMediaObject::loadMediaInternal(const QString & filename)
 {
     qDebug() << __FUNCTION__ << filename;
+
+    if( p_vlc_media ) { // We are changing media, discard the old one
+        libvlc_media_release(p_vlc_media);
+        p_vlc_media = 0;
+    }
 
     // Create a media with the given MRL
     p_vlc_media = libvlc_media_new_location(vlc_instance, filename.toAscii());
