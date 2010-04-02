@@ -315,14 +315,16 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user
         emit p_vlc_mediaObject->stateChanged(Phonon::PausedState);
     }
 
-    if (p_event->type == libvlc_MediaPlayerEndReached) {
+    if (p_event->type == libvlc_MediaPlayerEndReached && !p_vlc_mediaObject->checkGaplessWaiting()) {
         i_first_time_media_player_time_changed = 0;
         p_vlc_mediaObject->clearMediaController();
         emit p_vlc_mediaObject->stateChanged(Phonon::StoppedState);
         emit p_vlc_mediaObject->finished();
+    } else if(p_event->type == libvlc_MediaPlayerEndReached) {
+        emit p_vlc_mediaObject->moveToNext();
     }
 
-    if (p_event->type == libvlc_MediaPlayerStopped) {
+    if (p_event->type == libvlc_MediaPlayerStopped && !p_vlc_mediaObject->checkGaplessWaiting()) {
         i_first_time_media_player_time_changed = 0;
         p_vlc_mediaObject->clearMediaController();
         emit p_vlc_mediaObject->stateChanged(Phonon::StoppedState);

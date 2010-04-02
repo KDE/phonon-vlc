@@ -55,6 +55,11 @@ MediaObject::MediaObject(QObject *p_parent)
 
     connect(this, SIGNAL(tickInternal(qint64)),
             SLOT(tickInternalSlot(qint64)));
+
+    connect(this, SIGNAL(moveToNext()),
+            SLOT(moveToNextSource()));
+
+    p_next_source = MediaSource(QUrl());
 }
 
 MediaObject::~MediaObject()
@@ -255,7 +260,7 @@ void MediaObject::setSource(const MediaSource & source)
 void MediaObject::setNextSource(const MediaSource & source)
 {
     qDebug() << __FUNCTION__;
-    setSource(source);
+    p_next_source = source;
 }
 
 qint32 MediaObject::prefinishMark() const
@@ -289,6 +294,11 @@ void MediaObject::stateChangedInternal(Phonon::State newState)
 
     if (newState == currentState) {
         // State not changed
+        return;
+    } else if ( checkGaplessWaiting() ) {
+        // This is a no-op, warn that we are....
+        qDebug() << __FUNCTION__ << "no-op gapless item awaiting in queue - "
+                 << p_next_source.type() ;
         return;
     }
 
@@ -324,6 +334,24 @@ QString MediaObject::PhononStateToString( Phonon::State newState )
     }
     return stream;
 }
+
+void MediaObject::moveToNextSource()
+{
+    if( p_next_source.type() == MediaSource::Invalid ) {
+        // No item is scheduled to be next...
+        return;
+    }
+
+    setSource( p_next_source );
+    playInternal();
+    p_next_source = MediaSource(QUrl());
+}
+
+bool MediaObject::checkGaplessWaiting()
+{
+    return p_next_source.type() != MediaSource::Invalid && p_next_source.type() != MediaSource::Empty;
+}
+
 
 }
 } // Namespace Phonon::VLC

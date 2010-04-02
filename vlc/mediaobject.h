@@ -83,6 +83,7 @@ signals:
 
     // Signal from VLCMediaObject
     void stateChanged(Phonon::State newState);
+    void moveToNext();
 
     void tickInternal(qint64 time);
 
@@ -94,13 +95,18 @@ protected:
 
     virtual qint64 currentTimeInternal() const = 0;
 
+    bool checkGaplessWaiting();
+
     WId i_video_widget_id;
+    MediaSource p_next_source;
 
 private slots:
 
     void stateChangedInternal(Phonon::State newState);
 
     void tickInternalSlot(qint64 time);
+
+    void moveToNextSource();
 
 private:
 
