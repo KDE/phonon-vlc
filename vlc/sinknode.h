@@ -53,8 +53,8 @@ protected:
     PrivateMediaObject *p_media_object;
     libvlc_media_player_t *p_vlc_player;
 
-private:
-
+private slots:
+    virtual void updateVolume();
 };
 
 }

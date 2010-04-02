@@ -55,6 +55,9 @@ signals:
     void volumeChanged(qreal volume);
     void audioDeviceFailed();
 
+private slots:
+    void updateVolume();
+
 private:
 
     qreal f_volume;

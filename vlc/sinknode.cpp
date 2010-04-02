@@ -45,6 +45,7 @@ void SinkNode::connectToMediaObject(PrivateMediaObject * mediaObject)
 
     p_media_object = mediaObject;
     p_vlc_player = mediaObject->p_vlc_media_player;
+    connect(p_media_object, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
 }
 
 void SinkNode::disconnectFromMediaObject(PrivateMediaObject * mediaObject)
@@ -53,6 +54,9 @@ void SinkNode::disconnectFromMediaObject(PrivateMediaObject * mediaObject)
         qCritical() << __FUNCTION__ << "SinkNode was not connected to mediaObject";
 }
 
+void SinkNode::updateVolume()
+{
+}
 
 }
 } // Namespace Phonon::VLC_MPlayer

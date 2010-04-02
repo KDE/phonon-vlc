@@ -61,6 +61,7 @@ void AudioOutput::setVolume(qreal volume)
         f_volume = volume;
         emit volumeChanged(f_volume);
     }
+    qDebug() << __FUNCTION__ << "Volume changed to - " << (int)(f_volume * 100);
 }
 
 int AudioOutput::outputDevice() const
@@ -113,6 +114,13 @@ bool AudioOutput::setOutputDevice(const Phonon::AudioOutputDevice & device)
     return true;
 }
 #endif
+
+void AudioOutput::updateVolume()
+{
+    if (p_vlc_player) {
+        libvlc_audio_set_volume(p_vlc_player, (int)(f_volume * 100));
+    }
+}
 
 }
 } // Namespace Phonon::VLC

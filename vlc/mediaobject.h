@@ -84,6 +84,7 @@ signals:
     // Signal from VLCMediaObject
     void stateChanged(Phonon::State newState);
     void moveToNext();
+    void playbackCommenced();
 
     void tickInternal(qint64 time);
 

@@ -83,6 +83,8 @@ void MediaObject::play()
         // Play the file
         playInternal();
     }
+
+    emit playbackCommenced();
 }
 
 void MediaObject::seek(qint64 milliseconds)
