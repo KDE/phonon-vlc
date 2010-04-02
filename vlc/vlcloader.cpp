@@ -32,7 +32,6 @@
 
 // Global variables
 libvlc_instance_t *vlc_instance = 0;
-libvlc_media_player_t *vlc_current_media_player = 0;
 
 namespace Phonon
 {

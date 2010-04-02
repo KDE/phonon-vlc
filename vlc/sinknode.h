@@ -25,6 +25,9 @@
 #include <QtCore/QObject>
 #include <QtCore/QString>
 
+#include "vlcloader.h"
+#include "vlcmediaobject.h"
+
 namespace Phonon
 {
 namespace VLC {
@@ -48,6 +51,7 @@ public:
 protected:
 
     PrivateMediaObject *p_media_object;
+    libvlc_media_player_t *p_vlc_player;
 
 private:
 

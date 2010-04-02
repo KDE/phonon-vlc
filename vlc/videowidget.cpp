@@ -73,7 +73,7 @@ Phonon::VideoWidget::AspectRatio VideoWidget::aspectRatio() const
 void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspect)
 {
     // finish if no player
-    if (!vlc_current_media_player)
+    if (!p_vlc_player)
         return;
 
     aspect_ratio = aspect;
@@ -126,7 +126,7 @@ void VideoWidget::setBrightness(qreal brightness)
     f_brightness = brightness;
 
     // vlc takes brightness in range 0.0 - 2.0
-    if (vlc_current_media_player) {
+    if (p_vlc_player) {
         if (!b_filter_adjust_activated) {
 //            p_libvlc_video_filter_add(p_vlc_current_media_player, ADJUST, vlc_exception);
 //            vlcExceptionRaised();
@@ -148,7 +148,7 @@ void VideoWidget::setContrast(qreal contrast)
 
     // vlc takes contrast in range 0.0 - 2.0
     float f_contrast = contrast;
-    if (vlc_current_media_player) {
+    if (p_vlc_player) {
         if (!b_filter_adjust_activated) {
 //            p_libvlc_video_filter_add(p_vlc_current_media_player, ADJUST, vlc_exception);
 //            vlcExceptionRaised();
@@ -170,7 +170,7 @@ void VideoWidget::setHue(qreal hue)
 
     // vlc takes hue in range 0 - 360 in integer
     int i_hue = (f_hue + 1.0) * 180;
-    if (vlc_current_media_player) {
+    if (p_vlc_player) {
         if (!b_filter_adjust_activated) {
 //            p_libvlc_video_filter_add(p_vlc_current_media_player, ADJUST, vlc_exception);
 //            vlcExceptionRaised();
@@ -192,7 +192,7 @@ void VideoWidget::setSaturation(qreal saturation)
     f_saturation = saturation;
 
     // vlc takes brightness in range 0.0 - 3.0
-    if (vlc_current_media_player) {
+    if (p_vlc_player) {
         if (!b_filter_adjust_activated) {
 //            p_libvlc_video_filter_add(p_vlc_current_media_player, ADJUST, vlc_exception);
 //            vlcExceptionRaised();

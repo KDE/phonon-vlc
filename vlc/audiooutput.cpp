@@ -56,8 +56,8 @@ qreal AudioOutput::volume() const
 
 void AudioOutput::setVolume(qreal volume)
 {
-    if (vlc_current_media_player) {
-        libvlc_audio_set_volume(vlc_current_media_player, (int)(f_volume * 100));
+    if (p_vlc_player) {
+        libvlc_audio_set_volume(p_vlc_player, (int)(f_volume * 100));
         f_volume = volume;
         emit volumeChanged(f_volume);
     }
@@ -76,7 +76,7 @@ bool AudioOutput::setOutputDevice(int device)
 #ifdef PHONON_PULSESUPPORT
     if (PulseSupport::getInstance()->isActive()) {
         i_device = device;
-        libvlc_audio_output_set(vlc_current_media_player, "pulse");
+        libvlc_audio_output_set(p_vlc_player, "pulse");
         qDebug() << "set aout " << "pulse";
         return true;
     }
@@ -85,11 +85,11 @@ bool AudioOutput::setOutputDevice(int device)
     const QList<AudioDevice> deviceList = p_backend->deviceManager()->audioOutputDevices();
     if (device >= 0 && device < deviceList.size()) {
 
-        if (!vlc_current_media_player)
+        if (!p_vlc_player)
             return false;
         i_device = device;
         const QByteArray deviceName = deviceList.at(device).vlcId;
-        libvlc_audio_output_set(vlc_current_media_player, (char *) deviceList.at(device).vlcId.data());
+        libvlc_audio_output_set(p_vlc_player, (char *) deviceList.at(device).vlcId.data());
         qDebug() << "set aout " << deviceList.at(device).vlcId.data();
 //         if (deviceName == DEFAULT_ID) {
 //             libvlc_audio_device_set(p_vlc_instance, DEFAULT, vlc_exception);

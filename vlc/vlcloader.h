@@ -31,11 +31,6 @@ class QString;
  */
 extern libvlc_instance_t *vlc_instance;
 
-/**
- * VLC library media player global variable.
- */
-extern libvlc_media_player_t *vlc_current_media_player;
-
 namespace Phonon
 {
 namespace VLC {

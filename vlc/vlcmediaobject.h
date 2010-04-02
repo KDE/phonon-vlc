@@ -52,6 +52,7 @@ class VLCMediaObject : public MediaObject, public VLCMediaController
 {
     Q_OBJECT
     Q_INTERFACES(Phonon::MediaObjectInterface  Phonon::AddonInterface)
+    friend class SinkNode;
 
 public:
 
