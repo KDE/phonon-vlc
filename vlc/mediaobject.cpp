@@ -254,6 +254,7 @@ void MediaObject::setSource(const MediaSource & source)
 
 void MediaObject::setNextSource(const MediaSource & source)
 {
+    qDebug() << __FUNCTION__;
     setSource(source);
 }
 

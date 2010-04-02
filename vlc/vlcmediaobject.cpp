@@ -80,37 +80,7 @@ void VLCMediaObject::loadMediaInternal(const QString & filename)
 {
     qDebug() << __FUNCTION__ << filename;
 
-    if( p_vlc_media ) { // We are changing media, discard the old one
-        libvlc_media_release(p_vlc_media);
-        p_vlc_media = 0;
-    }
-
-    // Create a media with the given MRL
-    p_vlc_media = libvlc_media_new_location(vlc_instance, filename.toAscii());
-    if(!p_vlc_media)
-        qDebug() << "libvlc exception:" << libvlc_errmsg();
-
-    // Set the media that will be used by the media player
-    libvlc_media_player_set_media(p_vlc_media_player, p_vlc_media);
-
-    // No need to keep the media now
-//    libvlc_media_release(p_vlc_media);
-
-    // connectToMediaVLCEvents() at the end since it needs to be done for each new libvlc_media_t instance
-    connectToMediaVLCEvents();
-
-    // Get meta data (artist, title, etc...)
-    updateMetaData();
-
-    // Update available audio channels/subtitles/angles/chapters/etc...
-    // i.e everything from MediaController
-    // There is no audio channel/subtitle/angle/chapter events inside libvlc
-    // so let's send our own events...
-    // This will reset the GUI
-    clearMediaController();
-
-    // We need to do this, otherwise we never get any events with the real length
-    libvlc_media_get_duration(p_vlc_media);
+    p_current_file = filename;
 
     // Why is this needed???
     emit stateChanged(Phonon::StoppedState);
@@ -130,10 +100,34 @@ void VLCMediaObject::setVLCWidgetId()
 
 void VLCMediaObject::playInternal()
 {
-    // Clear subtitles/chapters/etc...
+    if( p_vlc_media ) { // We are changing media, discard the old one
+        libvlc_media_release(p_vlc_media);
+        p_vlc_media = 0;
+    }
+
+    // Create a media with the given MRL
+    p_vlc_media = libvlc_media_new_location(vlc_instance, p_current_file.toAscii());
+    if(!p_vlc_media)
+        qDebug() << "libvlc exception:" << libvlc_errmsg();
+
+    // Set the media that will be used by the media player
+    libvlc_media_player_set_media(p_vlc_media_player, p_vlc_media);
+
+    // connectToMediaVLCEvents() at the end since it needs to be done for each new libvlc_media_t instance
+    connectToMediaVLCEvents();
+
+    // Get meta data (artist, title, etc...)
+    updateMetaData();
+
+    // Update available audio channels/subtitles/angles/chapters/etc...
+    // i.e everything from MediaController
+    // There is no audio channel/subtitle/angle/chapter events inside libvlc
+    // so let's send our own events...
+    // This will reset the GUI
     clearMediaController();
 
-    vlc_current_media_player = p_vlc_media_player;
+    // We need to do this, otherwise we never get any events with the real length
+    libvlc_media_get_duration(p_vlc_media);
 
     setVLCWidgetId();
 
@@ -324,7 +318,7 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user
     if (p_event->type == libvlc_MediaPlayerEndReached) {
         i_first_time_media_player_time_changed = 0;
         p_vlc_mediaObject->clearMediaController();
-        emit p_vlc_mediaObject->stateChanged(Phonon::PlayingState);
+        emit p_vlc_mediaObject->stateChanged(Phonon::StoppedState);
         emit p_vlc_mediaObject->finished();
     }
 
