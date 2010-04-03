@@ -152,6 +152,7 @@ private:
     bool b_has_video;
 
     bool b_seekable;
+    qint64 p_seek_point;
 };
 
 }

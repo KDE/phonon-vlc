@@ -53,6 +53,7 @@ VLCMediaObject::VLCMediaObject(QObject * parent)
     i_total_time = 0;
     b_has_video = false;
     b_seekable = false;
+    p_seek_point = 0;
 
     connect(this, SIGNAL(metaDataNeedsRefresh()), this, SLOT(updateMetaData()));
 }
@@ -136,6 +137,11 @@ void VLCMediaObject::playInternal()
     // Play
     if(libvlc_media_player_play(p_vlc_media_player))
         qDebug() << "libvlc exception:" << libvlc_errmsg();
+
+    if( p_seek_point != 0 ) { // Workaround that seeking needs to work before the file is being played...
+        seekInternal( p_seek_point );
+        p_seek_point = 0;
+    }
 }
 
 void VLCMediaObject::pause()
@@ -151,6 +157,10 @@ void VLCMediaObject::stop()
 
 void VLCMediaObject::seekInternal(qint64 milliseconds)
 {
+    if( state() != Phonon::PlayingState ) { // Is we aren't playing, seeking is invalid...
+        p_seek_point = milliseconds;
+    }
+
     qDebug() << __FUNCTION__ << milliseconds;
     libvlc_media_player_set_time(p_vlc_media_player, milliseconds);
 }
