@@ -101,6 +101,12 @@ protected:
 
     qint64 currentTimeInternal() const;
 
+private slots:
+    /**
+    * Retrieve meta data of a file (i.e ARTIST, TITLE, ALBUM, etc...).
+    */
+    void updateMetaData();
+
 private:
 
     /**
@@ -110,11 +116,6 @@ private:
      */
     void connectToMediaVLCEvents();
     void connectToPlayerVLCEvents();
-
-    /**
-     * Retrieve meta data of a file (i.e ARTIST, TITLE, ALBUM, etc...).
-     */
-    void updateMetaData();
 
     /**
      * Libvlc callback.
