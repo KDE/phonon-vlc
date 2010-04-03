@@ -183,7 +183,7 @@ void VLCMediaObject::connectToPlayerVLCEvents()
         libvlc_MediaPlayerTimeChanged,
         libvlc_MediaPlayerTitleChanged,
         libvlc_MediaPlayerPositionChanged,
-        //libvlc_MediaPlayerSeekableChanged, //FIXME: doesn't work anymore? it asserts
+        libvlc_MediaPlayerSeekableChanged,
         libvlc_MediaPlayerPausableChanged,
     };
     int i_nbEvents = sizeof(eventsMediaPlayer) / sizeof(*eventsMediaPlayer);
@@ -234,6 +234,13 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user
 //    qDebug() << (int)pp_vlc_mediaObject << "event:" << libvlc_event_type_name(event->type);
 
     // Media player events
+    if (p_event->type == libvlc_MediaPlayerSeekableChanged) {
+        bool b_seekable = libvlc_media_player_is_seekable(p_vlc_mediaObject->p_vlc_media_player);
+        if (b_seekable != p_vlc_mediaObject->b_seekable) {
+            p_vlc_mediaObject->b_seekable = b_seekable;
+            emit p_vlc_mediaObject->seekableChanged(p_vlc_mediaObject->b_seekable);
+        }
+    }
     if (p_event->type == libvlc_MediaPlayerTimeChanged) {
 
         i_first_time_media_player_time_changed++;
@@ -242,14 +249,6 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user
         if (i_first_time_media_player_time_changed == 15) {
             // Update metadata
             p_vlc_mediaObject->updateMetaData();
-
-            // Is this media player seekable
-            bool b_seekable = libvlc_media_player_is_seekable(p_vlc_mediaObject->p_vlc_media_player);
-            if (b_seekable != p_vlc_mediaObject->b_seekable) {
-                qDebug() << "libvlc_callback(): isSeekable:" << b_seekable;
-                p_vlc_mediaObject->b_seekable = b_seekable;
-                emit p_vlc_mediaObject->seekableChanged(p_vlc_mediaObject->b_seekable);
-            }
 
             // Get current video width
             int i_width = libvlc_video_get_width(p_vlc_mediaObject->p_vlc_media_player);
