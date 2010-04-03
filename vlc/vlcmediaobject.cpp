@@ -353,7 +353,10 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user
         if(totalTime == -1)
             qDebug() << "libvlc exception:" << libvlc_errmsg();
 
-        if (totalTime != p_vlc_mediaObject->i_total_time) {
+        // If its within 5ms of the current total time, don't bother....
+        if( totalTime - 5 > p_vlc_mediaObject->i_total_time || totalTime + 5 < p_vlc_mediaObject->i_total_time ) {
+            qDebug() << __FUNCTION__ << "Length changing from " << p_vlc_mediaObject->i_total_time
+                     << " to " << totalTime;
             p_vlc_mediaObject->i_total_time = totalTime;
             emit p_vlc_mediaObject->totalTimeChanged(p_vlc_mediaObject->i_total_time);
         }
@@ -388,6 +391,13 @@ void VLCMediaObject::updateMetaData()
                        QString::fromUtf8(libvlc_media_get_meta(p_vlc_media, libvlc_meta_URL)));
     metaDataMap.insert(QLatin1String("ENCODEDBY"),
                        QString::fromUtf8(libvlc_media_get_meta(p_vlc_media, libvlc_meta_EncodedBy)));
+
+    if( metaDataMap == p_vlc_meta_data ) {
+        // No need to issue any change, the data is the same
+        return;
+    }
+
+    p_vlc_meta_data = metaDataMap;
 
     qDebug() << "updateMetaData(): artist:"
     << libvlc_media_get_meta(p_vlc_media, libvlc_meta_Artist);

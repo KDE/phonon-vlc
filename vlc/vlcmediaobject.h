@@ -147,6 +147,7 @@ private:
 
     qint64 i_total_time;
     QString p_current_file;
+    QMultiMap<QString, QString> p_vlc_meta_data;
 
     bool b_has_video;
 
