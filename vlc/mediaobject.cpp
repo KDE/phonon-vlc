@@ -219,9 +219,9 @@ void MediaObject::setSource(const MediaSource & source)
     case MediaSource::Url:
         {
             qCritical() << __FUNCTION__ << "yeap, 'tis a local file or url" << source.url().scheme();
-            const QByteArray &mrl = (source.url().scheme() == QLatin1String("") ?
-                    "file://" + source.url().toEncoded() :
-                    source.url().toEncoded());
+            const QString &mrl = (source.url().scheme() == QLatin1String("") ?
+                    QLatin1String("file://") + source.url().toString() :
+                    source.url().toString());
             loadMedia(mrl);
         }
         break;
