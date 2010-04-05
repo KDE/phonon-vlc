@@ -57,6 +57,7 @@ VLCMediaObject::VLCMediaObject(QObject * parent)
     p_seek_point = 0;
 
     connect(this, SIGNAL(metaDataNeedsRefresh()), this, SLOT(updateMetaData()));
+    connect(this, SIGNAL(durationNeedsRefresh()), this, SLOT(updateDuration()));
 }
 
 VLCMediaObject::~VLCMediaObject()
@@ -242,7 +243,7 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user
 
     VLCMediaObject *p_vlc_mediaObject = (VLCMediaObject *) p_user_data;
 
-//    qDebug() << (int)pp_vlc_mediaObject << "event:" << libvlc_event_type_name(event->type);
+//    qDebug() << (int)p_vlc_mediaObject << "event:" << libvlc_event_type_name(p_event->type);
 
     // Media player events
     if (p_event->type == libvlc_MediaPlayerSeekableChanged) {
@@ -359,18 +360,7 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user
     // Media events
 
     if (p_event->type == libvlc_MediaDurationChanged) {
-        // Get duration of media descriptor object item
-        libvlc_time_t totalTime = libvlc_media_get_duration(p_vlc_mediaObject->p_vlc_media);
-        if(totalTime == -1)
-            qDebug() << "libvlc exception:" << libvlc_errmsg();
-
-        // If its within 5ms of the current total time, don't bother....
-        if( totalTime - 5 > p_vlc_mediaObject->i_total_time || totalTime + 5 < p_vlc_mediaObject->i_total_time ) {
-            qDebug() << __FUNCTION__ << "Length changing from " << p_vlc_mediaObject->i_total_time
-                     << " to " << totalTime;
-            p_vlc_mediaObject->i_total_time = totalTime;
-            emit p_vlc_mediaObject->totalTimeChanged(p_vlc_mediaObject->i_total_time);
-        }
+        emit p_vlc_mediaObject->durationNeedsRefresh();
     }
 
     if (p_event->type == libvlc_MediaMetaChanged) {
@@ -426,6 +416,22 @@ qint64 VLCMediaObject::totalTime() const
 qint64 VLCMediaObject::currentTimeInternal() const
 {
     return libvlc_media_player_get_time(p_vlc_media_player);
+}
+
+void VLCMediaObject::updateDuration()
+{
+    // Get duration of media descriptor object item
+    libvlc_time_t totalTime = libvlc_media_get_duration(p_vlc_media);
+    if(totalTime == -1)
+        qDebug() << "libvlc exception:" << libvlc_errmsg();
+
+    // If its within 5ms of the current total time, don't bother....
+    if( totalTime - 5 > i_total_time || totalTime + 5 < i_total_time ) {
+        qDebug() << __FUNCTION__ << "Length changing from " << i_total_time
+        << " to " << totalTime;
+        i_total_time = totalTime;
+        emit totalTimeChanged(i_total_time);
+    }
 }
 
 }

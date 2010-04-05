@@ -85,6 +85,7 @@ signals:
     void chapterChanged(int chapterNumber);
     void titleChanged(int titleNumber);
     void metaDataNeedsRefresh();
+    void durationNeedsRefresh();
 
     /**
      * New widget size computed by VLC.
@@ -106,6 +107,11 @@ private slots:
     * Retrieve meta data of a file (i.e ARTIST, TITLE, ALBUM, etc...).
     */
     void updateMetaData();
+
+    /**
+    * Update media duration time
+    */
+    void updateDuration();
 
 private:
 
