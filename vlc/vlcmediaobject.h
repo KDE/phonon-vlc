@@ -146,7 +146,7 @@ private:
     libvlc_event_manager_t * p_vlc_media_discoverer_event_manager;
 
     qint64 i_total_time;
-    QString p_current_file;
+    QByteArray p_current_file;
     QMultiMap<QString, QString> p_vlc_meta_data;
 
     bool b_has_video;

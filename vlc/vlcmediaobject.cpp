@@ -110,7 +110,7 @@ void VLCMediaObject::playInternal()
     }
 
     // Create a media with the given MRL
-    p_vlc_media = libvlc_media_new_location(vlc_instance, p_current_file.toAscii());
+    p_vlc_media = libvlc_media_new_location(vlc_instance, p_current_file);
     if(!p_vlc_media)
         qDebug() << "libvlc exception:" << libvlc_errmsg();
 
