@@ -92,9 +92,9 @@ bool vlcInit(int debugLevl)
             qDebug() << "libvlc exception:" << libvlc_errmsg();
 
         return true;
-    } else {
-        return false;
     }
+
+    return false;
 }
 
 void vlcRelease()
