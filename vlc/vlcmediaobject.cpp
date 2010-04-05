@@ -269,7 +269,7 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user
             emit p_vlc_mediaObject->videoWidgetSizeChanged(i_width, i_height);
 
             // Does this media player have a video output
-            bool b_has_video = libvlc_media_player_has_vout(p_vlc_mediaObject->p_vlc_media_player);
+            const bool b_has_video = libvlc_media_player_has_vout(p_vlc_mediaObject->p_vlc_media_player);
             if (b_has_video != p_vlc_mediaObject->b_has_video) {
                 p_vlc_mediaObject->b_has_video = b_has_video;
                 emit p_vlc_mediaObject->hasVideoChanged(p_vlc_mediaObject->b_has_video);

@@ -66,11 +66,11 @@ public:
     }
 
 private:
-    QString m_name;
-    QString m_description;
-    QString m_author;
-    int m_filter;
-    Type m_type;
+    const QString m_name;
+    const QString m_description;
+    const QString m_author;
+    const int m_filter;
+    const Type m_type;
 };
 
 class EffectManager : public QObject
