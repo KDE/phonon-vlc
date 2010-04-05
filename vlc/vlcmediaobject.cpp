@@ -197,7 +197,7 @@ void VLCMediaObject::connectToPlayerVLCEvents()
         libvlc_MediaPlayerTitleChanged,
         libvlc_MediaPlayerPositionChanged,
         libvlc_MediaPlayerSeekableChanged,
-        libvlc_MediaPlayerPausableChanged,
+        //libvlc_MediaPlayerPausableChanged, // Phonon has no use for this
     };
     int i_nbEvents = sizeof(eventsMediaPlayer) / sizeof(*eventsMediaPlayer);
     for (int i = 0; i < i_nbEvents; i++) {
@@ -212,12 +212,10 @@ void VLCMediaObject::connectToMediaVLCEvents()
     p_vlc_media_event_manager = libvlc_media_event_manager(p_vlc_media);
     libvlc_event_type_t eventsMedia[] = {
         libvlc_MediaMetaChanged,
-        libvlc_MediaSubItemAdded,
+        //libvlc_MediaSubItemAdded, // Could this be used for Audio Channels / Subtitles / Chapter info??
         libvlc_MediaDurationChanged,
-        // FIXME libvlc does not know this event
-//    libvlc_MediaPreparsedChanged,
-        libvlc_MediaFreed,
-        libvlc_MediaStateChanged,
+        //libvlc_MediaFreed, // Not needed is this?
+        //libvlc_MediaStateChanged, // We don't use this? Could we??
     };
     int i_nbEvents = sizeof(eventsMedia) / sizeof(*eventsMedia);
     for (int i = 0; i < i_nbEvents; i++) {
