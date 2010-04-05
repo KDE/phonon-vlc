@@ -37,6 +37,8 @@ namespace VLC {
 
 AudioDevice::AudioDevice(DeviceManager *manager, const QByteArray &deviceId, const QByteArray &hw_id)
 {
+    Q_UNUSED(manager)
+
     // Get an id
     static int counter = 0;
     id = counter++;
