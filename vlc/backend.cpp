@@ -327,7 +327,7 @@ bool Backend::disconnectNodes(QObject *source, QObject *sink)
 {
     SinkNode *sinkNode = qobject_cast<SinkNode *>(sink);
     if (sinkNode) {
-        PrivateMediaObject *mediaObject = qobject_cast<PrivateMediaObject *>(source);
+        PrivateMediaObject * const mediaObject = qobject_cast<PrivateMediaObject *>(source);
         if (mediaObject) {
             // Disconnect the SinkNode from a MediaObject
             sinkNode->disconnectFromMediaObject(mediaObject);
@@ -387,7 +387,7 @@ void Backend::logMessage(const QString &message, int priority, QObject *obj) con
         if (obj) {
             // Strip away namespace from className
             QString className(obj->metaObject()->className());
-            int nameLength = className.length() - className.lastIndexOf(':') - 1;
+            const int nameLength = className.length() - className.lastIndexOf(':') - 1;
             className = className.right(nameLength);
             output.sprintf("%s %s (%s %p)", message.toLatin1().constData(),
                            obj->objectName().toLatin1().constData(),

@@ -106,8 +106,8 @@ void vlcRelease()
 #if defined(Q_OS_UNIX)
 static bool libGreaterThan(const QString &lhs, const QString &rhs)
 {
-    QStringList lhsparts = lhs.split(QLatin1Char('.'));
-    QStringList rhsparts = rhs.split(QLatin1Char('.'));
+    const QStringList lhsparts = lhs.split(QLatin1Char('.'));
+    const QStringList rhsparts = rhs.split(QLatin1Char('.'));
     Q_ASSERT(lhsparts.count() > 1 && rhsparts.count() > 1);
 
     for (int i = 1; i < rhsparts.count(); ++i) {

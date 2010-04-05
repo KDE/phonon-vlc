@@ -57,7 +57,7 @@ qreal AudioOutput::volume() const
 void AudioOutput::setVolume(qreal volume)
 {
     if (p_vlc_player) {
-        int previous_volume = libvlc_audio_get_volume(p_vlc_player);
+        const int previous_volume = libvlc_audio_get_volume(p_vlc_player);
         libvlc_audio_set_volume(p_vlc_player, (int)(f_volume * 100));
         f_volume = volume;
         qDebug() << __FUNCTION__ << "Volume changed to - " << (int)(f_volume * 100) << " From " << previous_volume;
@@ -119,7 +119,7 @@ bool AudioOutput::setOutputDevice(const Phonon::AudioOutputDevice & device)
 void AudioOutput::updateVolume()
 {
     if (p_vlc_player) {
-        int previous_volume = libvlc_audio_get_volume(p_vlc_player);
+        const int previous_volume = libvlc_audio_get_volume(p_vlc_player);
         libvlc_audio_set_volume(p_vlc_player, (int)(f_volume * 100));
         qDebug() << __FUNCTION__ << "Volume changed to - " << (int)(f_volume * 100) << " From " << previous_volume;
     }

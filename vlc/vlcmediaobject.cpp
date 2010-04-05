@@ -240,13 +240,13 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user
     static int i_first_time_media_player_time_changed = 0;
     static bool b_media_player_title_changed = false;
 
-    VLCMediaObject *p_vlc_mediaObject = (VLCMediaObject *) p_user_data;
+    VLCMediaObject * const p_vlc_mediaObject = (VLCMediaObject *) p_user_data;
 
 //    qDebug() << (int)p_vlc_mediaObject << "event:" << libvlc_event_type_name(p_event->type);
 
     // Media player events
     if (p_event->type == libvlc_MediaPlayerSeekableChanged) {
-        bool b_seekable = libvlc_media_player_is_seekable(p_vlc_mediaObject->p_vlc_media_player);
+        const bool b_seekable = libvlc_media_player_is_seekable(p_vlc_mediaObject->p_vlc_media_player);
         if (b_seekable != p_vlc_mediaObject->b_seekable) {
             p_vlc_mediaObject->b_seekable = b_seekable;
             emit p_vlc_mediaObject->seekableChanged(p_vlc_mediaObject->b_seekable);
@@ -262,10 +262,10 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user
             p_vlc_mediaObject->updateMetaData();
 
             // Get current video width
-            int i_width = libvlc_video_get_width(p_vlc_mediaObject->p_vlc_media_player);
+            const int i_width = libvlc_video_get_width(p_vlc_mediaObject->p_vlc_media_player);
 
             // Get current video height
-            int i_height = libvlc_video_get_height(p_vlc_mediaObject->p_vlc_media_player);
+            const int i_height = libvlc_video_get_height(p_vlc_mediaObject->p_vlc_media_player);
             emit p_vlc_mediaObject->videoWidgetSizeChanged(i_width, i_height);
 
             // Does this media player have a video output
