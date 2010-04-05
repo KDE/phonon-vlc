@@ -195,7 +195,7 @@ void VLCMediaObject::connectToPlayerVLCEvents()
         libvlc_MediaPlayerEncounteredError,
         libvlc_MediaPlayerTimeChanged,
         libvlc_MediaPlayerTitleChanged,
-        libvlc_MediaPlayerPositionChanged,
+        //libvlc_MediaPlayerPositionChanged, // What does this event do???
         libvlc_MediaPlayerSeekableChanged,
         //libvlc_MediaPlayerPausableChanged, // Phonon has no use for this
     };
