@@ -15,8 +15,8 @@
     along with this library.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef Phonon_GSTREAMER_VOLUMEFADEREFFECT_H
-#define Phonon_GSTREAMER_VOLUMEFADEREFFECT_H
+#ifndef Phonon_VLC_VOLUMEFADEREFFECT_H
+#define Phonon_VLC_VOLUMEFADEREFFECT_H
 
 #include "medianode.h"
 #include "effect.h"
@@ -64,4 +64,4 @@ namespace VLC
 #endif //QT_NO_PHONON_VOLUMEFADEREFFECT
 QT_END_NAMESPACE
 
-#endif // Phonon_GSTREAMER_VOLUMEFADEREFFECT_H
+#endif // Phonon_VLC_VOLUMEFADEREFFECT_H
