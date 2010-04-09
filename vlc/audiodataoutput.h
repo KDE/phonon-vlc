@@ -28,6 +28,10 @@
 #include <phonon/audiodataoutput.h>
 #include <phonon/audiodataoutputinterface.h>
 
+//Allow PRId64 to be defined:
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
+
 QT_BEGIN_HEADER
 QT_BEGIN_NAMESPACE
 
@@ -52,11 +56,9 @@ namespace VLC
             int dataSize() const;
             int sampleRate() const;
             void setDataSize(int size);
+            void addToMedia( libvlc_media_t * media );
 
         public:
-            /// callback function for handling new audio data
-            //static void processBuffer(GstPad*, GstBuffer*, gpointer);
-
             Phonon::AudioDataOutput* frontendObject() const { return m_frontend; }
             void setFrontendObject(Phonon::AudioDataOutput *frontend) { m_frontend = frontend; }
 
@@ -67,6 +69,13 @@ namespace VLC
 
         private:
             void convertAndEmit(const QVector<qint16>&, const QVector<qint16>&);
+
+            static void lock( AudioDataOutput *cw, quint8 **pcm_buffer , quint32 size );
+            static void unlock( AudioDataOutput *cw, quint8 *pcm_buffer,
+                                quint32 channels, quint32 rate,
+                                quint32 nb_samples, quint32 bits_per_sample,
+                                quint32 size, qint64 pts );
+
             int m_dataSize;
             QVector<qint16> m_pendingData;
             Phonon::AudioDataOutput *m_frontend;

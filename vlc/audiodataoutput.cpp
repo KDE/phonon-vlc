@@ -56,6 +56,30 @@ void AudioDataOutput::setDataSize(int size)
     m_dataSize = size;
 }
 
+void AudioDataOutput::addToMedia( libvlc_media_t * media )
+{
+    // WARNING: DO NOT CHANGE ANYTHING HERE FOR CODE CLEANING PURPOSES!
+    // WARNING: REQUIRED FOR COMPATIBILITY WITH LIBVLC!
+    char param[64];
+
+    // Output to stream renderer
+    libvlc_media_add_option_flag( media, "sout=:smem", libvlc_media_option_trusted );
+
+    // Add audio lock callback
+    void * lock_call = reinterpret_cast<void*>( &AudioDataOutput::lock );
+    sprintf( param, ":sout-smem-audio-prerender-callback=%"PRId64, (qint64)(intptr_t)lock_call );
+    libvlc_media_add_option_flag( media, param, libvlc_media_option_trusted );
+
+    // Add audio unlock callback
+    void * unlock_call = reinterpret_cast<void*>( &AudioDataOutput::unlock );
+    sprintf( param, ":sout-smem-audio-postrender-callback=%"PRId64, (qint64)(intptr_t)unlock_call );
+    libvlc_media_add_option_flag( media, param, libvlc_media_option_trusted );
+
+    // Add pointer to ourselves...
+    sprintf( param, ":sout-smem-audio-data=%"PRId64, (qint64)(intptr_t)this );
+    libvlc_media_add_option_flag( media, param, libvlc_media_option_trusted );
+}
+
 typedef QMap<Phonon::AudioDataOutput::Channel, QVector<float> > FloatMap;
 typedef QMap<Phonon::AudioDataOutput::Channel, QVector<qint16> > IntMap;
 
@@ -66,6 +90,21 @@ inline void AudioDataOutput::convertAndEmit(const QVector<qint16> &leftBuffer, c
     map.insert(Phonon::AudioDataOutput::LeftChannel, leftBuffer);
     map.insert(Phonon::AudioDataOutput::RightChannel, rightBuffer);
     emit dataReady(map);
+}
+
+void AudioDataOutput::lock( AudioDataOutput *cw, quint8 **pcm_buffer , quint32 size )
+{
+}
+
+void AudioDataOutput::unlock( AudioDataOutput *cw, quint8 *pcm_buffer,
+                              quint32 channels, quint32 rate,
+                              quint32 nb_samples, quint32 bits_per_sample,
+                              quint32 size, qint64 pts )
+{
+    Q_UNUSED( pcm_buffer );
+    Q_UNUSED( rate );
+    Q_UNUSED( bits_per_sample );
+    Q_UNUSED( size );
 }
 
 }} //namespace Phonon::VLC
