@@ -140,11 +140,11 @@ void AudioDataOutput::sendData()
     QMap<Phonon::AudioDataOutput::Channel, QVector<qint16> > m_data;
     foreach( Phonon::AudioDataOutput::Channel chan, m_channels ) {
         int position = m_channels.indexOf( chan );
-        QVector<quint16> data = m_channel_samples[position].mid( 0, m_dataSize );
-        foreach( quint16 sample, data ) {
+        QVector<qint16> data = m_channel_samples[position].mid( 0, m_dataSize );
+        foreach( qint16 sample, data ) {
             m_channel_samples[position].remove( sample );
         }
-        m_data.append( chan, data );
+        m_data.insert( chan, data );
     }
     emit dataReady( m_data );
 }
