@@ -48,6 +48,8 @@ public:
 
     virtual void disconnectFromMediaObject(PrivateMediaObject *mediaObject);
 
+    virtual void addToMedia( libvlc_media_t * media );
+
 protected:
 
     PrivateMediaObject *p_media_object;

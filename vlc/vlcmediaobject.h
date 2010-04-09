@@ -32,10 +32,13 @@
 #include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QMultiMap>
+#include <QtCore/QList>
 
 namespace Phonon
 {
 namespace VLC {
+
+class SinkNode;
 
 /**
  * VLC MediaObject.
@@ -68,6 +71,9 @@ public:
     qint64 totalTime() const;
 
     QString errorString() const;
+
+    void addSink( SinkNode * node );
+    void removeSink( SinkNode * node );
 
 signals:
 
@@ -154,6 +160,7 @@ private:
     qint64 i_total_time;
     QByteArray p_current_file;
     QMultiMap<QString, QString> p_vlc_meta_data;
+    QList<SinkNode*> m_sinks;
 
     bool b_has_video;
 

@@ -46,15 +46,23 @@ void SinkNode::connectToMediaObject(PrivateMediaObject * mediaObject)
     p_media_object = mediaObject;
     p_vlc_player = mediaObject->p_vlc_media_player;
     connect(p_media_object, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
+    p_media_object->addSink( this );
 }
 
 void SinkNode::disconnectFromMediaObject(PrivateMediaObject * mediaObject)
 {
     if (p_media_object != mediaObject)
         qCritical() << __FUNCTION__ << "SinkNode was not connected to mediaObject";
+
+    p_media_object->removeSink( this );
+    disconnect(p_media_object, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
 }
 
 void SinkNode::updateVolume()
+{
+}
+
+void SinkNode::addToMedia( libvlc_media_t * media )
 {
 }
 

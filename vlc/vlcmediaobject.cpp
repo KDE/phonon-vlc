@@ -22,6 +22,7 @@
 #include "vlcmediaobject.h"
 
 #include "videowidget.h"
+#include "sinknode.h"
 
 #include "vlcloader.h"
 
@@ -114,6 +115,10 @@ void VLCMediaObject::playInternal()
     p_vlc_media = libvlc_media_new_location(vlc_instance, p_current_file);
     if(!p_vlc_media)
         qDebug() << "libvlc exception:" << libvlc_errmsg();
+
+    foreach( SinkNode * sink, m_sinks ) {
+        sink->addToMedia( p_vlc_media );
+    }
 
     // Set the media that will be used by the media player
     libvlc_media_player_set_media(p_vlc_media_player, p_vlc_media);
@@ -431,6 +436,20 @@ void VLCMediaObject::updateDuration()
         i_total_time = totalTime;
         emit totalTimeChanged(i_total_time);
     }
+}
+
+void VLCMediaObject::addSink( SinkNode * node )
+{
+    if( m_sinks.contains( node ) ) {
+        // This shouldn't happen....
+        return;
+    }
+    m_sinks.append( node );
+}
+
+void VLCMediaObject::removeSink( SinkNode * node )
+{
+    m_sinks.removeAll( node );
 }
 
 }
