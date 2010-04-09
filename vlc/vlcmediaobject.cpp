@@ -87,7 +87,7 @@ void VLCMediaObject::loadMediaInternal(const QString & filename)
 {
     qDebug() << __FUNCTION__ << filename;
 
-    p_current_file = QUrl::toPercentEncoding(filename, ":/");
+    p_current_file = QUrl::toPercentEncoding(filename, ":/?=");
 
     // Why is this needed???
     emit stateChanged(Phonon::StoppedState);
