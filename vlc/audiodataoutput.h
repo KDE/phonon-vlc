@@ -42,6 +42,7 @@ namespace VLC
                             public AudioDataOutputInterface
     {
         Q_OBJECT
+        Q_INTERFACES(Phonon::AudioDataOutputInterface)
 
         public:
             AudioDataOutput(Backend *, QObject *);
