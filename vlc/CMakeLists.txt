@@ -7,6 +7,7 @@ add_definitions(-D_PHONON_BACKEND_VERSION_4_2)
 
 set(phonon_vlc_SRCS
     audiooutput.cpp
+    audiodataoutput.cpp
     backend.cpp
     devicemanager.cpp
     effect.cpp

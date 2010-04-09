@@ -22,6 +22,7 @@
 #include "backend.h"
 
 #include "audiooutput.h"
+#include "audiodataoutput.h"
 #include "mediaobject.h"
 #include "videowidget.h"
 #include "devicemanager.h"
@@ -101,8 +102,8 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
         return ao;
     }
     case AudioDataOutputClass:
-//        return new AudioDataOutput(parent);
-        logMessage("createObject() : AudioDataOutput not implemented");
+        return new AudioDataOutput(this, parent);
+        logMessage("createObject() : AudioDataOutput created - WARNING: POSSIBLY INCORRECTLY IMPLEMENTED");
         break;
     case VisualizationClass:
 //        return new Visualization(parent);

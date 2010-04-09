@@ -70,9 +70,10 @@ namespace VLC
             void endOfMedia(int remainingSamples);
             void sampleReadDone();
 
-        private:
-            void convertAndEmit(const QVector<qint16>&, const QVector<qint16>&);
+        private Q_SLOTS:
+            void sendData();
 
+        private:
             static void lock( AudioDataOutput *cw, quint8 **pcm_buffer , quint32 size );
             static void unlock( AudioDataOutput *cw, quint8 *pcm_buffer,
                                 quint32 channels, quint32 rate,
@@ -81,11 +82,11 @@ namespace VLC
 
             int m_dataSize;
             int m_sampleRate;
-            QVector<qint16> m_pendingData;
             Phonon::AudioDataOutput *m_frontend;
 
             QMutex m_locker;
             QVector<qint16> m_channel_samples[6];
+            QList<Phonon::AudioDataOutput::Channel> m_channels;
     };
 }} //namespace Phonon::VLC
 

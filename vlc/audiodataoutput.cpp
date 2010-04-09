@@ -37,6 +37,15 @@ AudioDataOutput::AudioDataOutput(Backend *backend, QObject *parent)
     : SinkNode(parent)
 {
     m_sampleRate = 44100;
+    connect(this, SIGNAL(sampleReadDone()), this, SLOT(sendData()));
+
+    // Register channels
+    m_channels.append( Phonon::AudioDataOutput::LeftChannel );
+    m_channels.append( Phonon::AudioDataOutput::RightChannel );
+    m_channels.append( Phonon::AudioDataOutput::CenterChannel );
+    m_channels.append( Phonon::AudioDataOutput::LeftSurroundChannel );
+    m_channels.append( Phonon::AudioDataOutput::RightSurroundChannel );
+    m_channels.append( Phonon::AudioDataOutput::SubwooferChannel );
 }
 
 AudioDataOutput::~AudioDataOutput()
@@ -82,18 +91,6 @@ void AudioDataOutput::addToMedia( libvlc_media_t * media )
     libvlc_media_add_option_flag( media, param, libvlc_media_option_trusted );
 }
 
-typedef QMap<Phonon::AudioDataOutput::Channel, QVector<float> > FloatMap;
-typedef QMap<Phonon::AudioDataOutput::Channel, QVector<qint16> > IntMap;
-
-inline void AudioDataOutput::convertAndEmit(const QVector<qint16> &leftBuffer, const QVector<qint16> &rightBuffer)
-{
-    //TODO: Floats
-    IntMap map;
-    map.insert(Phonon::AudioDataOutput::LeftChannel, leftBuffer);
-    map.insert(Phonon::AudioDataOutput::RightChannel, rightBuffer);
-    emit dataReady(map);
-}
-
 void AudioDataOutput::lock( AudioDataOutput *cw, quint8 **pcm_buffer , quint32 size )
 {
     cw->m_locker.lock();
@@ -132,6 +129,24 @@ void AudioDataOutput::unlock( AudioDataOutput *cw, quint8 *pcm_buffer,
 
     cw->m_locker.unlock();
     emit cw->sampleReadDone();
+}
+
+void AudioDataOutput::sendData()
+{
+    if( ! m_channel_samples[0].count() >= ( m_dataSize / 2 ) ) {
+        emit endOfMedia( m_channel_samples[0].count() / 2 );
+    }
+
+    QMap<Phonon::AudioDataOutput::Channel, QVector<qint16> > m_data;
+    foreach( Phonon::AudioDataOutput::Channel chan, m_channels ) {
+        int position = m_channels.indexOf( chan );
+        QVector<quint16> data = m_channel_samples[position].mid( 0, m_dataSize );
+        foreach( quint16 sample, data ) {
+            m_channel_samples[position].remove( sample );
+        }
+        m_data.append( chan, data );
+    }
+    emit dataReady( m_data );
 }
 
 }} //namespace Phonon::VLC
