@@ -36,6 +36,7 @@ namespace VLC
 AudioDataOutput::AudioDataOutput(Backend *backend, QObject *parent)
     : SinkNode(parent)
 {
+    m_sampleRate = 44100;
 }
 
 AudioDataOutput::~AudioDataOutput()
@@ -49,7 +50,7 @@ int AudioDataOutput::dataSize() const
 
 int AudioDataOutput::sampleRate() const
 {
-    return 44100;
+    return m_sampleRate;
 }
 
 void AudioDataOutput::setDataSize(int size)
@@ -95,6 +96,10 @@ inline void AudioDataOutput::convertAndEmit(const QVector<qint16> &leftBuffer, c
 
 void AudioDataOutput::lock( AudioDataOutput *cw, quint8 **pcm_buffer , quint32 size )
 {
+    cw->m_locker.lock();
+
+    unsigned char * audio_buffer = new uchar[size];
+    *pcm_buffer = audio_buffer;
 }
 
 void AudioDataOutput::unlock( AudioDataOutput *cw, quint8 *pcm_buffer,
@@ -102,10 +107,31 @@ void AudioDataOutput::unlock( AudioDataOutput *cw, quint8 *pcm_buffer,
                               quint32 nb_samples, quint32 bits_per_sample,
                               quint32 size, qint64 pts )
 {
-    Q_UNUSED( pcm_buffer );
-    Q_UNUSED( rate );
-    Q_UNUSED( bits_per_sample );
     Q_UNUSED( size );
+    Q_UNUSED( pts );
+
+    // (bytesPerChannelPerSample * channels * read_samples) + (bytesPerChannelPerSample * read_channels)
+    int bytesPerChannelPerSample = bits_per_sample / 8;
+    cw->m_sampleRate = rate;
+
+    for( quint32 read_samples = 0; nb_samples > read_samples; read_samples++ ) {
+        quint16 sample_buffer[6];
+        int buffer_pos = (bytesPerChannelPerSample * channels * read_samples);
+        // Read the data for this section of channel segments...
+        for( quint32 channels_read = 0; channels > channels_read; channels_read++ ) {
+            // Read from the pcm_buffer into the per channel internal buffer
+            sample_buffer[channels_read] += pcm_buffer[buffer_pos];
+            buffer_pos += bytesPerChannelPerSample;
+        }
+
+        for( quint32 channels_read = 0; channels > channels_read; channels_read++ ) {
+            cw->m_channel_samples[channels_read].append( sample_buffer[channels_read] );
+        }
+        // Finished reading one sample
+    }
+
+    cw->m_locker.unlock();
+    emit cw->sampleReadDone();
 }
 
 }} //namespace Phonon::VLC

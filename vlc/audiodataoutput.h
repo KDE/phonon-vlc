@@ -26,6 +26,7 @@
 
 #include "backend.h"
 #include "sinknode.h"
+#include <QtCore/QMutex>
 #include <phonon/audiodataoutput.h>
 #include <phonon/audiodataoutputinterface.h>
 
@@ -67,6 +68,7 @@ namespace VLC
             void dataReady(const QMap<Phonon::AudioDataOutput::Channel, QVector<qint16> > &data);
             void dataReady(const QMap<Phonon::AudioDataOutput::Channel, QVector<float> > &data);
             void endOfMedia(int remainingSamples);
+            void sampleReadDone();
 
         private:
             void convertAndEmit(const QVector<qint16>&, const QVector<qint16>&);
@@ -78,9 +80,12 @@ namespace VLC
                                 quint32 size, qint64 pts );
 
             int m_dataSize;
+            int m_sampleRate;
             QVector<qint16> m_pendingData;
             Phonon::AudioDataOutput *m_frontend;
-            int m_channels;
+
+            QMutex m_locker;
+            QVector<qint16> m_channel_samples[6];
     };
 }} //namespace Phonon::VLC
 
