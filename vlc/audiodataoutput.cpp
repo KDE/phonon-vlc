@@ -23,7 +23,7 @@
 */
 
 #include "audiodataoutput.h"
-#include "medianode.h"
+#include <phonon/medianode.h>
 #include "mediaobject.h"
 #include <QtCore/QVector>
 #include <QtCore/QMap>
