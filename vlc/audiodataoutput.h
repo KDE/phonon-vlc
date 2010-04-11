@@ -85,6 +85,7 @@ namespace VLC
             Phonon::AudioDataOutput *m_frontend;
 
             QMutex m_locker;
+            int m_channel_count;
             QVector<qint16> m_channel_samples[6];
             QList<Phonon::AudioDataOutput::Channel> m_channels;
     };
