@@ -92,7 +92,7 @@ signals:
     void chapterChanged(int chapterNumber);
     void titleChanged(int titleNumber);
     void metaDataNeedsRefresh();
-    void durationNeedsRefresh();
+    void durationChanged(qint64 newDuration);
 
     /**
      * New widget size computed by VLC.
@@ -118,7 +118,7 @@ private slots:
     /**
     * Update media duration time
     */
-    void updateDuration();
+    void updateDuration(qint64 newDuration);
 
 private:
 
