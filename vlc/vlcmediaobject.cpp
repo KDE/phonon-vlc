@@ -392,7 +392,7 @@ void VLCMediaObject::updateMetaData()
     metaDataMap.insert(QLatin1String("DESCRIPTION"),
                        QString::fromUtf8(libvlc_media_get_meta(p_vlc_media, libvlc_meta_Description)));
     metaDataMap.insert(QLatin1String("COPYRIGHT"),
-                       QString::fromUtf8(libvlc_media_get_meta(p_vlc_media, libvlc_meta_TrackNumber)));
+                       QString::fromUtf8(libvlc_media_get_meta(p_vlc_media, libvlc_meta_Copyright)));
     metaDataMap.insert(QLatin1String("URL"),
                        QString::fromUtf8(libvlc_media_get_meta(p_vlc_media, libvlc_meta_URL)));
     metaDataMap.insert(QLatin1String("ENCODEDBY"),
