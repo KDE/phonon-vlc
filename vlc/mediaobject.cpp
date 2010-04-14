@@ -216,6 +216,10 @@ void MediaObject::setSource(const MediaSource & source)
 
     switch (source.type()) {
     case MediaSource::Invalid:
+        qCritical() << __FUNCTION__ << "Error: MediaSource Type is Invalid:" << source.type();
+        break;
+    case MediaSource::Empty:
+        qCritical() << __FUNCTION__ << "Error: MediaSource is empty.";
         break;
     case MediaSource::LocalFile:
     case MediaSource::Url:
@@ -255,9 +259,7 @@ void MediaObject::setSource(const MediaSource & source)
         loadStream();
         break;
     default:
-        qCritical() << __FUNCTION__
-        << "Error: unsupported MediaSource:"
-        << source.type();
+        qCritical() << __FUNCTION__ << "Error: Unsupported MediaSource Type:" << source.type();
         break;
     }
 
