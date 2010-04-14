@@ -28,6 +28,9 @@
 #include <QtCore/QObject>
 #include <QtGui/QWidget>
 
+#include "streamreader.h"
+
+
 namespace Phonon
 {
 namespace VLC {
@@ -96,6 +99,7 @@ protected:
     virtual void seekInternal(qint64 milliseconds) = 0;
 
     virtual qint64 currentTimeInternal() const = 0;
+    virtual void setOption(QString opt) = 0;
 
     bool checkGaplessWaiting();
 
@@ -113,13 +117,14 @@ private slots:
 private:
 
     void loadMedia(const QString & filename);
+    void loadStream();
 
     void resume();
 
     QString PhononStateToString( Phonon::State newState );
 
     MediaSource mediaSource;
-
+    StreamReader *streamReader;
     Phonon::State currentState;
 
     qint32 i_prefinish_mark;

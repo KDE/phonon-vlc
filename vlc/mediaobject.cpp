@@ -21,6 +21,7 @@
  *****************************************************************************/
 
 #include "mediaobject.h"
+#include "streamhooks.h"
 
 #include "seekstack.h"
 
@@ -251,6 +252,7 @@ void MediaObject::setSource(const MediaSource & source)
         }
         break;
     case MediaSource::Stream:
+        loadStream();
         break;
     default:
         qCritical() << __FUNCTION__
@@ -260,6 +262,31 @@ void MediaObject::setSource(const MediaSource & source)
     }
 
     emit currentSourceChanged(mediaSource);
+}
+
+void MediaObject::loadStream()
+{
+    streamReader = new StreamReader(mediaSource);
+
+    char rptr[64];
+    snprintf(rptr, sizeof(rptr), "%p", streamReadCallback);
+
+    char rdptr[64];
+    snprintf(rdptr, sizeof(rdptr), "%p", streamReadDoneCallback);
+
+    char sptr[64];
+    snprintf(sptr, sizeof(sptr), "%p", streamSeekCallback);
+
+    char srptr[64];
+    snprintf(srptr, sizeof(srptr), "%p", streamReader);
+
+    loadMedia( "imem/ffmpeg://" );
+
+    setOption("imem-cat=4");
+    setOption(QString("imem-data=%1").arg(srptr));
+    setOption(QString("imem-get=%1").arg(rptr));
+    setOption(QString("imem-release=%1").arg(rdptr));
+    setOption(QString("imem-seek=%1").arg(sptr));
 }
 
 void MediaObject::setNextSource(const MediaSource & source)

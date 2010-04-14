@@ -16,6 +16,8 @@ set(phonon_vlc_SRCS
     mediaobject.cpp
     seekstack.cpp
     sinknode.cpp
+    streamhooks.cpp
+    streamreader.cpp
     videowidget.cpp
     vlcloader.cpp
     vlcmediacontroller.cpp

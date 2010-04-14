@@ -453,5 +453,10 @@ void VLCMediaObject::removeSink( SinkNode * node )
     m_sinks.removeAll( node );
 }
 
+void VLCMediaObject::setOption(QString opt)
+{
+    libvlc_media_add_option_flag(p_vlc_media, opt.toLocal8Bit(), libvlc_media_option_trusted);
+}
+
 }
 } // Namespace Phonon::VLC

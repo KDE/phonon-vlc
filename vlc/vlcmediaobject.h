@@ -106,6 +106,7 @@ protected:
     void loadMediaInternal(const QString & filename);
     void playInternal();
     void seekInternal(qint64 milliseconds);
+    void setOption(QString opt);
 
     qint64 currentTimeInternal() const;
 
