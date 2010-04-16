@@ -36,6 +36,8 @@ namespace VLC
 AudioDataOutput::AudioDataOutput(Backend *backend, QObject *parent)
     : SinkNode(parent)
 {
+    Q_UNUSED(backend)
+
     m_sampleRate = 44100;
     connect(this, SIGNAL(sampleReadDone()), this, SLOT(sendData()));
 
