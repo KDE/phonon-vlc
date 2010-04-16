@@ -59,7 +59,7 @@ VLCMediaObject::VLCMediaObject(QObject * parent)
     p_seek_point = 0;
 
     connect(this, SIGNAL(metaDataNeedsRefresh()), this, SLOT(updateMetaData()));
-    connect(this, SIGNAL(durationNeedsRefresh()), this, SLOT(updateDuration()));
+    connect(this, SIGNAL(durationChanged(qint64)), this, SLOT(updateDuration(qint64)));
 }
 
 VLCMediaObject::~VLCMediaObject()
@@ -136,9 +136,6 @@ void VLCMediaObject::playInternal()
     // so let's send our own events...
     // This will reset the GUI
     clearMediaController();
-
-    // We need to do this, otherwise we never get any events with the real length
-    libvlc_media_get_duration(p_vlc_media);
 
     setVLCWidgetId();
 
@@ -365,7 +362,7 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user
     // Media events
 
     if (p_event->type == libvlc_MediaDurationChanged) {
-        emit p_vlc_mediaObject->durationNeedsRefresh();
+        emit p_vlc_mediaObject->durationChanged(p_event->u.media_duration_changed.new_duration);
     }
 
     if (p_event->type == libvlc_MediaMetaChanged) {
@@ -423,18 +420,13 @@ qint64 VLCMediaObject::currentTimeInternal() const
     return libvlc_media_player_get_time(p_vlc_media_player);
 }
 
-void VLCMediaObject::updateDuration()
+void VLCMediaObject::updateDuration(qint64 newDuration)
 {
-    // Get duration of media descriptor object item
-    libvlc_time_t totalTime = libvlc_media_get_duration(p_vlc_media);
-    if(totalTime == -1)
-        qDebug() << "libvlc exception:" << libvlc_errmsg();
-
     // If its within 5ms of the current total time, don't bother....
-    if( totalTime - 5 > i_total_time || totalTime + 5 < i_total_time ) {
+    if( newDuration - 5 > i_total_time || newDuration + 5 < i_total_time ) {
         qDebug() << __FUNCTION__ << "Length changing from " << i_total_time
-        << " to " << totalTime;
-        i_total_time = totalTime;
+        << " to " << newDuration;
+        i_total_time = newDuration;
         emit totalTimeChanged(i_total_time);
     }
 }
