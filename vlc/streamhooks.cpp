@@ -54,6 +54,7 @@ extern "C"
     int streamReadDoneCallback(void *data, const char *cookie, size_t sz, void *buf)
     {
         delete buf;
+        return 0;
     }
 }
 

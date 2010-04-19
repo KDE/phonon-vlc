@@ -2,6 +2,12 @@ project(phonon-vlc)
 include_directories(${QT_INCLUDES}
                     ${LIBVLC_INCLUDE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR})
+                    
+if (MSVC)
+    set (CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX}/share/apps/cmake/modules)
+    find_package(KDEWIN REQUIRED)
+    include_directories(${KDEWIN_INCLUDES}/msvc)
+endif (MSVC)
 
 add_definitions(-D_PHONON_BACKEND_VERSION_4_2)
 
@@ -31,6 +37,10 @@ add_library(phonon_vlc MODULE ${phonon_vlc_SRCS})
 set_target_properties(phonon_vlc PROPERTIES PREFIX "")
 target_link_libraries(phonon_vlc ${PHONON_LIBS} ${LIBVLC_LIBRARY}
     ${LIBVLCCORE_LIBRARY} )
+
+if (MSVC)    
+    target_link_libraries(phonon_vlc ${KDEWIN_LIBRARIES})
+endif (MSVC)    
 
 if(WIN32)
     install(TARGETS phonon_vlc DESTINATION bin/phonon_backend)
