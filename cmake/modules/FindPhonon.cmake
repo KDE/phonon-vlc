@@ -13,11 +13,14 @@
 # For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 
 macro(_phonon_find_version)
-   set(_phonon_namespace_header_file "${PHONON_INCLUDE_DIR}/phonon/phononnamespace.h")
-   set(_phonon_pulsesupport_header_file "${PHONON_INCLUDE_DIR}/phonon/pulsesupport.h")
    if (APPLE AND EXISTS "${PHONON_INCLUDE_DIR}/Headers/phononnamespace.h")
       set(_phonon_namespace_header_file "${PHONON_INCLUDE_DIR}/Headers/phononnamespace.h")
+      set(_phonon_pulsesupport_header_file "${PHONON_INCLUDE_DIR}/Headers/pulsesupport.h")
+   else ()
+      set(_phonon_namespace_header_file "${PHONON_INCLUDE_DIR}/phonon/phononnamespace.h")
+      set(_phonon_pulsesupport_header_file "${PHONON_INCLUDE_DIR}/phonon/pulsesupport.h")
    endif (APPLE AND EXISTS "${PHONON_INCLUDE_DIR}/Headers/phononnamespace.h")
+
    file(READ ${_phonon_namespace_header_file} _phonon_header LIMIT 5000 OFFSET 1000)
    string(REGEX MATCH "define PHONON_VERSION_STR \"(4\\.[0-9]+\\.[0-9a-z]+)\"" _phonon_version_match "${_phonon_header}")
    set(PHONON_VERSION "${CMAKE_MATCH_1}")
