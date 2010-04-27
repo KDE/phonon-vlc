@@ -8,6 +8,7 @@ if (MSVC)
     find_package(KDEWIN)
 	if (KDEWIN_FOUND)
 		include_directories(${KDEWIN_INCLUDES}/msvc)
+		link_libraries(${KDEWIN_LIBRARIES})
 	else (KDEWIN_FOUND)
 		include(CheckIncludeFileCXX)
 		check_include_file_cxx(inttypes.h HAVE_INTTYPES)
@@ -47,9 +48,6 @@ set_target_properties(phonon_vlc PROPERTIES PREFIX "")
 target_link_libraries(phonon_vlc ${PHONON_LIBS} ${LIBVLC_LIBRARY}
     ${LIBVLCCORE_LIBRARY} )
 
-if (MSVC AND KDEWIN_FOUND)    
-    target_link_libraries(phonon_vlc ${KDEWIN_LIBRARIES})
-endif (MSVC AND KDEWIN_FOUND)    
 
 if(WIN32)
     install(TARGETS phonon_vlc DESTINATION bin/phonon_backend)
