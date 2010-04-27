@@ -75,7 +75,7 @@ bool vlcInit(int debugLevl)
             log.constData(),
             logFile.constData(),
             verboseLevl.constData(),
-            "--intf=dummy",            
+            "--intf=dummy",
             "--ignore-config",
             "--reset-plugins-cache",
             "--no-media-library",
@@ -147,6 +147,14 @@ static QStringList findAllLibVlc()
             .split(QLatin1Char(':'), QString::SkipEmptyParts);
     paths << QLatin1String(PHONON_LIB_INSTALL_DIR) << QLatin1String("/usr/lib") << QLatin1String("/usr/local/lib");
 
+#if defined(Q_WS_MAC)
+       paths
+        << QCoreApplication::applicationDirPath()
+        << QCoreApplication::applicationDirPath() + QLatin1String("/../Frameworks")
+        << QCoreApplication::applicationDirPath() + QLatin1String("/../PlugIns")
+       ;
+#endif
+
     QStringList foundVlcs;
     foreach (const QString &path, paths) {
         QDir dir = QDir(path);
@@ -168,7 +176,7 @@ static QStringList findAllLibVlc()
     QString vlcVersion = settings.value("Version").toString();
     QString vlcInstallDir = settings.value("InstallDir").toString();
     if (vlcVersion.startsWith("1.1") && !vlcInstallDir.isEmpty()) {
-        paths << vlcInstallDir + QLatin1Char('\\') + "libvlc.dll"; 
+        paths << vlcInstallDir + QLatin1Char('\\') + "libvlc.dll";
         return paths;
     }else{
         //If nothing is found in the registry try %PATH%
