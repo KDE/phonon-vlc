@@ -25,8 +25,6 @@
 #include <phonon/effectparameter.h>
 #include <phonon/volumefaderinterface.h>
 
-#include <QtCore>
-
 
 QT_BEGIN_NAMESPACE
 #ifndef QT_NO_PHONON_VOLUMEFADEREFFECT

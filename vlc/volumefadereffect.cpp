@@ -17,7 +17,6 @@
 
 #include "volumefadereffect.h"
 #include "common.h"
-#include <QtCore>
 
 QT_BEGIN_NAMESPACE
 

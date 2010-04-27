@@ -36,9 +36,10 @@ along with this library.  If not, see <http://www.gnu.org/licenses/>.
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA *
  *****************************************************************************/
 
-#include <phonon/streaminterface.h>
 
 #include "streamreader.h"
+
+#include <phonon/streaminterface.h>
 
 QT_BEGIN_NAMESPACE
 #ifndef QT_NO_PHONON_ABSTRACTMEDIASTREAM
