@@ -5,8 +5,17 @@ include_directories(${QT_INCLUDES}
                     
 if (MSVC)
     set (CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX}/share/apps/cmake/modules)
-    find_package(KDEWIN REQUIRED)
-    include_directories(${KDEWIN_INCLUDES}/msvc)
+    find_package(KDEWIN)
+	if (KDEWIN_FOUND)
+		include_directories(${KDEWIN_INCLUDES}/msvc)
+	else (KDEWIN_FOUND)
+		include(CheckIncludeFileCXX)
+		check_include_file_cxx(inttypes.h HAVE_INTTYPES)
+		check_include_file_cxx(stdint.h   HAVE_STDINT)
+		if ( NOT HAVE_STDINT AND NOT HAVE_INTTYPES )
+			message (FATAL_ERROR  "You don't have stdint.h and inttypes.h\n\t get them from  http://code.google.com/p/baseutils/source/browse/#svn/trunk/msvc,\n\t or get kdewin http://websvn.kde.org/trunk/kdesupport/kdewin/")
+		endif ( NOT HAVE_STDINT AND NOT HAVE_INTTYPES )
+	endif (KDEWIN_FOUND)
 endif (MSVC)
 
 add_definitions(-D_PHONON_BACKEND_VERSION_4_2)
@@ -38,9 +47,9 @@ set_target_properties(phonon_vlc PROPERTIES PREFIX "")
 target_link_libraries(phonon_vlc ${PHONON_LIBS} ${LIBVLC_LIBRARY}
     ${LIBVLCCORE_LIBRARY} )
 
-if (MSVC)    
+if (MSVC AND KDEWIN_FOUND)    
     target_link_libraries(phonon_vlc ${KDEWIN_LIBRARIES})
-endif (MSVC)    
+endif (MSVC AND KDEWIN_FOUND)    
 
 if(WIN32)
     install(TARGETS phonon_vlc DESTINATION bin/phonon_backend)
