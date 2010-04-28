@@ -46,7 +46,7 @@ class Backend : public QObject, public BackendInterface
 public:
 
     enum DebugLevel {NoDebug, Warning, Info, Debug};
-    Backend(QObject *parent = 0, const QVariantList & = QVariantList());
+    explicit Backend(QObject *parent = 0, const QVariantList & = QVariantList());
     virtual ~Backend();
 
     DeviceManager* deviceManager() const;
