@@ -86,6 +86,7 @@ namespace VLC
 
             QMutex m_locker;
             int m_channel_count;
+            unsigned char * m_buffer;
             QVector<qint16> m_channel_samples[6];
             QList<Phonon::AudioDataOutput::Channel> m_channels;
     };

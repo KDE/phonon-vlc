@@ -98,8 +98,8 @@ void AudioDataOutput::lock( AudioDataOutput *cw, quint8 **pcm_buffer , quint32 s
 {
     cw->m_locker.lock();
 
-    unsigned char * audio_buffer = new uchar[size];
-    *pcm_buffer = audio_buffer;
+    cw->m_buffer = new uchar[size];
+    *pcm_buffer = cw->m_buffer;
 }
 
 void AudioDataOutput::unlock( AudioDataOutput *cw, quint8 *pcm_buffer,
@@ -109,6 +109,7 @@ void AudioDataOutput::unlock( AudioDataOutput *cw, quint8 *pcm_buffer,
 {
     Q_UNUSED( size );
     Q_UNUSED( pts );
+    Q_UNUSED( pcm_buffer );
 
     // (bytesPerChannelPerSample * channels * read_samples) + (bytesPerChannelPerSample * read_channels)
     int bytesPerChannelPerSample = bits_per_sample / 8;
@@ -122,7 +123,7 @@ void AudioDataOutput::unlock( AudioDataOutput *cw, quint8 *pcm_buffer,
         for( quint32 channels_read = 0; channels_read < channels; channels_read++ ) {
             for( int bytes_read = 0; bytes_read < bytesPerChannelPerSample; bytes_read++ ) {
                 // Read from the pcm_buffer into the per channel internal buffer
-                sample_buffer[channels_read] += pcm_buffer[buffer_pos];
+                sample_buffer[channels_read] += cw->m_buffer[buffer_pos];
                 buffer_pos++;
             }
         }
