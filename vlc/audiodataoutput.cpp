@@ -78,6 +78,7 @@ void AudioDataOutput::addToMedia( libvlc_media_t * media )
     // Output to stream renderer
     libvlc_media_add_option_flag( media, ":sout=#transcode{}:smem", libvlc_media_option_trusted );
     libvlc_media_add_option_flag( media, ":sout-transcode-acodec=f32l", libvlc_media_option_trusted );
+    libvlc_media_add_option_flag( media, ":sout-smem-time-sync", libvlc_media_option_trusted );
 
     // Add audio lock callback
     void * lock_call = reinterpret_cast<void*>( &AudioDataOutput::lock );
@@ -117,15 +118,24 @@ void AudioDataOutput::unlock( AudioDataOutput *cw, quint8 *pcm_buffer,
     cw->m_channel_count = channels;
 
     for( quint32 read_samples = 0; nb_samples > read_samples; read_samples++ ) {
+        // Prepare a sample buffer, and initialise it
         quint16 sample_buffer[6];
+        for( int initialised = 0; initialised < 6; initialised++ ) {
+            sample_buffer[initialised] = 0;
+        }
+
         int buffer_pos = (bytesPerChannelPerSample * channels * read_samples);
-        // Read the data for this section of channel segments...
+
         for( quint32 channels_read = 0; channels_read < channels; channels_read++ ) {
             for( int bytes_read = 0; bytes_read < bytesPerChannelPerSample; bytes_read++ ) {
                 // Read from the pcm_buffer into the per channel internal buffer
                 sample_buffer[channels_read] += cw->m_buffer[buffer_pos];
                 buffer_pos++;
             }
+        }
+
+        if( channels == 1 ) {
+            cw->m_channel_samples[1].append( sample_buffer[0] );
         }
 
         for( quint32 channels_read = 0; channels > channels_read; channels_read++ ) {
@@ -143,10 +153,15 @@ void AudioDataOutput::unlock( AudioDataOutput *cw, quint8 *pcm_buffer,
 void AudioDataOutput::sendData()
 {
     m_locker.lock();
+
+    int chan_count = m_channel_count;
+    if( m_channel_count == 1 ) {
+        chan_count = 2;
+    }
  
     while( m_channel_samples[0].count() > m_dataSize ) {
         QMap<Phonon::AudioDataOutput::Channel, QVector<qint16> > m_data;
-        for( int position = 0; position < m_channel_count; position++ ) {
+        for( int position = 0; position < chan_count; position++ ) {
             Phonon::AudioDataOutput::Channel chan = m_channels.value( position );
             QVector<qint16> data = m_channel_samples[position].mid( 0, m_dataSize );
             m_channel_samples[position].remove( 0, data.count() );
