@@ -168,7 +168,8 @@ set(PHONON_LIB_SOVERSION ${PHONON_LIB_MAJOR_VERSION})
 add_definitions(${QT_DEFINITIONS})
 remove_definitions(-DQT3_SUPPORT_WARNINGS -DQT3_SUPPORT)
 if(MSVC)
-  add_definitions( -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -D_SCL_SECURE_NO_WARNINGS )
+  add_definitions( -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -D_SCL_SECURE_NO_WARNINGS -DQT_NO_DEBUG)
+  remove_definitions(-DQT_DEBUG)
 endif(MSVC)
 
 # for including config.h and for includes like <kparts/foo.h>
