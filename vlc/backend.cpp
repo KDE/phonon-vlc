@@ -205,7 +205,8 @@ QStringList Backend::availableMimeTypes() const
         << QLatin1String("video/x-ms-wmv")
         << QLatin1String("video/x-msvideo")
         << QLatin1String("video/x-quicktime")
-        << QLatin1String("audio/x-flac");
+        << QLatin1String("audio/x-flac")
+        << QLatin1String("audio/x-ape");
     }
     return m_supportedMimeTypes;
 }
