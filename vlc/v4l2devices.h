@@ -43,4 +43,4 @@ QT_END_NAMESPACE
 //#endif // HAVE_LIBV4L2
 //#endif // Q_OS_LINUX
 
-#endif // V4L2DEVICES_H
+#endif // Phonon_VLC_V4L2DEVICES_H

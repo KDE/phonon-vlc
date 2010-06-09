@@ -40,8 +40,7 @@ typedef enum {
     IO_METHOD_USERPTR,
 } io_method;
 
-struct demux_sys_t
-{
+struct demux_sys_t {
     char *psz_device;  /* Main device from MRL */
     int  i_fd;
 
@@ -97,12 +96,12 @@ struct demux_sys_t
 
     /* */
     int (*pf_open)(const char *, int, ...);
-    int (*pf_close)( int );
-    int (*pf_dup)( int );
-    int (*pf_ioctl)( int, unsigned long int, ... );
-    ssize_t (*pf_read)( int, void *, size_t );
-    void *(*pf_mmap)( void *, size_t, int, int, int, off_t );
-    int (*pf_munmap)( void *, size_t );
+    int (*pf_close)(int);
+    int (*pf_dup)(int);
+    int (*pf_ioctl)(int, unsigned long int, ...);
+    ssize_t (*pf_read)(int, void *, size_t );
+    void *(*pf_mmap)(void *, size_t, int, int, int, off_t);
+    int (*pf_munmap)(void *, size_t);
     bool b_libv4l2;
 };
 
@@ -150,13 +149,13 @@ static bool probeDevice(QByteArray devicePath,
     }
 
     if (i_fd >= 0)
-        v4l2_close( i_fd );
+        v4l2_close(i_fd);
     return true;
 
     open_failed:
 
     if (i_fd >= 0)
-        v4l2_close( i_fd );
+        v4l2_close(i_fd);
     return false;
 
 }
