@@ -21,7 +21,10 @@ along with this library.  If not, see <http://www.gnu.org/licenses/>.
 #include <libv4l2.h>
 #include <fcntl.h>
 
-#define V4L2_DEFAULT "/dev/video0"
+#include <QtCore/QDebug>
+#include <QtCore/QString>
+#include <QtCore/QStringList>
+#include <QtCore/QDir>
 
 QT_BEGIN_NAMESPACE
 
@@ -104,103 +107,81 @@ struct demux_sys_t
 };
 
 
-static bool probeVideoDev( demux_sys_t *p_sys, const char *psz_device )
+/*
+Tries to open a v4l device specified by devicePath, and queries it's capabilities.
+Depending on the device capabilities, it is added to the capture device lists
+*/
+static bool probeDevice(QByteArray devicePath,
+                        QList<QByteArray> & videoCaptureDeviceNames,
+                        QList<QByteArray> & audioCaptureDeviceNames)
 {
     int i_index;
     int i_standard;
-
     int i_fd;
 
-    if( ( i_fd = v4l2_open( psz_device, O_RDWR ) ) < 0 )
-    {
-        qDebug() << "cannot open video device" << psz_device;
+    struct demux_sys_t deviceInfo;
+    memset(&deviceInfo, 0, sizeof(deviceInfo));
+
+    // Open device
+    if ((i_fd = v4l2_open( devicePath.constData(), O_RDWR)) < 0) {
+        qDebug() << "Phonon::VLC::V4L2::probeDevice: Cannot open video device" << devicePath;
         goto open_failed;
     }
 
-    /* Note the v4l2_xxx functions are designed so that if they get passed an
-    unknown fd, the will behave exactly as their regular xxx counterparts,
-    so if v4l2_fd_open fails, we continue as normal (missing the libv4l2
-    custom cam format to normal formats conversion). Chances are big we will
-    still fail then though, as normally v4l2_fd_open only fails if the
-    device is not a v4l2 device. */
-    if( p_sys->b_libv4l2 )
-    {
-        int libv4l2_fd;
-        libv4l2_fd = v4l2_fd_open( i_fd, V4L2_ENABLE_ENUM_FMT_EMULATION );
-        if( libv4l2_fd != -1 )
-            i_fd = libv4l2_fd;
-    }
+    int libv4l2_fd;
+    libv4l2_fd = v4l2_fd_open(i_fd, V4L2_ENABLE_ENUM_FMT_EMULATION);
+    if (libv4l2_fd != -1)
+        i_fd = libv4l2_fd;
 
-    /* Get device capabilites */
-    if( v4l2_ioctl( i_fd, VIDIOC_QUERYCAP, &p_sys->dev_cap ) < 0 )
-    {
-        qDebug() << "cannot get video capabilities";
+    // Get device capabilites
+    if (v4l2_ioctl(i_fd, VIDIOC_QUERYCAP, &deviceInfo.dev_cap) < 0) {
+        qDebug() << "Phonon::VLC::V4L2::probeDevice: Cannot get video capabilities for" << devicePath;
         goto open_failed;
     }
 
-    /* Now, enumerate all the video inputs. This is useless at the moment
-    since we have no way to present that info to the user except with
-    debug messages */
-
-    if( p_sys->dev_cap.capabilities & V4L2_CAP_VIDEO_CAPTURE )
-    {
-        struct v4l2_input t_input;
-        memset( &t_input, 0, sizeof(t_input) );
-        p_sys->i_input = 0;
-        while( v4l2_ioctl( i_fd, VIDIOC_ENUMINPUT, &t_input ) >= 0 )
-        {
-            p_sys->i_input++;
-            t_input.index = p_sys->i_input;
-        }
-
-        free( p_sys->p_inputs );
-        p_sys->p_inputs = (v4l2_input*) calloc( 1, p_sys->i_input * sizeof( struct v4l2_input ) );
-        if( !p_sys->p_inputs ) goto open_failed;
-
-        for( i_index = 0; i_index < p_sys->i_input; i_index++ )
-        {
-            p_sys->p_inputs[i_index].index = i_index;
-
-            if( v4l2_ioctl( i_fd, VIDIOC_ENUMINPUT, &p_sys->p_inputs[i_index] ) )
-            {
-                qDebug() << "cannot get video input characteristics";
-                goto open_failed;
-            }
-        }
+    // Probe video inputs
+    if (deviceInfo.dev_cap.capabilities & V4L2_CAP_VIDEO_CAPTURE) {
+        videoCaptureDeviceNames << devicePath;
     }
 
-    /* initialize the structures for the ioctls */
-    for( i_index = 0; i_index < 32; i_index++ )
-    {
-        p_sys->p_audios[i_index].index = i_index;
+    // Probe audio inputs
+    if (deviceInfo.dev_cap.capabilities & V4L2_CAP_AUDIO) {
+        audioCaptureDeviceNames << devicePath;
     }
 
-    /* Probe audio inputs */
-    if( p_sys->dev_cap.capabilities & V4L2_CAP_AUDIO )
-    {
-        while( p_sys->i_audio < 32 &&
-            v4l2_ioctl( i_fd, VIDIOC_S_AUDIO, &p_sys->p_audios[p_sys->i_audio] ) >= 0 )
-        {
-            if( v4l2_ioctl( i_fd, VIDIOC_G_AUDIO, &p_sys->p_audios[ p_sys->i_audio] ) < 0 )
-            {
-                qDebug() << "cannot get audio input characteristics";
-                goto open_failed;
-            }
-
-            p_sys->i_audio++;
-        }
-    }
-
-    if( i_fd >= 0 )
+    if (i_fd >= 0)
         v4l2_close( i_fd );
     return true;
 
     open_failed:
 
-    if( i_fd >= 0 )
+    if (i_fd >= 0)
         v4l2_close( i_fd );
     return false;
 
+}
+
+static bool scanDevices(QList<QByteArray> & videoCaptureDeviceNames, QList<QByteArray> & audioCaptureDeviceNames)
+{
+    QDir deviceDir("/dev");
+    if (!deviceDir.isReadable()) {
+        qDebug() << "Phonon::VLC::V4L2::scanDevices: Unable to read /dev";
+        return false;
+    }
+
+    // Search trough /dev/videoX for valid V4L devices
+    QStringList nameFilters;
+    nameFilters << "video*";
+    deviceDir.setFilter(QDir::System);
+    deviceDir.setNameFilters(nameFilters);
+
+    QStringList deviceNames = deviceDir.entryList();
+    foreach (QString dn, deviceNames) {
+        // Get information about the device from V4L, and append it to the capture device lists
+        probeDevice(dn.toLatin1(), videoCaptureDeviceNames, audioCaptureDeviceNames);
+    }
+
+    return true;
 }
 
 }

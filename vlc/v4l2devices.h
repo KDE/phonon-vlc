@@ -18,11 +18,13 @@ along with this library.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef Phonon_VLC_V4L2DEVICES_H
 #define Phonon_VLC_V4L2DEVICES_H
 
-#ifdef Q_OS_LINUX
-#define HAVE_LIBV4L2
-#ifdef HAVE_LIBV4L2
+//#ifdef Q_OS_LINUX
+//#define HAVE_LIBV4L2
+//#ifdef HAVE_LIBV4L2
 
+#include <phonon/ObjectDescription>
 #include <QtCore/QByteArray>
+#include <QtCore/QList>
 
 QT_BEGIN_NAMESPACE
 
@@ -30,13 +32,15 @@ namespace Phonon {
 namespace VLC {
 namespace V4L2Support {
 
+static bool scanDevices(QList<QByteArray> & videoCaptureDeviceNames, QList<QByteArray> & audioCaptureDeviceNames);
+
 }
 }
 } // namespace Phonon::VLC::V4L2Support
 
 QT_END_NAMESPACE
 
-#endif
-#endif // Q_OS_LINUX
+//#endif // HAVE_LIBV4L2
+//#endif // Q_OS_LINUX
 
 #endif // V4L2DEVICES_H
