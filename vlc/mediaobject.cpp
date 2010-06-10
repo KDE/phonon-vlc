@@ -272,17 +272,23 @@ void MediaObject::loadStream()
 {
     streamReader = new StreamReader(mediaSource);
 
+#if _MSC_VER
+    char formatstr[] = "0x%p";
+#else
+    char formatstr[] = "%p";
+#endif
+
     char rptr[64];
-    snprintf(rptr, sizeof(rptr), "%p", streamReadCallback);
+    snprintf(rptr, sizeof(rptr), formatstr, streamReadCallback);
 
     char rdptr[64];
-    snprintf(rdptr, sizeof(rdptr), "%p", streamReadDoneCallback);
+    snprintf(rdptr, sizeof(rdptr), formatstr, streamReadDoneCallback);
 
     char sptr[64];
-    snprintf(sptr, sizeof(sptr), "%p", streamSeekCallback);
+    snprintf(sptr, sizeof(sptr), formatstr, streamSeekCallback);
 
     char srptr[64];
-    snprintf(srptr, sizeof(srptr), "%p", streamReader);
+    snprintf(srptr, sizeof(srptr), formatstr, streamReader);
 
     loadMedia( "imem/ffmpeg://" );
 
