@@ -53,6 +53,8 @@ class DeviceManager : public QObject
 public:
     DeviceManager(Backend *parent);
     virtual ~DeviceManager();
+    const QList<AudioDevice> audioCaptureDevices() const;
+    const QList<AudioDevice> videoCaptureDevices() const;
     const QList<AudioDevice> audioOutputDevices() const;
     int deviceId(const QByteArray &vlcId) const;
     QByteArray deviceDescription(int id) const;
@@ -66,8 +68,13 @@ public slots:
 
 private:
     bool canOpenDevice() const;
+    void updateDeviceSublist(const QList<QByteArray> &namesList, const QList<QByteArray> &hwidList, QList<AudioDevice> deviceList);
+
+private:
     Backend *m_backend;
-    QList <AudioDevice> m_audioOutputDeviceList;
+    QList<AudioDevice> m_audioCaptureDeviceList;
+    QList<AudioDevice> m_videoCaptureDeviceList;
+    QList<AudioDevice> m_audioOutputDeviceList;
 };
 }
 } // namespace Phonon::VLC

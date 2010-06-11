@@ -71,6 +71,8 @@ DeviceManager::DeviceManager(Backend *parent)
 
 DeviceManager::~DeviceManager()
 {
+    m_audioCaptureDeviceList.clear();
+    m_videoCaptureDeviceList.clear();
     m_audioOutputDeviceList.clear();
 }
 
@@ -84,10 +86,21 @@ bool DeviceManager::canOpenDevice() const
  */
 int DeviceManager::deviceId(const QByteArray &nameId) const
 {
+    for (int i = 0 ; i < m_audioCaptureDeviceList.size() ; ++i) {
+        if (m_audioCaptureDeviceList[i].vlcId == nameId)
+            return m_audioCaptureDeviceList[i].id;
+    }
+
+    for (int i = 0 ; i < m_videoCaptureDeviceList.size() ; ++i) {
+        if (m_videoCaptureDeviceList[i].vlcId == nameId)
+            return m_videoCaptureDeviceList[i].id;
+    }
+
     for (int i = 0 ; i < m_audioOutputDeviceList.size() ; ++i) {
         if (m_audioOutputDeviceList[i].vlcId == nameId)
             return m_audioOutputDeviceList[i].id;
     }
+
     return -1;
 }
 
@@ -96,11 +109,55 @@ int DeviceManager::deviceId(const QByteArray &nameId) const
  */
 QByteArray DeviceManager::deviceDescription(int i_id) const
 {
+    for (int i = 0 ; i < m_audioCaptureDeviceList.size() ; ++i) {
+        if (m_audioCaptureDeviceList[i].id == i_id)
+            return m_audioCaptureDeviceList[i].description;
+    }
+
+    for (int i = 0 ; i < m_videoCaptureDeviceList.size() ; ++i) {
+        if (m_videoCaptureDeviceList[i].id == i_id)
+            return m_videoCaptureDeviceList[i].description;
+    }
+
     for (int i = 0 ; i < m_audioOutputDeviceList.size() ; ++i) {
         if (m_audioOutputDeviceList[i].id == i_id)
             return m_audioOutputDeviceList[i].description;
     }
+
     return QByteArray();
+}
+
+void DeviceManager::updateDeviceSublist(const QList<QByteArray> &namesList, const QList<QByteArray> &hwidList, QList<AudioDevice> deviceList)
+{
+    bool hasHwids = !hwidList.isEmpty();
+
+    for (int i = 0 ; i < namesList.size() ; ++i) {
+        QByteArray nameId = namesList.at(i);
+        QByteArray hwId = hasHwids ? hwidList.at(i) : QByteArray();
+        if (deviceId(nameId) == -1) {
+            // This is a new device, add it
+            qDebug() << "added device " << nameId.data();
+            m_audioOutputDeviceList.append(AudioDevice(this, nameId, hwId));
+            emit deviceAdded(deviceId(nameId));
+        }
+    }
+    if (namesList.size() < m_audioOutputDeviceList.size()) {
+        // A device was removed
+        for (int i = m_audioOutputDeviceList.size() - 1 ; i >= 0 ; --i) {
+            QByteArray currId = m_audioOutputDeviceList[i].vlcId;
+            bool b_found = false;
+            for (int k = namesList.size() - 1  ; k >= 0 ; --k) {
+                if (currId == namesList[k]) {
+                    b_found = true;
+                    break;
+                }
+            }
+            if (!b_found) {
+                emit deviceRemoved(deviceId(currId));
+                m_audioOutputDeviceList.removeAt(i);
+            }
+        }
+    }
 }
 
 /**
@@ -110,10 +167,13 @@ void DeviceManager::updateDeviceList()
 {
 #ifdef HAVE_LIBV4L2
     // Lists for capture devices
-    QList<QByteArray> vc_names, ac_names;
+    QList<QByteArray> vc_names, ac_names, hwids;
 
     // Get the list of available v4l2 capture devices
     V4L2Support::scanDevices(vc_names, ac_names);
+
+    updateDeviceSublist(vc_names, hwids, m_videoCaptureDeviceList);
+    updateDeviceSublist(ac_names, hwids, m_audioCaptureDeviceList);
 #endif
 
     // Lists for audio output devices
@@ -151,37 +211,27 @@ void DeviceManager::updateDeviceList()
     pulse->enable(false);
 #endif
 
-    for (int i = 0 ; i < ao_names.size() ; ++i) {
-        QByteArray nameId = ao_names.at(i);
-        QByteArray hwId = ao_hw_names.at(i);
-        if (deviceId(nameId) == -1) {
-            // This is a new device, add it
-            qDebug() << "add aout " << nameId.data();
-            m_audioOutputDeviceList.append(AudioDevice(this, nameId, hwId));
-            emit deviceAdded(deviceId(nameId));
-        }
-    }
-    if (ao_names.size() < m_audioOutputDeviceList.size()) {
-        // A device was removed
-        for (int i = m_audioOutputDeviceList.size() - 1 ; i >= 0 ; --i) {
-            QByteArray currId = m_audioOutputDeviceList[i].vlcId;
-            bool b_found = false;
-            for (int k = ao_names.size() - 1  ; k >= 0 ; --k) {
-                if (currId == ao_names[k]) {
-                    b_found = true;
-                    break;
-                }
-            }
-            if (!b_found) {
-                emit deviceRemoved(deviceId(currId));
-                m_audioOutputDeviceList.removeAt(i);
-            }
-        }
-    }
+    updateDeviceSublist(ao_names, ao_hw_names, m_audioOutputDeviceList);
 }
 
 /**
- * Return a list of hardware id.
+* Return a list of name identifiers for audio capture devices.
+*/
+const QList<AudioDevice> DeviceManager::audioCaptureDevices() const
+{
+    return m_audioCaptureDeviceList;
+}
+
+/**
+* Return a list of name identifiers for video capture devices.
+*/
+const QList<AudioDevice> DeviceManager::videoCaptureDevices() const
+{
+    return m_videoCaptureDeviceList;
+}
+
+/**
+ * Return a list of name identifiers for audio output devices.
  */
 const QList<AudioDevice> DeviceManager::audioOutputDevices() const
 {
