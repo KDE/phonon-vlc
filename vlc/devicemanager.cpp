@@ -31,6 +31,10 @@
 #  include <phonon/pulsesupport.h>
 #endif
 
+#ifdef HAVE_LIBV4L2
+#  include <v4l2devices.h>
+#endif
+
 /**
  * This class manages the list of currently active output devices.
  */

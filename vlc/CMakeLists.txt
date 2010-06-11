@@ -19,6 +19,14 @@ if (MSVC)
 	endif (KDEWIN_FOUND)
 endif (MSVC)
 
+# Try and find libv4l2
+macro_optional_find_package(V4L2)
+macro_log_feature(V4L2_FOUND "V4L2" "VideoForLinux 2 is required to enable listing v4l2 devices" "" FALSE)
+if (V4L2_FOUND)
+    add_definitions(-DHAVE_LIBV4L2)
+    include_directories(${LIBV4L2_INCLUDE_DIR})
+endif (V4L2_FOUND)
+
 add_definitions(-D_PHONON_BACKEND_VERSION_4_2)
 
 set(phonon_vlc_SRCS
@@ -35,6 +43,7 @@ set(phonon_vlc_SRCS
     streamhooks.cpp
     streamreader.cpp
     #    videodataoutput.cpp
+    v4l2devices.cpp
     videowidget.cpp
     vlcloader.cpp
     vlcmediacontroller.cpp
@@ -55,7 +64,11 @@ add_library(phonon_vlc MODULE ${phonon_vlc_SRCS} ${phonon_vlc_mac_SRCS})
 
 set_target_properties(phonon_vlc PROPERTIES PREFIX "")
 target_link_libraries(phonon_vlc ${PHONON_LIBS} ${LIBVLC_LIBRARY}
-    ${LIBVLCCORE_LIBRARY} )
+    ${LIBVLCCORE_LIBRARY})
+
+if (V4L2_FOUND)
+    target_link_libraries(phonon_vlc ${V4L2_LIBRARY})
+endif (V4L2_FOUND)
 
 
 if(WIN32)

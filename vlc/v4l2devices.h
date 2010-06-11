@@ -18,9 +18,7 @@ along with this library.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef Phonon_VLC_V4L2DEVICES_H
 #define Phonon_VLC_V4L2DEVICES_H
 
-//#ifdef Q_OS_LINUX
-//#define HAVE_LIBV4L2
-//#ifdef HAVE_LIBV4L2
+#ifdef HAVE_LIBV4L2
 
 #include <phonon/ObjectDescription>
 #include <QtCore/QByteArray>
@@ -40,7 +38,6 @@ static bool scanDevices(QList<QByteArray> & videoCaptureDeviceNames, QList<QByte
 
 QT_END_NAMESPACE
 
-//#endif // HAVE_LIBV4L2
-//#endif // Q_OS_LINUX
+#endif // HAVE_LIBV4L2
 
 #endif // Phonon_VLC_V4L2DEVICES_H

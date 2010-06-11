@@ -15,6 +15,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with this library.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef HAVE_LIBV4L2
+
 #include "v4l2devices.h"
 
 #include <linux/videodev2.h>
@@ -188,3 +190,5 @@ static bool scanDevices(QList<QByteArray> & videoCaptureDeviceNames, QList<QByte
 } // namespace Phonon::VLC::V4L2Support
 
 QT_END_NAMESPACE
+
+#endif // HAVE_LIBV4L2
