@@ -71,7 +71,7 @@ DeviceManager::DeviceManager(Backend *parent)
 
 DeviceManager::~DeviceManager()
 {
-    m_audioDeviceList.clear();
+    m_audioOutputDeviceList.clear();
 }
 
 bool DeviceManager::canOpenDevice() const
@@ -84,9 +84,9 @@ bool DeviceManager::canOpenDevice() const
  */
 int DeviceManager::deviceId(const QByteArray &nameId) const
 {
-    for (int i = 0 ; i < m_audioDeviceList.size() ; ++i) {
-        if (m_audioDeviceList[i].vlcId == nameId)
-            return m_audioDeviceList[i].id;
+    for (int i = 0 ; i < m_audioOutputDeviceList.size() ; ++i) {
+        if (m_audioOutputDeviceList[i].vlcId == nameId)
+            return m_audioOutputDeviceList[i].id;
     }
     return -1;
 }
@@ -96,9 +96,9 @@ int DeviceManager::deviceId(const QByteArray &nameId) const
  */
 QByteArray DeviceManager::deviceDescription(int i_id) const
 {
-    for (int i = 0 ; i < m_audioDeviceList.size() ; ++i) {
-        if (m_audioDeviceList[i].id == i_id)
-            return m_audioDeviceList[i].description;
+    for (int i = 0 ; i < m_audioOutputDeviceList.size() ; ++i) {
+        if (m_audioOutputDeviceList[i].id == i_id)
+            return m_audioOutputDeviceList[i].description;
     }
     return QByteArray();
 }
@@ -108,9 +108,18 @@ QByteArray DeviceManager::deviceDescription(int i_id) const
  */
 void DeviceManager::updateDeviceList()
 {
-    QList<QByteArray> list, list_hw;
-    list.append("default");
-    list_hw.append("");
+#ifdef HAVE_LIBV4L2
+    // Lists for capture devices
+    QList<QByteArray> vc_names, ac_names;
+
+    // Get the list of available v4l2 capture devices
+    V4L2Support::scanDevices(vc_names, ac_names);
+#endif
+
+    // Lists for audio output devices
+    QList<QByteArray> ao_names, ao_hw_names;
+    ao_names.append("default");
+    ao_hw_names.append("");
 
     // Get the list of available audio outputs
     libvlc_audio_output_t *p_ao_list = libvlc_audio_output_list_get(vlc_instance);
@@ -129,8 +138,8 @@ void DeviceManager::updateDeviceList()
             haspulse = true;
             break;
         }
-        list.append(p_ao_list->psz_name);
-        list_hw.append("");
+        ao_names.append(p_ao_list->psz_name);
+        ao_hw_names.append("");
         p_ao_list = p_ao_list->p_next;
     }
     libvlc_audio_output_list_release(p_start);
@@ -142,30 +151,30 @@ void DeviceManager::updateDeviceList()
     pulse->enable(false);
 #endif
 
-    for (int i = 0 ; i < list.size() ; ++i) {
-        QByteArray nameId = list.at(i);
-        QByteArray hwId = list_hw.at(i);
+    for (int i = 0 ; i < ao_names.size() ; ++i) {
+        QByteArray nameId = ao_names.at(i);
+        QByteArray hwId = ao_hw_names.at(i);
         if (deviceId(nameId) == -1) {
             // This is a new device, add it
             qDebug() << "add aout " << nameId.data();
-            m_audioDeviceList.append(AudioDevice(this, nameId, hwId));
+            m_audioOutputDeviceList.append(AudioDevice(this, nameId, hwId));
             emit deviceAdded(deviceId(nameId));
         }
     }
-    if (list.size() < m_audioDeviceList.size()) {
+    if (ao_names.size() < m_audioOutputDeviceList.size()) {
         // A device was removed
-        for (int i = m_audioDeviceList.size() - 1 ; i >= 0 ; --i) {
-            QByteArray currId = m_audioDeviceList[i].vlcId;
+        for (int i = m_audioOutputDeviceList.size() - 1 ; i >= 0 ; --i) {
+            QByteArray currId = m_audioOutputDeviceList[i].vlcId;
             bool b_found = false;
-            for (int k = list.size() - 1  ; k >= 0 ; --k) {
-                if (currId == list[k]) {
+            for (int k = ao_names.size() - 1  ; k >= 0 ; --k) {
+                if (currId == ao_names[k]) {
                     b_found = true;
                     break;
                 }
             }
             if (!b_found) {
                 emit deviceRemoved(deviceId(currId));
-                m_audioDeviceList.removeAt(i);
+                m_audioOutputDeviceList.removeAt(i);
             }
         }
     }
@@ -176,7 +185,7 @@ void DeviceManager::updateDeviceList()
  */
 const QList<AudioDevice> DeviceManager::audioOutputDevices() const
 {
-    return m_audioDeviceList;
+    return m_audioOutputDeviceList;
 }
 
 }

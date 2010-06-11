@@ -67,7 +67,7 @@ public slots:
 private:
     bool canOpenDevice() const;
     Backend *m_backend;
-    QList <AudioDevice> m_audioDeviceList;
+    QList <AudioDevice> m_audioOutputDeviceList;
 };
 }
 } // namespace Phonon::VLC

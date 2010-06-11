@@ -162,7 +162,7 @@ static bool probeDevice(QByteArray devicePath,
 
 }
 
-static bool scanDevices(QList<QByteArray> & videoCaptureDeviceNames, QList<QByteArray> & audioCaptureDeviceNames)
+bool scanDevices(QList<QByteArray> & videoCaptureDeviceNames, QList<QByteArray> & audioCaptureDeviceNames)
 {
     QDir deviceDir("/dev");
     if (!deviceDir.isReadable()) {
