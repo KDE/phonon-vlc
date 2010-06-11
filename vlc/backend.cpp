@@ -243,7 +243,7 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const
 
     switch (type) {
     case Phonon::AudioOutputDeviceType: {
-        QList<AudioDevice> deviceList = deviceManager()->audioOutputDevices();
+        QList<Device> deviceList = deviceManager()->audioOutputDevices();
         for (int dev = 0 ; dev < deviceList.size() ; ++dev)
             list.append(deviceList[dev].id);
     }
@@ -274,9 +274,9 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
 
     switch (type) {
     case Phonon::AudioOutputDeviceType: {
-        QList<AudioDevice> audioDevices = deviceManager()->audioOutputDevices();
+        QList<Device> audioDevices = deviceManager()->audioOutputDevices();
         if (index >= 0 && index < audioDevices.size()) {
-            ret.insert("name", audioDevices[index].vlcId);
+            ret.insert("name", audioDevices[index].nameId);
             ret.insert("description", audioDevices[index].description);
             ret.insert("icon", QLatin1String("audio-card"));
         }

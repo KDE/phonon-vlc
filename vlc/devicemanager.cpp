@@ -45,7 +45,7 @@ namespace Phonon
 {
 namespace VLC {
 
-AudioDevice::AudioDevice(DeviceManager *manager, const QByteArray &deviceId, const QByteArray &hw_id)
+Device::Device(DeviceManager *manager, const QByteArray &deviceId, const QByteArray &hw_id)
 {
     Q_UNUSED(manager)
 
@@ -53,10 +53,10 @@ AudioDevice::AudioDevice(DeviceManager *manager, const QByteArray &deviceId, con
     static int counter = 0;
     id = counter++;
     // Get name from device
-    if (vlcId == "default") {
+    if (nameId == "default") {
         description = "Default audio device";
     } else {
-        vlcId = deviceId;
+        nameId = deviceId;
         description = "";
     }
     hwId = hw_id;
@@ -87,17 +87,17 @@ bool DeviceManager::canOpenDevice() const
 int DeviceManager::deviceId(const QByteArray &nameId) const
 {
     for (int i = 0 ; i < m_audioCaptureDeviceList.size() ; ++i) {
-        if (m_audioCaptureDeviceList[i].vlcId == nameId)
+        if (m_audioCaptureDeviceList[i].nameId == nameId)
             return m_audioCaptureDeviceList[i].id;
     }
 
     for (int i = 0 ; i < m_videoCaptureDeviceList.size() ; ++i) {
-        if (m_videoCaptureDeviceList[i].vlcId == nameId)
+        if (m_videoCaptureDeviceList[i].nameId == nameId)
             return m_videoCaptureDeviceList[i].id;
     }
 
     for (int i = 0 ; i < m_audioOutputDeviceList.size() ; ++i) {
-        if (m_audioOutputDeviceList[i].vlcId == nameId)
+        if (m_audioOutputDeviceList[i].nameId == nameId)
             return m_audioOutputDeviceList[i].id;
     }
 
@@ -127,7 +127,7 @@ QByteArray DeviceManager::deviceDescription(int i_id) const
     return QByteArray();
 }
 
-void DeviceManager::updateDeviceSublist(const QList<QByteArray> &namesList, const QList<QByteArray> &hwidList, QList<AudioDevice> deviceList)
+void DeviceManager::updateDeviceSublist(const QList<QByteArray> &namesList, const QList<QByteArray> &hwidList, QList<Device> deviceList)
 {
     bool hasHwids = !hwidList.isEmpty();
 
@@ -137,14 +137,14 @@ void DeviceManager::updateDeviceSublist(const QList<QByteArray> &namesList, cons
         if (deviceId(nameId) == -1) {
             // This is a new device, add it
             qDebug() << "added device " << nameId.data();
-            m_audioOutputDeviceList.append(AudioDevice(this, nameId, hwId));
+            m_audioOutputDeviceList.append(Device(this, nameId, hwId));
             emit deviceAdded(deviceId(nameId));
         }
     }
     if (namesList.size() < m_audioOutputDeviceList.size()) {
         // A device was removed
         for (int i = m_audioOutputDeviceList.size() - 1 ; i >= 0 ; --i) {
-            QByteArray currId = m_audioOutputDeviceList[i].vlcId;
+            QByteArray currId = m_audioOutputDeviceList[i].nameId;
             bool b_found = false;
             for (int k = namesList.size() - 1  ; k >= 0 ; --k) {
                 if (currId == namesList[k]) {
@@ -217,7 +217,7 @@ void DeviceManager::updateDeviceList()
 /**
 * Return a list of name identifiers for audio capture devices.
 */
-const QList<AudioDevice> DeviceManager::audioCaptureDevices() const
+const QList<Device> DeviceManager::audioCaptureDevices() const
 {
     return m_audioCaptureDeviceList;
 }
@@ -225,7 +225,7 @@ const QList<AudioDevice> DeviceManager::audioCaptureDevices() const
 /**
 * Return a list of name identifiers for video capture devices.
 */
-const QList<AudioDevice> DeviceManager::videoCaptureDevices() const
+const QList<Device> DeviceManager::videoCaptureDevices() const
 {
     return m_videoCaptureDeviceList;
 }
@@ -233,7 +233,7 @@ const QList<AudioDevice> DeviceManager::videoCaptureDevices() const
 /**
  * Return a list of name identifiers for audio output devices.
  */
-const QList<AudioDevice> DeviceManager::audioOutputDevices() const
+const QList<Device> DeviceManager::audioOutputDevices() const
 {
     return m_audioOutputDeviceList;
 }
