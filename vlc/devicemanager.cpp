@@ -127,7 +127,7 @@ QByteArray DeviceManager::deviceDescription(int i_id) const
     return QByteArray();
 }
 
-void DeviceManager::updateDeviceSublist(const QList<QByteArray> &namesList, const QList<QByteArray> &hwidList, QList<Device> deviceList)
+void DeviceManager::updateDeviceSublist(const QList<QByteArray> &namesList, const QList<QByteArray> &hwidList, QList<Device> &deviceList)
 {
     bool hasHwids = !hwidList.isEmpty();
 
@@ -137,14 +137,14 @@ void DeviceManager::updateDeviceSublist(const QList<QByteArray> &namesList, cons
         if (deviceId(nameId) == -1) {
             // This is a new device, add it
             qDebug() << "added device " << nameId.data();
-            m_audioOutputDeviceList.append(Device(this, nameId, hwId));
+            deviceList.append(Device(this, nameId, hwId));
             emit deviceAdded(deviceId(nameId));
         }
     }
-    if (namesList.size() < m_audioOutputDeviceList.size()) {
+    if (namesList.size() < deviceList.size()) {
         // A device was removed
-        for (int i = m_audioOutputDeviceList.size() - 1 ; i >= 0 ; --i) {
-            QByteArray currId = m_audioOutputDeviceList[i].nameId;
+        for (int i = deviceList.size() - 1 ; i >= 0 ; --i) {
+            QByteArray currId = deviceList[i].nameId;
             bool b_found = false;
             for (int k = namesList.size() - 1  ; k >= 0 ; --k) {
                 if (currId == namesList[k]) {
@@ -154,7 +154,7 @@ void DeviceManager::updateDeviceSublist(const QList<QByteArray> &namesList, cons
             }
             if (!b_found) {
                 emit deviceRemoved(deviceId(currId));
-                m_audioOutputDeviceList.removeAt(i);
+                deviceList.removeAt(i);
             }
         }
     }
@@ -168,6 +168,8 @@ void DeviceManager::updateDeviceList()
 #ifdef HAVE_LIBV4L2
     // Lists for capture devices
     QList<QByteArray> vc_names, ac_names, hwids;
+
+    qDebug() << "probing for v4l devices";
 
     // Get the list of available v4l2 capture devices
     V4L2Support::scanDevices(vc_names, ac_names);

@@ -68,7 +68,7 @@ public slots:
 
 private:
     bool canOpenDevice() const;
-    void updateDeviceSublist(const QList<QByteArray> &namesList, const QList<QByteArray> &hwidList, QList<Device> deviceList);
+    void updateDeviceSublist(const QList< QByteArray >& namesList, const QList< QByteArray >& hwidList, QList< Phonon::VLC::Device >& deviceList);
 
 private:
     Backend *m_backend;

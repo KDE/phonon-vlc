@@ -142,11 +142,13 @@ static bool probeDevice(QByteArray devicePath,
 
     // Probe video inputs
     if (deviceInfo.dev_cap.capabilities & V4L2_CAP_VIDEO_CAPTURE) {
+        qDebug() << "Phonon::VLC::V4L2::probeDevice: Found video capture device" << devicePath;
         videoCaptureDeviceNames << devicePath;
     }
 
     // Probe audio inputs
     if (deviceInfo.dev_cap.capabilities & V4L2_CAP_AUDIO) {
+        qDebug() << "Phonon::VLC::V4L2::probeDevice: Found audio capture device" << devicePath;
         audioCaptureDeviceNames << devicePath;
     }
 
@@ -178,6 +180,8 @@ bool scanDevices(QList<QByteArray> & videoCaptureDeviceNames, QList<QByteArray> 
 
     QStringList deviceNames = deviceDir.entryList();
     foreach (QString dn, deviceNames) {
+        dn = deviceDir.filePath(dn);
+
         // Get information about the device from V4L, and append it to the capture device lists
         probeDevice(dn.toLatin1(), videoCaptureDeviceNames, audioCaptureDeviceNames);
     }
