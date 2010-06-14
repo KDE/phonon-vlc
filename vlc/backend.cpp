@@ -240,11 +240,25 @@ QStringList Backend::availableMimeTypes() const
 QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const
 {
     QList<int> list;
+    QList<Device> deviceList;
+    int dev;
 
     switch (type) {
     case Phonon::AudioOutputDeviceType: {
-        QList<Device> deviceList = deviceManager()->audioOutputDevices();
-        for (int dev = 0 ; dev < deviceList.size() ; ++dev)
+        deviceList = deviceManager()->audioOutputDevices();
+        for (dev = 0 ; dev < deviceList.size() ; ++dev)
+            list.append(deviceList[dev].id);
+    }
+    break;
+    case Phonon::AudioCaptureDeviceType: {
+        deviceList = deviceManager()->audioCaptureDevices();
+        for (dev = 0 ; dev < deviceList.size() ; ++dev)
+            list.append(deviceList[dev].id);
+    }
+    break;
+    case Phonon::VideoCaptureDeviceType: {
+        deviceList = deviceManager()->videoCaptureDevices();
+        for (dev = 0 ; dev < deviceList.size() ; ++dev)
             list.append(deviceList[dev].id);
     }
     break;
@@ -271,14 +285,31 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const
 QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescriptionType type, int index) const
 {
     QHash<QByteArray, QVariant> ret;
+    QList<Device> deviceList;
 
     switch (type) {
     case Phonon::AudioOutputDeviceType: {
-        QList<Device> audioDevices = deviceManager()->audioOutputDevices();
-        if (index >= 0 && index < audioDevices.size()) {
-            ret.insert("name", audioDevices[index].nameId);
-            ret.insert("description", audioDevices[index].description);
+        deviceList = deviceManager()->audioOutputDevices();
+        if (index >= 0 && index < deviceList.size()) {
+            ret.insert("name", deviceList[index].nameId);
+            ret.insert("description", deviceList[index].description);
             ret.insert("icon", QLatin1String("audio-card"));
+        }
+    }
+    break;
+    case Phonon::AudioCaptureDeviceType: {
+        deviceList = deviceManager()->audioCaptureDevices();
+        if (index >= 0 && index < deviceList.size()) {
+            ret.insert("name", deviceList[index].nameId);
+            ret.insert("description", deviceList[index].description);
+        }
+    }
+    break;
+    case Phonon::VideoCaptureDeviceType: {
+        deviceList = deviceManager()->videoCaptureDevices();
+        if (index >= 0 && index < deviceList.size()) {
+            ret.insert("name", deviceList[index].nameId);
+            ret.insert("description", deviceList[index].description);
         }
     }
     break;
