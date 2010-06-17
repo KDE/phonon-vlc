@@ -52,14 +52,11 @@ Device::Device(DeviceManager *manager, const QByteArray &deviceId, const QByteAr
     // Get an id
     static int counter = 0;
     id = counter++;
-    // Get name from device
-    if (deviceId == "default") {
-        description = "Default device";
-    } else {
-        nameId = deviceId;
-        description = "";
-    }
+
+    // Get name and description for the device
+    nameId = deviceId;
     hwId = hw_id;
+    description = deviceId == "default" ? "Default device" : "";
 }
 
 DeviceManager::DeviceManager(Backend *parent)
@@ -136,9 +133,9 @@ void DeviceManager::updateDeviceSublist(const QList<QByteArray> &namesList, cons
         QByteArray hwId = hasHwids ? hwidList.at(i) : QByteArray();
         if (deviceId(nameId) == -1) {
             // This is a new device, add it
-            qDebug() << "added device " << nameId.data();
             deviceList.append(Device(this, nameId, hwId));
             emit deviceAdded(deviceId(nameId));
+            qDebug() << "added device " << nameId.data() << "id" << deviceId(nameId);
         }
     }
     if (namesList.size() < deviceList.size()) {
