@@ -53,8 +53,8 @@ Device::Device(DeviceManager *manager, const QByteArray &deviceId, const QByteAr
     static int counter = 0;
     id = counter++;
     // Get name from device
-    if (nameId == "default") {
-        description = "Default audio device";
+    if (deviceId == "default") {
+        description = "Default device";
     } else {
         nameId = deviceId;
         description = "";
