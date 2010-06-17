@@ -113,8 +113,8 @@ Tries to open a v4l device specified by devicePath, and queries it's capabilitie
 Depending on the device capabilities, it is added to the capture device lists
 */
 static bool probeDevice(QByteArray devicePath,
-                        QList<QByteArray> & videoCaptureDeviceNames,
-                        QList<QByteArray> & audioCaptureDeviceNames)
+                        QList<QByteArray> & videoCaptureDevices,
+                        QList<QByteArray> & audioCaptureDevices)
 {
     int i_index;
     int i_standard;
@@ -143,13 +143,13 @@ static bool probeDevice(QByteArray devicePath,
     // Probe video inputs
     if (deviceInfo.dev_cap.capabilities & V4L2_CAP_VIDEO_CAPTURE) {
         qDebug() << "Phonon::VLC::V4L2::probeDevice: Found video capture device" << devicePath;
-        videoCaptureDeviceNames << devicePath;
+        videoCaptureDevices << devicePath;
     }
 
     // Probe audio inputs
     if (deviceInfo.dev_cap.capabilities & V4L2_CAP_AUDIO) {
         qDebug() << "Phonon::VLC::V4L2::probeDevice: Found audio capture device" << devicePath;
-        audioCaptureDeviceNames << devicePath;
+        audioCaptureDevices << devicePath;
     }
 
     if (i_fd >= 0)
@@ -164,7 +164,7 @@ static bool probeDevice(QByteArray devicePath,
 
 }
 
-bool scanDevices(QList<QByteArray> & videoCaptureDeviceNames, QList<QByteArray> & audioCaptureDeviceNames)
+bool scanDevices(QList<QByteArray> & videoCaptureDevices, QList<QByteArray> & audioCaptureDevices)
 {
     QDir deviceDir("/dev");
     if (!deviceDir.isReadable()) {
@@ -178,12 +178,12 @@ bool scanDevices(QList<QByteArray> & videoCaptureDeviceNames, QList<QByteArray> 
     deviceDir.setFilter(QDir::System);
     deviceDir.setNameFilters(nameFilters);
 
-    QStringList deviceNames = deviceDir.entryList();
-    foreach (QString dn, deviceNames) {
+    QStringList devicePaths = deviceDir.entryList();
+    foreach (QString dn, devicePaths) {
         dn = deviceDir.filePath(dn);
 
         // Get information about the device from V4L, and append it to the capture device lists
-        probeDevice(dn.toLatin1(), videoCaptureDeviceNames, audioCaptureDeviceNames);
+        probeDevice(dn.toLatin1(), videoCaptureDevices, audioCaptureDevices);
     }
 
     return true;

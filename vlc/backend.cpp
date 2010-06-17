@@ -301,7 +301,9 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
         deviceList = deviceManager()->audioCaptureDevices();
         if (index >= 0 && index < deviceList.size()) {
             ret.insert("name", deviceList[index].nameId);
+            ret.insert("hwname", deviceList[index].hwId);
             ret.insert("description", deviceList[index].description);
+            ret.insert("v4l", deviceList[index].v4l);
         }
     }
     break;
@@ -309,7 +311,9 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
         deviceList = deviceManager()->videoCaptureDevices();
         if (index >= 0 && index < deviceList.size()) {
             ret.insert("name", deviceList[index].nameId);
+            ret.insert("hwname", deviceList[index].hwId);
             ret.insert("description", deviceList[index].description);
+            ret.insert("v4l", deviceList[index].v4l);
         }
     }
     break;
