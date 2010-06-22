@@ -172,7 +172,7 @@ void DeviceManager::updateDeviceList()
     QList<QByteArray> vc_names, ac_names, vc_hw_names, ac_hw_names;
     int i;
 
-    qDebug() << "probing for v4l devices";
+    qDebug() << Q_FUNC_INFO << "Probing for v4l devices";
 
     // Get the list of available v4l2 capture devices
     V4L2Support::scanDevices(vc_hw_names, ac_hw_names);

@@ -125,7 +125,7 @@ static bool probeDevice(QByteArray devicePath,
 
     // Open device
     if ((i_fd = v4l2_open( devicePath.constData(), O_RDWR)) < 0) {
-        qDebug() << "Phonon::VLC::V4L2::probeDevice: Cannot open video device" << devicePath;
+        qCritical() << Q_FUNC_INFO << "Cannot open video device" << devicePath;
         goto open_failed;
     }
 
@@ -136,19 +136,19 @@ static bool probeDevice(QByteArray devicePath,
 
     // Get device capabilites
     if (v4l2_ioctl(i_fd, VIDIOC_QUERYCAP, &deviceInfo.dev_cap) < 0) {
-        qDebug() << "Phonon::VLC::V4L2::probeDevice: Cannot get video capabilities for" << devicePath;
+        qCritical() << Q_FUNC_INFO << "Cannot get video capabilities for" << devicePath;
         goto open_failed;
     }
 
     // Probe video inputs
     if (deviceInfo.dev_cap.capabilities & V4L2_CAP_VIDEO_CAPTURE) {
-        qDebug() << "Phonon::VLC::V4L2::probeDevice: Found video capture device" << devicePath;
+        qDebug() << "found video capture device" << devicePath;
         videoCaptureDevices << devicePath;
     }
 
     // Probe audio inputs
     if (deviceInfo.dev_cap.capabilities & V4L2_CAP_AUDIO) {
-        qDebug() << "Phonon::VLC::V4L2::probeDevice: Found audio capture device" << devicePath;
+        qDebug() << "found audio capture device" << devicePath;
         audioCaptureDevices << devicePath;
     }
 
@@ -168,7 +168,7 @@ bool scanDevices(QList<QByteArray> & videoCaptureDevices, QList<QByteArray> & au
 {
     QDir deviceDir("/dev");
     if (!deviceDir.isReadable()) {
-        qDebug() << "Phonon::VLC::V4L2::scanDevices: Unable to read /dev";
+        qCritical() << Q_FUNC_INFO << "Unable to read /dev";
         return false;
     }
 
