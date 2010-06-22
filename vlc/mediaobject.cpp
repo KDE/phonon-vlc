@@ -272,7 +272,7 @@ void MediaObject::loadStream()
 {
     streamReader = new StreamReader(mediaSource);
 
-#if _MSC_VER
+#ifdef _MSC_VER
     char formatstr[] = "0x%p";
 #else
     char formatstr[] = "%p";
