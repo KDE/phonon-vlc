@@ -353,8 +353,9 @@ void MediaObject::setSource(const MediaSource & source)
             break;
         default:
             qCritical() << __FUNCTION__ << "Error: unsupported MediaSource::CaptureDevice:" << source.captureDeviceType();
-        break;
+            break;
         }
+        break;
     case MediaSource::Stream:
         if (!source.url().isEmpty())
             loadStream();
