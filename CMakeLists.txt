@@ -13,7 +13,7 @@ if (PHONON_BUILD_TESTS)
     enable_testing()
 endif (PHONON_BUILD_TESTS)
 
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules;${CMAKE_MODULE_PATH}")
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 
 include(PhononMacros)
 
@@ -48,13 +48,6 @@ endif(PHONON_PULSESUPPORT)
 
 # libVLC
 find_package(LIBVLC REQUIRED)
-
-# on Visual Studio, we need to have stdint.h as libvlc requires it
-# to get it, either add it yourself, or use the one given by kdewin
-if(MSVC)
-   find_package(KDEWin REQUIRED)
-   include_directories(${KDEWIN_INCLUDES})
-endif(MSVC)
 
 if (CMAKE_COMPILER_IS_GNUCXX)
    set (KDE4_ENABLE_EXCEPTIONS -fexceptions)
