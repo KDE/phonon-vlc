@@ -1,13 +1,15 @@
 /*****************************************************************************
- * VLC backend for the Phonon library                                        *
+ * libVLC backend for the Phonon library                                     *
+ *                                                                           *
  * Copyright (C) 2007-2008 Tanguy Krotoff <tkrotoff@gmail.com>               *
  * Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>                *
  * Copyright (C) 2009 Fathi Boudra <fabo@kde.org>                            *
+ * Copyright (C) 2009-2010 vlc-phonon AUTHORS                                *
  *                                                                           *
  * This program is free software; you can redistribute it and/or             *
  * modify it under the terms of the GNU Lesser General Public                *
  * License as published by the Free Software Foundation; either              *
- * version 3 of the License, or (at your option) any later version.          *
+ * version 2.1 of the License, or (at your option) any later version.        *
  *                                                                           *
  * This program is distributed in the hope that it will be useful,           *
  * but WITHOUT ANY WARRANTY; without even the implied warranty of            *
@@ -73,7 +75,7 @@ Phonon::VideoWidget::AspectRatio VideoWidget::aspectRatio() const
 void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspect)
 {
     // finish if no player
-    if (!vlc_current_media_player)
+    if (!p_vlc_player)
         return;
 
     aspect_ratio = aspect;
@@ -126,7 +128,7 @@ void VideoWidget::setBrightness(qreal brightness)
     f_brightness = brightness;
 
     // vlc takes brightness in range 0.0 - 2.0
-    if (vlc_current_media_player) {
+    if (p_vlc_player) {
         if (!b_filter_adjust_activated) {
 //            p_libvlc_video_filter_add(p_vlc_current_media_player, ADJUST, vlc_exception);
 //            vlcExceptionRaised();
@@ -148,7 +150,7 @@ void VideoWidget::setContrast(qreal contrast)
 
     // vlc takes contrast in range 0.0 - 2.0
     float f_contrast = contrast;
-    if (vlc_current_media_player) {
+    if (p_vlc_player) {
         if (!b_filter_adjust_activated) {
 //            p_libvlc_video_filter_add(p_vlc_current_media_player, ADJUST, vlc_exception);
 //            vlcExceptionRaised();
@@ -170,7 +172,7 @@ void VideoWidget::setHue(qreal hue)
 
     // vlc takes hue in range 0 - 360 in integer
     int i_hue = (f_hue + 1.0) * 180;
-    if (vlc_current_media_player) {
+    if (p_vlc_player) {
         if (!b_filter_adjust_activated) {
 //            p_libvlc_video_filter_add(p_vlc_current_media_player, ADJUST, vlc_exception);
 //            vlcExceptionRaised();
@@ -192,7 +194,7 @@ void VideoWidget::setSaturation(qreal saturation)
     f_saturation = saturation;
 
     // vlc takes brightness in range 0.0 - 3.0
-    if (vlc_current_media_player) {
+    if (p_vlc_player) {
         if (!b_filter_adjust_activated) {
 //            p_libvlc_video_filter_add(p_vlc_current_media_player, ADJUST, vlc_exception);
 //            vlcExceptionRaised();

@@ -7,7 +7,7 @@
  * This program is free software; you can redistribute it and/or             *
  * modify it under the terms of the GNU Lesser General Public                *
  * License as published by the Free Software Foundation; either              *
- * version 3 of the License, or (at your option) any later version.          *
+ * version 2.1 of the License, or (at your option) any later version.        *
  *                                                                           *
  * This program is distributed in the hope that it will be useful,           *
  * but WITHOUT ANY WARRANTY; without even the implied warranty of            *
@@ -56,9 +56,11 @@ qreal AudioOutput::volume() const
 
 void AudioOutput::setVolume(qreal volume)
 {
-    if (vlc_current_media_player) {
-        libvlc_audio_set_volume(vlc_current_media_player, (int)(f_volume * 100));
+    if (p_vlc_player) {
+        const int previous_volume = libvlc_audio_get_volume(p_vlc_player);
         f_volume = volume;
+        libvlc_audio_set_volume(p_vlc_player, (int)(f_volume * 50));
+        qDebug() << __FUNCTION__ << "Volume changed to - " << (int)(f_volume * 100) << " From " << previous_volume;
         emit volumeChanged(f_volume);
     }
 }
@@ -76,7 +78,7 @@ bool AudioOutput::setOutputDevice(int device)
 #ifdef PHONON_PULSESUPPORT
     if (PulseSupport::getInstance()->isActive()) {
         i_device = device;
-        libvlc_audio_output_set(vlc_current_media_player, "pulse");
+        libvlc_audio_output_set(p_vlc_player, "pulse");
         qDebug() << "set aout " << "pulse";
         return true;
     }
@@ -85,9 +87,11 @@ bool AudioOutput::setOutputDevice(int device)
     const QList<AudioDevice> deviceList = p_backend->deviceManager()->audioOutputDevices();
     if (device >= 0 && device < deviceList.size()) {
 
+        if (!p_vlc_player)
+            return false;
         i_device = device;
         const QByteArray deviceName = deviceList.at(device).vlcId;
-        libvlc_audio_output_set(vlc_current_media_player, (char *) deviceList.at(device).vlcId.data());
+        libvlc_audio_output_set(p_vlc_player, (char *) deviceList.at(device).vlcId.data());
         qDebug() << "set aout " << deviceList.at(device).vlcId.data();
 //         if (deviceName == DEFAULT_ID) {
 //             libvlc_audio_device_set(p_vlc_instance, DEFAULT, vlc_exception);
@@ -111,6 +115,15 @@ bool AudioOutput::setOutputDevice(const Phonon::AudioOutputDevice & device)
     return true;
 }
 #endif
+
+void AudioOutput::updateVolume()
+{
+    if (p_vlc_player) {
+        const int previous_volume = libvlc_audio_get_volume(p_vlc_player);
+        libvlc_audio_set_volume(p_vlc_player, (int)(f_volume * 50));
+        qDebug() << __FUNCTION__ << "Volume changed to - " << (int)(f_volume * 50) << " From " << previous_volume;
+    }
+}
 
 }
 } // Namespace Phonon::VLC

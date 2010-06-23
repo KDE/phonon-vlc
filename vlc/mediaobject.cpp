@@ -1,13 +1,16 @@
 /*****************************************************************************
- * VLC backend for the Phonon library                                        *
+ * libVLC backend for the Phonon library                                     *
+ *                                                                           *
  * Copyright (C) 2007-2008 Tanguy Krotoff <tkrotoff@gmail.com>               *
  * Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>                *
  * Copyright (C) 2009 Fathi Boudra <fabo@kde.org>                            *
+ * Copyright (C) 2010 Ben Cooksley <sourtooth@gmail.com>                     *
+ * Copyright (C) 2009-2010 vlc-phonon AUTHORS                                *
  *                                                                           *
  * This program is free software; you can redistribute it and/or             *
  * modify it under the terms of the GNU Lesser General Public                *
  * License as published by the Free Software Foundation; either              *
- * version 3 of the License, or (at your option) any later version.          *
+ * version 2.1 of the License, or (at your option) any later version.        *
  *                                                                           *
  * This program is distributed in the hope that it will be useful,           *
  * but WITHOUT ANY WARRANTY; without even the implied warranty of            *
@@ -20,6 +23,7 @@
  *****************************************************************************/
 
 #include "mediaobject.h"
+#include "streamhooks.h"
 
 #include "seekstack.h"
 
@@ -38,7 +42,7 @@ namespace VLC {
 MediaObject::MediaObject(QObject *p_parent)
         : QObject(p_parent)
 {
-    currentState = Phonon::LoadingState;
+    currentState = Phonon::StoppedState;
     i_video_widget_id = 0;
     b_prefinish_mark_reached_emitted = false;
     b_about_to_finish_emitted = false;
@@ -55,6 +59,11 @@ MediaObject::MediaObject(QObject *p_parent)
 
     connect(this, SIGNAL(tickInternal(qint64)),
             SLOT(tickInternalSlot(qint64)));
+
+    connect(this, SIGNAL(moveToNext()),
+            SLOT(moveToNextSource()));
+
+    p_next_source = MediaSource(QUrl());
 }
 
 MediaObject::~MediaObject()
@@ -73,9 +82,13 @@ void MediaObject::play()
     if (currentState == Phonon::PausedState) {
         resume();
     } else {
+        b_prefinish_mark_reached_emitted = false;
+        b_about_to_finish_emitted = false;
         // Play the file
         playInternal();
     }
+
+    emit playbackCommenced();
 }
 
 void MediaObject::seek(qint64 milliseconds)
@@ -124,8 +137,8 @@ void MediaObject::tickInternalSlot(qint64 currentTime)
 
 void MediaObject::loadMedia(const QString & filename)
 {
-    // Default MediaObject state is Phonon::LoadingState
-    currentState = Phonon::LoadingState;
+    // Default MediaObject state is Phonon::BufferingState
+    emit stateChanged( Phonon::BufferingState );
 
     // Load the media
     loadMediaInternal(filename);
@@ -205,14 +218,18 @@ void MediaObject::setSource(const MediaSource & source)
 
     switch (source.type()) {
     case MediaSource::Invalid:
+        qCritical() << __FUNCTION__ << "Error: MediaSource Type is Invalid:" << source.type();
+        break;
+    case MediaSource::Empty:
+        qCritical() << __FUNCTION__ << "Error: MediaSource is empty.";
         break;
     case MediaSource::LocalFile:
     case MediaSource::Url:
         {
             qCritical() << __FUNCTION__ << "yeap, 'tis a local file or url" << source.url().scheme();
-            const QByteArray &mrl = (source.url().scheme() == QLatin1String("") ?
-                    "file://" + source.url().toEncoded() :
-                    source.url().toEncoded());
+            const QString &mrl = (source.url().scheme() == QLatin1String("") ?
+                    QLatin1String("file://") + source.url().toString() :
+                    source.url().toString());
             loadMedia(mrl);
         }
         break;
@@ -241,20 +258,51 @@ void MediaObject::setSource(const MediaSource & source)
         }
         break;
     case MediaSource::Stream:
+        loadStream();
         break;
     default:
-        qCritical() << __FUNCTION__
-        << "Error: unsupported MediaSource:"
-        << source.type();
+        qCritical() << __FUNCTION__ << "Error: Unsupported MediaSource Type:" << source.type();
         break;
     }
 
     emit currentSourceChanged(mediaSource);
 }
 
+void MediaObject::loadStream()
+{
+    streamReader = new StreamReader(mediaSource);
+
+#ifdef _MSC_VER
+    char formatstr[] = "0x%p";
+#else
+    char formatstr[] = "%p";
+#endif
+
+    char rptr[64];
+    snprintf(rptr, sizeof(rptr), formatstr, streamReadCallback);
+
+    char rdptr[64];
+    snprintf(rdptr, sizeof(rdptr), formatstr, streamReadDoneCallback);
+
+    char sptr[64];
+    snprintf(sptr, sizeof(sptr), formatstr, streamSeekCallback);
+
+    char srptr[64];
+    snprintf(srptr, sizeof(srptr), formatstr, streamReader);
+
+    loadMedia( "imem/ffmpeg://" );
+
+    setOption("imem-cat=4");
+    setOption(QString("imem-data=%1").arg(srptr));
+    setOption(QString("imem-get=%1").arg(rptr));
+    setOption(QString("imem-release=%1").arg(rdptr));
+    setOption(QString("imem-seek=%1").arg(sptr));
+}
+
 void MediaObject::setNextSource(const MediaSource & source)
 {
-    setSource(source);
+    qDebug() << __FUNCTION__;
+    p_next_source = source;
 }
 
 qint32 MediaObject::prefinishMark() const
@@ -283,11 +331,16 @@ void MediaObject::setTransitionTime(qint32 time)
 
 void MediaObject::stateChangedInternal(Phonon::State newState)
 {
-    qDebug() << __FUNCTION__ << "newState:" << newState
-    << "previousState:" << currentState ;
+    qDebug() << __FUNCTION__ << "newState:" << PhononStateToString( newState )
+    << "previousState:" << PhononStateToString( currentState ) ;
 
     if (newState == currentState) {
         // State not changed
+        return;
+    } else if ( checkGaplessWaiting() ) {
+        // This is a no-op, warn that we are....
+        qDebug() << __FUNCTION__ << "no-op gapless item awaiting in queue - "
+                 << p_next_source.type() ;
         return;
     }
 
@@ -296,6 +349,51 @@ void MediaObject::stateChangedInternal(Phonon::State newState)
     currentState = newState;
     emit stateChanged(currentState, previousState);
 }
+
+QString MediaObject::PhononStateToString( Phonon::State newState )
+{
+    QString stream;
+    switch(newState)
+    {
+        case Phonon::ErrorState:
+            stream += "ErrorState";
+            break;
+        case Phonon::LoadingState:
+            stream += "LoadingState";
+            break;
+        case Phonon::StoppedState:
+            stream += "StoppedState";
+            break;
+        case Phonon::PlayingState:
+            stream += "PlayingState";
+            break;
+        case Phonon::BufferingState:
+            stream += "BufferingState";
+            break;
+        case Phonon::PausedState:
+            stream += "PausedState";
+            break;
+    }
+    return stream;
+}
+
+void MediaObject::moveToNextSource()
+{
+    if( p_next_source.type() == MediaSource::Invalid ) {
+        // No item is scheduled to be next...
+        return;
+    }
+
+    setSource( p_next_source );
+    play();
+    p_next_source = MediaSource(QUrl());
+}
+
+bool MediaObject::checkGaplessWaiting()
+{
+    return p_next_source.type() != MediaSource::Invalid && p_next_source.type() != MediaSource::Empty;
+}
+
 
 }
 } // Namespace Phonon::VLC

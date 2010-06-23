@@ -1,13 +1,15 @@
 /*****************************************************************************
- * VLC backend for the Phonon library                                        *
+ * libVLC backend for the Phonon library                                     *
+ *                                                                           *
  * Copyright (C) 2007-2008 Tanguy Krotoff <tkrotoff@gmail.com>               *
  * Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>                *
  * Copyright (C) 2009 Fathi Boudra <fabo@kde.org>                            *
+ * Copyright (C) 2009-2010 vlc-phonon AUTHORS                                *
  *                                                                           *
  * This program is free software; you can redistribute it and/or             *
  * modify it under the terms of the GNU Lesser General Public                *
  * License as published by the Free Software Foundation; either              *
- * version 3 of the License, or (at your option) any later version.          *
+ * version 2.1 of the License, or (at your option) any later version.        *
  *                                                                           *
  * This program is distributed in the hope that it will be useful,           *
  * but WITHOUT ANY WARRANTY; without even the implied warranty of            *
@@ -24,6 +26,9 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
+
+#include "vlcloader.h"
+#include "vlcmediaobject.h"
 
 namespace Phonon
 {
@@ -45,12 +50,15 @@ public:
 
     virtual void disconnectFromMediaObject(PrivateMediaObject *mediaObject);
 
+    virtual void addToMedia( libvlc_media_t * media );
+
 protected:
 
     PrivateMediaObject *p_media_object;
+    libvlc_media_player_t *p_vlc_player;
 
-private:
-
+private slots:
+    virtual void updateVolume();
 };
 
 }

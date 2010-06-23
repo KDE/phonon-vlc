@@ -1,13 +1,14 @@
 /*****************************************************************************
- * VLC backend for the Phonon library                                        *
+ * libVLC backend for the Phonon library                                     *
  * Copyright (C) 2007-2008 Tanguy Krotoff <tkrotoff@gmail.com>               *
  * Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>                *
  * Copyright (C) 2009 Fathi Boudra <fabo@kde.org>                            *
+ * Copyright (C) 2009-2010 vlc-phonon AUTHORS                                *
  *                                                                           *
  * This program is free software; you can redistribute it and/or             *
  * modify it under the terms of the GNU Lesser General Public                *
  * License as published by the Free Software Foundation; either              *
- * version 3 of the License, or (at your option) any later version.          *
+ * version 2.1 of the License, or (at your option) any later version.        *
  *                                                                           *
  * This program is distributed in the hope that it will be useful,           *
  * but WITHOUT ANY WARRANTY; without even the implied warranty of            *
@@ -22,6 +23,7 @@
 #include "backend.h"
 
 #include "audiooutput.h"
+#include "audiodataoutput.h"
 #include "mediaobject.h"
 #include "videowidget.h"
 #include "devicemanager.h"
@@ -64,7 +66,7 @@ Backend::Backend(QObject *parent, const QVariantList &)
     m_debugLevel = (DebugLevel)debugLevel;
 
     /* Actual libVLC initialisation */
-    if ( vlcInit() ) {
+    if ( vlcInit(debugLevel) ) {
         logMessage(QString("Using VLC version %0").arg(libvlc_get_version()));
     } else {
         qWarning("Phonon::VLC::vlcInit: Failed to initialize VLC");
@@ -101,8 +103,8 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
         return ao;
     }
     case AudioDataOutputClass:
-//        return new AudioDataOutput(parent);
-        logMessage("createObject() : AudioDataOutput not implemented");
+        return new AudioDataOutput(this, parent);
+        logMessage("createObject() : AudioDataOutput created - WARNING: POSSIBLY INCORRECTLY IMPLEMENTED");
         break;
     case VisualizationClass:
 //        return new Visualization(parent);
@@ -203,7 +205,9 @@ QStringList Backend::availableMimeTypes() const
         << QLatin1String("video/x-ms-asf")
         << QLatin1String("video/x-ms-wmv")
         << QLatin1String("video/x-msvideo")
-        << QLatin1String("video/x-quicktime");
+        << QLatin1String("video/x-quicktime")
+        << QLatin1String("audio/x-flac")
+        << QLatin1String("audio/x-ape");
     }
     return m_supportedMimeTypes;
 }
@@ -326,7 +330,7 @@ bool Backend::disconnectNodes(QObject *source, QObject *sink)
 {
     SinkNode *sinkNode = qobject_cast<SinkNode *>(sink);
     if (sinkNode) {
-        PrivateMediaObject *mediaObject = qobject_cast<PrivateMediaObject *>(source);
+        PrivateMediaObject * const mediaObject = qobject_cast<PrivateMediaObject *>(source);
         if (mediaObject) {
             // Disconnect the SinkNode from a MediaObject
             sinkNode->disconnectFromMediaObject(mediaObject);
@@ -386,7 +390,7 @@ void Backend::logMessage(const QString &message, int priority, QObject *obj) con
         if (obj) {
             // Strip away namespace from className
             QString className(obj->metaObject()->className());
-            int nameLength = className.length() - className.lastIndexOf(':') - 1;
+            const int nameLength = className.length() - className.lastIndexOf(':') - 1;
             className = className.right(nameLength);
             output.sprintf("%s %s (%s %p)", message.toLatin1().constData(),
                            obj->objectName().toLatin1().constData(),

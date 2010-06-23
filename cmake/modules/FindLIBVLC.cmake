@@ -18,32 +18,35 @@
 #Put here path to custom location
 #example: /home/user/vlc/include etc..
 FIND_PATH(LIBVLC_INCLUDE_DIR vlc/vlc.h
-  "$ENV{LIBVLC_INCLUDE_PATH}"
-  "$ENV{LIB_DIR}/include"
-  "$ENV{LIB_DIR}/include/vlc"
-  "/usr/include"
-  "/usr/include/vlc"
-  "/usr/local/include"
-  "/usr/local/include/vlc"
-  #mingw
-  c:/msys/local/include
+  HINTS "$ENV{LIBVLC_INCLUDE_PATH}"
+  PATHS
+    "$ENV{LIB_DIR}/include"
+    "$ENV{LIB_DIR}/include/vlc"
+    "/usr/include"
+    "/usr/include/vlc"
+    "/usr/local/include"
+    "/usr/local/include/vlc"
+    #mingw
+    c:/msys/local/include
   )
 FIND_PATH(LIBVLC_INCLUDE_DIR PATHS "${CMAKE_INCLUDE_PATH}/vlc" NAMES vlc.h)
 
 #Put here path to custom location
 #example: /home/user/vlc/lib etc..
-FIND_LIBRARY(LIBVLC_LIBRARY NAMES vlc libvlc PATHS
-  "$ENV{LIBVLC_LIBRARY_PATH}"
-  "$ENV{LIB_DIR}/lib"
-  #mingw
-  c:/msys/local/lib
+FIND_LIBRARY(LIBVLC_LIBRARY NAMES vlc libvlc
+  HINTS "$ENV{LIBVLC_LIBRARY_PATH}"
+  PATHS
+    "$ENV{LIB_DIR}/lib"
+    #mingw
+    c:/msys/local/lib
   )
 FIND_LIBRARY(LIBVLC_LIBRARY NAMES vlc libvlc)
-FIND_LIBRARY(LIBVLCCORE_LIBRARY NAMES vlccore libvlccore PATHS
-  "$ENV{LIBVLC_LIBRARY_PATH}"
-  "$ENV{LIB_DIR}/lib"
-  #mingw
-  c:/msys/local/lib
+FIND_LIBRARY(LIBVLCCORE_LIBRARY NAMES vlccore libvlccore
+  HINTS "$ENV{LIBVLC_LIBRARY_PATH}"
+  PATHS
+    "$ENV{LIB_DIR}/lib"
+    #mingw
+    c:/msys/local/lib
   )
 FIND_LIBRARY(LIBVLCCORE_LIBRARY NAMES vlccore libvlccore)
 

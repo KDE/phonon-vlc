@@ -1,13 +1,16 @@
 /*****************************************************************************
- * VLC backend for the Phonon library                                        *
+ * libVLC backend for the Phonon library                                     *
+ *                                                                           *
  * Copyright (C) 2007-2008 Tanguy Krotoff <tkrotoff@gmail.com>               *
  * Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>                *
  * Copyright (C) 2009 Fathi Boudra <fabo@kde.org>                            *
+ * Copyright (C) 2010 Ben Cooksley <sourtooth@gmail.com>                     *
+ * Copyright (C) 2009-2010 vlc-phonon AUTHORS                                *
  *                                                                           *
  * This program is free software; you can redistribute it and/or             *
  * modify it under the terms of the GNU Lesser General Public                *
  * License as published by the Free Software Foundation; either              *
- * version 3 of the License, or (at your option) any later version.          *
+ * version 2.1 of the License, or (at your option) any later version.        *
  *                                                                           *
  * This program is distributed in the hope that it will be useful,           *
  * but WITHOUT ANY WARRANTY; without even the implied warranty of            *
@@ -32,10 +35,13 @@
 #include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QMultiMap>
+#include <QtCore/QList>
 
 namespace Phonon
 {
 namespace VLC {
+
+class SinkNode;
 
 /**
  * VLC MediaObject.
@@ -52,6 +58,7 @@ class VLCMediaObject : public MediaObject, public VLCMediaController
 {
     Q_OBJECT
     Q_INTERFACES(Phonon::MediaObjectInterface  Phonon::AddonInterface)
+    friend class SinkNode;
 
 public:
 
@@ -68,6 +75,9 @@ public:
 
     QString errorString() const;
 
+    void addSink( SinkNode * node );
+    void removeSink( SinkNode * node );
+
 signals:
 
     // MediaController signals
@@ -83,6 +93,8 @@ signals:
     void angleChanged(int angleNumber);
     void chapterChanged(int chapterNumber);
     void titleChanged(int titleNumber);
+    void metaDataNeedsRefresh();
+    void durationChanged(qint64 newDuration);
 
     /**
      * New widget size computed by VLC.
@@ -96,8 +108,20 @@ protected:
     void loadMediaInternal(const QString & filename);
     void playInternal();
     void seekInternal(qint64 milliseconds);
+    void setOption(QString opt);
 
     qint64 currentTimeInternal() const;
+
+private slots:
+    /**
+    * Retrieve meta data of a file (i.e ARTIST, TITLE, ALBUM, etc...).
+    */
+    void updateMetaData();
+
+    /**
+    * Update media duration time
+    */
+    void updateDuration(qint64 newDuration);
 
 private:
 
@@ -106,12 +130,8 @@ private:
      *
      * @see libvlc_callback()
      */
-    void connectToAllVLCEvents();
-
-    /**
-     * Retrieve meta data of a file (i.e ARTIST, TITLE, ALBUM, etc...).
-     */
-    void updateMetaData();
+    void connectToMediaVLCEvents();
+    void connectToPlayerVLCEvents();
 
     /**
      * Libvlc callback.
@@ -141,13 +161,15 @@ private:
     libvlc_media_discoverer_t * p_vlc_media_discoverer;
     libvlc_event_manager_t * p_vlc_media_discoverer_event_manager;
 
-    bool b_play_request_reached;
-
     qint64 i_total_time;
+    QByteArray p_current_file;
+    QMultiMap<QString, QString> p_vlc_meta_data;
+    QList<SinkNode*> m_sinks;
 
     bool b_has_video;
 
     bool b_seekable;
+    qint64 p_seek_point;
 };
 
 }

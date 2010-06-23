@@ -7,15 +7,20 @@
 #  PHONON_VERSION  - the version of the Phonon Library
 
 # Copyright (c) 2008, Matthias Kretz <kretz@kde.org>
+# Copyright (c) 2010, Mark Kretschmann <kretschmann@kde.org>
 #
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 
 macro(_phonon_find_version)
-   set(_phonon_namespace_header_file "${PHONON_INCLUDE_DIR}/phonon/phononnamespace.h")
    if (APPLE AND EXISTS "${PHONON_INCLUDE_DIR}/Headers/phononnamespace.h")
       set(_phonon_namespace_header_file "${PHONON_INCLUDE_DIR}/Headers/phononnamespace.h")
+      set(_phonon_pulsesupport_header_file "${PHONON_INCLUDE_DIR}/Headers/pulsesupport.h")
+   else ()
+      set(_phonon_namespace_header_file "${PHONON_INCLUDE_DIR}/phonon/phononnamespace.h")
+      set(_phonon_pulsesupport_header_file "${PHONON_INCLUDE_DIR}/phonon/pulsesupport.h")
    endif (APPLE AND EXISTS "${PHONON_INCLUDE_DIR}/Headers/phononnamespace.h")
+
    file(READ ${_phonon_namespace_header_file} _phonon_header LIMIT 5000 OFFSET 1000)
    string(REGEX MATCH "define PHONON_VERSION_STR \"(4\\.[0-9]+\\.[0-9a-z]+)\"" _phonon_version_match "${_phonon_header}")
    set(PHONON_VERSION "${CMAKE_MATCH_1}")
@@ -44,6 +49,14 @@ else(PHONON_FOUND)
       set(PHONON_FOUND TRUE)
       _phonon_find_version()
       find_path(PHONON_PULSESUPPORT NAMES phonon/pulsesupport.h PATHS ${PHONON_INCLUDES})
+
+      if(PHONON_PULSESUPPORT)
+         # Check if the method enable() is available in pulsesupport.h
+         file(READ ${_phonon_pulsesupport_header_file} _pulsesupport_header)
+         string(REGEX MATCH "void enable" _phonon_pulse_match "${_pulsesupport_header}")
+         set(PHONON_PULSESUPPORT "${_phonon_pulse_match}")
+      endif(PHONON_PULSESUPPORT)
+
    else(PHONON_INCLUDE_DIR AND PHONON_LIBRARY)
       set(PHONON_FOUND FALSE)
    endif(PHONON_INCLUDE_DIR AND PHONON_LIBRARY)

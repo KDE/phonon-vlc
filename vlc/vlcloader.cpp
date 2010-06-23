@@ -1,13 +1,15 @@
 /*****************************************************************************
- * VLC backend for the Phonon library                                        *
+ * libVLC backend for the Phonon library                                     *
+ *                                                                           *
  * Copyright (C) 2007-2008 Tanguy Krotoff <tkrotoff@gmail.com>               *
  * Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>                *
  * Copyright (C) 2009 Fathi Boudra <fabo@kde.org>                            *
+ * Copyright (C) 2009-2010 vlc-phonon AUTHORS                                *
  *                                                                           *
  * This program is free software; you can redistribute it and/or             *
  * modify it under the terms of the GNU Lesser General Public                *
  * License as published by the Free Software Foundation; either              *
- * version 3 of the License, or (at your option) any later version.          *
+ * version 2.1 of the License, or (at your option) any later version.        *
  *                                                                           *
  * This program is distributed in the hope that it will be useful,           *
  * but WITHOUT ANY WARRANTY; without even the implied warranty of            *
@@ -23,20 +25,21 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
+#include <QtCore/QFile>
 #include <QtCore/QLibrary>
 #include <QtCore/QSettings>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
+#include <QtCore/QCoreApplication>
 
 // Global variables
 libvlc_instance_t *vlc_instance = 0;
-libvlc_media_player_t *vlc_current_media_player = 0;
 
 namespace Phonon
 {
 namespace VLC {
 
-bool vlcInit()
+bool vlcInit(int debugLevl)
 {
     // Global variables
     vlc_instance = 0;
@@ -49,22 +52,40 @@ bool vlcInit()
 #elif defined(Q_OS_WIN)
         pluginsPath.append("\\plugins");
 #endif
-        QByteArray p = path.toLatin1();
-        QByteArray pp = pluginsPath.toLatin1();
+        QByteArray p = QFile::encodeName(path);
+        QByteArray pp = QFile::encodeName(pluginsPath);
+
+        QByteArray log;
+        QByteArray logFile;
+        QByteArray verboseLevl;
+        if(debugLevl>0){
+            verboseLevl=QString("--verbose=").append(QString::number(debugLevl)).toLatin1();
+            log="--extraintf=logger";
+            logFile="--logfile=";
+#ifdef Q_WS_WIN
+            QDir logFilePath(QString(qgetenv("APPDATA")).append("/vlc"));
+#else
+            QDir logFilePath(QDir::homePath().append("/.vlc"));
+#endif //Q_WS_WIN
+            logFilePath.mkdir("log");
+            logFile.append(QFile::encodeName(QDir::toNativeSeparators(logFilePath.path().append("/log/vlc-log-").append(QString::number(qApp->applicationPid())).append(".txt"))));
+        }
         // VLC command line options. See vlc --full-help
         const char *vlcArgs[] = {
             p.constData(),
             pp.constData(),
-            "--verbose=2",
+            log.constData(),
+            logFile.constData(),
+            verboseLevl.constData(),
             "--intf=dummy",
-            "--extraintf=logger",
             "--ignore-config",
             "--reset-plugins-cache",
             "--no-media-library",
             "--no-one-instance",
             "--no-osd",
             "--no-stats",
-            "--no-video-title-show"
+            "--no-video-title-show",
+            "--album-art=0"
         };
 
         // Create and initialize a libvlc instance (it should be done only once)
@@ -73,9 +94,9 @@ bool vlcInit()
             qDebug() << "libvlc exception:" << libvlc_errmsg();
 
         return true;
-    } else {
-        return false;
     }
+
+    return false;
 }
 
 void vlcRelease()
@@ -87,8 +108,8 @@ void vlcRelease()
 #if defined(Q_OS_UNIX)
 static bool libGreaterThan(const QString &lhs, const QString &rhs)
 {
-    QStringList lhsparts = lhs.split(QLatin1Char('.'));
-    QStringList rhsparts = rhs.split(QLatin1Char('.'));
+    const QStringList lhsparts = lhs.split(QLatin1Char('.'));
+    const QStringList rhsparts = rhs.split(QLatin1Char('.'));
     Q_ASSERT(lhsparts.count() > 1 && rhsparts.count() > 1);
 
     for (int i = 1; i < rhsparts.count(); ++i) {
@@ -128,14 +149,26 @@ static QStringList findAllLibVlc()
             .split(QLatin1Char(':'), QString::SkipEmptyParts);
     paths << QLatin1String(PHONON_LIB_INSTALL_DIR) << QLatin1String("/usr/lib") << QLatin1String("/usr/local/lib");
 
+#if defined(Q_WS_MAC)
+       paths
+        << QCoreApplication::applicationDirPath()
+        << QCoreApplication::applicationDirPath() + QLatin1String("/../Frameworks")
+        << QCoreApplication::applicationDirPath() + QLatin1String("/../PlugIns")
+       ;
+#endif
+
     QStringList foundVlcs;
     foreach (const QString &path, paths) {
         QDir dir = QDir(path);
         QStringList entryList = dir.entryList(QStringList() << QLatin1String("libvlc.*"), QDir::Files);
 
         qSort(entryList.begin(), entryList.end(), libGreaterThan);
-        foreach (const QString &entry, entryList)
-            foundVlcs << path + QLatin1Char('/') + entry;
+        foreach (const QString &entry, entryList) {
+                if( entry.contains(".debug") ) {
+                    continue;
+                }
+                foundVlcs << path + QLatin1Char('/') + entry;
+            }
     }
 
     return foundVlcs;
@@ -144,8 +177,8 @@ static QStringList findAllLibVlc()
     QSettings settings(QSettings::SystemScope, "VideoLAN", "VLC");
     QString vlcVersion = settings.value("Version").toString();
     QString vlcInstallDir = settings.value("InstallDir").toString();
-    if (vlcVersion.startsWith("1.0") && !vlcInstallDir.isEmpty()) {
-        paths << vlcInstallDir + QLatin1Char('\\') + "libvlc.dll"; 
+    if (vlcVersion.startsWith("1.1") && !vlcInstallDir.isEmpty()) {
+        paths << vlcInstallDir + QLatin1Char('\\') + "libvlc.dll";
         return paths;
     }else{
         //If nothing is found in the registry try %PATH%

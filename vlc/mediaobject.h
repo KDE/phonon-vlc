@@ -1,13 +1,15 @@
 /*****************************************************************************
- * VLC backend for the Phonon library                                        *
+ * libVLC backend for the Phonon library                                     *
+ *                                                                           *
  * Copyright (C) 2007-2008 Tanguy Krotoff <tkrotoff@gmail.com>               *
  * Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>                *
  * Copyright (C) 2009 Fathi Boudra <fabo@kde.org>                            *
+ * Copyright (C) 2009-2010 vlc-phonon AUTHORS                                *
  *                                                                           *
  * This program is free software; you can redistribute it and/or             *
  * modify it under the terms of the GNU Lesser General Public                *
  * License as published by the Free Software Foundation; either              *
- * version 3 of the License, or (at your option) any later version.          *
+ * version 2.1 of the License, or (at your option) any later version.        *
  *                                                                           *
  * This program is distributed in the hope that it will be useful,           *
  * but WITHOUT ANY WARRANTY; without even the implied warranty of            *
@@ -26,6 +28,9 @@
 
 #include <QtCore/QObject>
 #include <QtGui/QWidget>
+
+#include "streamreader.h"
+
 
 namespace Phonon
 {
@@ -83,6 +88,8 @@ signals:
 
     // Signal from VLCMediaObject
     void stateChanged(Phonon::State newState);
+    void moveToNext();
+    void playbackCommenced();
 
     void tickInternal(qint64 time);
 
@@ -93,8 +100,12 @@ protected:
     virtual void seekInternal(qint64 milliseconds) = 0;
 
     virtual qint64 currentTimeInternal() const = 0;
+    virtual void setOption(QString opt) = 0;
+
+    bool checkGaplessWaiting();
 
     WId i_video_widget_id;
+    MediaSource p_next_source;
 
 private slots:
 
@@ -102,14 +113,19 @@ private slots:
 
     void tickInternalSlot(qint64 time);
 
+    void moveToNextSource();
+
 private:
 
     void loadMedia(const QString & filename);
+    void loadStream();
 
     void resume();
 
-    MediaSource mediaSource;
+    QString PhononStateToString( Phonon::State newState );
 
+    MediaSource mediaSource;
+    StreamReader *streamReader;
     Phonon::State currentState;
 
     qint32 i_prefinish_mark;
