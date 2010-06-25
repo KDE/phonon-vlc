@@ -45,7 +45,7 @@ namespace Phonon
 {
 namespace VLC {
 
-Device::Device(const QByteArray &deviceId, const QByteArray &hwId)
+DeviceInfo::DeviceInfo(const QByteArray &deviceId, const QByteArray &hwId)
 {
     // Get an id
     static int counter = 0;
@@ -123,7 +123,7 @@ QByteArray DeviceManager::deviceDescription(int i_id) const
     return QByteArray();
 }
 
-void DeviceManager::updateDeviceSublist(const QList<Device> &newDevices, QList<Device> &deviceList)
+void DeviceManager::updateDeviceSublist(const QList<DeviceInfo> &newDevices, QList<DeviceInfo> &deviceList)
 {
     // New and old device counts
     int ndc = newDevices.count();
@@ -164,7 +164,7 @@ void DeviceManager::updateDeviceList()
 {
 #ifdef HAVE_LIBV4L2
     // Lists for capture devices
-    QList<Device> vcs, acs;
+    QList<DeviceInfo> vcs, acs;
     int i;
 
     qDebug() << Q_FUNC_INFO << "Probing for v4l devices";
@@ -177,8 +177,8 @@ void DeviceManager::updateDeviceList()
 #endif
 
     // Lists for audio output devices
-    QList<Device> aos;
-    aos.append(Device("default"));
+    QList<DeviceInfo> aos;
+    aos.append(DeviceInfo("default"));
 
     // Get the list of available audio outputs
     libvlc_audio_output_t *p_ao_list = libvlc_audio_output_list_get(vlc_instance);
@@ -197,7 +197,7 @@ void DeviceManager::updateDeviceList()
             haspulse = true;
             break;
         }
-        aos.append(Device(p_ao_list->psz_name));
+        aos.append(DeviceInfo(p_ao_list->psz_name));
         p_ao_list = p_ao_list->p_next;
     }
     libvlc_audio_output_list_release(p_start);
@@ -215,7 +215,7 @@ void DeviceManager::updateDeviceList()
 /**
 * Return a list of name identifiers for audio capture devices.
 */
-const QList<Device> DeviceManager::audioCaptureDevices() const
+const QList<DeviceInfo> DeviceManager::audioCaptureDevices() const
 {
     return m_audioCaptureDeviceList;
 }
@@ -223,7 +223,7 @@ const QList<Device> DeviceManager::audioCaptureDevices() const
 /**
 * Return a list of name identifiers for video capture devices.
 */
-const QList<Device> DeviceManager::videoCaptureDevices() const
+const QList<DeviceInfo> DeviceManager::videoCaptureDevices() const
 {
     return m_videoCaptureDeviceList;
 }
@@ -231,7 +231,7 @@ const QList<Device> DeviceManager::videoCaptureDevices() const
 /**
  * Return a list of name identifiers for audio output devices.
  */
-const QList<Device> DeviceManager::audioOutputDevices() const
+const QList<DeviceInfo> DeviceManager::audioOutputDevices() const
 {
     return m_audioOutputDeviceList;
 }

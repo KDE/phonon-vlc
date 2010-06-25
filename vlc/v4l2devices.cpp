@@ -113,8 +113,8 @@ Tries to open a v4l device specified by devicePath, and queries it's capabilitie
 Depending on the device capabilities, it is added to the capture device lists
 */
 static bool probeDevice(QByteArray devicePath,
-                        QList<Device> & videoCaptureDevices,
-                        QList<Device> & audioCaptureDevices)
+                        QList<DeviceInfo> & videoCaptureDevices,
+                        QList<DeviceInfo> & audioCaptureDevices)
 {
     int i_index;
     int i_standard;
@@ -125,7 +125,7 @@ static bool probeDevice(QByteArray devicePath,
     memset(&deviceInfo, 0, sizeof(deviceInfo));
 
     // Open device
-    if ((i_fd = v4l2_open( devicePath.constData(), O_RDWR)) < 0) {
+    if ((i_fd = v4l2_open(devicePath.constData(), O_RDWR)) < 0) {
         qCritical() << Q_FUNC_INFO << "Cannot open video device" << devicePath;
         if (i_fd >= 0)
             v4l2_close(i_fd);
@@ -149,7 +149,7 @@ static bool probeDevice(QByteArray devicePath,
     if (deviceInfo.dev_cap.capabilities & V4L2_CAP_VIDEO_CAPTURE) {
         qDebug() << "found video capture device" << devicePath;
         nameId = (devicePath.startsWith("/dev/") ? devicePath.mid(5) : devicePath);
-        Device vd(nameId, devicePath);
+        DeviceInfo vd(nameId, devicePath);
         vd.v4l = true;
         videoCaptureDevices << vd;
     }
@@ -158,7 +158,7 @@ static bool probeDevice(QByteArray devicePath,
     if (deviceInfo.dev_cap.capabilities & V4L2_CAP_AUDIO) {
         qDebug() << "found audio capture device" << devicePath;
         nameId = (devicePath.startsWith("/dev/") ? devicePath.mid(5) : devicePath);
-        Device ad(nameId, devicePath);
+        DeviceInfo ad(nameId, devicePath);
         ad.v4l = true;
         audioCaptureDevices << ad;
     }
@@ -168,7 +168,7 @@ static bool probeDevice(QByteArray devicePath,
     return true;
 }
 
-bool scanDevices(QList<Device> & videoCaptureDevices, QList<Device> & audioCaptureDevices)
+bool scanDevices(QList<DeviceInfo> & videoCaptureDevices, QList<DeviceInfo> & audioCaptureDevices)
 {
     QDir deviceDir("/dev");
     if (!deviceDir.isReadable()) {

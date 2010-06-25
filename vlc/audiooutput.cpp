@@ -108,7 +108,7 @@ bool AudioOutput::setOutputDevice(int device)
     }
 #endif
 
-    const QList<Device> deviceList = p_backend->deviceManager()->audioOutputDevices();
+    const QList<DeviceInfo> deviceList = p_backend->deviceManager()->audioOutputDevices();
     if (device >= 0 && device < deviceList.size()) {
 
         if (!p_vlc_player)

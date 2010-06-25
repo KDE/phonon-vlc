@@ -36,10 +36,10 @@ class DeviceManager;
 class AbstractRenderer;
 class VideoWidget;
 
-class Device
+class DeviceInfo
 {
 public :
-    Device(const QByteArray& deviceId, const QByteArray& hwId = "");
+    DeviceInfo(const QByteArray& deviceId, const QByteArray& hwId = "");
     int id;
     QByteArray nameId;
     QByteArray description;
@@ -54,9 +54,9 @@ class DeviceManager : public QObject
 public:
     DeviceManager(Backend *parent);
     virtual ~DeviceManager();
-    const QList<Device> audioCaptureDevices() const;
-    const QList<Device> videoCaptureDevices() const;
-    const QList<Device> audioOutputDevices() const;
+    const QList<DeviceInfo> audioCaptureDevices() const;
+    const QList<DeviceInfo> videoCaptureDevices() const;
+    const QList<DeviceInfo> audioOutputDevices() const;
     int deviceId(const QByteArray &vlcId) const;
     QByteArray deviceDescription(int id) const;
 
@@ -69,13 +69,13 @@ public slots:
 
 private:
     bool canOpenDevice() const;
-    void updateDeviceSublist(const QList<Device> &newDevices, QList<Phonon::VLC::Device> &deviceList);
+    void updateDeviceSublist(const QList<DeviceInfo> &newDevices, QList<Phonon::VLC::DeviceInfo> &deviceList);
 
 private:
     Backend *m_backend;
-    QList<Device> m_audioCaptureDeviceList;
-    QList<Device> m_videoCaptureDeviceList;
-    QList<Device> m_audioOutputDeviceList;
+    QList<DeviceInfo> m_audioCaptureDeviceList;
+    QList<DeviceInfo> m_videoCaptureDeviceList;
+    QList<DeviceInfo> m_audioOutputDeviceList;
 };
 }
 } // namespace Phonon::VLC

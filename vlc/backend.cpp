@@ -240,7 +240,7 @@ QStringList Backend::availableMimeTypes() const
 QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const
 {
     QList<int> list;
-    QList<Device> deviceList;
+    QList<DeviceInfo> deviceList;
     int dev;
 
     switch (type) {
@@ -285,7 +285,7 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const
 QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescriptionType type, int index) const
 {
     QHash<QByteArray, QVariant> ret;
-    QList<Device> deviceList;
+    QList<DeviceInfo> deviceList;
 
     switch (type) {
     case Phonon::AudioOutputDeviceType: {

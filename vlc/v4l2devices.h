@@ -32,7 +32,7 @@ namespace Phonon {
 namespace VLC {
 namespace V4L2Support {
 
-bool scanDevices(QList<Device> & videoCaptureDevices, QList<Device> & audioCaptureDevices);
+bool scanDevices(QList<DeviceInfo> & videoCaptureDevices, QList<DeviceInfo> & audioCaptureDevices);
 
 }
 }
