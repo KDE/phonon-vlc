@@ -148,8 +148,10 @@ static bool probeDevice(QByteArray devicePath,
     // Probe video inputs
     if (deviceInfo.dev_cap.capabilities & V4L2_CAP_VIDEO_CAPTURE) {
         qDebug() << "found video capture device" << devicePath;
-        nameId = (devicePath.startsWith("/dev/") ? devicePath.mid(5) : devicePath);
+        nameId = QByteArray((const char*) deviceInfo.dev_cap.card).trimmed();
         DeviceInfo vd(nameId, devicePath);
+        vd.description = "Video For Linux 2 Video Device, using driver ";
+        vd.description.append(QByteArray((const char*) deviceInfo.dev_cap.driver).trimmed());
         vd.v4l = true;
         videoCaptureDevices << vd;
     }
@@ -157,8 +159,10 @@ static bool probeDevice(QByteArray devicePath,
     // Probe audio inputs
     if (deviceInfo.dev_cap.capabilities & V4L2_CAP_AUDIO) {
         qDebug() << "found audio capture device" << devicePath;
-        nameId = (devicePath.startsWith("/dev/") ? devicePath.mid(5) : devicePath);
+        nameId = QByteArray((const char*) deviceInfo.dev_cap.card).trimmed();
         DeviceInfo ad(nameId, devicePath);
+        ad.description = "Video For Linux 2 Audio Device, using driver ";
+        ad.description.append(QByteArray((const char*) deviceInfo.dev_cap.driver).trimmed());
         ad.v4l = true;
         audioCaptureDevices << ad;
     }
