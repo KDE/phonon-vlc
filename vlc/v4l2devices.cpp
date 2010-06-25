@@ -113,12 +113,13 @@ Tries to open a v4l device specified by devicePath, and queries it's capabilitie
 Depending on the device capabilities, it is added to the capture device lists
 */
 static bool probeDevice(QByteArray devicePath,
-                        QList<QByteArray> & videoCaptureDevices,
-                        QList<QByteArray> & audioCaptureDevices)
+                        QList<Device> & videoCaptureDevices,
+                        QList<Device> & audioCaptureDevices)
 {
     int i_index;
     int i_standard;
     int i_fd;
+    QByteArray nameId;
 
     struct demux_sys_t deviceInfo;
     memset(&deviceInfo, 0, sizeof(deviceInfo));
@@ -126,7 +127,9 @@ static bool probeDevice(QByteArray devicePath,
     // Open device
     if ((i_fd = v4l2_open( devicePath.constData(), O_RDWR)) < 0) {
         qCritical() << Q_FUNC_INFO << "Cannot open video device" << devicePath;
-        goto open_failed;
+        if (i_fd >= 0)
+            v4l2_close(i_fd);
+        return false;
     }
 
     int libv4l2_fd;
@@ -137,34 +140,35 @@ static bool probeDevice(QByteArray devicePath,
     // Get device capabilites
     if (v4l2_ioctl(i_fd, VIDIOC_QUERYCAP, &deviceInfo.dev_cap) < 0) {
         qCritical() << Q_FUNC_INFO << "Cannot get video capabilities for" << devicePath;
-        goto open_failed;
+        if (i_fd >= 0)
+            v4l2_close(i_fd);
+        return false;
     }
 
     // Probe video inputs
     if (deviceInfo.dev_cap.capabilities & V4L2_CAP_VIDEO_CAPTURE) {
         qDebug() << "found video capture device" << devicePath;
-        videoCaptureDevices << devicePath;
+        nameId = (devicePath.startsWith("/dev/") ? devicePath.mid(5) : devicePath);
+        Device vd(nameId, devicePath);
+        vd.v4l = true;
+        videoCaptureDevices << vd;
     }
 
     // Probe audio inputs
     if (deviceInfo.dev_cap.capabilities & V4L2_CAP_AUDIO) {
         qDebug() << "found audio capture device" << devicePath;
-        audioCaptureDevices << devicePath;
+        nameId = (devicePath.startsWith("/dev/") ? devicePath.mid(5) : devicePath);
+        Device ad(nameId, devicePath);
+        ad.v4l = true;
+        audioCaptureDevices << ad;
     }
 
     if (i_fd >= 0)
         v4l2_close(i_fd);
     return true;
-
-    open_failed:
-
-    if (i_fd >= 0)
-        v4l2_close(i_fd);
-    return false;
-
 }
 
-bool scanDevices(QList<QByteArray> & videoCaptureDevices, QList<QByteArray> & audioCaptureDevices)
+bool scanDevices(QList<Device> & videoCaptureDevices, QList<Device> & audioCaptureDevices)
 {
     QDir deviceDir("/dev");
     if (!deviceDir.isReadable()) {

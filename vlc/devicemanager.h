@@ -39,7 +39,7 @@ class VideoWidget;
 class Device
 {
 public :
-    Device(Phonon::VLC::DeviceManager* manager, const QByteArray& deviceId, const QByteArray& hwId = "");
+    Device(const QByteArray& deviceId, const QByteArray& hwId = "");
     int id;
     QByteArray nameId;
     QByteArray description;
@@ -69,10 +69,7 @@ public slots:
 
 private:
     bool canOpenDevice() const;
-    void updateDeviceSublist(const QList< QByteArray >& namesList,
-                             const QList< QByteArray >& hwidList,
-                             QList< Phonon::VLC::Device >& deviceList,
-                             bool v4l);
+    void updateDeviceSublist(const QList<Device> &newDevices, QList<Phonon::VLC::Device> &deviceList);
 
 private:
     Backend *m_backend;

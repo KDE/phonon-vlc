@@ -45,10 +45,8 @@ namespace Phonon
 {
 namespace VLC {
 
-Device::Device(DeviceManager *manager, const QByteArray &deviceId, const QByteArray &hwId)
+Device::Device(const QByteArray &deviceId, const QByteArray &hwId)
 {
-    Q_UNUSED(manager)
-
     // Get an id
     static int counter = 0;
     id = counter++;
@@ -125,31 +123,28 @@ QByteArray DeviceManager::deviceDescription(int i_id) const
     return QByteArray();
 }
 
-void DeviceManager::updateDeviceSublist(const QList<QByteArray> &namesList,
-                                        const QList<QByteArray> &hwidList,
-                                        QList<Device> &deviceList,
-                                        bool v4l)
+void DeviceManager::updateDeviceSublist(const QList<Device> &newDevices, QList<Device> &deviceList)
 {
-    bool hasHwids = !hwidList.isEmpty();
+    // New and old device counts
+    int ndc = newDevices.count();
+    int odc = deviceList.count();
 
-    for (int i = 0 ; i < namesList.size() ; ++i) {
-        QByteArray nameId = namesList.at(i);
-        QByteArray hwId = hasHwids ? hwidList.at(i) : QByteArray();
-        if (deviceId(nameId) == -1) {
+    for (int i = 0 ; i < ndc ; ++i) {
+        if (deviceId(newDevices[i].nameId) == -1) {
             // This is a new device, add it
-            deviceList.append(Device(this, nameId, hwId));
-            deviceList.last().v4l = v4l;
-            emit deviceAdded(deviceId(nameId));
-            qDebug() << "added device " << nameId.data() << "id" << deviceId(nameId);
+            deviceList.append(newDevices[i]);
+            emit deviceAdded(deviceId(newDevices[i].nameId));
+            qDebug() << "added device " << newDevices[i].nameId.data() << "id" << deviceId(newDevices[i].nameId);
         }
     }
-    if (namesList.size() < deviceList.size()) {
+
+    if (ndc < odc) {
         // A device was removed
-        for (int i = deviceList.size() - 1 ; i >= 0 ; --i) {
+        for (int i = odc - 1; i >= 0 ; --i) {
             QByteArray currId = deviceList[i].nameId;
             bool b_found = false;
-            for (int k = namesList.size() - 1  ; k >= 0 ; --k) {
-                if (currId == namesList[k]) {
+            for (int k = ndc - 1; k >= 0 ; --k) {
+                if (currId == newDevices[k].nameId) {
                     b_found = true;
                     break;
                 }
@@ -169,26 +164,21 @@ void DeviceManager::updateDeviceList()
 {
 #ifdef HAVE_LIBV4L2
     // Lists for capture devices
-    QList<QByteArray> vc_names, ac_names, vc_hw_names, ac_hw_names;
+    QList<Device> vcs, acs;
     int i;
 
     qDebug() << Q_FUNC_INFO << "Probing for v4l devices";
 
     // Get the list of available v4l2 capture devices
-    V4L2Support::scanDevices(vc_hw_names, ac_hw_names);
-    for (i = 0; i < vc_hw_names.size(); ++i)
-        vc_names << (vc_hw_names[i].startsWith("/dev/") ? vc_hw_names[i].mid(5) : vc_hw_names[i]);
-    for (i = 0; i < ac_hw_names.size(); ++i)
-        ac_names << (ac_hw_names[i].startsWith("/dev/") ? ac_hw_names[i].mid(5) : ac_hw_names[i]);
+    V4L2Support::scanDevices(vcs, acs);
 
-    updateDeviceSublist(vc_names, vc_hw_names, m_videoCaptureDeviceList, true);
-    updateDeviceSublist(ac_names, ac_hw_names, m_audioCaptureDeviceList, true);
+    updateDeviceSublist(vcs, m_videoCaptureDeviceList);
+    updateDeviceSublist(acs, m_audioCaptureDeviceList);
 #endif
 
     // Lists for audio output devices
-    QList<QByteArray> ao_names, ao_hw_names;
-    ao_names.append("default");
-    ao_hw_names.append("");
+    QList<Device> aos;
+    aos.append(Device("default"));
 
     // Get the list of available audio outputs
     libvlc_audio_output_t *p_ao_list = libvlc_audio_output_list_get(vlc_instance);
@@ -207,8 +197,7 @@ void DeviceManager::updateDeviceList()
             haspulse = true;
             break;
         }
-        ao_names.append(p_ao_list->psz_name);
-        ao_hw_names.append("");
+        aos.append(Device(p_ao_list->psz_name));
         p_ao_list = p_ao_list->p_next;
     }
     libvlc_audio_output_list_release(p_start);
@@ -220,7 +209,7 @@ void DeviceManager::updateDeviceList()
     pulse->enable(false);
 #endif
 
-    updateDeviceSublist(ao_names, ao_hw_names, m_audioOutputDeviceList, false);
+    updateDeviceSublist(aos, m_audioOutputDeviceList);
 }
 
 /**

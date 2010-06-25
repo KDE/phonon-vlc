@@ -20,6 +20,8 @@ along with this library.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef HAVE_LIBV4L2
 
+#include "devicemanager.h"
+
 #include <phonon/ObjectDescription>
 #include <QtCore/QByteArray>
 #include <QtCore/QList>
@@ -30,7 +32,7 @@ namespace Phonon {
 namespace VLC {
 namespace V4L2Support {
 
-bool scanDevices(QList<QByteArray> & videoCaptureDevices, QList<QByteArray> & audioCaptureDevices);
+bool scanDevices(QList<Device> & videoCaptureDevices, QList<Device> & audioCaptureDevices);
 
 }
 }
