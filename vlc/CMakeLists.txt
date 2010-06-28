@@ -20,12 +20,14 @@ if (MSVC)
 endif (MSVC)
 
 # Try and find libv4l2
-macro_optional_find_package(V4L2)
-macro_log_feature(V4L2_FOUND "V4L2" "VideoForLinux 2 is required to enable listing v4l2 devices" "" FALSE)
-if (V4L2_FOUND)
-    add_definitions(-DHAVE_LIBV4L2)
-    include_directories(${LIBV4L2_INCLUDE_DIR})
-endif (V4L2_FOUND)
+if (CMAKE_SYSTEM_NAME MATCHES Linux)
+    macro_optional_find_package(V4L2)
+    macro_log_feature(V4L2_FOUND "V4L2" "VideoForLinux 2 is required to enable listing v4l2 devices" "" FALSE)
+    if (V4L2_FOUND)
+        add_definitions(-DHAVE_LIBV4L2)
+        include_directories(${LIBV4L2_INCLUDE_DIR})
+    endif (V4L2_FOUND)
+endif (CMAKE_SYSTEM_NAME MATCHES Linux)
 
 add_definitions(-D_PHONON_BACKEND_VERSION_4_2)
 
