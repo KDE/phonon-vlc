@@ -48,6 +48,13 @@ namespace Phonon
 {
 namespace VLC {
 
+/**
+ * Constructs the backend. Sets the backend properties, fetches the debug level from the
+ * environment, initializes libVLC, constructs the device and effect managers, initializes
+ * PulseAudio support.
+ *
+ * \param parent A parent object for the backend (passed to the QObject constructor)
+ */
 Backend::Backend(QObject *parent, const QVariantList &)
         : QObject(parent)
         , m_deviceManager(NULL)
@@ -89,6 +96,14 @@ Backend::~Backend()
 //    vlcRelease();
 }
 
+/**
+ * Creates a backend object of the desired class and with the desired parent. Extra arguments can be provided.
+ *
+ * \param c The class of object that is to be created
+ * \param parent The object that will be the parent of the new object
+ * \param args Optional arguments for the object creation
+ * \return The desired object or NULL if the class is not implemented.
+ */
 QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const QList<QVariant> &args)
 {
     switch (c) {
@@ -210,6 +225,13 @@ QStringList Backend::availableMimeTypes() const
     return m_supportedMimeTypes;
 }
 
+/**
+ * Returns a list of indexes for the desired object types. It specifies a list of objects
+ * of a particular category that the backend knows about. These indexes can be used with
+ * objectDescriptionProperties() to get the properties of a particular object.
+ *
+ * \param type The type of objects for the list
+ */
 QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const
 {
     QList<int> list;
@@ -234,6 +256,13 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const
     return list;
 }
 
+/**
+ * Returns a list of properties for a particular object of the desired category.
+ *
+ * \param type The type of object for the index
+ * \param index The index for the object of the desired type
+ * \return The property list. If the object is inexistent, an empty list is returned.
+ */
 QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescriptionType type, int index) const
 {
     QHash<QByteArray, QVariant> ret;
@@ -267,6 +296,11 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
     return ret;
 }
 
+/**
+ * Called when a connection between nodes is about to be changed
+ *
+ * \param objects A set of objects that will be involved in the change
+ */
 bool Backend::startConnectionChange(QSet<QObject *> objects)
 {
     //FIXME
@@ -280,6 +314,13 @@ bool Backend::startConnectionChange(QSet<QObject *> objects)
     return true;
 }
 
+/**
+ * Connects two media nodes. The sink is informed that it should connect itself to the source.
+ *
+ * \param source The source media node for the connection
+ * \param sink The sink media node for the connection
+ * \return True if the connection was successful
+ */
 bool Backend::connectNodes(QObject *source, QObject *sink)
 {
     logMessage(QString("Backend connected %0 to %1")
@@ -324,6 +365,13 @@ bool Backend::connectNodes(QObject *source, QObject *sink)
     return false;
 }
 
+/**
+ * Disconnects two previously connected media nodes. It disconnects the sink node from the source node.
+ *
+ * \param source The source node for the disconnection
+ * \param sink The sink node for the disconnection
+ * \return True if the disconnection was successful
+ */
 bool Backend::disconnectNodes(QObject *source, QObject *sink)
 {
     SinkNode *sinkNode = qobject_cast<SinkNode *>(sink);
@@ -343,6 +391,11 @@ bool Backend::disconnectNodes(QObject *source, QObject *sink)
     return false;
 }
 
+/**
+ * Called after a connection between nodes has been changed
+ *
+ * \param objects Nodes involved in the disconnection
+ */
 bool Backend::endConnectionChange(QSet<QObject *> objects)
 {
     foreach(QObject *object, objects) {
@@ -352,11 +405,17 @@ bool Backend::endConnectionChange(QSet<QObject *> objects)
     return true;
 }
 
+/**
+ * \return The device manager that is associated with this backend object
+ */
 DeviceManager* Backend::deviceManager() const
 {
     return m_deviceManager;
 }
 
+/**
+ * \return The effect manager that is associated with this backend object.
+ */
 EffectManager* Backend::effectManager() const
 {
     return m_effectManager;
@@ -366,9 +425,11 @@ EffectManager* Backend::effectManager() const
  * Return a debuglevel that is determined by the
  * PHONON_VLC_DEBUG environment variable.
  *
- *  Warning - important warnings
- *  Info    - general info
- *  Debug   - gives extra info
+ * \li Warning - important warnings
+ * \li Info    - general info
+ * \li Debug   - gives extra info
+ *
+ * \return The debug level.
  */
 Backend::DebugLevel Backend::debugLevel() const
 {
@@ -379,7 +440,9 @@ Backend::DebugLevel Backend::debugLevel() const
  * Print a conditional debug message based on the current debug level
  * If obj is provided, classname and objectname will be printed as well
  *
- * see debugLevel()
+ * \param message Debug message
+ * \param priority Priority of the debug message, see debugLevel()
+ * \param obj Who gives the message, or some object relevant for the message
  */
 void Backend::logMessage(const QString &message, int priority, QObject *obj) const
 {

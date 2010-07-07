@@ -40,6 +40,20 @@ namespace VLC {
 class AudioOutput;
 class EffectManager;
 
+/** \brief Backend class for Phonon-VLC.
+ *
+ * This class provides the special objects created by the backend and information about
+ * various things that the backend supports. An object of this class is the root for
+ * the backend plugin.
+ *
+ * Phonon will request the backend to create objects of various classes, like MediaObject,
+ * AudioOutput, VideoWidget, Effect. There are also methods to handle the connections between
+ * these objects.
+ *
+ * This class also provides information about the devices and effects that the backend supports.
+ * These are audio output devices, audio capture devices, video capture devices, effects.
+ */
+
 class Backend : public QObject, public BackendInterface
 {
     Q_OBJECT
