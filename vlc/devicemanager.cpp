@@ -41,6 +41,9 @@ namespace Phonon
 {
 namespace VLC {
 
+/**
+ * Constructs a device info object and sets it's device identifiers.
+ */
 DeviceInfo::DeviceInfo(const QByteArray &deviceId, const QByteArray &hwId)
 {
     // Get an id
@@ -65,6 +68,9 @@ const QByteArray DeviceInfo::deviceClassString() const
     }
 }
 
+/**
+ * Constructs a device manager and immediately updates the device lists.
+ */
 DeviceManager::DeviceManager(Backend *parent)
         : QObject(parent)
         , m_backend(parent)
@@ -72,6 +78,9 @@ DeviceManager::DeviceManager(Backend *parent)
     updateDeviceList();
 }
 
+/**
+ * Clears all the device lists before destroying.
+ */
 DeviceManager::~DeviceManager()
 {
     m_audioCaptureDeviceList.clear();
@@ -79,13 +88,19 @@ DeviceManager::~DeviceManager()
     m_audioOutputDeviceList.clear();
 }
 
+/**
+ * \return True if the device can be opened.
+ */
 bool DeviceManager::canOpenDevice() const
 {
     return true;
 }
 
 /**
- * Return a positive device id or -1 if device does not exist.
+ * Searches for the device in the device lists, by comparing it's nameId
+ *
+ * \param nameId Name identifier for the device to search for
+ * \return A positive device id or -1 if device does not exist.
  */
 int DeviceManager::deviceId(const QByteArray &nameId) const
 {
@@ -109,6 +124,7 @@ int DeviceManager::deviceId(const QByteArray &nameId) const
 
 /**
  * Get a human-readable description from a device id.
+ * \param i_id Device identifier
  */
 QByteArray DeviceManager::deviceDescription(int i_id) const
 {
@@ -130,6 +146,17 @@ QByteArray DeviceManager::deviceDescription(int i_id) const
     return QByteArray();
 }
 
+/** \internal
+ * Compares the list with the devices available at the moment with the last list. If
+ * a new device is seen, a signal is emitted. If a device dissapeared, another signal
+ * is emitted. The devices are only from one category (example audio output devices).
+ *
+ * \param newDevices The list for the devices currently available
+ * \param deviceList The old device list
+ *
+ * \see deviceAdded
+ * \see deviceRemoved
+ */
 void DeviceManager::updateDeviceSublist(const QList<DeviceInfo> &newDevices, QList<DeviceInfo> &deviceList)
 {
     // New and old device counts
@@ -165,7 +192,9 @@ void DeviceManager::updateDeviceSublist(const QList<DeviceInfo> &newDevices, QLi
 }
 
 /**
- * Update the current list of active devices.
+ * Update the current list of active devices. It probes for audio output devices,
+ * audio capture devices, video capture devices. The methods depend on the
+ * device types.
  */
 void DeviceManager::updateDeviceList()
 {

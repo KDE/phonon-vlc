@@ -36,6 +36,12 @@ class DeviceManager;
 class AbstractRenderer;
 class VideoWidget;
 
+/** \brief Container for information about devices supported by libVLC
+ *
+ * It includes a (hopefully unique) device identifier, a name identifier, a
+ * description, a hardware identifier (may be a platform dependent device name),
+ * and other relevant info.
+ */
 class DeviceInfo
 {
 public:
@@ -63,6 +69,17 @@ public:
     quint16 capabilities;
 };
 
+/** \brief Keeps track of audio/video devices that libVLC supports
+ *
+ * This class maintains a device list for each of the following device categories:
+ * \li audio output devices
+ * \li audio capture devices
+ * \li video capture devices
+ *
+ * Methods are provided to retrieve information about these devices.
+ *
+ * \see EffectManager
+ */
 class DeviceManager : public QObject
 {
     Q_OBJECT
