@@ -54,6 +54,10 @@ void VLCVideoWidget::setScaleAndCropMode(bool b_scale_and_crop)
 {
 }
 
+/**
+ * Sets an approximate video size to provide a size hint. It will be set
+ * to the original size of the video.
+ */
 void VLCVideoWidget::setVideoSize(const QSize & size)
 {
     videoSize = size;

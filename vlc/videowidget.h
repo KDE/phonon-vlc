@@ -36,7 +36,17 @@ namespace Phonon
 {
 namespace VLC {
 
-
+/** \brief Implements the Phonon VideoWidget MediaNode, responsible for displaying video
+ *
+ * Phonon video is displayed using this widget. It implements the VideoWidgetInterface.
+ * It is connected to a media object that provides the video source. Methods to control
+ * video settings such as brightness or contrast are provided.
+ *
+ * \see VLCVideoWidget
+ *
+ * \internal A VLCVideoWidget is owned by this widget. That widget is used for the actual
+ * drawings of libVLC.
+ */
 class VideoWidget : public SinkNode, public VideoWidgetInterface
 {
     Q_OBJECT

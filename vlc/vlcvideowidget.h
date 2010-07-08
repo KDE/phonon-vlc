@@ -35,7 +35,14 @@ namespace Phonon
 namespace VLC {
 
 /**
- * Widget where to show VLC video.
+ * \brief Widget where to show VLC video.
+ *
+ * It's window system identifier is used by a VLC media object to provide libVLC
+ * the place where to draw the video.
+ *
+ * \ref VLCMediaObject::setVLCWidgetId()
+ * \sa VideoWidget
+ * \sa VLCMediaObject
  */
 class VLCVideoWidget : public WidgetNoPaintEvent
 {
