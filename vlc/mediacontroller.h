@@ -32,16 +32,18 @@ namespace Phonon
 namespace VLC {
 
 /**
- * Interface for AddonInterface.
+ * \brief Interface for AddonInterface.
+ *
+ * Provides a bridge between Phonon's AddonInterface and VLCMediaController.
  *
  * This class cannot inherit from QObject has MediaObject already inherit from QObject.
  * This is a Qt limitation: there is no possibility to inherit virtual Qobject :/
  * See http://doc.trolltech.com/qq/qq15-academic.html
  * Phonon implementation got the same problem.
  *
- * @see VLCMediaController
- * @see VLCMediaObject
- * @see MediaObject
+ * \see VLCMediaController
+ * \see VLCMediaObject
+ * \see MediaObject
  */
 class MediaController : public AddonInterface
 {
