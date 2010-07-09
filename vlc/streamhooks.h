@@ -1,9 +1,9 @@
 /*****************************************************************************
- * streamhook.h: Stream support                                              *
- *****************************************************************************
  * libVLC backend for the Phonon library                                     *
  *                                                                           *
- * Copyright (C) Daniel O'Neill <ver -- gangrenegang dot com>                *
+ * Stream support                                                            *
+ *                                                                           *
+ * Copyright (C) 2010 Daniel O'Neill <ver@gangrenegang.com>                  *
  *                                                                           *
  * This program is free software; you can redistribute it and/or             *
  * modify it under the terms of the GNU Lesser General Public                *
@@ -19,7 +19,6 @@
  * License along with this package; if not, write to the Free Software       *
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA *
  *****************************************************************************/
-
 
 #ifndef STREAMHOOKS_H
 #define STREAMHOOKS_H
