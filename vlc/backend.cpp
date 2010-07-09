@@ -30,6 +30,7 @@
 #include "effectmanager.h"
 #include "effect.h"
 #include "sinknode.h"
+#include "videodataoutput.h"
 #include "vlcloader.h"
 #include "vlcmediaobject.h"
 
@@ -94,7 +95,6 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
     case MediaObjectClass:
         return new VLCMediaObject(parent);
     case VolumeFaderEffectClass:
-//        return new VolumeFaderEffect(parent);
         logMessage("createObject() : VolumeFaderEffect not implemented");
         break;
     case AudioOutputClass: {
@@ -107,12 +107,10 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
         logMessage("createObject() : AudioDataOutput created - WARNING: POSSIBLY INCORRECTLY IMPLEMENTED");
         break;
     case VisualizationClass:
-//        return new Visualization(parent);
         logMessage("createObject() : Visualization not implemented");
         break;
     case VideoDataOutputClass:
-//        return new VideoDataOutput(parent);
-        logMessage("createObject() : VideoDataOutput not implemented");
+        return new Phonon::VLC::VideoDataOutput(this, parent);
         break;
     case EffectClass:
         return new Effect(m_effectManager, args[0].toInt(), parent);

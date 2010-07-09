@@ -76,7 +76,7 @@ void AudioDataOutput::addToMedia( libvlc_media_t * media )
     char param[64];
 
     // Output to stream renderer
-    libvlc_media_add_option_flag( media, ":sout=#transcode{}:smem", libvlc_media_option_trusted );
+    libvlc_media_add_option_flag( media, ":sout=#duplicate{dst=display,select=audio,dst='transcode{}'}:smem", libvlc_media_option_trusted );
     libvlc_media_add_option_flag( media, ":sout-transcode-acodec=f32l", libvlc_media_option_trusted );
     libvlc_media_add_option_flag( media, ":sout-smem-time-sync", libvlc_media_option_trusted );
 

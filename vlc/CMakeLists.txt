@@ -34,6 +34,7 @@ set(phonon_vlc_SRCS
     sinknode.cpp
     streamhooks.cpp
     streamreader.cpp
+    videodataoutput.cpp
     videowidget.cpp
     vlcloader.cpp
     vlcmediacontroller.cpp
