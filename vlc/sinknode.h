@@ -37,6 +37,13 @@ namespace VLC {
 class VLCMediaObject;
 typedef VLCMediaObject PrivateMediaObject;
 
+/** \brief The sink node is essentialy an output for a media object
+ *
+ * This class handles connections for the sink to a media object. It remembers
+ * the media object and the libVLC media player associated with it.
+ *
+ * \see VLCMediaObject
+ */
 class SinkNode : public QObject
 {
     Q_OBJECT
