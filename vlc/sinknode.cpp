@@ -76,14 +76,14 @@ void SinkNode::disconnectFromMediaObject(PrivateMediaObject * mediaObject)
 }
 
 /**
- * Does nothing.
+ * Does nothing. To be reimplemented in child classes.
  */
 void SinkNode::updateVolume()
 {
 }
 
 /**
- * Does nothing.
+ * Does nothing. To be reimplemented in child classes.
  */
 void SinkNode::addToMedia( libvlc_media_t * media )
 {
