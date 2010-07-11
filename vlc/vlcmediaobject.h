@@ -43,16 +43,28 @@ namespace VLC {
 
 class SinkNode;
 
-/**
- * VLC MediaObject.
+/** \brief VLCMediaObject uses libvlc in order to send commands and receive events from VLC.
  *
  * This is the "brain" of the VLC backend.
- * VLCMediaObject uses libvlc in order to send commands and receive events from the VLC.
  *
  * Encapsulates VLC specific code.
  * Take care of libvlc events via libvlc_callback()
  *
- * @see MediaObject
+ * Inherits the functionality of VLCMediaController, including an owned media player. The
+ * signals from MediaController are also here.
+ *
+ * Objects from libVLC used by this class are MediaPlayer (inherited from VLCMediaController),
+ * Media, MediaDiscoverer, and an event manager for each of them.
+ *
+ * The protected methods that are not implemented in MediaObject are implemented here,
+ * using libVLC. There are also public methods from Phonon::MediaObject implemented here.
+ *
+ * This class captures libVLC events and processes them.
+ *
+ * The methods addSink() and removeSink() manage sinks connected to the media object.
+ *
+ * \see MediaObject
+ * \see VLCMediaController
  */
 class VLCMediaObject : public MediaObject, public VLCMediaController
 {
@@ -113,36 +125,14 @@ protected:
     qint64 currentTimeInternal() const;
 
 private slots:
-    /**
-    * Retrieve meta data of a file (i.e ARTIST, TITLE, ALBUM, etc...).
-    */
     void updateMetaData();
-
-    /**
-    * Update media duration time
-    */
     void updateDuration(qint64 newDuration);
 
 private:
 
-    /**
-     * Connect libvlc_callback() to all vlc events.
-     *
-     * @see libvlc_callback()
-     */
     void connectToMediaVLCEvents();
     void connectToPlayerVLCEvents();
 
-    /**
-     * Libvlc callback.
-     *
-     * Receive all vlc events.
-     *
-     * Warning: owned by libvlc thread.
-     *
-     * @see connectToAllVLCEvents()
-     * @see libvlc_event_attach()
-     */
     static void libvlc_callback(const libvlc_event_t *p_event, void *p_user_data);
 
     void unloadMedia();

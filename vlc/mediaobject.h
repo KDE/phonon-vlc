@@ -38,6 +38,31 @@ namespace VLC {
 
 class SeekStack;
 
+/** \brief Implementation for the most important class in Phonon
+ *
+ * The MediaObject class is the workhorse for Phonon. It handles what is needed
+ * to play media. It has a media source object used to configure what media to
+ * play.
+ *
+ * It provides the essential methods setSource(), play(), seek() and additional
+ * methods to configure the next media source, the transition between sources,
+ * transition times, ticks, other.
+ *
+ * There are numerous signals that provide information about the state of the media
+ * and of the playing process. The aboutToFinish() and finished() signals are used
+ * to see when the current media is finished.
+ *
+ * This class does not contain methods directly involved with libVLC. This part is
+ * handled by the VLCMediaObject class. There are protected methods and slots
+ * inherited by that class, like loadMediaInternal(), playInternal(), seekInternal().
+ * These methods have no implementation here.
+ *
+ * For documentation regarding the methods implemented for MediaObjectInterface, see
+ * the Phonon documentation.
+ *
+ * \see Phonon::MediaObjectInterface
+ * \see VLCMediaObject
+ */
 class MediaObject : public QObject, public MediaObjectInterface
 {
     Q_OBJECT
