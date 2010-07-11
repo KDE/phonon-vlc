@@ -40,7 +40,21 @@ namespace Phonon
 {
 namespace VLC
 {
-    /**
+    /** \brief Implementation for AudioDataOutput using libVLC
+     *
+     * This class makes the capture of raw audio data possible. It sets special options
+     * for the libVLC Media Object when connecting to it, and then captures libVLC events
+     * to get the audio data and send it further with the dataReady() signal.
+     *
+     * As a sink node, it can be connected to media objects.
+     *
+     * The frontend Phonon::AudioDataOutput object is unused.
+     *
+     * See the Phonon documentation for details.
+     *
+     * \see AudioOutput
+     * \see SinkNode
+     *
      * \author Martin Sandsmark <sandsmark@samfundet.no>
      */
     class AudioDataOutput : public SinkNode,
