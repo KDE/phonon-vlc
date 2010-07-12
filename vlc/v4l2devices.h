@@ -36,6 +36,11 @@ namespace Phonon {
 namespace VLC {
 namespace V4L2Support {
 
+/**
+ * Probes for V4L capture devices and appends them to the list.
+ *
+ * \param devices List of capture devices
+ */
 bool scanDevices(QList<DeviceInfo> & devices);
 
 }
