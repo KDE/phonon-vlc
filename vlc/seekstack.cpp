@@ -30,6 +30,12 @@ namespace Phonon
 {
 namespace VLC {
 
+/**
+ * Creates a new seek stack for the specified MediaObject. The popping timer
+ * is initialized.
+ *
+ * \see popSeek()
+ */
 SeekStack::SeekStack(MediaObject *mediaObject)
         : QObject(mediaObject)
 {
@@ -45,6 +51,12 @@ SeekStack::~SeekStack()
 {
 }
 
+/**
+ * Pushes a new seek command on the stack. The tick signal for the parent media
+ * object is disconnected. The popping timer is started.
+ *
+ * \see popSeek()
+ */
 void SeekStack::pushSeek(qint64 milliseconds)
 {
     qDebug() << __FUNCTION__ << "seek:" << milliseconds;
@@ -60,6 +72,13 @@ void SeekStack::pushSeek(qint64 milliseconds)
     }
 }
 
+/**
+ * When the timer times out, the stack is popped. If the stack is empty, the
+ * timer is stopped. The media object is seeked to the timing on the top of the stack
+ * and gets it's tick signal reconnected.
+ *
+ * \see pushSeek()
+ */
 void SeekStack::popSeek()
 {
     if (stack.isEmpty()) {

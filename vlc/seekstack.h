@@ -35,8 +35,10 @@ namespace Phonon
 {
 namespace VLC {
 
-/**
- * A queue of seek commands.
+/** \brief Special stack for seek commands
+ *
+ * It is a queue of seek commands. The stack is popped at a constant interval.
+ * After one seek command is popped, the others are discarded.
  */
 class SeekStack : public QObject
 {
@@ -59,10 +61,19 @@ private slots:
 
 private:
 
+    /**
+     * The parent media object for the seek stack
+     */
     MediaObject *p_media_object;
 
+    /**
+     * Timer for popping the stack
+     */
     QTimer *p_timer;
 
+    /**
+     * The stack containing seek timings. Only the top timing is relevant.
+     */
     QStack<qint64> stack;
 };
 
