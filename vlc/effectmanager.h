@@ -35,6 +35,8 @@ namespace VLC {
 class Backend;
 class EffectManager;
 
+/** \brief Holds information about an effect
+ */
 class EffectInfo
 {
 public:
@@ -75,6 +77,10 @@ private:
     const Type m_type;
 };
 
+/** \brief Manages a list of effects.
+ *
+ * \see EffectInfo
+ */
 class EffectManager : public QObject
 {
     Q_OBJECT
