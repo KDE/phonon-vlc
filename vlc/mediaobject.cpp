@@ -342,7 +342,9 @@ void MediaObject::setSource(const MediaSource & source)
 
 /**
  * Loads a stream specified by the current media source. It creates a stream reader
- * for the media source. Then, loadMedia() is called. Special options for streams are set.
+ * for the media source. Then, loadMedia() is called. The stream callbacks are set up
+ * using special options. These callbacks are implemented in streamhooks.cpp, and
+ * are basically part of StreamReader.
  *
  * \see StreamReader
  */
