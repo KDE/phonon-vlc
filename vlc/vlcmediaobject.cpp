@@ -135,8 +135,9 @@ void VLCMediaObject::setVLCWidgetId()
  * This method actually calls the functions needed to begin playing the media.
  * If another media is already playing, it is discarded. The new media filename is set
  * with loadMediaInternal(). A new VLC Media is created and set into the VLC Media Player.
- * It connects the media object to the events for the VLC Media, updates the meta-data,
- * sets up the video widget id, and starts playing.
+ * All the connected sink nodes are connected to the new media. It connects the media object
+ * to the events for the VLC Media, updates the meta-data, sets up the video widget id, and
+ * starts playing.
  *
  * \see loadMediaInternal()
  * \see connectToMediaVLCEvents()
