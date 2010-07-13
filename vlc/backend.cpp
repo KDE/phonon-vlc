@@ -176,6 +176,7 @@ QStringList Backend::availableMimeTypes() const
         << QLatin1String("audio/mpeg2")
         << QLatin1String("audio/mpeg3")
         << QLatin1String("audio/vnd.rn-realaudio")
+        << QLatin1String("audio/vnd.rn-realmedia")
         << QLatin1String("audio/wav")
         << QLatin1String("audio/x-16sv")
         << QLatin1String("audio/x-8svx")
