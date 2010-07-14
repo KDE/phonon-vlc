@@ -30,7 +30,7 @@
 #include "effectmanager.h"
 #include "effect.h"
 #include "sinknode.h"
-#include "videodataoutput.h"
+//#include "videodataoutput.h"
 #include "vlcloader.h"
 #include "vlcmediaobject.h"
 
@@ -110,7 +110,8 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
         logMessage("createObject() : Visualization not implemented");
         break;
     case VideoDataOutputClass:
-        return new Phonon::VLC::VideoDataOutput(this, parent);
+//        return new Phonon::VLC::VideoDataOutput(this, parent);
+        logMessage("createObject() : VideoDataOutput not implemented");
         break;
     case EffectClass:
         return new Effect(m_effectManager, args[0].toInt(), parent);
