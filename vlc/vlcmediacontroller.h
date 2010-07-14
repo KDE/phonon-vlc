@@ -31,8 +31,12 @@ namespace Phonon
 {
 namespace VLC {
 
-/**
- * MediaController specific code for VLC.
+/** \brief MediaController specific code for VLC.
+ *
+ * Implement's the MediaController's methods using libVLC. These methods
+ * handle audio channels, subtitles, angle, chapter, title.
+ *
+ * \see MediaController
  */
 class VLCMediaController : public MediaController
 {

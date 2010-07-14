@@ -52,6 +52,12 @@ namespace Phonon
 {
 namespace VLC
 {
+    /** \brief Implements the volume fader effect
+     *
+     * The volume is updated with the updateFade() method.
+     *
+     * \todo Implement volume(), setVolume()
+     */
     class VolumeFaderEffect : public Effect, public VolumeFaderInterface
     {
         Q_OBJECT

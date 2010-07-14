@@ -37,6 +37,13 @@ namespace Phonon
 {
 namespace VLC {
 
+/**
+ * Creates a libVLC Media Player and connects to it's events. Media and Media Discoverer are
+ * not created here. Members are initialized and metaDataNeedsRefresh(), durationChanged() signals
+ * are connected to their corresponding slots.
+ *
+ * \param parent A parent for the QObject
+ */
 VLCMediaObject::VLCMediaObject(QObject * parent)
         : MediaObject(parent), VLCMediaController()
 {
@@ -64,6 +71,9 @@ VLCMediaObject::VLCMediaObject(QObject * parent)
     connect(this, SIGNAL(durationChanged(qint64)), this, SLOT(updateDuration(qint64)));
 }
 
+/**
+ * Uninitializes the media, stops the VLC Media Player, before destroying the media object.
+ */
 VLCMediaObject::~VLCMediaObject()
 {
     unloadMedia();
@@ -72,6 +82,9 @@ VLCMediaObject::~VLCMediaObject()
     libvlc_media_player_release(p_vlc_media_player);
 }
 
+/**
+ * Uninitializes the media
+ */
 void VLCMediaObject::unloadMedia()
 {
 //    if( p_vlc_media_player ) {
@@ -85,6 +98,11 @@ void VLCMediaObject::unloadMedia()
     }
 }
 
+/**
+ * Sets p_current file to the desired filename. It will be loaded in playInternal().
+ *
+ * \see playInternal()
+ */
 void VLCMediaObject::loadMediaInternal(const QString & filename)
 {
     qDebug() << __FUNCTION__ << filename;
@@ -95,6 +113,12 @@ void VLCMediaObject::loadMediaInternal(const QString & filename)
     emit stateChanged(Phonon::StoppedState);
 }
 
+/**
+ * Configures the VLC Media Player to draw the video on the desired widget. The actual function
+ * call depends on the platform.
+ *
+ * \see setVideoWidgetId()
+ */
 void VLCMediaObject::setVLCWidgetId()
 {
     // Get our media player to use our window
@@ -107,6 +131,19 @@ void VLCMediaObject::setVLCWidgetId()
 #endif
 }
 
+/**
+ * This method actually calls the functions needed to begin playing the media.
+ * If another media is already playing, it is discarded. The new media filename is set
+ * with loadMediaInternal(). A new VLC Media is created and set into the VLC Media Player.
+ * All the connected sink nodes are connected to the new media. It connects the media object
+ * to the events for the VLC Media, updates the meta-data, sets up the video widget id, and
+ * starts playing.
+ *
+ * \see loadMediaInternal()
+ * \see connectToMediaVLCEvents()
+ * \see updateMetaData()
+ * \see setVLCWidgetId()
+ */
 void VLCMediaObject::playInternal()
 {
     if( p_vlc_media ) { // We are changing media, discard the old one
@@ -151,11 +188,17 @@ void VLCMediaObject::playInternal()
     }
 }
 
+/**
+ * Pauses the playback for the media player.
+ */
 void VLCMediaObject::pause()
 {
     libvlc_media_player_pause(p_vlc_media_player);
 }
 
+/**
+ * Sets the next media source to an empty one and stops playback.
+ */
 void VLCMediaObject::stop()
 {
     p_next_source = MediaSource(QUrl());
@@ -163,6 +206,9 @@ void VLCMediaObject::stop()
 //    unloadMedia();
 }
 
+/**
+ * Seeks to the required position. If the state is not playing, the seek position is remembered.
+ */
 void VLCMediaObject::seekInternal(qint64 milliseconds)
 {
     if( state() != Phonon::PlayingState ) { // Is we aren't playing, seeking is invalid...
@@ -173,6 +219,9 @@ void VLCMediaObject::seekInternal(qint64 milliseconds)
     libvlc_media_player_set_time(p_vlc_media_player, milliseconds);
 }
 
+/**
+ * \return An error message with the last libVLC error.
+ */
 QString VLCMediaObject::errorString() const
 {
     return libvlc_errmsg();
@@ -188,6 +237,12 @@ bool VLCMediaObject::isSeekable() const
     return b_seekable;
 }
 
+/**
+ * Connect libvlc_callback() to all VLC media player events.
+ *
+ * \see libvlc_callback()
+ * \see connectToMediaVLCEvents()
+ */
 void VLCMediaObject::connectToPlayerVLCEvents()
 {
     // Get the event manager from which the media player send event
@@ -211,6 +266,12 @@ void VLCMediaObject::connectToPlayerVLCEvents()
     }
 }
 
+/**
+ * Connect libvlc_callback() to all VLC media events.
+ *
+ * \see libvlc_callback()
+ * \see connectToPlayerVLCEvents()
+ */
 void VLCMediaObject::connectToMediaVLCEvents()
 {
     // Get event manager from media descriptor object
@@ -240,6 +301,19 @@ void VLCMediaObject::connectToMediaVLCEvents()
 //    }
 }
 
+/**
+ * Libvlc callback.
+ *
+ * Receive all vlc events.
+ *
+ * Most of the events trigger the emission of one or more signals from the media object.
+ *
+ * \warning This code will be owned by the libVLC thread.
+ *
+ * \see connectToMediaVLCEvents()
+ * \see connectToPlayerVLCEvents()
+ * \see libvlc_event_attach()
+ */
 void VLCMediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user_data)
 {
     static int i_first_time_media_player_time_changed = 0;
@@ -372,6 +446,9 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user
     }
 }
 
+/**
+ * Retrieve meta data of a file (i.e ARTIST, TITLE, ALBUM, etc...).
+ */
 void VLCMediaObject::updateMetaData()
 {
     QMultiMap<QString, QString> metaDataMap;
@@ -422,6 +499,9 @@ qint64 VLCMediaObject::currentTimeInternal() const
     return libvlc_media_player_get_time(p_vlc_media_player);
 }
 
+/**
+ * Update media duration time
+ */
 void VLCMediaObject::updateDuration(qint64 newDuration)
 {
     // If its within 5ms of the current total time, don't bother....
@@ -433,6 +513,13 @@ void VLCMediaObject::updateDuration(qint64 newDuration)
     }
 }
 
+/**
+ * Adds a sink for this media object. During playInternal(), all the sinks
+ * will have their addToMedia() called.
+ *
+ * \see playInternal()
+ * \see SinkNode::addToMedia()
+ */
 void VLCMediaObject::addSink( SinkNode * node )
 {
     if( m_sinks.contains( node ) ) {
@@ -442,11 +529,19 @@ void VLCMediaObject::addSink( SinkNode * node )
     m_sinks.append( node );
 }
 
+/**
+ * Removes a sink from this media object.
+ */
 void VLCMediaObject::removeSink( SinkNode * node )
 {
     m_sinks.removeAll( node );
 }
 
+/**
+ * Adds an option to the libVLC media.
+ *
+ * \param opt What option to add
+ */
 void VLCMediaObject::setOption(QString opt)
 {
     libvlc_media_add_option_flag(p_vlc_media, opt.toLocal8Bit(), libvlc_media_option_trusted);

@@ -40,6 +40,14 @@ SinkNode::~SinkNode()
 {
 }
 
+/**
+ * Associates the sink node to the provided media object. The p_media_object and p_vlc_player
+ * attributes are set, and the sink is added to the media object's sinks.
+ *
+ * \param mediaObject A VLCMediaObject to connect to.
+ *
+ * \see disconnectFromMediaObject()
+ */
 void SinkNode::connectToMediaObject(PrivateMediaObject * mediaObject)
 {
     if (p_media_object)
@@ -51,6 +59,13 @@ void SinkNode::connectToMediaObject(PrivateMediaObject * mediaObject)
     p_media_object->addSink( this );
 }
 
+/**
+ * Removes this sink from the specified media object's sinks.
+ *
+ * \param mediaObject The media object to disconnect from
+ *
+ * \see connectToMediaObject()
+ */
 void SinkNode::disconnectFromMediaObject(PrivateMediaObject * mediaObject)
 {
     if (p_media_object != mediaObject)
@@ -60,10 +75,16 @@ void SinkNode::disconnectFromMediaObject(PrivateMediaObject * mediaObject)
     disconnect(p_media_object, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
 }
 
+/**
+ * Does nothing. To be reimplemented in child classes.
+ */
 void SinkNode::updateVolume()
 {
 }
 
+/**
+ * Does nothing. To be reimplemented in child classes.
+ */
 void SinkNode::addToMedia( libvlc_media_t * media )
 {
 }

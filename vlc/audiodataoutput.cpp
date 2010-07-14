@@ -33,6 +33,12 @@ namespace Phonon
 {
 namespace VLC
 {
+
+/**
+ * Creates an audio data output. The sample rate is set to 44100 Hz.
+ * The available audio channels are registered. These are:
+ * \li Left \li Right \li Center \li LeftSurround \li RightSurround \li Subwoofer
+ */
 AudioDataOutput::AudioDataOutput(Backend *backend, QObject *parent)
     : SinkNode(parent)
 {
@@ -54,21 +60,38 @@ AudioDataOutput::~AudioDataOutput()
 {
 }
 
+/**
+ * \return The currently used number of samples passed through the signal.
+ */
 int AudioDataOutput::dataSize() const
 {
     return m_dataSize;
 }
 
+/**
+ * \return The current sample rate in Hz.
+ */
 int AudioDataOutput::sampleRate() const
 {
     return m_sampleRate;
 }
 
+/**
+ * Sets the number of samples to be passed in one signal emission.
+ */
 void AudioDataOutput::setDataSize(int size)
 {
     m_dataSize = size;
 }
 
+/**
+ * Adds special options to the libVLC Media Object to adapt it to give audio data
+ * directly. There are two callbacks used: lock(), unlock().
+ *
+ * \see lock()
+ * \see unlock()
+ * \see SinkNode::connectToMediaObject()
+ */
 void AudioDataOutput::addToMedia( libvlc_media_t * media )
 {
     // WARNING: DO NOT CHANGE ANYTHING HERE FOR CODE CLEANING PURPOSES!
@@ -95,6 +118,16 @@ void AudioDataOutput::addToMedia( libvlc_media_t * media )
     libvlc_media_add_option_flag( media, param, libvlc_media_option_trusted );
 }
 
+/**
+ * This is a VLC prerender callback. The m_locker mutex is locked, and a new buffer is prepared
+ * for the incoming audio data.
+ *
+ * \param cw The AudioDataOutput for this callback
+ * \param pcm_buffer The new data buffer
+ * \param size Size for the incoming data
+ *
+ * \see unlock()
+ */
 void AudioDataOutput::lock( AudioDataOutput *cw, quint8 **pcm_buffer , quint32 size )
 {
     cw->m_locker.lock();
@@ -103,6 +136,16 @@ void AudioDataOutput::lock( AudioDataOutput *cw, quint8 **pcm_buffer , quint32 s
     *pcm_buffer = cw->m_buffer;
 }
 
+/**
+ * This is a VLC postrender callback. Interprets the data recieved in m_buffer,
+ * separating the samples and channels. Finally, the buffer is freed and m_locker
+ * is unlocked. Now the audio data output is ready for sending data.
+ *
+ * \param cw The AudioDataOutput for this callback
+ *
+ * \see lock()
+ * \see sendData()
+ */
 void AudioDataOutput::unlock( AudioDataOutput *cw, quint8 *pcm_buffer,
                               quint32 channels, quint32 rate,
                               quint32 nb_samples, quint32 bits_per_sample,
@@ -150,6 +193,13 @@ void AudioDataOutput::unlock( AudioDataOutput *cw, quint8 *pcm_buffer,
     emit cw->sampleReadDone();
 }
 
+/**
+ * Looks at the channel samples generated in lock() and creates the QMap required for
+ * the dataReady() signal. Then the signal is emitted. This repeats as long as there is
+ * data remaining.
+ *
+ * \see lock()
+ */
 void AudioDataOutput::sendData()
 {
     m_locker.lock();

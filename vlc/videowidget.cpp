@@ -37,6 +37,10 @@ namespace Phonon
 {
 namespace VLC {
 
+/**
+ * Constructs a new VideoWidget with the given parent. The video settings members
+ * are set to their default values.
+ */
 VideoWidget::VideoWidget(QWidget *p_parent)
         : SinkNode(p_parent)
 {
@@ -56,6 +60,18 @@ VideoWidget::~VideoWidget()
 {
 }
 
+/**
+ * Connects the VideoWidget to a media object by setting the video widget
+ * window system identifier of the media object to that of the owned private
+ * video widget. It also connects the signal from the mediaObject regarding
+ * a resize of the video.
+ *
+ * If the mediaObject was connected to another VideoWidget, the connection is
+ * lost.
+ *
+ * \see VLCMediaObject
+ * \param mediaObject What media object to connect to
+ */
 void VideoWidget::connectToMediaObject(PrivateMediaObject *mediaObject)
 {
     SinkNode::connectToMediaObject(mediaObject);
@@ -66,12 +82,18 @@ void VideoWidget::connectToMediaObject(PrivateMediaObject *mediaObject)
     mediaObject->setVideoWidgetId(p_video_widget->winId());
 }
 
+/**
+ * \return The aspect ratio previously set for the video widget
+ */
 Phonon::VideoWidget::AspectRatio VideoWidget::aspectRatio() const
 {
     return aspect_ratio;
 }
 
-// VLC accepted formats are x:y (4:3, 16:9, etc...) expressing the global image aspect
+/**
+ * Set the aspect ratio of the video.
+ * VLC accepted formats are x:y (4:3, 16:9, etc...) expressing the global image aspect.
+ */
 void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspect)
 {
     // finish if no player
@@ -99,12 +121,21 @@ void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspect)
     }
 }
 
+/**
+ * \return The scale mode previously set for the video widget
+ */
 Phonon::VideoWidget::ScaleMode VideoWidget::scaleMode() const
 {
     return scale_mode;
 }
 
-// The ScaleMode enumeration describes how to treat aspect ratio during resizing of video
+/**
+ * Set how the video is scaled, keeping the aspect ratio into account when the video is resized.
+ *
+ * The ScaleMode enumeration describes how to treat aspect ratio during resizing of video.
+ * \li Phonon::VideoWidget::FitInView - the video will be fitted to fill the view keeping aspect ratio
+ * \li Phonon::VideoWidget::ScaleAndCrop - the video is scaled
+ */
 void VideoWidget::setScaleMode(Phonon::VideoWidget::ScaleMode scale)
 {
     scale_mode = scale;
@@ -118,11 +149,17 @@ void VideoWidget::setScaleMode(Phonon::VideoWidget::ScaleMode scale)
     }
 }
 
+/**
+ * \return The brightness previously set for the video widget
+ */
 qreal VideoWidget::brightness() const
 {
     return f_brightness;
 }
 
+/**
+ * Set the brightness of the video
+ */
 void VideoWidget::setBrightness(qreal brightness)
 {
     f_brightness = brightness;
@@ -139,11 +176,17 @@ void VideoWidget::setBrightness(qreal brightness)
     }
 }
 
+/**
+ * \return The contrast previously set for the video widget
+ */
 qreal VideoWidget::contrast() const
 {
     return f_contrast;
 }
 
+/**
+ * Set the contrast of the video
+ */
 void VideoWidget::setContrast(qreal contrast)
 {
     f_contrast = contrast;
@@ -161,11 +204,17 @@ void VideoWidget::setContrast(qreal contrast)
     }
 }
 
+/**
+ * \return The hue previously set for the video widget
+ */
 qreal VideoWidget::hue() const
 {
     return f_hue;
 }
 
+/**
+ * Set the hue of the video
+ */
 void VideoWidget::setHue(qreal hue)
 {
     f_hue = hue;
@@ -184,11 +233,17 @@ void VideoWidget::setHue(qreal hue)
 
 }
 
+/**
+ * \return The saturation previously set for the video widget
+ */
 qreal VideoWidget::saturation() const
 {
     return f_saturation;
 }
 
+/**
+ * Set the saturation of the video
+ */
 void VideoWidget::setSaturation(qreal saturation)
 {
     f_saturation = saturation;
@@ -205,11 +260,17 @@ void VideoWidget::setSaturation(qreal saturation)
     }
 }
 
+/**
+ * \return The owned widget that is used for the actual draw.
+ */
 Widget * VideoWidget::widget()
 {
     return p_video_widget;
 }
 
+/**
+ * Handles the change in the size of the video
+ */
 void VideoWidget::videoWidgetSizeChanged(int i_width, int i_height)
 {
     qDebug() << __FUNCTION__ << "video width" << i_width << "height:" << i_height;

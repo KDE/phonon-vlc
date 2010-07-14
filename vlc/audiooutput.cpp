@@ -36,6 +36,12 @@ namespace Phonon
 {
 namespace VLC {
 
+/**
+ * Creates an AudioOutput with the given backend object. The volume is set to 1.0
+ *
+ * \param p_back Parent backend
+ * \param p_parent A parent object
+ */
 AudioOutput::AudioOutput(Backend *p_back, QObject * p_parent)
         : SinkNode(p_parent),
         f_volume(1.0),
@@ -49,11 +55,18 @@ AudioOutput::~AudioOutput()
 {
 }
 
+/**
+ * \return The current volume for this audio output.
+ */
 qreal AudioOutput::volume() const
 {
     return f_volume;
 }
 
+/**
+ * Sets the volume of the audio output. See the Phonon::AudioOutputInterface::setVolume() documentation
+ * for details.
+ */
 void AudioOutput::setVolume(qreal volume)
 {
     if (p_vlc_player) {
@@ -65,11 +78,22 @@ void AudioOutput::setVolume(qreal volume)
     }
 }
 
+/**
+ * \return The index of the current audio output device from the list obtained from the backend object.
+ */
 int AudioOutput::outputDevice() const
 {
     return i_device;
 }
 
+/**
+ * Sets the current output device for this audio output. The validity of the device index
+ * is verified before attempting to change the device.
+ *
+ * \param device The index of the device, obtained from the backend's audio device list
+ * \return \c true if succeeded, or no change was made
+ * \return \c false if failed
+ */
 bool AudioOutput::setOutputDevice(int device)
 {
     if (i_device == device)
@@ -110,12 +134,18 @@ bool AudioOutput::setOutputDevice(int device)
 }
 
 #if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 2, 0))
+/**
+ * Does nothing.
+ */
 bool AudioOutput::setOutputDevice(const Phonon::AudioOutputDevice & device)
 {
     return true;
 }
 #endif
 
+/**
+ * Sets the volume to f_volume.
+ */
 void AudioOutput::updateVolume()
 {
     if (p_vlc_player) {

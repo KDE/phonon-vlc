@@ -35,6 +35,14 @@ EffectInfo::EffectInfo(const QString &name, const QString &description, const QS
         , m_filter(filter)
         , m_type(type) {}
 
+/**
+ * Creates a new effect manager. It creates the lists of effects.
+ *
+ * \param backend A parent backend object for the effect manager
+ *
+ * \warning Currently it doesn't add any effects, everything is disabled.
+ * \see EffectInfo
+ */
 EffectManager::EffectManager(Backend *backend)
         : QObject(backend)
         , m_backend(backend)
@@ -187,6 +195,9 @@ EffectManager::EffectManager(Backend *backend)
     updateEffects();
 }
 
+/**
+ * Deletes all the effects from the lists and destroys the effect manager.
+ */
 EffectManager::~EffectManager()
 {
     qDeleteAll(m_audioEffectList);
@@ -221,6 +232,9 @@ const QList<EffectInfo *> EffectManager::effects() const
     return m_effectList;
 }
 
+/**
+ * Generates the aggegated list of effects from both video and audio
+ */
 void EffectManager::updateEffects()
 {
     m_effectList.clear();

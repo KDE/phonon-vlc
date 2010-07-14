@@ -54,6 +54,19 @@ namespace Phonon
     class MediaSource;
     namespace VLC
     {
+
+        /** \brief Class for supporting custom data streams to the backend
+         *
+         * This class recieves data from a Phonon MediaSource that is a stream.
+         * When data is requested, it fetches it from the media source and passes it further.
+         * MediaObject uses this class to pass stream data to libVLC.
+         *
+         * It implements Phonon::StreamInterface, necessary for the connection with an
+         * Phonon::AbstractMediaStream owned by the Phonon::MediaSource. See the Phonon
+         * documentation for details.
+         *
+         * There are callbacks implemented in streamhooks.cpp, for libVLC.
+         */
         class StreamReader : public Phonon::StreamInterface
         {
         public:

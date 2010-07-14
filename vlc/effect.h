@@ -36,7 +36,18 @@ namespace VLC {
 
 class EffectManager;
 
-
+/** \brief Effect implementation for Phonon-VLC
+ *
+ * There are methods to get or set the effect parameters, implemented for
+ * the EffectInterface. See the Phonon documentation for details.
+ *
+ * As a sink node, it provides methods to handle the connection to a media object.
+ *
+ * An effect manager is the parent of each effect.
+ *
+ * \see EffectManager
+ * \see VolumeFaderEffect
+ */
 class Effect : public SinkNode, public EffectInterface
 {
     Q_OBJECT

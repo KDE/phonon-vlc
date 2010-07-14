@@ -39,6 +39,12 @@ namespace Phonon
 {
 namespace VLC {
 
+/**
+ * Initializes the members, connects the private slots to their corresponding signals,
+ * sets the next media source to an empty media source.
+ *
+ * \param p_parent A parent for the QObject
+ */
 MediaObject::MediaObject(QObject *p_parent)
         : QObject(p_parent)
 {
@@ -70,11 +76,23 @@ MediaObject::~MediaObject()
 {
 }
 
+/**
+ * Remembers the widget id (window system identifier) that will be
+ * later passed to libVLC to draw the video on it, if this media object
+ * will have video.
+ *
+ * \param i_widget_id The widget id to be remembered for video
+ * \see VLCMediaObject::setVLCWidgetId()
+ */
 void MediaObject::setVideoWidgetId(WId i_widget_id)
 {
     i_video_widget_id = i_widget_id;
 }
 
+/**
+ * If the current state is paused, it resumes playing. Else, the playback
+ * is commenced. The corresponding playbackCommenced() signal is emitted.
+ */
 void MediaObject::play()
 {
     qDebug() << __FUNCTION__;
@@ -91,6 +109,10 @@ void MediaObject::play()
     emit playbackCommenced();
 }
 
+/**
+ * Pushes a seek command to the SeekStack for this media object. The SeekStack then
+ * calls seekInternal() when it's popped.
+ */
 void MediaObject::seek(qint64 milliseconds)
 {
     static SeekStack *p_stack = new SeekStack(this);
@@ -108,6 +130,12 @@ void MediaObject::seek(qint64 milliseconds)
     }
 }
 
+/**
+ * Checks when the tick(), prefinishMarkReached(), aboutToFinish() signals need to
+ * be emitted and emits them if neccessary.
+ *
+ * \param currentTime The current play time for the media, in miliseconds.
+ */
 void MediaObject::tickInternalSlot(qint64 currentTime)
 {
     qint64 totalTime = this->totalTime();
@@ -135,6 +163,10 @@ void MediaObject::tickInternalSlot(qint64 currentTime)
     }
 }
 
+/**
+ * Changes the current state to buffering and calls loadMediaInternal()
+ * \param filename A MRL from the media source
+ */
 void MediaObject::loadMedia(const QString & filename)
 {
     // Default MediaObject state is Phonon::BufferingState
@@ -149,11 +181,19 @@ void MediaObject::resume()
     pause();
 }
 
+/**
+ * \return The interval between successive tick() signals. If set to 0, the emission
+ * of these signals is disabled.
+ */
 qint32 MediaObject::tickInterval() const
 {
     return i_tick_interval;
 }
 
+/**
+ * Sets the interval between successive tick() signals. If set to 0, it disables the
+ * emission of these signals.
+ */
 void MediaObject::setTickInterval(qint32 tickInterval)
 {
     i_tick_interval = tickInterval;
@@ -164,6 +204,11 @@ void MediaObject::setTickInterval(qint32 tickInterval)
 //    }
 }
 
+/**
+ * \return The current time of the media, depending on the current state.
+ * If the current state is stopped or loading, 0 is returned.
+ * If the current state is error or unknown, -1 is returned.
+ */
 qint64 MediaObject::currentTime() const
 {
     qint64 time = -1;
@@ -195,21 +240,48 @@ qint64 MediaObject::currentTime() const
     return time;
 }
 
+/**
+ * \return The current state for this media object.
+ */
 Phonon::State MediaObject::state() const
 {
     return currentState;
 }
 
+/**
+ * All errors are categorized as normal errors.
+ */
 Phonon::ErrorType MediaObject::errorType() const
 {
     return Phonon::NormalError;
 }
 
+/**
+ * \return The current media source for this media object.
+ */
 MediaSource MediaObject::source() const
 {
     return mediaSource;
 }
 
+/**
+ * Sets the current media source for this media object. Depending on the source type,
+ * the media object loads the specified media. The MRL is passed to loadMedia(), if the media
+ * is not a stream. If it is a stream, loadStream() is used. The currentSourceChanged() signal
+ * is emitted.
+ *
+ * Supported media source types:
+ * \li local files
+ * \li URL
+ * \li discs (CD, DVD, VCD)
+ * \li capture devices (V4L)
+ * \li streams
+ *
+ * \param source The media source that will become the current source.
+ *
+ * \see loadMedia()
+ * \see loadStream()
+ */
 void MediaObject::setSource(const MediaSource & source)
 {
     qDebug() << __FUNCTION__;
@@ -268,6 +340,14 @@ void MediaObject::setSource(const MediaSource & source)
     emit currentSourceChanged(mediaSource);
 }
 
+/**
+ * Loads a stream specified by the current media source. It creates a stream reader
+ * for the media source. Then, loadMedia() is called. The stream callbacks are set up
+ * using special options. These callbacks are implemented in streamhooks.cpp, and
+ * are basically part of StreamReader.
+ *
+ * \see StreamReader
+ */
 void MediaObject::loadStream()
 {
     streamReader = new StreamReader(mediaSource);
@@ -299,6 +379,9 @@ void MediaObject::loadStream()
     setOption(QString("imem-seek=%1").arg(sptr));
 }
 
+/**
+ * Sets the media source that will replace the current one, after the playback for it finishes.
+ */
 void MediaObject::setNextSource(const MediaSource & source)
 {
     qDebug() << __FUNCTION__;
@@ -329,6 +412,10 @@ void MediaObject::setTransitionTime(qint32 time)
     i_transition_time = time;
 }
 
+/**
+ * If the new state is different from the current state, the current state is
+ * changed and the corresponding signal is emitted.
+ */
 void MediaObject::stateChangedInternal(Phonon::State newState)
 {
     qDebug() << __FUNCTION__ << "newState:" << PhononStateToString( newState )
@@ -350,6 +437,9 @@ void MediaObject::stateChangedInternal(Phonon::State newState)
     emit stateChanged(currentState, previousState);
 }
 
+/**
+ * \return A string representation of a Phonon state.
+ */
 QString MediaObject::PhononStateToString( Phonon::State newState )
 {
     QString stream;
@@ -377,6 +467,12 @@ QString MediaObject::PhononStateToString( Phonon::State newState )
     return stream;
 }
 
+/**
+ * If the next media source is valid, the current source is replaced and playback is commenced.
+ * The next source is set to an empty source.
+ *
+ * \see setNextSource()
+ */
 void MediaObject::moveToNextSource()
 {
     if( p_next_source.type() == MediaSource::Invalid ) {

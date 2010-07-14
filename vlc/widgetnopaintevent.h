@@ -31,7 +31,7 @@ namespace Phonon
 namespace VLC {
 
 /**
- * Utility class: special widget for playing videos.
+ * \brief Utility class: special widget for playing videos.
  *
  * Does not handle paintEvent()
  */

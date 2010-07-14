@@ -33,6 +33,17 @@ namespace Phonon
 namespace VLC {
 class Backend;
 
+/** \brief AudioOutput implementation for Phonon-VLC
+ *
+ * This class is a SinkNode that implements the AudioOutputInterface from Phonon. It
+ * supports setting the volume and the audio output device.
+ *
+ * There are signals for the change of the volume or for when an audio device failed.
+ *
+ * See the Phonon::AudioOutputInterface documentation for details.
+ *
+ * \see AudioDataOutput
+ */
 class AudioOutput : public SinkNode, public AudioOutputInterface
 {
     Q_OBJECT
