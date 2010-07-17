@@ -2,7 +2,7 @@ project(phonon-vlc)
 include_directories(${QT_INCLUDES}
                     ${LIBVLC_INCLUDE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR})
-                    
+
 if (MSVC)
     set (CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX}/share/apps/cmake/modules)
     find_package(KDEWIN)
@@ -31,6 +31,11 @@ endif (CMAKE_SYSTEM_NAME MATCHES Linux)
 
 add_definitions(-D_PHONON_BACKEND_VERSION_4_2)
 
+option(PHONON_VLC_BUILD_EXPERIMENTAL "Implement classes from Phonon::Experimental, and other experimental features")
+if(PHONON_VLC_BUILD_EXPERIMENTAL)
+    add_subdirectory(experimental)
+endif(PHONON_VLC_BUILD_EXPERIMENTAL)
+
 set(phonon_vlc_SRCS
     audiooutput.cpp
     audiodataoutput.cpp
@@ -51,7 +56,9 @@ set(phonon_vlc_SRCS
     vlcmediacontroller.cpp
     vlcmediaobject.cpp
     vlcvideowidget.cpp
-    widgetnopaintevent.cpp)
+    widgetnopaintevent.cpp
+    ${phonon_vlc_experimental_SRCS}
+)
 
 automoc4(phonon_vlc phonon_vlc_SRCS)
 
