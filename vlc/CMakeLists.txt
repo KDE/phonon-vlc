@@ -1,5 +1,6 @@
 project(phonon-vlc)
 include_directories(${QT_INCLUDES}
+                    ${PHONON_INCLUDE_DIR}
                     ${LIBVLC_INCLUDE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -78,6 +79,10 @@ target_link_libraries(phonon_vlc ${PHONON_LIBS} ${LIBVLC_LIBRARY}
 if (V4L2_FOUND)
     target_link_libraries(phonon_vlc ${V4L2_LIBRARY})
 endif (V4L2_FOUND)
+
+if (PHONON_VLC_BUILD_EXPERIMENTAL)
+    #target_link_libraries(phonon_vlc phonon_vlc_experimental)
+endif (PHONON_VLC_BUILD_EXPERIMENTAL)
 
 
 if(WIN32)
