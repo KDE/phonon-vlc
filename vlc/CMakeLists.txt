@@ -81,7 +81,7 @@ if (V4L2_FOUND)
 endif (V4L2_FOUND)
 
 if (PHONON_VLC_BUILD_EXPERIMENTAL)
-    #target_link_libraries(phonon_vlc phonon_vlc_experimental)
+    target_link_libraries(phonon_vlc phonon_vlc_experimental)
 endif (PHONON_VLC_BUILD_EXPERIMENTAL)
 
 
