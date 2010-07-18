@@ -59,6 +59,39 @@ void SinkNode::connectToMediaObject(PrivateMediaObject * mediaObject)
     p_media_object->addSink( this );
 }
 
+#ifdef PHONON_VLC_EXPERIMENTAL
+/**
+ * Associates the sink node with the compatible media object owned by the specified AVCapture.
+ * The sink node knows whether it is compatible with video media or audio media. Here, the
+ * connection is attempted with both video media and audio media. This method can be reimplemented
+ * in child classes to disable connecting to one or both of them.
+ *
+ * \param avCapture An AVCapture to connect to
+ *
+ * \see connectToMediaObject()
+ * \see disconnectFromAVCapture()
+ */
+void SinkNode::connectToAVCapture(Experimental::AVCapture *avCapture)
+{
+    connectToMediaObject(avCapture->audioMediaObject());
+    connectToMediaObject(avCapture->videoMediaObject());
+}
+
+/**
+ * Removes this sink from any of the AVCapture's media objects. If connectToAVCapture() is
+ * reimplemented in a child class, this method should also be reimplemented.
+ *
+ * \param avCapture An AVCapture to disconnect from
+ *
+ * \see connectToAVCapture()
+ */
+void SinkNode::disconnectFromAVCapture(Experimental::AVCapture *avCapture)
+{
+    disconnectFromMediaObject(avCapture->audioMediaObject());
+    disconnectFromMediaObject(avCapture->videoMediaObject());
+}
+#endif // PHONON_VLC_EXPERIMENTAL
+
 /**
  * Removes this sink from the specified media object's sinks.
  *

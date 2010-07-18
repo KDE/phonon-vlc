@@ -81,10 +81,6 @@ if (V4L2_FOUND)
     target_link_libraries(phonon_vlc ${V4L2_LIBRARY})
 endif (V4L2_FOUND)
 
-if (PHONON_VLC_BUILD_EXPERIMENTAL)
-    target_link_libraries(phonon_vlc phonon_vlc_experimental)
-endif (PHONON_VLC_BUILD_EXPERIMENTAL)
-
 
 if(WIN32)
     install(TARGETS phonon_vlc DESTINATION bin/phonon_backend)

@@ -26,13 +26,15 @@
 
 namespace Phonon
 {
-namespace Experimental
-{
 namespace VLC
+{
+namespace Experimental
 {
 
 AVCapture::AVCapture(QObject* parent)
-    : QObject(parent)
+    : QObject(parent),
+    m_audioMedia(parent),
+    m_videoMedia(parent)
 {
 
 }
@@ -54,6 +56,16 @@ void AVCapture::stop()
     m_videoMedia.stop();
 }
 
+PrivateMediaObject* AVCapture::audioMediaObject()
+{
+    return &m_audioMedia;
+}
+
+PrivateMediaObject* AVCapture::videoMediaObject()
+{
+    return &m_videoMedia;
+}
+
 AudioCaptureDevice AVCapture::audioCaptureDevice() const
 {
     return m_audioCaptureDevice;
@@ -66,20 +78,20 @@ VideoCaptureDevice AVCapture::videoCaptureDevice() const
 
 void AVCapture::setAudioCaptureDevice(const Phonon::AudioCaptureDevice &device)
 {
-    MediaSource source(V4LAudio, device);
-    m_audioMedia.setCurrentSource(source);
+    MediaSource source(device);
+    m_audioMedia.setSource(source);
     m_audioCaptureDevice = device;
 }
 
 void AVCapture::setVideoCaptureDevice(const Phonon::VideoCaptureDevice &device)
 {
-    MediaSource source(V4LVideo, device);
-    m_videoMedia.setCurrentSource(source);
+    MediaSource source(device);
+    m_videoMedia.setSource(source);
     m_videoCaptureDevice = device;
 }
 
-} // Phonon::Experimental::VLC namespace
-} // Phonon::Experimental namespace
+} // Experimental namespace
+} // VLC namespace
 } // Phonon namespace
 
 #endif // PHONON_VLC_EXPERIMENTAL

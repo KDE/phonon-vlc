@@ -23,22 +23,26 @@
 
 #ifdef PHONON_VLC_EXPERIMENTAL
 #ifndef PHONON_VLC_AVCAPTURE_H
+#define PHONON_VLC_AVCAPTURE_H
 
-#include "mediaobject.h"
+#include "vlcmediaobject.h"
 
 #include <phonon/experimental/avcaptureinterface.h>
 
 namespace Phonon
 {
-namespace Experimental
-{
 namespace VLC
 {
 
-class AVCapture : public AvCaptureInterface, public QObject
+typedef VLCMediaObject PrivateMediaObject;
+
+namespace Experimental
+{
+
+class AVCapture : public QObject, public Phonon::Experimental::AvCaptureInterface
 {
     Q_OBJECT
-    Q_INTERFACES(Phonon::Experimental::AVCaptureInterface)
+    Q_INTERFACES(Phonon::Experimental::AvCaptureInterface)
 
     public:
         AVCapture(QObject *parent);
@@ -52,15 +56,18 @@ class AVCapture : public AvCaptureInterface, public QObject
         void setAudioCaptureDevice(const AudioCaptureDevice &device);
         void setVideoCaptureDevice(const VideoCaptureDevice &device);
 
+        PrivateMediaObject* audioMediaObject();
+        PrivateMediaObject* videoMediaObject();
+
     private:
         AudioCaptureDevice m_audioCaptureDevice;
         VideoCaptureDevice m_videoCaptureDevice;
-        MediaObject m_audioMedia;
-        MediaObject m_videoMedia;
+        PrivateMediaObject m_audioMedia;
+        PrivateMediaObject m_videoMedia;
 };
 
-} // Phonon::Experimental::VLC namespace
-} // Phonon::Experimental namespace
+} // Experimental namespace
+} // VLC namespace
 } // Phonon namespace
 
 #endif // PHONON_VLC_AVCAPTURE_H
