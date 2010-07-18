@@ -34,6 +34,7 @@ add_definitions(-D_PHONON_BACKEND_VERSION_4_2)
 
 option(PHONON_VLC_BUILD_EXPERIMENTAL "Implement classes from Phonon::Experimental, and other experimental features")
 if(PHONON_VLC_BUILD_EXPERIMENTAL)
+    add_definitions(-DPHONON_VLC_EXPERIMENTAL)
     add_subdirectory(experimental)
 endif(PHONON_VLC_BUILD_EXPERIMENTAL)
 
