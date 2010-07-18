@@ -36,7 +36,7 @@
 
 #ifdef PHONON_VLC_EXPERIMENTAL
 #include "experimental/avcapture.h"
-#endif PHONON_VLC_EXPERIMENTAL
+#endif // PHONON_VLC_EXPERIMENTAL
 
 #ifdef PHONON_PULSESUPPORT
 #  include <phonon/pulsesupport.h>
