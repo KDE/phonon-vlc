@@ -36,11 +36,39 @@ AVCapture::AVCapture(QObject* parent)
 
 }
 
-
 AVCapture::~AVCapture()
 {
 
 }
+
+void AVCapture::start()
+{
+}
+
+void AVCapture::stop()
+{
+}
+
+AudioCaptureDevice AVCapture::audioCaptureDevice() const
+{
+    return m_audioCaptureDevice;
+}
+
+VideoCaptureDevice AVCapture::videoCaptureDevice() const
+{
+    return m_videoCaptureDevice;
+}
+
+void AVCapture::setAudioCaptureDevice(const Phonon::AudioCaptureDevice &device)
+{
+    m_audioCaptureDevice = device;
+}
+
+void AVCapture::setVideoCaptureDevice(const Phonon::VideoCaptureDevice &device)
+{
+    m_videoCaptureDevice = device;
+}
+
 
 
 } // Phonon::Experimental::VLC namespace

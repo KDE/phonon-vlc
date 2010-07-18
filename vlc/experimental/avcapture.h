@@ -42,6 +42,18 @@ class AVCapture : public AvCaptureInterface, public QObject
     public:
         AVCapture(QObject *parent);
         ~AVCapture();
+
+        void start();
+        void stop();
+
+        AudioCaptureDevice audioCaptureDevice() const;
+        VideoCaptureDevice videoCaptureDevice() const;
+        void setAudioCaptureDevice(const AudioCaptureDevice &device);
+        void setVideoCaptureDevice(const VideoCaptureDevice &device);
+
+    private:
+        AudioCaptureDevice m_audioCaptureDevice;
+        VideoCaptureDevice m_videoCaptureDevice;
 };
 
 } // Phonon::Experimental::VLC namespace
