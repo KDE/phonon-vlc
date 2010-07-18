@@ -54,6 +54,8 @@ class AVCapture : public AvCaptureInterface, public QObject
     private:
         AudioCaptureDevice m_audioCaptureDevice;
         VideoCaptureDevice m_videoCaptureDevice;
+        MediaObject m_audioMedia;
+        MediaObject m_videoMedia;
 };
 
 } // Phonon::Experimental::VLC namespace
