@@ -30,6 +30,10 @@
 #include <phonon/objectdescription.h>
 #include <phonon/backendinterface.h>
 
+#ifdef PHONON_VLC_EXPERIMENTAL
+#include "phonon/experimental/backendinterface.h"
+#endif // PHONON_VLC_EXPERIMENTAL
+
 #include <QtCore/QList>
 #include <QtCore/QPointer>
 #include <QtCore/QStringList>
