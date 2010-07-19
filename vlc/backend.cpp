@@ -199,6 +199,7 @@ QStringList Backend::availableMimeTypes() const
         << QLatin1String("audio/x-real-audio")
         << QLatin1String("audio/x-realaudio")
         << QLatin1String("audio/x-speex+ogg")
+	<< QLatin1String("audio/x-vorbis+ogg")
         << QLatin1String("audio/x-wav")
         << QLatin1String("image/ilbm")
         << QLatin1String("image/png")
