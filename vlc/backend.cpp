@@ -137,7 +137,7 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
     case VideoWidgetClass:
         return new VideoWidget(qobject_cast<QWidget *>(parent));
     #ifdef PHONON_VLC_EXPERIMENTAL
-    case Phonon::Experimental::BackendInterface::AvCaptureClass:
+    case Phonon::Experimental::BackendInterface::AVCaptureClass:
         logMessage("createObject() : AVCapture created - WARNING: Experimental!");
         return new Experimental::AVCapture(parent);
         break;

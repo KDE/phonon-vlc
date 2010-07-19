@@ -39,10 +39,10 @@ typedef VLCMediaObject PrivateMediaObject;
 namespace Experimental
 {
 
-class AVCapture : public QObject, public Phonon::Experimental::AvCaptureInterface
+class AVCapture : public QObject, public Phonon::Experimental::AVCaptureInterface
 {
     Q_OBJECT
-    Q_INTERFACES(Phonon::Experimental::AvCaptureInterface)
+    Q_INTERFACES(Phonon::Experimental::AVCaptureInterface)
 
     public:
         AVCapture(QObject *parent);
