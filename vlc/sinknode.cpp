@@ -79,8 +79,8 @@ void SinkNode::disconnectFromMediaObject(PrivateMediaObject * mediaObject)
 /**
  * Associates the sink node with the compatible media object owned by the specified AVCapture.
  * The sink node knows whether it is compatible with video media or audio media. Here, the
- * connection is attempted with both video media and audio media. This method can be reimplemented
- * in child classes to disable connecting to one or both of them.
+ * connection is attempted with both video media and audio media. One of them probably will not
+ * work. This method can be reimplemented in child classes to disable connecting to one or both of them.
  *
  * \param avCapture An AVCapture to connect to
  *

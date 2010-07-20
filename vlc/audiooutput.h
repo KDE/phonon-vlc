@@ -54,6 +54,10 @@ public:
     AudioOutput(Backend *p_back, QObject * p_parent);
     ~AudioOutput();
 
+    #ifdef PHONON_VLC_EXPERIMENTAL
+    void connectToAVCapture(Experimental::AVCapture *avCapture);
+    #endif // PHONON_VLC_EXPERIMENTAL
+
     qreal volume() const;
     void setVolume(qreal volume);
 
