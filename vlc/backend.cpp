@@ -108,8 +108,20 @@ Backend::~Backend()
  * \param args Optional arguments for the object creation
  * \return The desired object or NULL if the class is not implemented.
  */
-QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const QList<QVariant> &args)
+QObject *Backend::createObject(BackendInterface::Class c, QObject* parent, const QList<QVariant>& args)
 {
+    #ifdef PHONON_VLC_EXPERIMENTAL
+    Phonon::Experimental::BackendInterface::Class cex = static_cast<Phonon::Experimental::BackendInterface::Class>(c);
+
+    switch (cex) {
+    case Phonon::Experimental::BackendInterface::AVCaptureClass:
+        logMessage("createObject() : AVCapture created - WARNING: Experimental!");
+        return new Experimental::AVCapture(parent);
+    default:
+        logMessage("createObject() - experimental : Backend object not available");
+    }
+    #endif // PHONON_VLC_EXPERIMENTAL
+
     switch (c) {
     case MediaObjectClass:
         return new VLCMediaObject(parent);
@@ -136,12 +148,6 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
         return new Effect(m_effectManager, args[0].toInt(), parent);
     case VideoWidgetClass:
         return new VideoWidget(qobject_cast<QWidget *>(parent));
-    #ifdef PHONON_VLC_EXPERIMENTAL
-    case Phonon::Experimental::BackendInterface::AVCaptureClass:
-        logMessage("createObject() : AVCapture created - WARNING: Experimental!");
-        return new Experimental::AVCapture(parent);
-        break;
-    #endif // PHONON_VLC_EXPERIMENTAL
     default:
         logMessage("createObject() : Backend object not available");
     }
