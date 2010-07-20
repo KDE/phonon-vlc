@@ -67,6 +67,10 @@ namespace VLC
             AudioDataOutput(Backend *, QObject *);
             ~AudioDataOutput();
 
+            #ifdef PHONON_VLC_EXPERIMENTAL
+            void connectToAVCapture(Experimental::AVCapture *avCapture);
+            #endif // PHONON_VLC_EXPERIMENTAL
+
         public Q_SLOTS:
             int dataSize() const;
             int sampleRate() const;

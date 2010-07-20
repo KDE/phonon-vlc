@@ -60,6 +60,18 @@ AudioDataOutput::~AudioDataOutput()
 {
 }
 
+#ifdef PHONON_VLC_EXPERIMENTAL
+/**
+ * Connect this AudioDataOutput only to the audio media part of the AVCapture.auto
+ *
+ * \see AVCapture
+ */
+void AudioDataOutput::connectToAVCapture(Experimental::AVCapture *avCapture)
+{
+    connectToMediaObject(avCapture->audioMediaObject());
+}
+#endif // PHONON_VLC_EXPERIMENTAL
+
 /**
  * \return The currently used number of samples passed through the signal.
  */
