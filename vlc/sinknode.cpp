@@ -59,6 +59,22 @@ void SinkNode::connectToMediaObject(PrivateMediaObject * mediaObject)
     p_media_object->addSink( this );
 }
 
+/**
+ * Removes this sink from the specified media object's sinks.
+ *
+ * \param mediaObject The media object to disconnect from
+ *
+ * \see connectToMediaObject()
+ */
+void SinkNode::disconnectFromMediaObject(PrivateMediaObject * mediaObject)
+{
+    if (p_media_object != mediaObject)
+        qCritical() << __FUNCTION__ << "SinkNode was not connected to mediaObject";
+
+    p_media_object->removeSink( this );
+    disconnect(p_media_object, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
+}
+
 #ifdef PHONON_VLC_EXPERIMENTAL
 /**
  * Associates the sink node with the compatible media object owned by the specified AVCapture.
@@ -91,22 +107,6 @@ void SinkNode::disconnectFromAVCapture(Experimental::AVCapture *avCapture)
     disconnectFromMediaObject(avCapture->videoMediaObject());
 }
 #endif // PHONON_VLC_EXPERIMENTAL
-
-/**
- * Removes this sink from the specified media object's sinks.
- *
- * \param mediaObject The media object to disconnect from
- *
- * \see connectToMediaObject()
- */
-void SinkNode::disconnectFromMediaObject(PrivateMediaObject * mediaObject)
-{
-    if (p_media_object != mediaObject)
-        qCritical() << __FUNCTION__ << "SinkNode was not connected to mediaObject";
-
-    p_media_object->removeSink( this );
-    disconnect(p_media_object, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
-}
 
 /**
  * Does nothing. To be reimplemented in child classes.
