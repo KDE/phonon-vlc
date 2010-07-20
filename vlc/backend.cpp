@@ -118,7 +118,8 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject* parent, const
         logMessage("createObject() : AVCapture created - WARNING: Experimental!");
         return new Experimental::AVCapture(parent);
     default:
-        logMessage("createObject() - experimental : Backend object not available");
+        if ((quint32) cex >= (quint32) Phonon::Experimental::BackendInterface::VideoDataOutputClass)
+            logMessage("createObject() - experimental : Backend object not available");
     }
     #endif // PHONON_VLC_EXPERIMENTAL
 
