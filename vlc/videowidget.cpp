@@ -94,6 +94,16 @@ void VideoWidget::connectToAVCapture(Experimental::AVCapture *avCapture)
 {
     connectToMediaObject(avCapture->videoMediaObject());
 }
+
+/**
+ * Disconnect the VideoWidget from the video media of the AVCapture.
+ *
+ * \see connectToAVCapture()
+ */
+void VideoWidget::disconnectFromAVCapture(Experimental::AVCapture *avCapture)
+{
+    disconnectFromMediaObject(avCapture->videoMediaObject());
+}
 #endif // PHONON_VLC_EXPERIMENTAL
 
 /**

@@ -62,13 +62,23 @@ AudioDataOutput::~AudioDataOutput()
 
 #ifdef PHONON_VLC_EXPERIMENTAL
 /**
- * Connect this AudioDataOutput only to the audio media part of the AVCapture.auto
+ * Connect this AudioDataOutput only to the audio media part of the AVCapture.
  *
  * \see AVCapture
  */
 void AudioDataOutput::connectToAVCapture(Experimental::AVCapture *avCapture)
 {
     connectToMediaObject(avCapture->audioMediaObject());
+}
+
+/**
+ * Disconnect the AudioDataOutput from the video media of the AVCapture.
+ *
+ * \see connectToAVCapture()
+ */
+void AudioDataOutput::disconnectFromAVCapture(Experimental::AVCapture *avCapture)
+{
+    disconnectFromMediaObject(avCapture->audioMediaObject());
 }
 #endif // PHONON_VLC_EXPERIMENTAL
 

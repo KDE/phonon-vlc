@@ -66,6 +66,16 @@ void AudioOutput::connectToAVCapture(Experimental::AVCapture *avCapture)
 {
     connectToMediaObject(avCapture->audioMediaObject());
 }
+
+/**
+ * Disconnect the AudioOutput from the audio media of the AVCapture.
+ *
+ * \see connectToAVCapture()
+ */
+void AudioOutput::disconnectFromAVCapture(Experimental::AVCapture *avCapture)
+{
+    disconnectFromMediaObject(avCapture->audioMediaObject());
+}
 #endif // PHONON_VLC_EXPERIMENTAL
 
 /**

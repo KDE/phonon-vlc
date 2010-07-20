@@ -64,6 +64,7 @@ public:
 
     #ifdef PHONON_VLC_EXPERIMENTAL
     void connectToAVCapture(Experimental::AVCapture *avCapture);
+    void disconnectFromAVCapture(Experimental::AVCapture *avCapture);
     #endif // PHONON_VLC_EXPERIMENTAL
 
     Phonon::VideoWidget::AspectRatio aspectRatio() const;
