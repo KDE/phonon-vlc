@@ -116,17 +116,14 @@ struct demux_sys_t {
 Tries to open a v4l device specified by devicePath, and queries it's capabilities.
 Depending on the device capabilities, it is added to the capture device lists
 */
-static bool probeDevice(QByteArray devicePath,
-                        QList<DeviceInfo> & videoCaptureDevices,
-                        QList<DeviceInfo> & audioCaptureDevices)
+static bool probeDevice(QByteArray devicePath, QList<DeviceInfo> & devices)
 {
     int i_index;
     int i_standard;
     int i_fd;
-    QByteArray nameId;
 
-    struct demux_sys_t deviceInfo;
-    memset(&deviceInfo, 0, sizeof(deviceInfo));
+    struct demux_sys_t v4lDeviceInfo;
+    memset(&v4lDeviceInfo, 0, sizeof(v4lDeviceInfo));
 
     // Open device
     if ((i_fd = v4l2_open(devicePath.constData(), O_RDWR)) < 0) {
@@ -142,41 +139,46 @@ static bool probeDevice(QByteArray devicePath,
         i_fd = libv4l2_fd;
 
     // Get device capabilites
-    if (v4l2_ioctl(i_fd, VIDIOC_QUERYCAP, &deviceInfo.dev_cap) < 0) {
+    if (v4l2_ioctl(i_fd, VIDIOC_QUERYCAP, &v4lDeviceInfo.dev_cap) < 0) {
         qCritical() << Q_FUNC_INFO << "Cannot get video capabilities for" << devicePath;
         if (i_fd >= 0)
             v4l2_close(i_fd);
         return false;
     }
 
+    DeviceInfo di("", devicePath);
+    bool ok = false;
+
+    // Create a device description if the device has either video or audio capabilities, or both
+    if (v4lDeviceInfo.dev_cap.capabilities & (V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_AUDIO)) {
+        di.nameId = QByteArray((const char*) v4lDeviceInfo.dev_cap.card).trimmed();
+        di.description = "Video For Linux 2 Video Device, using driver ";
+        di.description.append(QByteArray((const char*) v4lDeviceInfo.dev_cap.driver).trimmed());
+        di.deviceClass = DeviceInfo::V4L2;
+        ok = true;
+    }
+
     // Probe video inputs
-    if (deviceInfo.dev_cap.capabilities & V4L2_CAP_VIDEO_CAPTURE) {
+    if (v4lDeviceInfo.dev_cap.capabilities & V4L2_CAP_VIDEO_CAPTURE) {
         qDebug() << "found video capture device" << devicePath;
-        nameId = QByteArray((const char*) deviceInfo.dev_cap.card).trimmed();
-        DeviceInfo vd(nameId, devicePath);
-        vd.description = "Video For Linux 2 Video Device, using driver ";
-        vd.description.append(QByteArray((const char*) deviceInfo.dev_cap.driver).trimmed());
-        vd.v4l = true;
-        videoCaptureDevices << vd;
+        di.capabilities |= DeviceInfo::VideoCapture;
     }
 
     // Probe audio inputs
-    if (deviceInfo.dev_cap.capabilities & V4L2_CAP_AUDIO) {
+    if (v4lDeviceInfo.dev_cap.capabilities & V4L2_CAP_AUDIO) {
         qDebug() << "found audio capture device" << devicePath;
-        nameId = QByteArray((const char*) deviceInfo.dev_cap.card).trimmed();
-        DeviceInfo ad(nameId, devicePath);
-        ad.description = "Video For Linux 2 Audio Device, using driver ";
-        ad.description.append(QByteArray((const char*) deviceInfo.dev_cap.driver).trimmed());
-        ad.v4l = true;
-        audioCaptureDevices << ad;
+        di.capabilities |= DeviceInfo::AudioCapture;
     }
+
+    if (ok)
+        devices << di;
 
     if (i_fd >= 0)
         v4l2_close(i_fd);
     return true;
 }
 
-bool scanDevices(QList<DeviceInfo> & videoCaptureDevices, QList<DeviceInfo> & audioCaptureDevices)
+bool scanDevices(QList<DeviceInfo> & devices)
 {
     QDir deviceDir("/dev");
     if (!deviceDir.isReadable()) {
@@ -195,7 +197,7 @@ bool scanDevices(QList<DeviceInfo> & videoCaptureDevices, QList<DeviceInfo> & au
         dn = deviceDir.filePath(dn);
 
         // Get information about the device from V4L, and append it to the capture device lists
-        probeDevice(dn.toLatin1(), videoCaptureDevices, audioCaptureDevices);
+        probeDevice(dn.toLatin1(), devices);
     }
 
     return true;

@@ -344,17 +344,13 @@ void MediaObject::setSource(const MediaSource & source)
         }
         break;
     case MediaSource::CaptureDeviceSource:
-        switch (source.captureDeviceType()) {
-        case Phonon::V4LVideo:
+        if (source.captureDeviceType() == "v4l2") {
             loadMedia("v4l2://" + mediaSource.deviceName());
-            break;
-        case Phonon::V4LAudio:
-            loadMedia("v4l2://" + mediaSource.deviceName());
-            break;
-        default:
+        } else {
             qCritical() << __FUNCTION__ << "Error: unsupported MediaSource::CaptureDevice:" << source.captureDeviceType();
             break;
         }
+
         break;
     case MediaSource::Stream:
         if (!source.url().isEmpty())

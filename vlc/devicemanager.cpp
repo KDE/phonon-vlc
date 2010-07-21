@@ -35,10 +35,6 @@
 #  include <v4l2devices.h>
 #endif
 
-/**
- * This class manages the list of currently active output devices.
- */
-
 QT_BEGIN_NAMESPACE
 
 namespace Phonon
@@ -55,7 +51,18 @@ DeviceInfo::DeviceInfo(const QByteArray &deviceId, const QByteArray &hwId)
     nameId = deviceId;
     this->hwId = hwId;
     description = deviceId == "default" ? "Default device" : "";
-    v4l = false;
+    deviceClass = Unknown;
+    capabilities = None;
+}
+
+const QByteArray DeviceInfo::deviceClassString() const
+{
+    switch (deviceClass) {
+    case Unknown:   return "unknown";
+    case Pulse:     return "pulse";
+    case V4L2:      return "v4l2";
+    default:        return QByteArray();
+    }
 }
 
 DeviceManager::DeviceManager(Backend *parent)
@@ -162,23 +169,35 @@ void DeviceManager::updateDeviceSublist(const QList<DeviceInfo> &newDevices, QLi
  */
 void DeviceManager::updateDeviceList()
 {
-#ifdef HAVE_LIBV4L2
     // Lists for capture devices
-    QList<DeviceInfo> vcs, acs;
+    QList<DeviceInfo> devices, vcs, acs;
     int i;
 
+#ifdef HAVE_LIBV4L2
     qDebug() << Q_FUNC_INFO << "Probing for v4l devices";
 
     // Get the list of available v4l2 capture devices
-    V4L2Support::scanDevices(vcs, acs);
+    V4L2Support::scanDevices(devices);
+#endif // HAVE_LIBV4L2
 
+    // See the device capabilities and sort them accordingly
+    for (i = 0; i < devices.count(); ++ i) {
+        if (devices[i].capabilities & DeviceInfo::VideoCapture)
+            vcs << devices[i];
+        if (devices[i].capabilities & DeviceInfo::AudioCapture)
+            acs << devices[i];
+    }
+
+    devices.clear();
+
+    // Update the capture device lists
     updateDeviceSublist(vcs, m_videoCaptureDeviceList);
     updateDeviceSublist(acs, m_audioCaptureDeviceList);
-#endif
 
     // Lists for audio output devices
     QList<DeviceInfo> aos;
     aos.append(DeviceInfo("default"));
+    aos.last().capabilities = DeviceInfo::AudioOutput;
 
     // Get the list of available audio outputs
     libvlc_audio_output_t *p_ao_list = libvlc_audio_output_list_get(vlc_instance);
@@ -194,10 +213,15 @@ void DeviceManager::updateDeviceList()
     bool haspulse = false;
     while (p_ao_list) {
         if (checkpulse && 0 == strcmp(p_ao_list->psz_name, "pulse")) {
+            aos.last().deviceClass = DeviceInfo::Pulse;
             haspulse = true;
             break;
         }
+
         aos.append(DeviceInfo(p_ao_list->psz_name));
+        aos.last().deviceClass = DeviceInfo::Unknown;
+        aos.last().capabilities = DeviceInfo::AudioOutput;
+
         p_ao_list = p_ao_list->p_next;
     }
     libvlc_audio_output_list_release(p_start);

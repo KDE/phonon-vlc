@@ -303,7 +303,7 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
             ret.insert("name", deviceList[index].nameId);
             ret.insert("hwname", deviceList[index].hwId);
             ret.insert("description", deviceList[index].description);
-            ret.insert("v4l", deviceList[index].v4l);
+            ret.insert("type", deviceList[index].deviceClassString());
         }
     }
     break;
@@ -313,7 +313,7 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
             ret.insert("name", deviceList[index].nameId);
             ret.insert("hwname", deviceList[index].hwId);
             ret.insert("description", deviceList[index].description);
-            ret.insert("v4l", deviceList[index].v4l);
+            ret.insert("type", deviceList[index].deviceClassString());
         }
     }
     break;

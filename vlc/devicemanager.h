@@ -38,13 +38,29 @@ class VideoWidget;
 
 class DeviceInfo
 {
-public :
+public:
+    enum Class {
+        Unknown,
+        Pulse,
+        V4L2
+    };
+
+    enum Capability {
+        None            = 0x0000,
+        AudioOutput     = 0x0001,
+        AudioCapture    = 0x0002,
+        VideoCapture    = 0x0004
+    };
+public:
     DeviceInfo(const QByteArray& deviceId, const QByteArray& hwId = "");
+    const QByteArray deviceClassString() const;
+
     int id;
     QByteArray nameId;
     QByteArray description;
     QByteArray hwId;
-    bool v4l;
+    Class deviceClass;
+    quint16 capabilities;
 };
 
 class DeviceManager : public QObject
