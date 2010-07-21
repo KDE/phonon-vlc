@@ -304,6 +304,8 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
             ret.insert("hwname", deviceList[index].hwId);
             ret.insert("description", deviceList[index].description);
             ret.insert("type", deviceList[index].deviceClassString());
+            if (deviceList[index].capabilities & DeviceInfo::VideoCapture)
+                ret.insert("hasvideo", true);
         }
     }
     break;
@@ -314,6 +316,8 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
             ret.insert("hwname", deviceList[index].hwId);
             ret.insert("description", deviceList[index].description);
             ret.insert("type", deviceList[index].deviceClassString());
+            if (deviceList[index].capabilities & DeviceInfo::AudioCapture)
+                ret.insert("hasaudio", true);
         }
     }
     break;
