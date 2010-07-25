@@ -31,7 +31,7 @@ namespace VLC
 namespace Experimental
 {
 
-AVCapture::AVCapture(QObject* parent)
+AvCapture::AvCapture(QObject* parent)
     : QObject(parent),
     m_audioMedia(parent),
     m_videoMedia(parent)
@@ -39,51 +39,51 @@ AVCapture::AVCapture(QObject* parent)
 
 }
 
-AVCapture::~AVCapture()
+AvCapture::~AvCapture()
 {
     stop();
 }
 
-void AVCapture::start()
+void AvCapture::start()
 {
     m_audioMedia.play();
     m_videoMedia.play();
 }
 
-void AVCapture::stop()
+void AvCapture::stop()
 {
     m_audioMedia.stop();
     m_videoMedia.stop();
 }
 
-PrivateMediaObject* AVCapture::audioMediaObject()
+PrivateMediaObject* AvCapture::audioMediaObject()
 {
     return &m_audioMedia;
 }
 
-PrivateMediaObject* AVCapture::videoMediaObject()
+PrivateMediaObject* AvCapture::videoMediaObject()
 {
     return &m_videoMedia;
 }
 
-AudioCaptureDevice AVCapture::audioCaptureDevice() const
+AudioCaptureDevice AvCapture::audioCaptureDevice() const
 {
     return m_audioCaptureDevice;
 }
 
-VideoCaptureDevice AVCapture::videoCaptureDevice() const
+VideoCaptureDevice AvCapture::videoCaptureDevice() const
 {
     return m_videoCaptureDevice;
 }
 
-void AVCapture::setAudioCaptureDevice(const Phonon::AudioCaptureDevice &device)
+void AvCapture::setAudioCaptureDevice(const Phonon::AudioCaptureDevice &device)
 {
     MediaSource source(device);
     m_audioMedia.setSource(source);
     m_audioCaptureDevice = device;
 }
 
-void AVCapture::setVideoCaptureDevice(const Phonon::VideoCaptureDevice &device)
+void AvCapture::setVideoCaptureDevice(const Phonon::VideoCaptureDevice &device)
 {
     MediaSource source(device);
     m_videoMedia.setSource(source);

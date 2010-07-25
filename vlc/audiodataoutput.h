@@ -68,8 +68,8 @@ namespace VLC
             ~AudioDataOutput();
 
             #ifdef PHONON_VLC_EXPERIMENTAL
-            void connectToAVCapture(Experimental::AVCapture *avCapture);
-            void disconnectFromAVCapture(Experimental::AVCapture *avCapture);
+            void connectToAvCapture(Experimental::AvCapture *avCapture);
+            void disconnectFromAvCapture(Experimental::AvCapture *avCapture);
             #endif // PHONON_VLC_EXPERIMENTAL
 
         public Q_SLOTS:

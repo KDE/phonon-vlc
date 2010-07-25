@@ -62,9 +62,9 @@ public:
     virtual void disconnectFromMediaObject(PrivateMediaObject *mediaObject);
 
     #ifdef PHONON_VLC_EXPERIMENTAL
-    virtual void connectToAVCapture(Experimental::AVCapture *avCapture);
+    virtual void connectToAvCapture(Experimental::AvCapture *avCapture);
 
-    virtual void disconnectFromAVCapture(Experimental::AVCapture *avCapture);
+    virtual void disconnectFromAvCapture(Experimental::AvCapture *avCapture);
     #endif // PHONON_VLC_EXPERIMENTAL
 
     virtual void addToMedia( libvlc_media_t * media );

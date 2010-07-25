@@ -77,31 +77,31 @@ void SinkNode::disconnectFromMediaObject(PrivateMediaObject * mediaObject)
 
 #ifdef PHONON_VLC_EXPERIMENTAL
 /**
- * Associates the sink node with the compatible media object owned by the specified AVCapture.
+ * Associates the sink node with the compatible media object owned by the specified AvCapture.
  * The sink node knows whether it is compatible with video media or audio media. Here, the
  * connection is attempted with both video media and audio media. One of them probably will not
  * work. This method can be reimplemented in child classes to disable connecting to one or both of them.
  *
- * \param avCapture An AVCapture to connect to
+ * \param avCapture An AvCapture to connect to
  *
  * \see connectToMediaObject()
- * \see disconnectFromAVCapture()
+ * \see disconnectFromAvCapture()
  */
-void SinkNode::connectToAVCapture(Experimental::AVCapture *avCapture)
+void SinkNode::connectToAvCapture(Experimental::AvCapture *avCapture)
 {
     connectToMediaObject(avCapture->audioMediaObject());
     connectToMediaObject(avCapture->videoMediaObject());
 }
 
 /**
- * Removes this sink from any of the AVCapture's media objects. If connectToAVCapture() is
+ * Removes this sink from any of the AvCapture's media objects. If connectToAvCapture() is
  * reimplemented in a child class, this method should also be reimplemented.
  *
- * \param avCapture An AVCapture to disconnect from
+ * \param avCapture An AvCapture to disconnect from
  *
- * \see connectToAVCapture()
+ * \see connectToAvCapture()
  */
-void SinkNode::disconnectFromAVCapture(Experimental::AVCapture *avCapture)
+void SinkNode::disconnectFromAvCapture(Experimental::AvCapture *avCapture)
 {
     disconnectFromMediaObject(avCapture->audioMediaObject());
     disconnectFromMediaObject(avCapture->videoMediaObject());

@@ -85,22 +85,22 @@ void VideoWidget::connectToMediaObject(PrivateMediaObject *mediaObject)
 
 #ifdef PHONON_VLC_EXPERIMENTAL
 /**
- * Connects the VideoWidget to an AVCapture. connectToMediaObject() is called
- * only for the video media of the AVCapture.
+ * Connects the VideoWidget to an AvCapture. connectToMediaObject() is called
+ * only for the video media of the AvCapture.
  *
- * \see AVCapture
+ * \see AvCapture
  */
-void VideoWidget::connectToAVCapture(Experimental::AVCapture *avCapture)
+void VideoWidget::connectToAvCapture(Experimental::AvCapture *avCapture)
 {
     connectToMediaObject(avCapture->videoMediaObject());
 }
 
 /**
- * Disconnect the VideoWidget from the video media of the AVCapture.
+ * Disconnect the VideoWidget from the video media of the AvCapture.
  *
- * \see connectToAVCapture()
+ * \see connectToAvCapture()
  */
-void VideoWidget::disconnectFromAVCapture(Experimental::AVCapture *avCapture)
+void VideoWidget::disconnectFromAvCapture(Experimental::AvCapture *avCapture)
 {
     disconnectFromMediaObject(avCapture->videoMediaObject());
 }
