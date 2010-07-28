@@ -58,6 +58,9 @@ DeviceInfo::DeviceInfo(const QByteArray &deviceId, const QByteArray &hwId)
     capabilities = None;
 }
 
+/**
+ * \return A byte array identifying a device class
+ */
 const QByteArray DeviceInfo::deviceClassString() const
 {
     switch (deviceClass) {
