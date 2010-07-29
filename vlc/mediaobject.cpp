@@ -90,6 +90,20 @@ void MediaObject::setVideoWidgetId(WId i_widget_id)
 }
 
 /**
+ * Remembers the widget id (window system identifier) that will be
+ * later passed to libVLC to draw the video on it, if this media object
+ * will have video.
+ * note : I prefer to have a full access to the widget
+ * \param widget the widget to pass to vlc
+ * \see VLCMediaObject::setVLCWidgetId()
+ */
+
+void MediaObject::setVideoWidget(BaseWidget *widget)
+{
+    this->p_video_widget = widget;
+}
+
+/**
  * If the current state is paused, it resumes playing. Else, the playback
  * is commenced. The corresponding playbackCommenced() signal is emitted.
  */
@@ -330,7 +344,8 @@ void MediaObject::setSource(const MediaSource & source)
         }
         break;
     case MediaSource::Stream:
-        loadStream();
+        if (!source.url().isEmpty())
+            loadStream();
         break;
     default:
         qCritical() << __FUNCTION__ << "Error: Unsupported MediaSource Type:" << source.type();

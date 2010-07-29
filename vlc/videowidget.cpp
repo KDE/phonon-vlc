@@ -79,7 +79,8 @@ void VideoWidget::connectToMediaObject(PrivateMediaObject *mediaObject)
     connect(mediaObject, SIGNAL(videoWidgetSizeChanged(int, int)),
             SLOT(videoWidgetSizeChanged(int, int)));
 
-    mediaObject->setVideoWidgetId(p_video_widget->winId());
+    //  mediaObject->setVideoWidgetId(p_video_widget->winId());
+    mediaObject->setVideoWidget(p_video_widget);
 }
 
 /**

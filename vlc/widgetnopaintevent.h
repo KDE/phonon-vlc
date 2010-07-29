@@ -26,6 +26,17 @@
 
 #include <QtGui/QWidget>
 
+
+
+#ifdef Q_OS_MAC
+
+# include "vlcmacwidget.h"
+typedef VlcMacWidget BaseWidget;
+#else
+typedef QWidget BaseWidget;
+#endif
+
+
 namespace Phonon
 {
 namespace VLC {
@@ -35,7 +46,8 @@ namespace VLC {
  *
  * Does not handle paintEvent()
  */
-class WidgetNoPaintEvent : public QWidget
+
+class WidgetNoPaintEvent : public BaseWidget
 {
     Q_OBJECT
 public:

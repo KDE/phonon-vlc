@@ -31,6 +31,9 @@
 
 #include "streamreader.h"
 
+// for BaseWidget
+#include "widgetnopaintevent.h"
+
 
 namespace Phonon
 {
@@ -77,6 +80,8 @@ public:
      * Widget Id where VLC will show the videos.
      */
     void setVideoWidgetId(WId i_widget_id);
+
+    void setVideoWidget(BaseWidget *widget);
 
     void play();
     void seek(qint64 milliseconds);
@@ -130,6 +135,8 @@ protected:
     bool checkGaplessWaiting();
 
     WId i_video_widget_id;
+
+    BaseWidget *p_video_widget;
     MediaSource p_next_source;
 
 private slots:

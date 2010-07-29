@@ -30,8 +30,7 @@ namespace Phonon
 {
 namespace VLC {
 
-VLCVideoWidget::VLCVideoWidget(QWidget *p_parent)
-        : WidgetNoPaintEvent(p_parent)
+VLCVideoWidget::VLCVideoWidget(QWidget *p_parent) : WidgetNoPaintEvent(p_parent)
 {
     // Set background color
     setBackgroundColor(Qt::black);

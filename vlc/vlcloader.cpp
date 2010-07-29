@@ -47,6 +47,7 @@ bool vlcInit(int debugLevl)
     QString path = vlcPath();
     if (!path.isEmpty()) {
         QString pluginsPath = QString("--plugin-path=") + QDir::toNativeSeparators(QFileInfo(vlcPath()).dir().path());
+
 #if defined(Q_OS_UNIX)
         pluginsPath.append("/vlc");
 #elif defined(Q_OS_WIN)
@@ -81,7 +82,9 @@ bool vlcInit(int debugLevl)
             "--ignore-config",
             "--reset-plugins-cache",
             "--no-media-library",
+#ifndef Q_OS_MAC
             "--no-one-instance",
+#endif
             "--no-osd",
             "--no-stats",
             "--no-video-title-show",
@@ -144,7 +147,8 @@ static bool libGreaterThan(const QString &lhs, const QString &rhs)
 static QStringList findAllLibVlc()
 {
     QStringList paths;
-#if defined(Q_OS_UNIX)
+
+#ifdef Q_OS_UNIX
     paths = QString::fromLatin1(qgetenv("LD_LIBRARY_PATH"))
             .split(QLatin1Char(':'), QString::SkipEmptyParts);
     paths << QLatin1String(PHONON_LIB_INSTALL_DIR) << QLatin1String("/usr/lib") << QLatin1String("/usr/local/lib");
@@ -154,6 +158,8 @@ static QStringList findAllLibVlc()
         << QCoreApplication::applicationDirPath()
         << QCoreApplication::applicationDirPath() + QLatin1String("/../Frameworks")
         << QCoreApplication::applicationDirPath() + QLatin1String("/../PlugIns")
+        << QCoreApplication::applicationDirPath() + QLatin1String("/lib")
+
        ;
 #endif
 
