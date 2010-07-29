@@ -43,7 +43,15 @@ set(phonon_vlc_SRCS
     widgetnopaintevent.cpp)
 
 automoc4(phonon_vlc phonon_vlc_SRCS)
-add_library(phonon_vlc MODULE ${phonon_vlc_SRCS})
+
+if(APPLE)
+set(phonon_vlc_mac_SRCS
+     nsvideoview.mm
+     vlcmacwidget.mm
+     vlcvideoview.mm)
+endif(APPLE)
+
+add_library(phonon_vlc MODULE ${phonon_vlc_SRCS} ${phonon_vlc_mac_SRCS})
 
 set_target_properties(phonon_vlc PROPERTIES PREFIX "")
 target_link_libraries(phonon_vlc ${PHONON_LIBS} ${LIBVLC_LIBRARY}
