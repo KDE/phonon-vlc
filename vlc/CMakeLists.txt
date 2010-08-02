@@ -52,7 +52,7 @@ set(phonon_vlc_SRCS
     streamhooks.cpp
     streamreader.cpp
     #    videodataoutput.cpp
-    v4l2devices.cpp
+    devicescan.cpp
     videowidget.cpp
     vlcloader.cpp
     vlcmediacontroller.cpp

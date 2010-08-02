@@ -22,6 +22,7 @@
  *****************************************************************************/
 
 #include "devicemanager.h"
+#include "devicescan.h"
 #include "backend.h"
 //#include "videowidget.h"
 //#include "widgetrenderer.h"
@@ -29,10 +30,6 @@
 
 #ifdef PHONON_PULSESUPPORT
 #  include <phonon/pulsesupport.h>
-#endif
-
-#ifdef HAVE_LIBV4L2
-#  include <v4l2devices.h>
 #endif
 
 QT_BEGIN_NAMESPACE

@@ -19,13 +19,13 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA *
 *****************************************************************************/
 
+#include "devicescan.h"
+
 #ifdef HAVE_LIBV4L2
-
-#include "v4l2devices.h"
-
 #include <linux/videodev2.h>
 #include <libv4l2.h>
 #include <fcntl.h>
+#endif // HAVE_LIBV4L2
 
 #include <QtCore/QDebug>
 #include <QtCore/QString>
@@ -36,8 +36,9 @@ QT_BEGIN_NAMESPACE
 
 namespace Phonon {
 namespace VLC {
-namespace V4L2Support {
 
+#ifdef HAVE_LIBV4L2
+namespace V4L2Support {
 
 typedef enum {
     IO_METHOD_AUTO,
@@ -204,9 +205,11 @@ bool scanDevices(QList<DeviceInfo> & devices)
 }
 
 }
-}
-} // namespace Phonon::VLC::V4L2Support
+
+#endif // HAVE_LIBV4L2
+
+} // namespace VLC
+} // namespace Phonon
 
 QT_END_NAMESPACE
 
-#endif // HAVE_LIBV4L2

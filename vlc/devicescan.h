@@ -19,10 +19,20 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA *
 *****************************************************************************/
 
-#ifndef Phonon_VLC_V4L2DEVICES_H
-#define Phonon_VLC_V4L2DEVICES_H
+/** \file
+ * \brief Provides functions to detect available devices
+ *
+ * This file contains functions that scan for available devices on the system,
+ * and will provide a list of DeviceInfo for the backend. Various classes of
+ * devices can be supported. A number of libraries may be used to provide a list
+ * for each class of devices.
+ *
+ * Currently supported: Video4Linux2 devices.
+ * TODO ALSA devices, DirectShow devices.
+ */
 
-#ifdef HAVE_LIBV4L2
+#ifndef Phonon_VLC_DEVICESCAN_H
+#define Phonon_VLC_DEVICESCAN_H
 
 #include "devicemanager.h"
 
@@ -34,6 +44,8 @@ QT_BEGIN_NAMESPACE
 
 namespace Phonon {
 namespace VLC {
+
+#ifdef HAVE_LIBV4L2
 namespace V4L2Support {
 
 /**
@@ -43,12 +55,18 @@ namespace V4L2Support {
  */
 bool scanDevices(QList<DeviceInfo> & devices);
 
-}
-}
-} // namespace Phonon::VLC::V4L2Support
+} // namespace V4L2Support
+#endif // HAVE_LIBV4L2
+
+#ifdef HAVE_LIBKAUDIODEVICELIST
+#endif // HAVE_LIBKAUDIODEVICELIST
+
+#ifdef HAVE_DIRECTSHOW
+#endif // HAVE_DIRECTSHOW
+
+} // namespace VLC
+} // namespace Phonon
 
 QT_END_NAMESPACE
 
-#endif // HAVE_LIBV4L2
-
-#endif // Phonon_VLC_V4L2DEVICES_H
+#endif // Phonon_VLC_DEVICESCAN_H
