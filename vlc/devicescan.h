@@ -45,17 +45,21 @@ QT_BEGIN_NAMESPACE
 namespace Phonon {
 namespace VLC {
 
-#ifdef HAVE_LIBV4L2
-namespace V4L2Support {
-
 /**
- * Probes for V4L capture devices and appends them to the list.
+ * Probes for all kinds of supported devies and appends them to the list. It calls
+ * device scanning functions for all the available libraries.
  *
  * \param devices List of capture devices
  */
 bool scanDevices(QList<DeviceInfo> & devices);
 
-} // namespace V4L2Support
+#ifdef HAVE_LIBV4L2
+/**
+ * Probes for V4L capture devices and appends them to the list.
+ *
+ * \param devices List of capture devices
+ */
+bool scanDevicesV4L2(QList<DeviceInfo> & devices);
 #endif // HAVE_LIBV4L2
 
 #ifdef HAVE_LIBKAUDIODEVICELIST

@@ -37,8 +37,19 @@ QT_BEGIN_NAMESPACE
 namespace Phonon {
 namespace VLC {
 
+bool scanDevices(QList<DeviceInfo> & devices)
+{
+    bool ret = true;
+
+    #ifdef HAVE_LIBV4L2
+    qDebug() << Q_FUNC_INFO << "Probing for v4l2 devices";
+    ret &= scanDevicesV4L2(devices);
+    #endif
+
+    return ret;
+}
+
 #ifdef HAVE_LIBV4L2
-namespace V4L2Support {
 
 typedef enum {
     IO_METHOD_AUTO,
@@ -179,7 +190,7 @@ static bool probeDevice(QByteArray devicePath, QList<DeviceInfo> & devices)
     return true;
 }
 
-bool scanDevices(QList<DeviceInfo> & devices)
+bool scanDevicesV4L2(QList<DeviceInfo> & devices)
 {
     QDir deviceDir("/dev");
     if (!deviceDir.isReadable()) {
@@ -202,8 +213,6 @@ bool scanDevices(QList<DeviceInfo> & devices)
     }
 
     return true;
-}
-
 }
 
 #endif // HAVE_LIBV4L2

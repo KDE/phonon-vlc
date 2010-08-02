@@ -202,12 +202,8 @@ void DeviceManager::updateDeviceList()
     QList<DeviceInfo> devices, vcs, acs;
     int i;
 
-#ifdef HAVE_LIBV4L2
-    qDebug() << Q_FUNC_INFO << "Probing for v4l devices";
-
-    // Get the list of available v4l2 capture devices
-    V4L2Support::scanDevices(devices);
-#endif // HAVE_LIBV4L2
+    // Get the list of available capture devices
+    scanDevices(devices);
 
     // See the device capabilities and sort them accordingly
     for (i = 0; i < devices.count(); ++ i) {
