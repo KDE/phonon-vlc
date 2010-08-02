@@ -130,8 +130,6 @@ Depending on the device capabilities, it is added to the capture device lists
 */
 static bool probeDevice(QByteArray devicePath, QList<DeviceInfo> & devices)
 {
-    int i_index;
-    int i_standard;
     int i_fd;
 
     struct demux_sys_t v4lDeviceInfo;
