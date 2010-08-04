@@ -21,7 +21,7 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA *
 *****************************************************************************/
 
-#ifdef PHONON_VLC_EXPERIMENTAL
+#ifndef PHONON_VLC_NO_EXPERIMENTAL
 #ifndef PHONON_VLC_AVCAPTURE_H
 #define PHONON_VLC_AVCAPTURE_H
 
@@ -71,4 +71,4 @@ class AvCapture : public QObject, public Phonon::Experimental::AvCaptureInterfac
 } // Phonon namespace
 
 #endif // PHONON_VLC_AVCAPTURE_H
-#endif // PHONON_VLC_EXPERIMENTAL
+#endif // PHONON_VLC_NO_EXPERIMENTAL

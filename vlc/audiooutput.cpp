@@ -55,7 +55,7 @@ AudioOutput::~AudioOutput()
 {
 }
 
-#ifdef PHONON_VLC_EXPERIMENTAL
+#ifndef PHONON_VLC_NO_EXPERIMENTAL
 /**
  * Connects the AudioOutput to an AvCapture. connectToMediaObject() is called
  * only for the video media of the AvCapture.
@@ -76,7 +76,7 @@ void AudioOutput::disconnectFromAvCapture(Experimental::AvCapture *avCapture)
 {
     disconnectFromMediaObject(avCapture->audioMediaObject());
 }
-#endif // PHONON_VLC_EXPERIMENTAL
+#endif // PHONON_VLC_NO_EXPERIMENTAL
 
 /**
  * \return The current volume for this audio output.

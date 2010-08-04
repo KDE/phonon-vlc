@@ -30,9 +30,9 @@
 #include "vlcloader.h"
 #include "vlcmediaobject.h"
 
-#ifdef PHONON_VLC_EXPERIMENTAL
+#ifndef PHONON_VLC_NO_EXPERIMENTAL
 #include "experimental/avcapture.h"
-#endif // PHONON_VLC_EXPERIMENTAL
+#endif // PHONON_VLC_NO_EXPERIMENTAL
 
 namespace Phonon
 {
@@ -61,11 +61,11 @@ public:
 
     virtual void disconnectFromMediaObject(PrivateMediaObject *mediaObject);
 
-    #ifdef PHONON_VLC_EXPERIMENTAL
+    #ifndef PHONON_VLC_NO_EXPERIMENTAL
     virtual void connectToAvCapture(Experimental::AvCapture *avCapture);
 
     virtual void disconnectFromAvCapture(Experimental::AvCapture *avCapture);
-    #endif // PHONON_VLC_EXPERIMENTAL
+    #endif // PHONON_VLC_NO_EXPERIMENTAL
 
     virtual void addToMedia( libvlc_media_t * media );
 

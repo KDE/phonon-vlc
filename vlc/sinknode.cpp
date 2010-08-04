@@ -75,7 +75,7 @@ void SinkNode::disconnectFromMediaObject(PrivateMediaObject * mediaObject)
     disconnect(p_media_object, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
 }
 
-#ifdef PHONON_VLC_EXPERIMENTAL
+#ifndef PHONON_VLC_NO_EXPERIMENTAL
 /**
  * Associates the sink node with the compatible media object owned by the specified AvCapture.
  * The sink node knows whether it is compatible with video media or audio media. Here, the
@@ -106,7 +106,7 @@ void SinkNode::disconnectFromAvCapture(Experimental::AvCapture *avCapture)
     disconnectFromMediaObject(avCapture->audioMediaObject());
     disconnectFromMediaObject(avCapture->videoMediaObject());
 }
-#endif // PHONON_VLC_EXPERIMENTAL
+#endif // PHONON_VLC_NO_EXPERIMENTAL
 
 /**
  * Does nothing. To be reimplemented in child classes.

@@ -32,9 +32,10 @@ endif (CMAKE_SYSTEM_NAME MATCHES Linux)
 
 add_definitions(-D_PHONON_BACKEND_VERSION_4_2)
 
-option(PHONON_VLC_BUILD_EXPERIMENTAL "Implement classes from Phonon::Experimental, and other experimental features")
-if(PHONON_VLC_BUILD_EXPERIMENTAL)
-    add_definitions(-DPHONON_VLC_EXPERIMENTAL)
+option(PHONON_VLC_NO_EXPERIMENTAL "Do not build anything experimental")
+if(PHONON_VLC_NO_EXPERIMENTAL)
+    add_definitions(-DPHONON_VLC_NO_EXPERIMENTAL)
+else(PHONON_VLC_NO_EXPERIMENTAL)
     add_subdirectory(experimental)
 endif(PHONON_VLC_BUILD_EXPERIMENTAL)
 

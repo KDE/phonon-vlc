@@ -21,7 +21,7 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA *
 *****************************************************************************/
 
-#ifdef PHONON_VLC_EXPERIMENTAL
+#ifndef PHONON_VLC_NO_EXPERIMENTAL
 #include "avcapture.h"
 
 namespace Phonon
@@ -94,4 +94,4 @@ void AvCapture::setVideoCaptureDevice(const Phonon::VideoCaptureDevice &device)
 } // VLC namespace
 } // Phonon namespace
 
-#endif // PHONON_VLC_EXPERIMENTAL
+#endif // PHONON_VLC_NO_EXPERIMENTAL

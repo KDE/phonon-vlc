@@ -26,9 +26,9 @@
 
 #include "sinknode.h"
 
-#ifdef PHONON_VLC_EXPERIMENTAL
+#ifndef PHONON_VLC_NO_EXPERIMENTAL
 #include "experimental/avcapture.h"
-#endif // PHONON_VLC_EXPERIMENTAL
+#endif // PHONON_VLC_NO_EXPERIMENTAL
 
 #include <phonon/videowidgetinterface.h>
 
@@ -62,10 +62,10 @@ public:
 
     void connectToMediaObject(PrivateMediaObject * mediaObject);
 
-    #ifdef PHONON_VLC_EXPERIMENTAL
+    #ifndef PHONON_VLC_NO_EXPERIMENTAL
     void connectToAvCapture(Experimental::AvCapture *avCapture);
     void disconnectFromAvCapture(Experimental::AvCapture *avCapture);
-    #endif // PHONON_VLC_EXPERIMENTAL
+    #endif // PHONON_VLC_NO_EXPERIMENTAL
 
     Phonon::VideoWidget::AspectRatio aspectRatio() const;
     void setAspectRatio(Phonon::VideoWidget::AspectRatio aspect);
