@@ -121,6 +121,10 @@ void VLCMediaObject::loadMediaInternal(const QString & filename)
  */
 void VLCMediaObject::setVLCWidgetId()
 {
+    // Nothing to do if there is no video widget
+    if (!p_video_widget)
+        return;
+
     // Get our media player to use our window
 #if defined(Q_OS_MAC)
     libvlc_media_player_set_nsobject(p_vlc_media_player, p_video_widget->cocoaView());
@@ -176,6 +180,7 @@ void VLCMediaObject::playInternal()
     // This will reset the GUI
     clearMediaController();
 
+    // Set up the widget id for libVLC if there is a video widget available
     setVLCWidgetId();
 
     // Play

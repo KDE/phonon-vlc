@@ -70,6 +70,7 @@ MediaObject::MediaObject(QObject *p_parent)
             SLOT(moveToNextSource()));
 
     p_next_source = MediaSource(QUrl());
+    p_video_widget = NULL;
 }
 
 MediaObject::~MediaObject()
