@@ -347,6 +347,8 @@ void MediaObject::setSource(const MediaSource & source)
     case MediaSource::CaptureDeviceSource:
         if (source.captureDeviceType() == "v4l2") {
             loadMedia("v4l2://" + mediaSource.deviceName());
+        } else if (source.captureDeviceType() == "alsa") {
+            loadMedia("alsa://" + mediaSource.deviceName());
         } else {
             qCritical() << __FUNCTION__ << "Error: unsupported MediaSource::CaptureDevice:" << source.captureDeviceType();
             break;
