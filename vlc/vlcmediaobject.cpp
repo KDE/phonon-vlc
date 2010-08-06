@@ -123,11 +123,12 @@ void VLCMediaObject::setVLCWidgetId()
 {
     // Get our media player to use our window
 #if defined(Q_OS_MAC)
-    libvlc_media_player_set_nsobject(p_vlc_media_player, p_video_widget->cocoaView());
+    if( p_video_widget )
+        libvlc_media_player_set_nsobject(p_vlc_media_player, p_video_widget->cocoaView());
 #elif defined(Q_OS_UNIX)
-    libvlc_media_player_set_xwindow(p_vlc_media_player, p_video_widget->winId());
+    libvlc_media_player_set_xwindow(p_vlc_media_player, i_video_widget_id);
 #elif defined(Q_OS_WIN)
-    libvlc_media_player_set_hwnd(p_vlc_media_player, p_video_widget->winId());
+    libvlc_media_player_set_hwnd(p_vlc_media_player, i_video_widget_id);
 #endif
 }
 
