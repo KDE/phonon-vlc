@@ -223,7 +223,7 @@ void DeviceManager::updateDeviceList()
     bool haspulse = false;
     while (p_ao_list) {
         if (checkpulse && 0 == strcmp(p_ao_list->psz_name, "pulse")) {
-            aos.last().accessList.append(DeviceAccess("PULSE", "default"));
+            aos.last().accessList.append(DeviceAccess("pulse", "default"));
             haspulse = true;
             break;
         }
