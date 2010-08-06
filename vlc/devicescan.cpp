@@ -161,10 +161,10 @@ static bool probeDevice(QByteArray devicePath, QList<DeviceInfo> & devices)
 
     // Create a device description if the device has either video or audio capabilities, or both
     if (v4lDeviceInfo.dev_cap.capabilities & (V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_AUDIO)) {
-        di.nameId = QByteArray((const char*) v4lDeviceInfo.dev_cap.card).trimmed();
+        di.name = QByteArray((const char*) v4lDeviceInfo.dev_cap.card).trimmed();
         di.description = "Video For Linux 2 Video Device, using driver ";
-        di.description.append(QByteArray((const char*) v4lDeviceInfo.dev_cap.driver).trimmed());
-        di.deviceClass = DeviceInfo::V4L2;
+        di.description.append(QString((const char*) v4lDeviceInfo.dev_cap.driver).trimmed());
+        di.accessList.append(DeviceAccess("v4l2", devicePath));
         ok = true;
     }
 

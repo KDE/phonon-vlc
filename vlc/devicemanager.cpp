@@ -41,31 +41,16 @@ namespace VLC {
 /**
  * Constructs a device info object and sets it's device identifiers.
  */
-DeviceInfo::DeviceInfo(const QByteArray &deviceId, const QByteArray &hwId)
+DeviceInfo::DeviceInfo( const QByteArray& name, const QString& description)
 {
     // Get an id
     static int counter = 0;
     id = counter++;
 
     // Get name and description for the device
-    nameId = deviceId;
-    this->hwId = hwId;
-    description = deviceId == "default" ? "Default device" : "";
-    deviceClass = Unknown;
+    this->name = name;
+    this->description = description;
     capabilities = None;
-}
-
-/**
- * \return A byte array identifying a device class
- */
-const QByteArray DeviceInfo::deviceClassString() const
-{
-    switch (deviceClass) {
-    case Unknown:   return "unknown";
-    case Pulse:     return "pulse";
-    case V4L2:      return "v4l2";
-    default:        return QByteArray();
-    }
 }
 
 /**
@@ -97,25 +82,25 @@ bool DeviceManager::canOpenDevice() const
 }
 
 /**
- * Searches for the device in the device lists, by comparing it's nameId
+ * Searches for the device in the device lists, by comparing it's name
  *
- * \param nameId Name identifier for the device to search for
+ * \param name Name identifier for the device to search for
  * \return A positive device id or -1 if device does not exist.
  */
-int DeviceManager::deviceId(const QByteArray &nameId) const
+int DeviceManager::deviceId(const QByteArray &name) const
 {
     for (int i = 0 ; i < m_audioCaptureDeviceList.size() ; ++i) {
-        if (m_audioCaptureDeviceList[i].nameId == nameId)
+        if (m_audioCaptureDeviceList[i].name == name)
             return m_audioCaptureDeviceList[i].id;
     }
 
     for (int i = 0 ; i < m_videoCaptureDeviceList.size() ; ++i) {
-        if (m_videoCaptureDeviceList[i].nameId == nameId)
+        if (m_videoCaptureDeviceList[i].name == name)
             return m_videoCaptureDeviceList[i].id;
     }
 
     for (int i = 0 ; i < m_audioOutputDeviceList.size() ; ++i) {
-        if (m_audioOutputDeviceList[i].nameId == nameId)
+        if (m_audioOutputDeviceList[i].name == name)
             return m_audioOutputDeviceList[i].id;
     }
 
@@ -126,7 +111,7 @@ int DeviceManager::deviceId(const QByteArray &nameId) const
  * Get a human-readable description from a device id.
  * \param i_id Device identifier
  */
-QByteArray DeviceManager::deviceDescription(int i_id) const
+QString DeviceManager::deviceDescription(int i_id) const
 {
     for (int i = 0 ; i < m_audioCaptureDeviceList.size() ; ++i) {
         if (m_audioCaptureDeviceList[i].id == i_id)
@@ -164,21 +149,21 @@ void DeviceManager::updateDeviceSublist(const QList<DeviceInfo> &newDevices, QLi
     int odc = deviceList.count();
 
     for (int i = 0 ; i < ndc ; ++i) {
-        if (deviceId(newDevices[i].nameId) == -1) {
+        if (deviceId(newDevices[i].name) == -1) {
             // This is a new device, add it
             deviceList.append(newDevices[i]);
-            emit deviceAdded(deviceId(newDevices[i].nameId));
-            qDebug() << "added device " << newDevices[i].nameId.data() << "id" << deviceId(newDevices[i].nameId);
+            emit deviceAdded(deviceId(newDevices[i].name));
+            qDebug() << "added device " << newDevices[i].name.data() << "id" << deviceId(newDevices[i].name);
         }
     }
 
     if (ndc < odc) {
         // A device was removed
         for (int i = odc - 1; i >= 0 ; --i) {
-            QByteArray currId = deviceList[i].nameId;
+            QByteArray currId = deviceList[i].name;
             bool b_found = false;
             for (int k = ndc - 1; k >= 0 ; --k) {
-                if (currId == newDevices[k].nameId) {
+                if (currId == newDevices[k].name) {
                     b_found = true;
                     break;
                 }
@@ -238,13 +223,13 @@ void DeviceManager::updateDeviceList()
     bool haspulse = false;
     while (p_ao_list) {
         if (checkpulse && 0 == strcmp(p_ao_list->psz_name, "pulse")) {
-            aos.last().deviceClass = DeviceInfo::Pulse;
+            aos.last().accessList.append(DeviceAccess("PULSE", "default"));
             haspulse = true;
             break;
         }
 
         aos.append(DeviceInfo(p_ao_list->psz_name));
-        aos.last().deviceClass = DeviceInfo::Unknown;
+        aos.last().accessList.append(DeviceAccess("?", p_ao_list->psz_name));
         aos.last().capabilities = DeviceInfo::AudioOutput;
 
         p_ao_list = p_ao_list->p_next;

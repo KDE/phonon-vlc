@@ -308,7 +308,7 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
     case Phonon::AudioOutputDeviceType: {
         deviceList = deviceManager()->audioOutputDevices();
         if (index >= 0 && index < deviceList.size()) {
-            ret.insert("name", deviceList[index].nameId);
+            ret.insert("name", deviceList[index].name);
             ret.insert("description", deviceList[index].description);
             ret.insert("icon", QLatin1String("audio-card"));
         }
@@ -317,10 +317,9 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
     case Phonon::AudioCaptureDeviceType: {
         deviceList = deviceManager()->audioCaptureDevices();
         if (index >= 0 && index < deviceList.size()) {
-            ret.insert("name", deviceList[index].nameId);
-            ret.insert("hwname", deviceList[index].hwId);
+            ret.insert("name", deviceList[index].name);
             ret.insert("description", deviceList[index].description);
-            ret.insert("type", deviceList[index].deviceClassString());
+            ret.insert("deviceAccessList", QVariant::fromValue<Phonon::DeviceAccessList>(deviceList[index].accessList));
             if (deviceList[index].capabilities & DeviceInfo::VideoCapture)
                 ret.insert("hasvideo", true);
         }
@@ -329,10 +328,9 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
     case Phonon::VideoCaptureDeviceType: {
         deviceList = deviceManager()->videoCaptureDevices();
         if (index >= 0 && index < deviceList.size()) {
-            ret.insert("name", deviceList[index].nameId);
-            ret.insert("hwname", deviceList[index].hwId);
+            ret.insert("name", deviceList[index].name);
             ret.insert("description", deviceList[index].description);
-            ret.insert("type", deviceList[index].deviceClassString());
+            ret.insert("deviceAccessList", QVariant::fromValue<Phonon::DeviceAccessList>(deviceList[index].accessList));
             if (deviceList[index].capabilities & DeviceInfo::AudioCapture)
                 ret.insert("hasaudio", true);
         }

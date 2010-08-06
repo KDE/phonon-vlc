@@ -45,12 +45,6 @@ class VideoWidget;
 class DeviceInfo
 {
 public:
-    enum Class {
-        Unknown,
-        Pulse,
-        V4L2
-    };
-
     enum Capability {
         None            = 0x0000,
         AudioOutput     = 0x0001,
@@ -58,14 +52,12 @@ public:
         VideoCapture    = 0x0004
     };
 public:
-    DeviceInfo(const QByteArray& deviceId, const QByteArray& hwId = "");
-    const QByteArray deviceClassString() const;
+    DeviceInfo(const QByteArray& name, const QString& description = "");
 
     int id;
-    QByteArray nameId;
-    QByteArray description;
-    QByteArray hwId;
-    Class deviceClass;
+    QByteArray name;
+    QString description;
+    DeviceAccessList accessList;
     quint16 capabilities;
 };
 
@@ -91,7 +83,7 @@ public:
     const QList<DeviceInfo> videoCaptureDevices() const;
     const QList<DeviceInfo> audioOutputDevices() const;
     int deviceId(const QByteArray &vlcId) const;
-    QByteArray deviceDescription(int id) const;
+    QString deviceDescription( int i_id) const;
 
 signals:
     void deviceAdded(int);

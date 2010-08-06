@@ -303,6 +303,9 @@ void MediaObject::setSource(const MediaSource & source)
 
     mediaSource = source;
 
+    QByteArray driverName;
+    QString deviceName;
+
     switch (source.type()) {
     case MediaSource::Invalid:
         qCritical() << __FUNCTION__ << "Error: MediaSource Type is Invalid:" << source.type();
@@ -344,13 +347,22 @@ void MediaObject::setSource(const MediaSource & source)
             break;
         }
         break;
-    case MediaSource::CaptureDeviceSource:
-        if (source.captureDeviceType() == "v4l2") {
-            loadMedia("v4l2://" + mediaSource.deviceName());
-        } else if (source.captureDeviceType() == "alsa") {
-            loadMedia("alsa://" + mediaSource.deviceName());
+    case MediaSource::CaptureDevice:
+        if (source.deviceAccessList().isEmpty()) {
+            qCritical() << __FUNCTION__ << "No device access list for this capture device";
+            break;
+        }
+
+        // TODO try every device in the access list until it works, not just the first one
+        driverName = source.deviceAccessList().first().first;
+        deviceName = source.deviceAccessList().first().second;
+
+        if (driverName == "v4l2") {
+            loadMedia("v4l2://" + deviceName);
+        } else if (driverName == "alsa") {
+            loadMedia("alsa://" + deviceName);
         } else {
-            qCritical() << __FUNCTION__ << "Error: unsupported MediaSource::CaptureDevice:" << source.captureDeviceType();
+            qCritical() << __FUNCTION__ << "Error: unsupported MediaSource::CaptureDevice:" << driverName;
             break;
         }
 

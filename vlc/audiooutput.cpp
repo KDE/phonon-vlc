@@ -137,9 +137,9 @@ bool AudioOutput::setOutputDevice(int device)
         if (!p_vlc_player)
             return false;
         i_device = device;
-        const QByteArray deviceName = deviceList.at(device).nameId;
-        libvlc_audio_output_set(p_vlc_player, (char *) deviceList.at(device).nameId.data());
-        qDebug() << "set aout " << deviceList.at(device).nameId.data();
+        const QByteArray deviceName = deviceList.at(device).name;
+        libvlc_audio_output_set(p_vlc_player, (char *) deviceList.at(device).name.data());
+        qDebug() << "set aout " << deviceList.at(device).name.data();
 //         if (deviceName == DEFAULT_ID) {
 //             libvlc_audio_device_set(p_vlc_instance, DEFAULT, vlc_exception);
 //             vlcExceptionRaised();
