@@ -75,8 +75,7 @@ endif(APPLE)
 add_library(phonon_vlc MODULE ${phonon_vlc_SRCS} ${phonon_vlc_mac_SRCS})
 
 set_target_properties(phonon_vlc PROPERTIES PREFIX "")
-target_link_libraries(phonon_vlc ${PHONON_LIBS} ${LIBVLC_LIBRARY}
-    ${LIBVLCCORE_LIBRARY})
+target_link_libraries(phonon_vlc ${PHONON_LIBS} ${LIBVLC_LIBRARY} ${LIBVLCCORE_LIBRARY})
 
 if (V4L2_FOUND)
     target_link_libraries(phonon_vlc ${V4L2_LIBRARY})
