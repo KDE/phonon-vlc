@@ -49,7 +49,7 @@ MediaObject::MediaObject(QObject *p_parent)
         : QObject(p_parent)
 {
     currentState = Phonon::StoppedState;
-    i_video_widget_id = 0;
+    p_video_widget = NULL;
     b_prefinish_mark_reached_emitted = false;
     b_about_to_finish_emitted = false;
     i_transition_time = 0;
@@ -84,11 +84,11 @@ MediaObject::~MediaObject()
  * \param i_widget_id The widget id to be remembered for video
  * \see VLCMediaObject::setVLCWidgetId()
  */
-void MediaObject::setVideoWidgetId(WId i_widget_id)
-{
-    i_video_widget_id = i_widget_id;
-}
-
+//void MediaObject::setVideoWidgetId(WId i_widget_id)
+//{
+//    i_video_widget_id = i_widget_id;
+//}
+//
 /**
  * Remembers the widget id (window system identifier) that will be
  * later passed to libVLC to draw the video on it, if this media object

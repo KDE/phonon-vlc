@@ -137,7 +137,7 @@ private:
 
     void unloadMedia();
 
-    void setVLCWidgetId();
+    void setVLCVideoWidget();
 
     // MediaPlayer
 //    libvlc_media_player_t * p_vlc_media_player;

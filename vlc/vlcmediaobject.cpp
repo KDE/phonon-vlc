@@ -119,16 +119,18 @@ void VLCMediaObject::loadMediaInternal(const QString & filename)
  *
  * \see setVideoWidgetId()
  */
-void VLCMediaObject::setVLCWidgetId()
+void VLCMediaObject::setVLCVideoWidget()
 {
+    if( !p_video_widget )
+        return;
+
     // Get our media player to use our window
 #if defined(Q_OS_MAC)
-    if( p_video_widget )
-        libvlc_media_player_set_nsobject(p_vlc_media_player, p_video_widget->cocoaView());
+    libvlc_media_player_set_nsobject(p_vlc_media_player, p_video_widget->cocoaView());
 #elif defined(Q_OS_UNIX)
-    libvlc_media_player_set_xwindow(p_vlc_media_player, i_video_widget_id);
+    libvlc_media_player_set_xwindow(p_vlc_media_player, p_video_widget->winId());
 #elif defined(Q_OS_WIN)
-    libvlc_media_player_set_hwnd(p_vlc_media_player, i_video_widget_id);
+    libvlc_media_player_set_hwnd(p_vlc_media_player, p_video_widget->windId());
 #endif
 }
 
@@ -177,7 +179,7 @@ void VLCMediaObject::playInternal()
     // This will reset the GUI
     clearMediaController();
 
-    setVLCWidgetId();
+    setVLCVideoWidget();
 
     // Play
     if(libvlc_media_player_play(p_vlc_media_player))
