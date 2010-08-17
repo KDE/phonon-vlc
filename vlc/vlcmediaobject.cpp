@@ -189,6 +189,8 @@ void VLCMediaObject::playInternal()
         seekInternal( p_seek_point );
         p_seek_point = 0;
     }
+
+    emit stateChanged(Phonon::PlayingState);
 }
 
 /**
@@ -197,6 +199,7 @@ void VLCMediaObject::playInternal()
 void VLCMediaObject::pause()
 {
     libvlc_media_player_pause(p_vlc_media_player);
+    emit stateChanged(Phonon::PausedState);
 }
 
 /**
@@ -207,6 +210,7 @@ void VLCMediaObject::stop()
     p_next_source = MediaSource(QUrl());
     libvlc_media_player_stop(p_vlc_media_player);
 //    unloadMedia();
+    emit stateChanged(Phonon::StoppedState);
 }
 
 /**
