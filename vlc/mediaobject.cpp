@@ -192,7 +192,7 @@ void MediaObject::loadMedia(const QString & filename)
 
 void MediaObject::resume()
 {
-    pause();
+    playInternal();
 }
 
 /**
