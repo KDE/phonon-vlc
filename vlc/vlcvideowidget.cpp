@@ -64,7 +64,9 @@ void VLCVideoWidget::setVideoSize(const QSize & size)
 
 QSize VLCVideoWidget::sizeHint() const
 {
-    return videoSize;
+    if (!videoSize.isEmpty())
+        return videoSize;
+    return QSize(640, 480);
 }
 
 }
