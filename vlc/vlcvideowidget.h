@@ -52,7 +52,7 @@ public:
     VLCVideoWidget(QWidget *p_parent);
     ~VLCVideoWidget();
 
-    void setVideoSize(const QSize & videoSize);
+    void setVideoSize(const QSize &videoSize);
     void setAspectRatio(double f_aspect_ratio);
     void setScaleAndCropMode(bool b_scale_and_crop);
 
@@ -65,7 +65,7 @@ private:
     /**
      * Original size of the video, needed for sizeHint().
      */
-    QSize videoSize;
+    QSize m_videoSize;
 };
 
 }

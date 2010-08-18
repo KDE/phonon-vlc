@@ -59,15 +59,15 @@ void VLCVideoWidget::setScaleAndCropMode(bool b_scale_and_crop)
  */
 void VLCVideoWidget::setVideoSize(const QSize & size)
 {
-    videoSize = size;
+    m_videoSize = size;
     updateGeometry();
     update();
 }
 
 QSize VLCVideoWidget::sizeHint() const
 {
-    if (!videoSize.isEmpty())
-        return videoSize;
+    if (!m_videoSize.isEmpty())
+        return m_videoSize;
     return QSize(640, 480);
 }
 
