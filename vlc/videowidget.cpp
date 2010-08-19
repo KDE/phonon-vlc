@@ -44,7 +44,7 @@ namespace VLC {
 VideoWidget::VideoWidget(QWidget *p_parent)
         : SinkNode(p_parent)
 {
-    p_video_widget = new Widget(p_parent);
+    p_video_widget = new Widget(p_parent, this);
 
     aspect_ratio = Phonon::VideoWidget::AspectRatioAuto;
     scale_mode = Phonon::VideoWidget::FitInView;

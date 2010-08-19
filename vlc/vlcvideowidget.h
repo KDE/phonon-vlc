@@ -34,6 +34,8 @@ namespace Phonon
 {
 namespace VLC {
 
+class VideoWidget;
+
 /**
  * \brief Widget where to show VLC video.
  *
@@ -49,7 +51,7 @@ class VLCVideoWidget : public WidgetNoPaintEvent
     Q_OBJECT
 public:
 
-    VLCVideoWidget(QWidget *p_parent);
+    VLCVideoWidget(QWidget *parent, VideoWidget *videoWidget);
     ~VLCVideoWidget();
 
     void setVideoSize(const QSize &videoSize);
@@ -61,6 +63,11 @@ public:
 private:
 
     void resizeEvent(QResizeEvent *p_event);
+
+    /**
+     * VideoWidget containing this VLCVideoWidget
+     */
+    VideoWidget *m_videoWidget;
 
     /**
      * Original size of the video, needed for sizeHint().
