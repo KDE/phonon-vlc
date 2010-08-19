@@ -60,12 +60,32 @@ public:
 
     QSize sizeHint() const;
 
+    void setVisible(bool visible);
+
+public slots:
+
+    void setNextFrame(const QByteArray &array, int width, int height);
+
+protected:
+
+    virtual void paintEvent(QPaintEvent *event);
+
 private:
 
     void resizeEvent(QResizeEvent *p_event);
 
     /**
-     * VideoWidget containing this VLCVideoWidget
+     * Whether custom rendering is used.
+     */
+    bool m_customRender;
+
+    /**
+     * Next drawable frame (if any).
+     */
+    mutable QImage m_frame;
+
+    /**
+     * VideoWidget containing this VLCVideoWidget.
      */
     VideoWidget *m_videoWidget;
 

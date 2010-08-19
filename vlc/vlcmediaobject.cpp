@@ -201,14 +201,21 @@ void VLCMediaObject::pause()
     libvlc_media_t *media = libvlc_media_player_get_media(p_vlc_media_player);
 
     if (state() == Phonon::PausedState) {
-        // Resume
-        libvlc_media_player_set_pause(p_vlc_media_player, 0);
-        emit stateChanged(Phonon::PlayingState);
+#warning HACK!!!! -> after loading we are in pause, even though no media is loaded
+        if (media == 0) {
+            // Nothing playing yet -> play
+            playInternal();
+        } else {
+            // Resume
+            libvlc_media_player_set_pause(p_vlc_media_player, 0);
+            emit stateChanged(Phonon::PlayingState);
+        }
     } else {
         // Pause
         libvlc_media_player_set_pause(p_vlc_media_player, 1);
         emit stateChanged(Phonon::PausedState);
     }
+
 }
 
 /**

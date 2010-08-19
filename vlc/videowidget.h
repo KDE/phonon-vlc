@@ -31,6 +31,7 @@
 #include "vlcvideowidget.h"
 typedef Phonon::VLC::VLCVideoWidget Widget;
 
+#include <QtCore/QMutex>
 
 namespace Phonon
 {
@@ -78,11 +79,19 @@ public:
 
     Widget * widget();
 
+    void useCustomRender();
+
+    static void *lock(void *data, void **bufRet);
+    static void unlock(void *data, void *id, void *const *pixels);
+
 private slots:
 
     void videoWidgetSizeChanged(int width, int height);
 
 private:
+
+    QMutex m_locker;
+    QImage *m_img;
 
     Widget *p_video_widget;
 

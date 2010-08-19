@@ -23,8 +23,11 @@
 
 #include "vlcvideowidget.h"
 
+#include <QtGui/QPainter>
 #include <QtGui/QResizeEvent>
 #include <QtCore/QDebug>
+
+#include "videowidget.h"
 
 namespace Phonon
 {
@@ -59,7 +62,7 @@ void VLCVideoWidget::setScaleAndCropMode(bool b_scale_and_crop)
  * Sets an approximate video size to provide a size hint. It will be set
  * to the original size of the video.
  */
-void VLCVideoWidget::setVideoSize(const QSize & size)
+void VLCVideoWidget::setVideoSize(const QSize &size)
 {
     m_videoSize = size;
     updateGeometry();
@@ -71,6 +74,39 @@ QSize VLCVideoWidget::sizeHint() const
     if (!m_videoSize.isEmpty())
         return m_videoSize;
     return QSize(640, 480);
+}
+
+void VLCVideoWidget::setVisible(bool visible)
+{
+    // Disable overlays for graphics view
+    if (window() && window()->testAttribute(Qt::WA_DontShowOnScreen)) {
+        qDebug() << "Widget rendering forced";
+        m_videoWidget->useCustomRender();
+        m_customRender = true;
+    }
+    QWidget::setVisible(visible);
+}
+
+void VLCVideoWidget::setNextFrame(const QByteArray &array, int width, int height)
+{
+    // TODO: Should preloading ever become available ... what do to here?
+
+    m_frame = QImage();
+    {
+        m_frame = QImage((uchar *)array.constData(), width, height, QImage::Format_RGB32);
+    }
+    update();
+}
+
+void VLCVideoWidget::paintEvent(QPaintEvent *event)
+{
+    if (m_customRender) {
+        QPainter painter(this);
+        // TODO: more sensible rect calculation.
+        painter.drawImage(rect(), m_frame);
+    } else {
+        QWidget::paintEvent(event);
+    }
 }
 
 }
