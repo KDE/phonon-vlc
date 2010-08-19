@@ -23,15 +23,15 @@
 
 #include "videowidget.h"
 
-#include "mediaobject.h"
-#include "vlcmediaobject.h"
-
-#include "vlcloader.h"
-
 #include <QtGui/QWidget>
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopWidget>
 #include <QtCore/QtDebug>
+
+#include "mediaobject.h"
+#include "vlcmediaobject.h"
+
+#include "vlcloader.h"
 
 namespace Phonon
 {
