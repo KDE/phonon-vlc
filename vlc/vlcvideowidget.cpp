@@ -78,7 +78,6 @@ QSize VLCVideoWidget::sizeHint() const
 
 void VLCVideoWidget::setVisible(bool visible)
 {
-    // Disable overlays for graphics view
     if (window() && window()->testAttribute(Qt::WA_DontShowOnScreen)) {
         qDebug() << "Widget rendering forced";
         m_videoWidget->useCustomRender();
