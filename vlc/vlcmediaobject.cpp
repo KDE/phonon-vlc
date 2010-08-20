@@ -363,12 +363,11 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user
             // Update metadata
             p_vlc_mediaObject->updateMetaData();
 
-            // Get current video width
-            const int i_width = libvlc_video_get_width(p_vlc_mediaObject->p_vlc_media_player);
-
-            // Get current video height
-            const int i_height = libvlc_video_get_height(p_vlc_mediaObject->p_vlc_media_player);
-            emit p_vlc_mediaObject->videoWidgetSizeChanged(i_width, i_height);
+            // Get current video width and height
+            uint width = 0;
+            uint height = 0;
+            libvlc_video_get_size(p_vlc_mediaObject->p_vlc_media_player, 0, &width, &height);
+            emit p_vlc_mediaObject->videoWidgetSizeChanged(width, height);
 
             // Does this media player have a video output
             const bool b_has_video = libvlc_media_player_has_vout(p_vlc_mediaObject->p_vlc_media_player);
