@@ -29,7 +29,8 @@ namespace Phonon
 {
 namespace VLC
 {
-WidgetNoPaintEvent::WidgetNoPaintEvent(QWidget *p_parent) : BaseWidget(p_parent)
+WidgetNoPaintEvent::WidgetNoPaintEvent(QWidget *parent) :
+    BaseWidget(parent)
 {
     // When resizing fill with black (backgroundRole color) the rest is done by paintEvent
     setAttribute(Qt::WA_OpaquePaintEvent);
@@ -45,8 +46,9 @@ WidgetNoPaintEvent::WidgetNoPaintEvent(QWidget *p_parent) : BaseWidget(p_parent)
     setMouseTracking(true);
 }
 
-void WidgetNoPaintEvent::paintEvent(QPaintEvent *p_event)
+void WidgetNoPaintEvent::paintEvent(QPaintEvent *event)
 {
+    Q_UNUSED(event);
     // FIXME this makes the video flicker
     // Make everything backgroundRole color
     QPainter painter(this);

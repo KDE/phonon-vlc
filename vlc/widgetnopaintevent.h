@@ -26,16 +26,12 @@
 
 #include <QtGui/QWidget>
 
-
-
 #ifdef Q_OS_MAC
-
-# include "vlcmacwidget.h"
+#include "vlcmacwidget.h"
 typedef VlcMacWidget BaseWidget;
 #else
 typedef QWidget BaseWidget;
 #endif
-
 
 namespace Phonon
 {
@@ -43,28 +39,34 @@ namespace VLC
 {
 
 /**
- * \brief Utility class: special widget for playing videos.
+ * @short Utility class: special widget for playing videos.
  *
  * Does not handle paintEvent()
  */
-
 class WidgetNoPaintEvent : public BaseWidget
 {
     Q_OBJECT
-public:
 
-    WidgetNoPaintEvent(QWidget *p_parent);
+public:
+    /**
+     * Constructor.
+     *
+     * @param parent parent widget
+     */
+    WidgetNoPaintEvent(QWidget *parent);
 
     /**
      * Sets the background color.
      *
-     * I don't know which one is best: 0x020202 or Qt::black...
+     * @param color the color to set
      */
     void setBackgroundColor(const QColor &color);
 
 private:
-
-    void paintEvent(QPaintEvent *p_event);
+    /*
+     * Overloaded from BaseWidget (QWidget)
+     */
+    void paintEvent(QPaintEvent *event);
 };
 
 }
