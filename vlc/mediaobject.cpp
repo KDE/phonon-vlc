@@ -146,7 +146,7 @@ void MediaObject::seek(qint64 milliseconds)
 
 /**
  * Checks when the tick(), prefinishMarkReached(), aboutToFinish() signals need to
- * be emitted and emits them if neccessary.
+ * be emitted and emits them if necessary.
  *
  * \param currentTime The current play time for the media, in miliseconds.
  */

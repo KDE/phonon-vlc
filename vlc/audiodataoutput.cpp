@@ -137,7 +137,7 @@ void AudioDataOutput::lock( AudioDataOutput *cw, quint8 **pcm_buffer , quint32 s
 }
 
 /**
- * This is a VLC postrender callback. Interprets the data recieved in m_buffer,
+ * This is a VLC postrender callback. Interprets the data received in m_buffer,
  * separating the samples and channels. Finally, the buffer is freed and m_locker
  * is unlocked. Now the audio data output is ready for sending data.
  *
@@ -208,7 +208,7 @@ void AudioDataOutput::sendData()
     if( m_channel_count == 1 ) {
         chan_count = 2;
     }
- 
+
     while( m_channel_samples[0].count() > m_dataSize ) {
         QMap<Phonon::AudioDataOutput::Channel, QVector<qint16> > m_data;
         for( int position = 0; position < chan_count; position++ ) {

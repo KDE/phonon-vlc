@@ -57,7 +57,7 @@ namespace Phonon
 
         /** \brief Class for supporting custom data streams to the backend
          *
-         * This class recieves data from a Phonon MediaSource that is a stream.
+         * This class receives data from a Phonon MediaSource that is a stream.
          * When data is requested, it fetches it from the media source and passes it further.
          * MediaObject uses this class to pass stream data to libVLC.
          *
@@ -96,7 +96,7 @@ namespace Phonon
 
                 seekStream(pos);
             }
-            
+
             quint64 currentPos() const
             {
                 return m_pos;
