@@ -25,7 +25,8 @@
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 
 MediaController::MediaController()
 {
@@ -83,8 +84,8 @@ bool MediaController::hasInterface(Interface iface) const
         break;
     default:
         qCritical() << __FUNCTION__
-        << "Error: unsupported AddonInterface::Interface"
-        << iface;
+                    << "Error: unsupported AddonInterface::Interface"
+                    << iface;
     }
 
     return false;
@@ -119,8 +120,8 @@ QVariant MediaController::interfaceCall(Interface iface, int i_command, const QL
             return true;
         default:
             qCritical() << __FUNCTION__
-            << "Error: unsupported AddonInterface::ChapterInterface command:"
-            << i_command;
+                        << "Error: unsupported AddonInterface::ChapterInterface command:"
+                        << i_command;
         }
         break;
     case AddonInterface::TitleInterface:
@@ -158,8 +159,8 @@ QVariant MediaController::interfaceCall(Interface iface, int i_command, const QL
             return true;
         default:
             qCritical() << __FUNCTION__
-            << "Error: unsupported AddonInterface::TitleInterface command:"
-            << i_command;
+                        << "Error: unsupported AddonInterface::TitleInterface command:"
+                        << i_command;
         }
         break;
     case AddonInterface::AngleInterface:
@@ -170,8 +171,8 @@ QVariant MediaController::interfaceCall(Interface iface, int i_command, const QL
             break;
         default:
             qCritical() << __FUNCTION__
-            << "Error: unsupported AddonInterface::AngleInterface command:"
-            << i_command;
+                        << "Error: unsupported AddonInterface::AngleInterface command:"
+                        << i_command;
         }
         break;
     case AddonInterface::SubtitleInterface:
@@ -189,8 +190,8 @@ QVariant MediaController::interfaceCall(Interface iface, int i_command, const QL
             return true;
         default:
             qCritical() << __FUNCTION__
-            << "Error: unsupported AddonInterface::SubtitleInterface command:"
-            << i_command;
+                        << "Error: unsupported AddonInterface::SubtitleInterface command:"
+                        << i_command;
         }
         break;
     case AddonInterface::AudioChannelInterface:
@@ -208,14 +209,14 @@ QVariant MediaController::interfaceCall(Interface iface, int i_command, const QL
             return true;
         default:
             qCritical() << __FUNCTION__
-            << "Error: unsupported AddonInterface::AudioChannelInterface command:"
-            << i_command;
+                        << "Error: unsupported AddonInterface::AudioChannelInterface command:"
+                        << i_command;
         }
         break;
     default:
         qCritical() << __FUNCTION__
-        << "Error: unsupported AddonInterface::Interface:"
-        << iface;
+                    << "Error: unsupported AddonInterface::Interface:"
+                    << iface;
     }
 
     return QVariant();

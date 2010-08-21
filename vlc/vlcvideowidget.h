@@ -32,7 +32,8 @@ class QResizeEvent;
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 
 class VideoWidget;
 

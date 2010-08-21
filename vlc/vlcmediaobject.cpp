@@ -35,7 +35,8 @@
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 
 /**
  * Creates a libVLC Media Player and connects to it's events. Media and Media Discoverer are
@@ -44,13 +45,14 @@ namespace VLC {
  *
  * \param parent A parent for the QObject
  */
-VLCMediaObject::VLCMediaObject(QObject * parent)
-        : MediaObject(parent), VLCMediaController()
+VLCMediaObject::VLCMediaObject(QObject *parent)
+    : MediaObject(parent), VLCMediaController()
 {
     // Create an empty Media Player object
     p_vlc_media_player = libvlc_media_player_new(vlc_instance);
-    if(!p_vlc_media_player)
+    if (!p_vlc_media_player) {
         qDebug() << "libvlc exception:" << libvlc_errmsg();
+    }
     p_vlc_media_player_event_manager = 0;
     connectToPlayerVLCEvents();
 
@@ -103,7 +105,7 @@ void VLCMediaObject::unloadMedia()
  *
  * \see playInternal()
  */
-void VLCMediaObject::loadMediaInternal(const QString & filename)
+void VLCMediaObject::loadMediaInternal(const QString &filename)
 {
     qDebug() << __FUNCTION__ << filename;
 
@@ -121,8 +123,9 @@ void VLCMediaObject::loadMediaInternal(const QString & filename)
  */
 void VLCMediaObject::setVLCVideoWidget()
 {
-    if( !p_video_widget )
+    if (!p_video_widget) {
         return;
+    }
 
     // Get our media player to use our window
 #if defined(Q_OS_MAC)
@@ -149,18 +152,19 @@ void VLCMediaObject::setVLCVideoWidget()
  */
 void VLCMediaObject::playInternal()
 {
-    if( p_vlc_media ) { // We are changing media, discard the old one
+    if (p_vlc_media) {  // We are changing media, discard the old one
         libvlc_media_release(p_vlc_media);
         p_vlc_media = 0;
     }
 
     // Create a media with the given MRL
     p_vlc_media = libvlc_media_new_location(vlc_instance, p_current_file);
-    if(!p_vlc_media)
+    if (!p_vlc_media) {
         qDebug() << "libvlc exception:" << libvlc_errmsg();
+    }
 
-    foreach( SinkNode * sink, m_sinks ) {
-        sink->addToMedia( p_vlc_media );
+    foreach(SinkNode * sink, m_sinks) {
+        sink->addToMedia(p_vlc_media);
     }
 
     // Set the media that will be used by the media player
@@ -182,11 +186,12 @@ void VLCMediaObject::playInternal()
     setVLCVideoWidget();
 
     // Play
-    if(libvlc_media_player_play(p_vlc_media_player))
+    if (libvlc_media_player_play(p_vlc_media_player)) {
         qDebug() << "libvlc exception:" << libvlc_errmsg();
+    }
 
-    if( p_seek_point != 0 ) { // Workaround that seeking needs to work before the file is being played...
-        seekInternal( p_seek_point );
+    if (p_seek_point != 0) {  // Workaround that seeking needs to work before the file is being played...
+        seekInternal(p_seek_point);
         p_seek_point = 0;
     }
 
@@ -234,7 +239,7 @@ void VLCMediaObject::stop()
  */
 void VLCMediaObject::seekInternal(qint64 milliseconds)
 {
-    if( state() != Phonon::PlayingState ) { // Is we aren't playing, seeking is invalid...
+    if (state() != Phonon::PlayingState) {  // Is we aren't playing, seeking is invalid...
         p_seek_point = milliseconds;
     }
 
@@ -342,7 +347,7 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user
     static int i_first_time_media_player_time_changed = 0;
     static bool b_media_player_title_changed = false;
 
-    VLCMediaObject * const p_vlc_mediaObject = (VLCMediaObject *) p_user_data;
+    VLCMediaObject *const p_vlc_mediaObject = (VLCMediaObject *) p_user_data;
 
 //    qDebug() << (int)p_vlc_mediaObject << "event:" << libvlc_event_type_name(p_event->type);
 
@@ -390,7 +395,7 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user
                     // only first time, no when title changed
                     if (!b_media_player_title_changed) {
                         libvlc_track_description_t *p_info = libvlc_video_get_title_description(
-                                                                 p_vlc_mediaObject->p_vlc_media_player);
+                                p_vlc_mediaObject->p_vlc_media_player);
                         while (p_info) {
                             p_vlc_mediaObject->titleAdded(p_info->i_id, p_info->psz_name);
                             p_info = p_info->p_next;
@@ -402,11 +407,13 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user
                     if (b_media_player_title_changed)
                         p_vlc_mediaObject->refreshChapters(libvlc_media_player_get_title(
                                                                p_vlc_mediaObject->p_vlc_media_player));
-                    else
+                    else {
                         p_vlc_mediaObject->refreshChapters(0);
+                    }
                 }
-                if (b_media_player_title_changed)
+                if (b_media_player_title_changed) {
                     b_media_player_title_changed = false;
+                }
             }
 
             // Bugfix with Qt mediaplayer example
@@ -433,16 +440,16 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user
         p_vlc_mediaObject->clearMediaController();
         emit p_vlc_mediaObject->stateChanged(Phonon::StoppedState);
         emit p_vlc_mediaObject->finished();
-    } else if(p_event->type == libvlc_MediaPlayerEndReached) {
+    } else if (p_event->type == libvlc_MediaPlayerEndReached) {
         emit p_vlc_mediaObject->moveToNext();
     }
 
-    if(p_event->type == libvlc_MediaPlayerEncounteredError && !p_vlc_mediaObject->checkGaplessWaiting()) {
+    if (p_event->type == libvlc_MediaPlayerEncounteredError && !p_vlc_mediaObject->checkGaplessWaiting()) {
         i_first_time_media_player_time_changed = 0;
         p_vlc_mediaObject->clearMediaController();
         emit p_vlc_mediaObject->stateChanged(Phonon::ErrorState);
         emit p_vlc_mediaObject->finished();
-    } else if(p_event->type == libvlc_MediaPlayerEncounteredError) {
+    } else if (p_event->type == libvlc_MediaPlayerEncounteredError) {
         emit p_vlc_mediaObject->moveToNext();
     }
 
@@ -496,7 +503,7 @@ void VLCMediaObject::updateMetaData()
     metaDataMap.insert(QLatin1String("ENCODEDBY"),
                        QString::fromUtf8(libvlc_media_get_meta(p_vlc_media, libvlc_meta_EncodedBy)));
 
-    if( metaDataMap == p_vlc_meta_data ) {
+    if (metaDataMap == p_vlc_meta_data) {
         // No need to issue any change, the data is the same
         return;
     }
@@ -504,9 +511,9 @@ void VLCMediaObject::updateMetaData()
     p_vlc_meta_data = metaDataMap;
 
     qDebug() << "updateMetaData(): artist:"
-    << libvlc_media_get_meta(p_vlc_media, libvlc_meta_Artist);
+             << libvlc_media_get_meta(p_vlc_media, libvlc_meta_Artist);
     qDebug() << "updateMetaData(): title:"
-    << libvlc_media_get_meta(p_vlc_media, libvlc_meta_Title);
+             << libvlc_media_get_meta(p_vlc_media, libvlc_meta_Title);
 
     emit metaDataChanged(metaDataMap);
 }
@@ -527,9 +534,9 @@ qint64 VLCMediaObject::currentTimeInternal() const
 void VLCMediaObject::updateDuration(qint64 newDuration)
 {
     // If its within 5ms of the current total time, don't bother....
-    if( newDuration - 5 > i_total_time || newDuration + 5 < i_total_time ) {
+    if (newDuration - 5 > i_total_time || newDuration + 5 < i_total_time) {
         qDebug() << __FUNCTION__ << "Length changing from " << i_total_time
-        << " to " << newDuration;
+                 << " to " << newDuration;
         i_total_time = newDuration;
         emit totalTimeChanged(i_total_time);
     }
@@ -542,21 +549,21 @@ void VLCMediaObject::updateDuration(qint64 newDuration)
  * \see playInternal()
  * \see SinkNode::addToMedia()
  */
-void VLCMediaObject::addSink( SinkNode * node )
+void VLCMediaObject::addSink(SinkNode *node)
 {
-    if( m_sinks.contains( node ) ) {
+    if (m_sinks.contains(node)) {
         // This shouldn't happen....
         return;
     }
-    m_sinks.append( node );
+    m_sinks.append(node);
 }
 
 /**
  * Removes a sink from this media object.
  */
-void VLCMediaObject::removeSink( SinkNode * node )
+void VLCMediaObject::removeSink(SinkNode *node)
 {
-    m_sinks.removeAll( node );
+    m_sinks.removeAll(node);
 }
 
 /**

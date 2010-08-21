@@ -33,7 +33,8 @@ class QTimer;
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 
 /** \brief Special stack for seek commands
  *

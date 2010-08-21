@@ -8,7 +8,7 @@
 class VlcMacWidget : public QMacCocoaViewContainer
 {
 public:
-    VlcMacWidget(QWidget *parent=0);
+    VlcMacWidget(QWidget *parent = 0);
 };
 
 

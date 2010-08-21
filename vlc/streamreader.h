@@ -51,84 +51,80 @@ QT_BEGIN_NAMESPACE
 
 namespace Phonon
 {
-    class MediaSource;
-    namespace VLC
-    {
+class MediaSource;
+namespace VLC
+{
 
-        /** \brief Class for supporting custom data streams to the backend
-         *
-         * This class receives data from a Phonon MediaSource that is a stream.
-         * When data is requested, it fetches it from the media source and passes it further.
-         * MediaObject uses this class to pass stream data to libVLC.
-         *
-         * It implements Phonon::StreamInterface, necessary for the connection with an
-         * Phonon::AbstractMediaStream owned by the Phonon::MediaSource. See the Phonon
-         * documentation for details.
-         *
-         * There are callbacks implemented in streamhooks.cpp, for libVLC.
-         */
-        class StreamReader : public Phonon::StreamInterface
-        {
-        public:
+/** \brief Class for supporting custom data streams to the backend
+ *
+ * This class receives data from a Phonon MediaSource that is a stream.
+ * When data is requested, it fetches it from the media source and passes it further.
+ * MediaObject uses this class to pass stream data to libVLC.
+ *
+ * It implements Phonon::StreamInterface, necessary for the connection with an
+ * Phonon::AbstractMediaStream owned by the Phonon::MediaSource. See the Phonon
+ * documentation for details.
+ *
+ * There are callbacks implemented in streamhooks.cpp, for libVLC.
+ */
+class StreamReader : public Phonon::StreamInterface
+{
+public:
 
-           StreamReader(const Phonon::MediaSource &source)
-            :  m_pos(0)
-             , m_size(0)
-             , m_seekable(false)
-            {
-                connectToSource(source);
-            }
+    StreamReader(const Phonon::MediaSource &source)
+        :  m_pos(0)
+        , m_size(0)
+        , m_seekable(false) {
+        connectToSource(source);
+    }
 
-            quint64 currentBufferSize() const
-            {
-                return m_buffer.size();
-            }
+    quint64 currentBufferSize() const {
+        return m_buffer.size();
+    }
 
-            void writeData(const QByteArray &data) {
-                m_buffer += data;
-            }
+    void writeData(const QByteArray &data) {
+        m_buffer += data;
+    }
 
-            void setCurrentPos(qint64 pos)
-            {
-                m_pos = pos;
-                m_buffer.clear();
-                m_size = 0;
+    void setCurrentPos(qint64 pos) {
+        m_pos = pos;
+        m_buffer.clear();
+        m_size = 0;
 
-                seekStream(pos);
-            }
+        seekStream(pos);
+    }
 
-            quint64 currentPos() const
-            {
-                return m_pos;
-            }
+    quint64 currentPos() const {
+        return m_pos;
+    }
 
-            bool read(quint64 offset, int * length, char * buffer);
+    bool read(quint64 offset, int *length, char *buffer);
 
-            void endOfData() {}
+    void endOfData() {}
 
-            void setStreamSize(qint64 newSize) {
-                m_size = newSize;
-            }
+    void setStreamSize(qint64 newSize) {
+        m_size = newSize;
+    }
 
-            qint64 streamSize() const {
-                return m_size;
-            }
+    qint64 streamSize() const {
+        return m_size;
+    }
 
-            void setStreamSeekable(bool s) {
-                m_seekable = s;
-            }
+    void setStreamSeekable(bool s) {
+        m_seekable = s;
+    }
 
-            bool streamSeekable() const {
-                return m_seekable;
-            }
+    bool streamSeekable() const {
+        return m_seekable;
+    }
 
 protected:
-            QByteArray m_buffer;
-            quint64 m_pos;
-            quint64 m_size;
-            bool m_seekable;
-        };
-    }
+    QByteArray m_buffer;
+    quint64 m_pos;
+    quint64 m_size;
+    bool m_seekable;
+};
+}
 }
 
 #endif //QT_NO_PHONON_ABSTRACTMEDIASTREAM

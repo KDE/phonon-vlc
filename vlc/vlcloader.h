@@ -35,7 +35,8 @@ extern libvlc_instance_t *vlc_instance;
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 
 /**
  * Get VLC path.
@@ -56,7 +57,7 @@ void vlcUnload();
  *
  * @return VLC initialization result
  */
-bool vlcInit(int debugLevl=0);
+bool vlcInit(int debugLevl = 0);
 
 /**
  * Stop VLC library.

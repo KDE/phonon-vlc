@@ -27,10 +27,11 @@
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 
 SinkNode::SinkNode(QObject *p_parent)
-        : QObject(p_parent)
+    : QObject(p_parent)
 {
     p_media_object = 0;
     p_vlc_player = 0;
@@ -48,15 +49,16 @@ SinkNode::~SinkNode()
  *
  * \see disconnectFromMediaObject()
  */
-void SinkNode::connectToMediaObject(PrivateMediaObject * mediaObject)
+void SinkNode::connectToMediaObject(PrivateMediaObject *mediaObject)
 {
-    if (p_media_object)
+    if (p_media_object) {
         qCritical() << __FUNCTION__ << "p_media_object already connected";
+    }
 
     p_media_object = mediaObject;
     p_vlc_player = mediaObject->p_vlc_media_player;
     connect(p_media_object, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
-    p_media_object->addSink( this );
+    p_media_object->addSink(this);
 }
 
 /**
@@ -66,12 +68,13 @@ void SinkNode::connectToMediaObject(PrivateMediaObject * mediaObject)
  *
  * \see connectToMediaObject()
  */
-void SinkNode::disconnectFromMediaObject(PrivateMediaObject * mediaObject)
+void SinkNode::disconnectFromMediaObject(PrivateMediaObject *mediaObject)
 {
-    if (p_media_object != mediaObject)
+    if (p_media_object != mediaObject) {
         qCritical() << __FUNCTION__ << "SinkNode was not connected to mediaObject";
+    }
 
-    p_media_object->removeSink( this );
+    p_media_object->removeSink(this);
     disconnect(p_media_object, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
 }
 
@@ -85,7 +88,7 @@ void SinkNode::updateVolume()
 /**
  * Does nothing. To be reimplemented in child classes.
  */
-void SinkNode::addToMedia( libvlc_media_t * media )
+void SinkNode::addToMedia(libvlc_media_t *media)
 {
 }
 

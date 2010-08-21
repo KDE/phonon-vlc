@@ -27,10 +27,11 @@
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 
 VLCMediaController::VLCMediaController()
-        : MediaController()
+    : MediaController()
 {
     p_vlc_media_player = 0;
 }
@@ -69,7 +70,7 @@ void VLCMediaController::clearMediaController()
 }
 
 // Add audio channel -> in libvlc it is track, it means audio in another language
-void VLCMediaController::audioChannelAdded(int id, const QString & lang)
+void VLCMediaController::audioChannelAdded(int id, const QString &lang)
 {
     QHash<QByteArray, QVariant> properties;
     properties.insert("name", lang);
@@ -80,7 +81,7 @@ void VLCMediaController::audioChannelAdded(int id, const QString & lang)
 }
 
 // Add subtitle
-void VLCMediaController::subtitleAdded(int id, const QString & lang, const QString & type)
+void VLCMediaController::subtitleAdded(int id, const QString &lang, const QString &type)
 {
     QHash<QByteArray, QVariant> properties;
     properties.insert("name", lang);
@@ -92,7 +93,7 @@ void VLCMediaController::subtitleAdded(int id, const QString & lang, const QStri
 }
 
 // Add title
-void VLCMediaController::titleAdded(int id, const QString & name)
+void VLCMediaController::titleAdded(int id, const QString &name)
 {
 //    QHash<QByteArray, QVariant> properties;
 //    properties.insert("name", name);
@@ -104,7 +105,7 @@ void VLCMediaController::titleAdded(int id, const QString & name)
 }
 
 // Add chapter
-void VLCMediaController::chapterAdded(int titleId, const QString & name)
+void VLCMediaController::chapterAdded(int titleId, const QString &name)
 {
 //    QHash<QByteArray, QVariant> properties;
 //    properties.insert("name", name);
@@ -117,11 +118,12 @@ void VLCMediaController::chapterAdded(int titleId, const QString & name)
 
 // Audio channel
 
-void VLCMediaController::setCurrentAudioChannel(const Phonon::AudioChannelDescription & audioChannel)
+void VLCMediaController::setCurrentAudioChannel(const Phonon::AudioChannelDescription &audioChannel)
 {
     current_audio_channel = audioChannel;
-    if(libvlc_audio_set_track(p_vlc_media_player, audioChannel.index()))
+    if (libvlc_audio_set_track(p_vlc_media_player, audioChannel.index())) {
         qDebug() << "libvlc exception:" << libvlc_errmsg();
+    }
 }
 
 QList<Phonon::AudioChannelDescription> VLCMediaController::availableAudioChannels() const
@@ -139,7 +141,7 @@ void VLCMediaController::refreshAudioChannels()
     current_audio_channel = Phonon::AudioChannelDescription();
     available_audio_channels.clear();
 
-    libvlc_track_description_t * p_info = libvlc_audio_get_track_description(p_vlc_media_player);
+    libvlc_track_description_t *p_info = libvlc_audio_get_track_description(p_vlc_media_player);
     while (p_info) {
         audioChannelAdded(p_info->i_id, p_info->psz_name);
         p_info = p_info->p_next;
@@ -149,7 +151,7 @@ void VLCMediaController::refreshAudioChannels()
 
 // Subtitle
 
-void VLCMediaController::setCurrentSubtitle(const Phonon::SubtitleDescription & subtitle)
+void VLCMediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &subtitle)
 {
     current_subtitle = subtitle;
 //    int id = current_subtitle.index();
@@ -158,17 +160,19 @@ void VLCMediaController::setCurrentSubtitle(const Phonon::SubtitleDescription & 
     if (type == "file") {
         QString filename = current_subtitle.property("name").toString();
         if (!filename.isEmpty()) {
-            if(!libvlc_video_set_subtitle_file(p_vlc_media_player,
-                                               filename.toAscii().data()))
+            if (!libvlc_video_set_subtitle_file(p_vlc_media_player,
+                                                filename.toAscii().data())) {
                 qDebug() << "libvlc exception:" << libvlc_errmsg();
+            }
 
             // There is no subtitle event inside libvlc so let's send our own event...
             available_subtitles << current_subtitle;
             emit availableSubtitlesChanged();
         }
     } else {
-        if(libvlc_video_set_spu(p_vlc_media_player, subtitle.index()))
+        if (libvlc_video_set_spu(p_vlc_media_player, subtitle.index())) {
             qDebug() << "libvlc exception:" << libvlc_errmsg();
+        }
     }
 }
 
@@ -188,7 +192,7 @@ void VLCMediaController::refreshSubtitles()
     available_subtitles.clear();
 
     libvlc_track_description_t *p_info = libvlc_video_get_spu_description(
-                                             p_vlc_media_player);
+            p_vlc_media_player);
     while (p_info) {
         subtitleAdded(p_info->i_id, p_info->psz_name, "");
         p_info = p_info->p_next;
@@ -261,7 +265,7 @@ void VLCMediaController::refreshChapters(int i_title)
 
     // Get the description of available chapters for specific title
     libvlc_track_description_t *p_info = libvlc_video_get_chapter_description(
-                                             p_vlc_media_player, i_title);
+            p_vlc_media_player, i_title);
     while (p_info) {
         chapterAdded(p_info->i_id, p_info->psz_name);
         p_info = p_info->p_next;

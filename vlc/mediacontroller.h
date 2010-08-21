@@ -29,7 +29,8 @@
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 
 /**
  * \brief Interface for AddonInterface.
@@ -73,12 +74,12 @@ public:
 protected:
 
     // AudioChannel
-    virtual void setCurrentAudioChannel(const Phonon::AudioChannelDescription & audioChannel) = 0;
+    virtual void setCurrentAudioChannel(const Phonon::AudioChannelDescription &audioChannel) = 0;
     virtual QList<Phonon::AudioChannelDescription> availableAudioChannels() const = 0;
     virtual Phonon::AudioChannelDescription currentAudioChannel() const = 0;
 
     // Subtitle
-    virtual void setCurrentSubtitle(const Phonon::SubtitleDescription & subtitle) = 0;
+    virtual void setCurrentSubtitle(const Phonon::SubtitleDescription &subtitle) = 0;
     virtual QList<Phonon::SubtitleDescription> availableSubtitles() const = 0;
     virtual Phonon::SubtitleDescription currentSubtitle() const = 0;
 

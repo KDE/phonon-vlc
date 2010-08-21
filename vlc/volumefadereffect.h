@@ -52,39 +52,40 @@ namespace Phonon
 {
 namespace VLC
 {
-    /** \brief Implements the volume fader effect
-     *
-     * The volume is updated with the updateFade() method.
-     *
-     * \todo Implement volume(), setVolume()
-     */
-    class VolumeFaderEffect : public Effect, public VolumeFaderInterface
-    {
-        Q_OBJECT
-        Q_INTERFACES(Phonon::VolumeFaderInterface)
+/** \brief Implements the volume fader effect
+ *
+ * The volume is updated with the updateFade() method.
+ *
+ * \todo Implement volume(), setVolume()
+ */
+class VolumeFaderEffect : public Effect, public VolumeFaderInterface
+{
+    Q_OBJECT
+    Q_INTERFACES(Phonon::VolumeFaderInterface)
 
-        public:
-            explicit VolumeFaderEffect(Backend *backend, QObject *parent = 0);
-            ~VolumeFaderEffect();
+public:
+    explicit VolumeFaderEffect(Backend *backend, QObject *parent = 0);
+    ~VolumeFaderEffect();
 
-            bool event(QEvent *);
-            void updateFade();
+    bool event(QEvent *);
+    void updateFade();
 
-            // VolumeFaderInterface:
-            float volume() const;
-            void setVolume(float volume);
-            Phonon::VolumeFaderEffect::FadeCurve fadeCurve() const;
-            void setFadeCurve(Phonon::VolumeFaderEffect::FadeCurve fadeCurve);
-            void fadeTo(float volume, int fadeTime);
+    // VolumeFaderInterface:
+    float volume() const;
+    void setVolume(float volume);
+    Phonon::VolumeFaderEffect::FadeCurve fadeCurve() const;
+    void setFadeCurve(Phonon::VolumeFaderEffect::FadeCurve fadeCurve);
+    void fadeTo(float volume, int fadeTime);
 
-            Phonon::VolumeFaderEffect::FadeCurve m_fadeCurve;
-            int m_fadeTimer;
-            int m_fadeDuration;
-            float m_fadeFromVolume;
-            float m_fadeToVolume;
-            QTime m_fadeStartTime;
-    };
-}} //namespace Phonon::Gstreamer
+    Phonon::VolumeFaderEffect::FadeCurve m_fadeCurve;
+    int m_fadeTimer;
+    int m_fadeDuration;
+    float m_fadeFromVolume;
+    float m_fadeToVolume;
+    QTime m_fadeStartTime;
+};
+}
+} //namespace Phonon::Gstreamer
 #endif //QT_NO_PHONON_VOLUMEFADEREFFECT
 QT_END_NAMESPACE
 

@@ -35,7 +35,8 @@ typedef Phonon::VLC::VLCVideoWidget Widget;
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 
 /** \brief Implements the Phonon VideoWidget MediaNode, responsible for displaying video
  *
@@ -57,7 +58,7 @@ public:
     VideoWidget(QWidget *p_parent);
     ~VideoWidget();
 
-    void connectToMediaObject(PrivateMediaObject * mediaObject);
+    void connectToMediaObject(PrivateMediaObject *mediaObject);
 
     Phonon::VideoWidget::AspectRatio aspectRatio() const;
     void setAspectRatio(Phonon::VideoWidget::AspectRatio aspect);
@@ -77,7 +78,7 @@ public:
     qreal saturation() const;
     void setSaturation(qreal saturation);
 
-    Widget * widget();
+    Widget *widget();
 
     void useCustomRender();
 

@@ -45,24 +45,24 @@ VideoDataOutput::~VideoDataOutput()
 {
 }
 
-void VideoDataOutput::addToMedia( libvlc_media_t * media )
+void VideoDataOutput::addToMedia(libvlc_media_t *media)
 {
-    libvlc_media_add_option_flag( media, ":vout=vmem", libvlc_media_option_trusted );
+    libvlc_media_add_option_flag(media, ":vout=vmem", libvlc_media_option_trusted);
 
     char param[64];
     // Add lock callback
-    void * lock_call = reinterpret_cast<void*>( &VideoDataOutput::lock );
-    sprintf( param, ":vmem-lock=%"PRId64, (long)(intptr_t)lock_call );
-    libvlc_media_add_option_flag( media, param, libvlc_media_option_trusted );
+    void *lock_call = reinterpret_cast<void *>(&VideoDataOutput::lock);
+    sprintf(param, ":vmem-lock=%"PRId64, (long)(intptr_t)lock_call);
+    libvlc_media_add_option_flag(media, param, libvlc_media_option_trusted);
 
     // Add unlock callback
-    void * unlock_call = reinterpret_cast<void*>( &VideoDataOutput::unlock );
-    sprintf( param, ":vmem-unlock=%"PRId64, (long)(intptr_t)unlock_call );
-    libvlc_media_add_option_flag( media, param, libvlc_media_option_trusted );
+    void *unlock_call = reinterpret_cast<void *>(&VideoDataOutput::unlock);
+    sprintf(param, ":vmem-unlock=%"PRId64, (long)(intptr_t)unlock_call);
+    libvlc_media_add_option_flag(media, param, libvlc_media_option_trusted);
 
     // Add pointer to ourselves...
-    sprintf( param, ":vmem-data=%"PRId64, (long)(intptr_t)this );
-    libvlc_media_add_option_flag( media, param, libvlc_media_option_trusted );
+    sprintf(param, ":vmem-data=%"PRId64, (long)(intptr_t)this);
+    libvlc_media_add_option_flag(media, param, libvlc_media_option_trusted);
 }
 
 void VideoDataOutput::lock(VideoDataOutput *cw, void **bufRet)
@@ -88,7 +88,7 @@ void VideoDataOutput::unlock(VideoDataOutput *cw)
         height,
         *aspect,
         Experimental::VideoFrame2::Format_RGB32,
-        QByteArray::fromRawData(cw->m_buffer, width*height), // data0
+        QByteArray::fromRawData(cw->m_buffer, width *height), // data0
         0, //data1
         0  //data2
     };
@@ -109,7 +109,8 @@ void VideoDataOutput::setFrontendObject(Experimental::AbstractVideoDataOutput *f
     m_frontend = frontend;
 }
 
-}} //namespace Phonon::VLC
+}
+} //namespace Phonon::VLC
 
 #include "moc_videodataoutput.cpp"
 // vim: sw=4 ts=4

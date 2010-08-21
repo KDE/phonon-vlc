@@ -40,42 +40,43 @@ namespace Phonon
 {
 namespace VLC
 {
-    /**
-     * \author Martin Sandsmark <sandsmark@samfundet.no>
-     */
-    class VideoDataOutput : public SinkNode,
-                            public Experimental::VideoDataOutputInterface
-    {
-        Q_OBJECT
-        Q_INTERFACES(Phonon::Experimental::VideoDataOutputInterface)
+/**
+ * \author Martin Sandsmark <sandsmark@samfundet.no>
+ */
+class VideoDataOutput : public SinkNode,
+    public Experimental::VideoDataOutputInterface
+{
+    Q_OBJECT
+    Q_INTERFACES(Phonon::Experimental::VideoDataOutputInterface)
 
-        public:
-            VideoDataOutput(Backend *, QObject *);
-            ~VideoDataOutput();
+public:
+    VideoDataOutput(Backend *, QObject *);
+    ~VideoDataOutput();
 
-            Experimental::AbstractVideoDataOutput *frontendObject() const;
-            void setFrontendObject(Experimental::AbstractVideoDataOutput *frontend);
+    Experimental::AbstractVideoDataOutput *frontendObject() const;
+    void setFrontendObject(Experimental::AbstractVideoDataOutput *frontend);
 
-        Q_SIGNALS:
-            void frameReadySignal(const Experimental::VideoFrame2 &frame);
+Q_SIGNALS:
+    void frameReadySignal(const Experimental::VideoFrame2 &frame);
 
-        public Q_SLOTS:
-            void addToMedia(libvlc_media_t * media);
+public Q_SLOTS:
+    void addToMedia(libvlc_media_t *media);
 
-        private:
-            static void lock(VideoDataOutput *cw, void **bufRet);
-            static void unlock(VideoDataOutput *cw);
+private:
+    static void lock(VideoDataOutput *cw, void **bufRet);
+    static void unlock(VideoDataOutput *cw);
 
-            int m_dataSize;
-            int m_sampleRate;
+    int m_dataSize;
+    int m_sampleRate;
 //            Phonon::Experimental::VideoDataOutput2 *m_frontend;
 
-            QMutex m_locker;
-            char * m_buffer;
+    QMutex m_locker;
+    char *m_buffer;
 
-            Experimental::AbstractVideoDataOutput *m_frontend;
-    };
-}} //namespace Phonon::VLC
+    Experimental::AbstractVideoDataOutput *m_frontend;
+};
+}
+} //namespace Phonon::VLC
 
 QT_END_NAMESPACE
 QT_END_HEADER

@@ -28,7 +28,8 @@
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 
 /**
  * Creates a new seek stack for the specified MediaObject. The popping timer
@@ -37,7 +38,7 @@ namespace VLC {
  * \see popSeek()
  */
 SeekStack::SeekStack(MediaObject *mediaObject)
-        : QObject(mediaObject)
+    : QObject(mediaObject)
 {
     p_media_object = mediaObject;
 

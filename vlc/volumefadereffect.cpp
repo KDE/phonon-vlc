@@ -25,7 +25,7 @@ namespace Phonon
 {
 namespace VLC
 {
-VolumeFaderEffect::VolumeFaderEffect(Backend *backend, QObject *parent) 
+VolumeFaderEffect::VolumeFaderEffect(Backend *backend, QObject *parent)
     : Effect(backend, parent, AudioSource | AudioSink)
     , m_fadeCurve(Phonon::VolumeFaderEffect::Fade3Decibel)
     , m_fadeTimer(0)
@@ -38,8 +38,9 @@ VolumeFaderEffect::VolumeFaderEffect(Backend *backend, QObject *parent)
 
 VolumeFaderEffect::~VolumeFaderEffect()
 {
-    if (m_fadeTimer)
+    if (m_fadeTimer) {
         killTimer(m_fadeTimer);
+    }
 }
 
 float VolumeFaderEffect::volume() const
@@ -69,8 +70,9 @@ void VolumeFaderEffect::fadeTo(float targetVolume, int fadeTime)
     m_fadeFromVolume = volume();
     m_fadeStartTime.start();
 
-    if (m_fadeTimer)
+    if (m_fadeTimer) {
         killTimer(m_fadeTimer);
+    }
     m_fadeTimer = startTimer(30);
 }
 
@@ -78,7 +80,7 @@ void VolumeFaderEffect::updateFade()
 {
     double currVal = 0.0;
     float step = float(m_fadeStartTime.elapsed()) / float(m_fadeDuration);
-    if (step > 1){
+    if (step > 1) {
         step = 1;
         if (m_fadeTimer) {
             killTimer(m_fadeTimer);
@@ -89,20 +91,20 @@ void VolumeFaderEffect::updateFade()
     // But in fact when fading between arbitrary values, the decibel values make no sense
     // Note : seems like we will change the API to re-use names from QTimeline for this
     switch (fadeCurve()) {
-        case Phonon::VolumeFaderEffect::Fade3Decibel: // Slow in the beginning
-            currVal = step * step;
-            break;
-        case Phonon::VolumeFaderEffect::Fade6Decibel: // Linear fade
-            currVal = step;
-            break;
-        case Phonon::VolumeFaderEffect::Fade9Decibel: // Fast in the beginning / Linear
-            currVal = step * 0.5 + (1.0-(1.0-step)*(1.0-step)) * 0.5; 
-            break;
-        case Phonon::VolumeFaderEffect::Fade12Decibel: // Fast in the beginning
-            currVal = 1.0 - (1.0-step) * (1.0-step);  
-            break;
-        default:
-            break;
+    case Phonon::VolumeFaderEffect::Fade3Decibel: // Slow in the beginning
+        currVal = step * step;
+        break;
+    case Phonon::VolumeFaderEffect::Fade6Decibel: // Linear fade
+        currVal = step;
+        break;
+    case Phonon::VolumeFaderEffect::Fade9Decibel: // Fast in the beginning / Linear
+        currVal = step * 0.5 + (1.0 - (1.0 - step) * (1.0 - step)) * 0.5;
+        break;
+    case Phonon::VolumeFaderEffect::Fade12Decibel: // Fast in the beginning
+        currVal = 1.0 - (1.0 - step) * (1.0 - step);
+        break;
+    default:
+        break;
     }
     const double volume = (1.0 - currVal) * m_fadeFromVolume + currVal * m_fadeToVolume;
     setVolume(volume);
@@ -110,21 +112,22 @@ void VolumeFaderEffect::updateFade()
 
 bool VolumeFaderEffect::event(QEvent *event)
 {
-    switch (event->type()){
-        case QEvent::Timer:
-        {
-            QTimerEvent *timerEvent = static_cast<QTimerEvent *>(event);
-            if (timerEvent->timerId() == m_fadeTimer)
-                updateFade();
-            break;
+    switch (event->type()) {
+    case QEvent::Timer: {
+        QTimerEvent *timerEvent = static_cast<QTimerEvent *>(event);
+        if (timerEvent->timerId() == m_fadeTimer) {
+            updateFade();
         }
-        default:
-            break;
+        break;
+    }
+    default:
+        break;
     }
     return QObject::event(event);
 }
 
-}} //namespace Phonon::VLC
+}
+} //namespace Phonon::VLC
 #endif //QT_NO_PHONON_VOLUMEFADEREFFECT
 QT_END_NAMESPACE
 

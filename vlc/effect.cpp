@@ -29,10 +29,11 @@
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 
 Effect::Effect(EffectManager *p_em, int i_effectId, QObject *p_parent)
-        : SinkNode(p_parent)
+    : SinkNode(p_parent)
 {
     p_effectManager = p_em;
     const QList<EffectInfo *> effects = p_effectManager->effects();
@@ -168,12 +169,12 @@ QList<EffectParameter> Effect::parameters() const
     return parameterList;
 }
 
-QVariant Effect::parameterValue(const EffectParameter & param) const
+QVariant Effect::parameterValue(const EffectParameter &param) const
 {
     return QVariant();
 }
 
-void Effect::setParameterValue(const EffectParameter & param, const QVariant & newValue)
+void Effect::setParameterValue(const EffectParameter &param, const QVariant &newValue)
 {
 //    libvlc_value_t value;
 //    libvlc_var_type_t type;

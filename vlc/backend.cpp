@@ -46,7 +46,8 @@ Q_EXPORT_PLUGIN2(phonon_vlc, Phonon::VLC::Backend)
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 
 /**
  * Constructs the backend. Sets the backend properties, fetches the debug level from the
@@ -56,9 +57,9 @@ namespace VLC {
  * \param parent A parent object for the backend (passed to the QObject constructor)
  */
 Backend::Backend(QObject *parent, const QVariantList &)
-        : QObject(parent)
-        , m_deviceManager(NULL)
-        , m_effectManager(NULL)
+    : QObject(parent)
+    , m_deviceManager(NULL)
+    , m_effectManager(NULL)
 {
     /* Backend information properties */
     setProperty("identifier",     QLatin1String("phonon_vlc"));
@@ -69,12 +70,13 @@ Backend::Backend(QObject *parent, const QVariantList &)
 
     // Check if we should enable debug output
     int debugLevel = qgetenv("PHONON_VLC_DEBUG").toInt();
-    if (debugLevel > 3) // 3 is maximum
+    if (debugLevel > 3) { // 3 is maximum
         debugLevel = 3;
+    }
     m_debugLevel = (DebugLevel)debugLevel;
 
     /* Actual libVLC initialisation */
-    if ( vlcInit(debugLevel) ) {
+    if (vlcInit(debugLevel)) {
         logMessage(QString("Using VLC version %0").arg(libvlc_get_version()));
     } else {
         qWarning("Phonon::VLC::vlcInit: Failed to initialize VLC");
@@ -162,70 +164,70 @@ QStringList Backend::availableMimeTypes() const
 {
     if (m_supportedMimeTypes.isEmpty()) {
         const_cast<Backend *>(this)->m_supportedMimeTypes
-        << QLatin1String("application/ogg")
-        << QLatin1String("application/vnd.rn-realmedia")
-        << QLatin1String("application/x-annodex")
-        << QLatin1String("application/x-flash-video")
-        << QLatin1String("application/x-quicktimeplayer")
-        << QLatin1String("audio/168sv")
-        << QLatin1String("audio/8svx")
-        << QLatin1String("audio/aiff")
-        << QLatin1String("audio/basic")
-        << QLatin1String("audio/mp3")
-        << QLatin1String("audio/mp4")
-        << QLatin1String("audio/mpeg")
-        << QLatin1String("audio/mpeg2")
-        << QLatin1String("audio/mpeg3")
-        << QLatin1String("audio/vnd.rn-realaudio")
-        << QLatin1String("audio/vnd.rn-realmedia")
-        << QLatin1String("audio/wav")
-        << QLatin1String("audio/webm")
-        << QLatin1String("audio/x-16sv")
-        << QLatin1String("audio/x-8svx")
-        << QLatin1String("audio/x-aiff")
-        << QLatin1String("audio/x-basic")
-        << QLatin1String("audio/x-m4a")
-        << QLatin1String("audio/x-mp3")
-        << QLatin1String("audio/x-mpeg")
-        << QLatin1String("audio/x-mpeg2")
-        << QLatin1String("audio/x-mpeg3")
-        << QLatin1String("audio/x-mpegurl")
-        << QLatin1String("audio/x-ms-wma")
-        << QLatin1String("audio/x-ogg")
-        << QLatin1String("audio/x-pn-aiff")
-        << QLatin1String("audio/x-pn-au")
-        << QLatin1String("audio/x-pn-realaudio-plugin")
-        << QLatin1String("audio/x-pn-wav")
-        << QLatin1String("audio/x-pn-windows-acm")
-        << QLatin1String("audio/x-real-audio")
-        << QLatin1String("audio/x-realaudio")
-        << QLatin1String("audio/x-speex+ogg")
-        << QLatin1String("audio/x-vorbis+ogg")
-        << QLatin1String("audio/x-wav")
-        << QLatin1String("image/ilbm")
-        << QLatin1String("image/png")
-        << QLatin1String("image/x-ilbm")
-        << QLatin1String("image/x-png")
-        << QLatin1String("video/anim")
-        << QLatin1String("video/avi")
-        << QLatin1String("video/mkv")
-        << QLatin1String("video/mng")
-        << QLatin1String("video/mp4")
-        << QLatin1String("video/mpeg")
-        << QLatin1String("video/mpg")
-        << QLatin1String("video/msvideo")
-        << QLatin1String("video/quicktime")
-        << QLatin1String("video/webm")
-        << QLatin1String("video/x-anim")
-        << QLatin1String("video/x-flic")
-        << QLatin1String("video/x-mng")
-        << QLatin1String("video/x-mpeg")
-        << QLatin1String("video/x-ms-asf")
-        << QLatin1String("video/x-ms-wmv")
-        << QLatin1String("video/x-msvideo")
-        << QLatin1String("video/x-quicktime")
-        << QLatin1String("audio/x-flac")
-        << QLatin1String("audio/x-ape");
+                << QLatin1String("application/ogg")
+                << QLatin1String("application/vnd.rn-realmedia")
+                << QLatin1String("application/x-annodex")
+                << QLatin1String("application/x-flash-video")
+                << QLatin1String("application/x-quicktimeplayer")
+                << QLatin1String("audio/168sv")
+                << QLatin1String("audio/8svx")
+                << QLatin1String("audio/aiff")
+                << QLatin1String("audio/basic")
+                << QLatin1String("audio/mp3")
+                << QLatin1String("audio/mp4")
+                << QLatin1String("audio/mpeg")
+                << QLatin1String("audio/mpeg2")
+                << QLatin1String("audio/mpeg3")
+                << QLatin1String("audio/vnd.rn-realaudio")
+                << QLatin1String("audio/vnd.rn-realmedia")
+                << QLatin1String("audio/wav")
+                << QLatin1String("audio/webm")
+                << QLatin1String("audio/x-16sv")
+                << QLatin1String("audio/x-8svx")
+                << QLatin1String("audio/x-aiff")
+                << QLatin1String("audio/x-basic")
+                << QLatin1String("audio/x-m4a")
+                << QLatin1String("audio/x-mp3")
+                << QLatin1String("audio/x-mpeg")
+                << QLatin1String("audio/x-mpeg2")
+                << QLatin1String("audio/x-mpeg3")
+                << QLatin1String("audio/x-mpegurl")
+                << QLatin1String("audio/x-ms-wma")
+                << QLatin1String("audio/x-ogg")
+                << QLatin1String("audio/x-pn-aiff")
+                << QLatin1String("audio/x-pn-au")
+                << QLatin1String("audio/x-pn-realaudio-plugin")
+                << QLatin1String("audio/x-pn-wav")
+                << QLatin1String("audio/x-pn-windows-acm")
+                << QLatin1String("audio/x-real-audio")
+                << QLatin1String("audio/x-realaudio")
+                << QLatin1String("audio/x-speex+ogg")
+                << QLatin1String("audio/x-vorbis+ogg")
+                << QLatin1String("audio/x-wav")
+                << QLatin1String("image/ilbm")
+                << QLatin1String("image/png")
+                << QLatin1String("image/x-ilbm")
+                << QLatin1String("image/x-png")
+                << QLatin1String("video/anim")
+                << QLatin1String("video/avi")
+                << QLatin1String("video/mkv")
+                << QLatin1String("video/mng")
+                << QLatin1String("video/mp4")
+                << QLatin1String("video/mpeg")
+                << QLatin1String("video/mpg")
+                << QLatin1String("video/msvideo")
+                << QLatin1String("video/quicktime")
+                << QLatin1String("video/webm")
+                << QLatin1String("video/x-anim")
+                << QLatin1String("video/x-flic")
+                << QLatin1String("video/x-mng")
+                << QLatin1String("video/x-mpeg")
+                << QLatin1String("video/x-ms-asf")
+                << QLatin1String("video/x-ms-wmv")
+                << QLatin1String("video/x-msvideo")
+                << QLatin1String("video/x-quicktime")
+                << QLatin1String("audio/x-flac")
+                << QLatin1String("audio/x-ape");
     }
     return m_supportedMimeTypes;
 }
@@ -244,14 +246,16 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const
     switch (type) {
     case Phonon::AudioOutputDeviceType: {
         QList<AudioDevice> deviceList = deviceManager()->audioOutputDevices();
-        for (int dev = 0 ; dev < deviceList.size() ; ++dev)
+        for (int dev = 0 ; dev < deviceList.size() ; ++dev) {
             list.append(deviceList[dev].id);
+        }
     }
     break;
     case Phonon::EffectType: {
-        QList<EffectInfo*> effectList = effectManager()->effects();
-        for (int eff = 0; eff < effectList.size(); ++eff)
+        QList<EffectInfo *> effectList = effectManager()->effects();
+        for (int eff = 0; eff < effectList.size(); ++eff) {
             list.append(eff);
+        }
     }
     break;
     default:
@@ -283,7 +287,7 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
     }
     break;
     case Phonon::EffectType: {
-        QList<EffectInfo*> effectList = effectManager()->effects();
+        QList<EffectInfo *> effectList = effectManager()->effects();
         if (index >= 0 && index <= effectList.size()) {
             const EffectInfo *effect = effectList[ index ];
             ret.insert("name", effect->name());
@@ -309,7 +313,7 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
 bool Backend::startConnectionChange(QSet<QObject *> objects)
 {
     //FIXME
-    foreach(QObject *object, objects) {
+    foreach(QObject * object, objects) {
         logMessage(QString("Object: %0").arg(object->metaObject()->className()));
     }
 
@@ -381,7 +385,7 @@ bool Backend::disconnectNodes(QObject *source, QObject *sink)
 {
     SinkNode *sinkNode = qobject_cast<SinkNode *>(sink);
     if (sinkNode) {
-        PrivateMediaObject * const mediaObject = qobject_cast<PrivateMediaObject *>(source);
+        PrivateMediaObject *const mediaObject = qobject_cast<PrivateMediaObject *>(source);
         if (mediaObject) {
             // Disconnect the SinkNode from a MediaObject
             sinkNode->disconnectFromMediaObject(mediaObject);
@@ -403,7 +407,7 @@ bool Backend::disconnectNodes(QObject *source, QObject *sink)
  */
 bool Backend::endConnectionChange(QSet<QObject *> objects)
 {
-    foreach(QObject *object, objects) {
+    foreach(QObject * object, objects) {
         logMessage(QString("Object: %0").arg(object->metaObject()->className()));
     }
 
@@ -413,7 +417,7 @@ bool Backend::endConnectionChange(QSet<QObject *> objects)
 /**
  * \return The device manager that is associated with this backend object
  */
-DeviceManager* Backend::deviceManager() const
+DeviceManager *Backend::deviceManager() const
 {
     return m_deviceManager;
 }
@@ -421,7 +425,7 @@ DeviceManager* Backend::deviceManager() const
 /**
  * \return The effect manager that is associated with this backend object.
  */
-EffectManager* Backend::effectManager() const
+EffectManager *Backend::effectManager() const
 {
     return m_effectManager;
 }

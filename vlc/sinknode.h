@@ -32,7 +32,8 @@
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 
 class VLCMediaObject;
 typedef VLCMediaObject PrivateMediaObject;
@@ -57,7 +58,7 @@ public:
 
     virtual void disconnectFromMediaObject(PrivateMediaObject *mediaObject);
 
-    virtual void addToMedia( libvlc_media_t * media );
+    virtual void addToMedia(libvlc_media_t *media);
 
 protected:
 

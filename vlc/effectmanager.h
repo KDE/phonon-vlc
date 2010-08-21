@@ -31,7 +31,8 @@
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 class Backend;
 class EffectManager;
 

@@ -37,7 +37,8 @@ static const int ABOUT_TO_FINISH_TIME = 2000;
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 
 /**
  * Initializes the members, connects the private slots to their corresponding signals,
@@ -46,7 +47,7 @@ namespace VLC {
  * \param p_parent A parent for the QObject
  */
 MediaObject::MediaObject(QObject *p_parent)
-        : QObject(p_parent)
+    : QObject(p_parent)
 {
     currentState = Phonon::StoppedState;
     p_video_widget = NULL;
@@ -181,10 +182,10 @@ void MediaObject::tickInternalSlot(qint64 currentTime)
  * Changes the current state to buffering and calls loadMediaInternal()
  * \param filename A MRL from the media source
  */
-void MediaObject::loadMedia(const QString & filename)
+void MediaObject::loadMedia(const QString &filename)
 {
     // Default MediaObject state is Phonon::BufferingState
-    emit stateChanged( Phonon::BufferingState );
+    emit stateChanged(Phonon::BufferingState);
 
     // Load the media
     loadMediaInternal(filename);
@@ -296,7 +297,7 @@ MediaSource MediaObject::source() const
  * \see loadMedia()
  * \see loadStream()
  */
-void MediaObject::setSource(const MediaSource & source)
+void MediaObject::setSource(const MediaSource &source)
 {
     qDebug() << __FUNCTION__;
 
@@ -310,23 +311,22 @@ void MediaObject::setSource(const MediaSource & source)
         qCritical() << __FUNCTION__ << "Error: MediaSource is empty.";
         break;
     case MediaSource::LocalFile:
-    case MediaSource::Url:
-        {
-            qCritical() << __FUNCTION__ << "yeap, 'tis a local file or url" << source.url().scheme();
-            const QString &mrl = (source.url().scheme() == QLatin1String("") ?
-                    QLatin1String("file://") + source.url().toString() :
-                    source.url().toString());
-            loadMedia(mrl);
-        }
-        break;
-/*    case MediaSource::Url:
-        loadMedia(mediaSource.url().toEncoded());
-        break;*/
+    case MediaSource::Url: {
+        qCritical() << __FUNCTION__ << "yeap, 'tis a local file or url" << source.url().scheme();
+        const QString &mrl = (source.url().scheme() == QLatin1String("") ?
+                              QLatin1String("file://") + source.url().toString() :
+                              source.url().toString());
+        loadMedia(mrl);
+    }
+    break;
+    /*    case MediaSource::Url:
+            loadMedia(mediaSource.url().toEncoded());
+            break;*/
     case MediaSource::Disc:
         switch (source.discType()) {
         case Phonon::NoDisc:
             qCritical() << __FUNCTION__
-            << "Error: the MediaSource::Disc doesn't specify which one (Phonon::NoDisc)";
+                        << "Error: the MediaSource::Disc doesn't specify which one (Phonon::NoDisc)";
             return;
         case Phonon::Cd:
             qDebug() << mediaSource.deviceName();
@@ -344,8 +344,9 @@ void MediaObject::setSource(const MediaSource & source)
         }
         break;
     case MediaSource::Stream:
-        if (!source.url().isEmpty())
+        if (!source.url().isEmpty()) {
             loadStream();
+        }
         break;
     default:
         qCritical() << __FUNCTION__ << "Error: Unsupported MediaSource Type:" << source.type();
@@ -385,7 +386,7 @@ void MediaObject::loadStream()
     char srptr[64];
     snprintf(srptr, sizeof(srptr), formatstr, streamReader);
 
-    loadMedia( "imem/ffmpeg://" );
+    loadMedia("imem/ffmpeg://");
 
     setOption("imem-cat=4");
     setOption(QString("imem-data=%1").arg(srptr));
@@ -397,7 +398,7 @@ void MediaObject::loadStream()
 /**
  * Sets the media source that will replace the current one, after the playback for it finishes.
  */
-void MediaObject::setNextSource(const MediaSource & source)
+void MediaObject::setNextSource(const MediaSource &source)
 {
     qDebug() << __FUNCTION__;
     p_next_source = source;
@@ -433,13 +434,13 @@ void MediaObject::setTransitionTime(qint32 time)
  */
 void MediaObject::stateChangedInternal(Phonon::State newState)
 {
-    qDebug() << __FUNCTION__ << "newState:" << PhononStateToString( newState )
-    << "previousState:" << PhononStateToString( currentState ) ;
+    qDebug() << __FUNCTION__ << "newState:" << PhononStateToString(newState)
+             << "previousState:" << PhononStateToString(currentState) ;
 
     if (newState == currentState) {
         // State not changed
         return;
-    } else if ( checkGaplessWaiting() ) {
+    } else if (checkGaplessWaiting()) {
         // This is a no-op, warn that we are....
         qDebug() << __FUNCTION__ << "no-op gapless item awaiting in queue - "
                  << p_next_source.type() ;
@@ -455,29 +456,28 @@ void MediaObject::stateChangedInternal(Phonon::State newState)
 /**
  * \return A string representation of a Phonon state.
  */
-QString MediaObject::PhononStateToString( Phonon::State newState )
+QString MediaObject::PhononStateToString(Phonon::State newState)
 {
     QString stream;
-    switch(newState)
-    {
-        case Phonon::ErrorState:
-            stream += "ErrorState";
-            break;
-        case Phonon::LoadingState:
-            stream += "LoadingState";
-            break;
-        case Phonon::StoppedState:
-            stream += "StoppedState";
-            break;
-        case Phonon::PlayingState:
-            stream += "PlayingState";
-            break;
-        case Phonon::BufferingState:
-            stream += "BufferingState";
-            break;
-        case Phonon::PausedState:
-            stream += "PausedState";
-            break;
+    switch (newState) {
+    case Phonon::ErrorState:
+        stream += "ErrorState";
+        break;
+    case Phonon::LoadingState:
+        stream += "LoadingState";
+        break;
+    case Phonon::StoppedState:
+        stream += "StoppedState";
+        break;
+    case Phonon::PlayingState:
+        stream += "PlayingState";
+        break;
+    case Phonon::BufferingState:
+        stream += "BufferingState";
+        break;
+    case Phonon::PausedState:
+        stream += "PausedState";
+        break;
     }
     return stream;
 }
@@ -490,12 +490,12 @@ QString MediaObject::PhononStateToString( Phonon::State newState )
  */
 void MediaObject::moveToNextSource()
 {
-    if( p_next_source.type() == MediaSource::Invalid ) {
+    if (p_next_source.type() == MediaSource::Invalid) {
         // No item is scheduled to be next...
         return;
     }
 
-    setSource( p_next_source );
+    setSource(p_next_source);
     play();
     p_next_source = MediaSource(QUrl());
 }

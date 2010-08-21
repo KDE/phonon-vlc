@@ -29,7 +29,8 @@
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 
 /** \brief MediaController specific code for VLC.
  *
@@ -44,22 +45,22 @@ public:
     VLCMediaController();
     virtual ~VLCMediaController();
 
-    void audioChannelAdded(int id, const QString & lang);
-    void subtitleAdded(int id, const QString & lang, const QString & type);
-    void titleAdded(int id, const QString & name);
-    void chapterAdded(int titleId, const QString & name);
+    void audioChannelAdded(int id, const QString &lang);
+    void subtitleAdded(int id, const QString &lang, const QString &type);
+    void titleAdded(int id, const QString &name);
+    void chapterAdded(int titleId, const QString &name);
 
 protected:
     virtual void clearMediaController();
 
     // AudioChannel
-    void setCurrentAudioChannel(const Phonon::AudioChannelDescription & audioChannel);
+    void setCurrentAudioChannel(const Phonon::AudioChannelDescription &audioChannel);
     QList<Phonon::AudioChannelDescription> availableAudioChannels() const;
     Phonon::AudioChannelDescription currentAudioChannel() const;
     void refreshAudioChannels();
 
     // Subtitle
-    void setCurrentSubtitle(const Phonon::SubtitleDescription & subtitle);
+    void setCurrentSubtitle(const Phonon::SubtitleDescription &subtitle);
     QList<Phonon::SubtitleDescription> availableSubtitles() const;
     Phonon::SubtitleDescription currentSubtitle() const;
     void refreshSubtitles();

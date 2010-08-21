@@ -34,7 +34,8 @@
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 
 /**
  * Creates an AudioOutput with the given backend object. The volume is set to 1.0
@@ -42,11 +43,11 @@ namespace VLC {
  * \param p_back Parent backend
  * \param p_parent A parent object
  */
-AudioOutput::AudioOutput(Backend *p_back, QObject * p_parent)
-        : SinkNode(p_parent),
-        f_volume(1.0),
-        i_device(0),
-        p_backend(p_back)
+AudioOutput::AudioOutput(Backend *p_back, QObject *p_parent)
+    : SinkNode(p_parent),
+      f_volume(1.0),
+      i_device(0),
+      p_backend(p_back)
 {
     p_media_object = 0;
 }
@@ -96,8 +97,9 @@ int AudioOutput::outputDevice() const
  */
 bool AudioOutput::setOutputDevice(int device)
 {
-    if (i_device == device)
+    if (i_device == device) {
         return true;
+    }
 
 #ifdef PHONON_PULSESUPPORT
     if (PulseSupport::getInstance()->isActive()) {
@@ -111,8 +113,9 @@ bool AudioOutput::setOutputDevice(int device)
     const QList<AudioDevice> deviceList = p_backend->deviceManager()->audioOutputDevices();
     if (device >= 0 && device < deviceList.size()) {
 
-        if (!p_vlc_player)
+        if (!p_vlc_player) {
             return false;
+        }
         i_device = device;
         const QByteArray deviceName = deviceList.at(device).vlcId;
         libvlc_audio_output_set(p_vlc_player, (char *) deviceList.at(device).vlcId.data());
@@ -137,7 +140,7 @@ bool AudioOutput::setOutputDevice(int device)
 /**
  * Does nothing.
  */
-bool AudioOutput::setOutputDevice(const Phonon::AudioOutputDevice & device)
+bool AudioOutput::setOutputDevice(const Phonon::AudioOutputDevice &device)
 {
     return true;
 }

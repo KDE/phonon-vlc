@@ -39,7 +39,8 @@
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 
 class SinkNode;
 
@@ -74,7 +75,7 @@ class VLCMediaObject : public MediaObject, public VLCMediaController
 
 public:
 
-    VLCMediaObject(QObject * parent);
+    VLCMediaObject(QObject *parent);
     ~VLCMediaObject();
 
     void pause();
@@ -87,8 +88,8 @@ public:
 
     QString errorString() const;
 
-    void addSink( SinkNode * node );
-    void removeSink( SinkNode * node );
+    void addSink(SinkNode *node);
+    void removeSink(SinkNode *node);
 
 signals:
 
@@ -117,7 +118,7 @@ signals:
 
 protected:
 
-    void loadMediaInternal(const QString & filename);
+    void loadMediaInternal(const QString &filename);
     void playInternal();
     void seekInternal(qint64 milliseconds);
     void setOption(QString opt);
@@ -141,20 +142,20 @@ private:
 
     // MediaPlayer
 //    libvlc_media_player_t * p_vlc_media_player;
-    libvlc_event_manager_t * p_vlc_media_player_event_manager;
+    libvlc_event_manager_t *p_vlc_media_player_event_manager;
 
     // Media
-    libvlc_media_t * p_vlc_media;
-    libvlc_event_manager_t * p_vlc_media_event_manager;
+    libvlc_media_t *p_vlc_media;
+    libvlc_event_manager_t *p_vlc_media_event_manager;
 
     // MediaDiscoverer
-    libvlc_media_discoverer_t * p_vlc_media_discoverer;
-    libvlc_event_manager_t * p_vlc_media_discoverer_event_manager;
+    libvlc_media_discoverer_t *p_vlc_media_discoverer;
+    libvlc_event_manager_t *p_vlc_media_discoverer_event_manager;
 
     qint64 i_total_time;
     QByteArray p_current_file;
     QMultiMap<QString, QString> p_vlc_meta_data;
-    QList<SinkNode*> m_sinks;
+    QList<SinkNode *> m_sinks;
 
     bool b_has_video;
 

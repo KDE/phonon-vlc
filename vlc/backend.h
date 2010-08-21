@@ -36,7 +36,8 @@
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 class AudioOutput;
 class EffectManager;
 
@@ -65,8 +66,8 @@ public:
     explicit Backend(QObject *parent = 0, const QVariantList & = QVariantList());
     virtual ~Backend();
 
-    DeviceManager* deviceManager() const;
-    EffectManager* effectManager() const;
+    DeviceManager *deviceManager() const;
+    EffectManager *effectManager() const;
 
     QObject *createObject(BackendInterface::Class, QObject *parent, const QList<QVariant> &args);
 

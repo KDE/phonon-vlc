@@ -29,7 +29,8 @@ QT_BEGIN_NAMESPACE
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 
 class Backend;
 class DeviceManager;

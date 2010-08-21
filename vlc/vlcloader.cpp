@@ -37,7 +37,8 @@ libvlc_instance_t *vlc_instance = 0;
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 
 bool vlcInit(int debugLevl)
 {
@@ -59,10 +60,10 @@ bool vlcInit(int debugLevl)
         QByteArray log;
         QByteArray logFile;
         QByteArray verboseLevl;
-        if(debugLevl>0){
-            verboseLevl=QString("--verbose=").append(QString::number(debugLevl)).toLatin1();
-            log="--extraintf=logger";
-            logFile="--logfile=";
+        if (debugLevl > 0) {
+            verboseLevl = QString("--verbose=").append(QString::number(debugLevl)).toLatin1();
+            log = "--extraintf=logger";
+            logFile = "--logfile=";
 #ifdef Q_WS_WIN
             QDir logFilePath(QString(qgetenv("APPDATA")).append("/vlc"));
 #else
@@ -93,8 +94,9 @@ bool vlcInit(int debugLevl)
 
         // Create and initialize a libvlc instance (it should be done only once)
         vlc_instance = libvlc_new(sizeof(vlcArgs) / sizeof(*vlcArgs), vlcArgs);
-        if(!vlc_instance)
+        if (!vlc_instance) {
             qDebug() << "libvlc exception:" << libvlc_errmsg();
+        }
 
         return true;
     }
@@ -118,22 +120,27 @@ static bool libGreaterThan(const QString &lhs, const QString &rhs)
     for (int i = 1; i < rhsparts.count(); ++i) {
         if (lhsparts.count() <= i)
             // left hand side is shorter, so it's less than rhs
+        {
             return false;
+        }
 
         bool ok = false;
         int b = 0;
         int a = lhsparts.at(i).toInt(&ok);
-        if (ok)
+        if (ok) {
             b = rhsparts.at(i).toInt(&ok);
+        }
         if (ok) {
             // both toInt succeeded
-            if (a == b)
+            if (a == b) {
                 continue;
+            }
             return a > b;
         } else {
             // compare as strings;
-            if (lhsparts.at(i) == rhsparts.at(i))
+            if (lhsparts.at(i) == rhsparts.at(i)) {
                 continue;
+            }
             return lhsparts.at(i) > rhsparts.at(i);
         }
     }
@@ -154,52 +161,52 @@ static QStringList findAllLibVlc()
     paths << QLatin1String(PHONON_LIB_INSTALL_DIR) << QLatin1String("/usr/lib") << QLatin1String("/usr/local/lib");
 
 #if defined(Q_WS_MAC)
-       paths
-        << QCoreApplication::applicationDirPath()
-        << QCoreApplication::applicationDirPath() + QLatin1String("/../Frameworks")
-        << QCoreApplication::applicationDirPath() + QLatin1String("/../PlugIns")
-        << QCoreApplication::applicationDirPath() + QLatin1String("/lib")
+    paths
+            << QCoreApplication::applicationDirPath()
+            << QCoreApplication::applicationDirPath() + QLatin1String("/../Frameworks")
+            << QCoreApplication::applicationDirPath() + QLatin1String("/../PlugIns")
+            << QCoreApplication::applicationDirPath() + QLatin1String("/lib")
 
-       ;
+            ;
 #endif
 
     QStringList foundVlcs;
-    foreach (const QString &path, paths) {
+    foreach(const QString & path, paths) {
         QDir dir = QDir(path);
         QStringList entryList = dir.entryList(QStringList() << QLatin1String("libvlc.*"), QDir::Files);
 
         qSort(entryList.begin(), entryList.end(), libGreaterThan);
-        foreach (const QString &entry, entryList) {
-                if( entry.contains(".debug") ) {
-                    continue;
-                }
-                foundVlcs << path + QLatin1Char('/') + entry;
+        foreach(const QString & entry, entryList) {
+            if (entry.contains(".debug")) {
+                continue;
             }
+            foundVlcs << path + QLatin1Char('/') + entry;
+        }
     }
 
     return foundVlcs;
 #elif defined(Q_OS_WIN)
-     // Read VLC version and installation directory from Windows registry
+    // Read VLC version and installation directory from Windows registry
     QSettings settings(QSettings::SystemScope, "VideoLAN", "VLC");
     QString vlcVersion = settings.value("Version").toString();
     QString vlcInstallDir = settings.value("InstallDir").toString();
     if (vlcVersion.startsWith("1.1") && !vlcInstallDir.isEmpty()) {
         paths << vlcInstallDir + QLatin1Char('\\') + "libvlc.dll";
         return paths;
-    }else{
+    } else {
         //If nothing is found in the registry try %PATH%
-    QStringList searchPaths = QString::fromLatin1(qgetenv("PATH"))
-            .split(QLatin1Char(';'), QString::SkipEmptyParts);
-    QStringList foundVlcs;
-    foreach (const QString &sp, searchPaths) {
-        QDir dir = QDir(sp);
-        QStringList entryList = dir.entryList(QStringList() << QLatin1String("libvlc.dll"), QDir::Files);
-        foreach (const QString &entry, entryList)
+        QStringList searchPaths = QString::fromLatin1(qgetenv("PATH"))
+                                  .split(QLatin1Char(';'), QString::SkipEmptyParts);
+        QStringList foundVlcs;
+        foreach(const QString & sp, searchPaths) {
+            QDir dir = QDir(sp);
+            QStringList entryList = dir.entryList(QStringList() << QLatin1String("libvlc.dll"), QDir::Files);
+            foreach(const QString & entry, entryList)
             foundVlcs << sp + QLatin1Char('\\') + entry;
+        }
+        paths << foundVlcs;
+        return paths;
     }
-    paths<<foundVlcs;
-    return paths;
-  }
 #endif
 }
 
@@ -217,7 +224,7 @@ QString vlcPath()
     foreach(path, paths) {
         vlcLibrary->setFileName(path);
 
-        if (!vlcLibrary->resolve("libvlc_exception_init")) {//"libvlc_exception_init" not contained in 1.1+
+        if (!vlcLibrary->resolve("libvlc_exception_init")) { //"libvlc_exception_init" not contained in 1.1+
             return path;
         } else {
             qDebug("Cannot resolve the symbol or load VLC library");

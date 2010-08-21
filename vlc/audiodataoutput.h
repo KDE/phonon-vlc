@@ -40,70 +40,75 @@ namespace Phonon
 {
 namespace VLC
 {
-    /** \brief Implementation for AudioDataOutput using libVLC
-     *
-     * This class makes the capture of raw audio data possible. It sets special options
-     * for the libVLC Media Object when connecting to it, and then captures libVLC events
-     * to get the audio data and send it further with the dataReady() signal.
-     *
-     * As a sink node, it can be connected to media objects.
-     *
-     * The frontend Phonon::AudioDataOutput object is unused.
-     *
-     * See the Phonon documentation for details.
-     *
-     * \see AudioOutput
-     * \see SinkNode
-     *
-     * \author Martin Sandsmark <sandsmark@samfundet.no>
-     */
-    class AudioDataOutput : public SinkNode,
-                            public AudioDataOutputInterface
-    {
-        Q_OBJECT
-        Q_INTERFACES(Phonon::AudioDataOutputInterface)
+/** \brief Implementation for AudioDataOutput using libVLC
+ *
+ * This class makes the capture of raw audio data possible. It sets special options
+ * for the libVLC Media Object when connecting to it, and then captures libVLC events
+ * to get the audio data and send it further with the dataReady() signal.
+ *
+ * As a sink node, it can be connected to media objects.
+ *
+ * The frontend Phonon::AudioDataOutput object is unused.
+ *
+ * See the Phonon documentation for details.
+ *
+ * \see AudioOutput
+ * \see SinkNode
+ *
+ * \author Martin Sandsmark <sandsmark@samfundet.no>
+ */
+class AudioDataOutput : public SinkNode,
+    public AudioDataOutputInterface
+{
+    Q_OBJECT
+    Q_INTERFACES(Phonon::AudioDataOutputInterface)
 
-        public:
-            AudioDataOutput(Backend *, QObject *);
-            ~AudioDataOutput();
+public:
+    AudioDataOutput(Backend *, QObject *);
+    ~AudioDataOutput();
 
-        public Q_SLOTS:
-            int dataSize() const;
-            int sampleRate() const;
-            void setDataSize(int size);
-            void addToMedia( libvlc_media_t * media );
+public Q_SLOTS:
+    int dataSize() const;
+    int sampleRate() const;
+    void setDataSize(int size);
+    void addToMedia(libvlc_media_t *media);
 
-        public:
-            Phonon::AudioDataOutput* frontendObject() const { return m_frontend; }
-            void setFrontendObject(Phonon::AudioDataOutput *frontend) { m_frontend = frontend; }
+public:
+    Phonon::AudioDataOutput *frontendObject() const {
+        return m_frontend;
+    }
+    void setFrontendObject(Phonon::AudioDataOutput *frontend) {
+        m_frontend = frontend;
+    }
 
-        signals:
-            void dataReady(const QMap<Phonon::AudioDataOutput::Channel, QVector<qint16> > &data);
-            void dataReady(const QMap<Phonon::AudioDataOutput::Channel, QVector<float> > &data);
-            void endOfMedia(int remainingSamples);
-            void sampleReadDone();
+signals:
+    void dataReady(const QMap<Phonon::AudioDataOutput::Channel, QVector<qint16> > &data);
+    void dataReady(const QMap<Phonon::AudioDataOutput::Channel, QVector<float> > &data);
+    void endOfMedia(int remainingSamples);
+    void sampleReadDone();
 
-        private Q_SLOTS:
-            void sendData();
+private Q_SLOTS:
+    void sendData();
 
-        private:
-            static void lock( AudioDataOutput *cw, quint8 **pcm_buffer , quint32 size );
-            static void unlock( AudioDataOutput *cw, quint8 *pcm_buffer,
-                                quint32 channels, quint32 rate,
-                                quint32 nb_samples, quint32 bits_per_sample,
-                                quint32 size, qint64 pts );
+private:
+    static void lock(AudioDataOutput *cw, quint8 **pcm_buffer , quint32 size);
+    static void unlock(AudioDataOutput *cw, quint8 *pcm_buffer,
+                       quint32 channels, quint32 rate,
+                       quint32 nb_samples, quint32 bits_per_sample,
+                       quint32 size, qint64 pts);
 
-            int m_dataSize;
-            int m_sampleRate;
-            Phonon::AudioDataOutput *m_frontend;
+    int m_dataSize;
+    int m_sampleRate;
+    Phonon::AudioDataOutput *m_frontend;
 
-            QMutex m_locker;
-            int m_channel_count;
-            unsigned char * m_buffer;
-            QVector<qint16> m_channel_samples[6];
-            QList<Phonon::AudioDataOutput::Channel> m_channels;
-    };
-}} //namespace Phonon::VLC
+    QMutex m_locker;
+    int m_channel_count;
+    unsigned char *m_buffer;
+    QVector<qint16> m_channel_samples[6];
+    QList<Phonon::AudioDataOutput::Channel> m_channels;
+};
+}
+} //namespace Phonon::VLC
 
 QT_END_NAMESPACE
 QT_END_HEADER

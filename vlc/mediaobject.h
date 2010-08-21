@@ -37,7 +37,8 @@
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 
 class SeekStack;
 
@@ -93,8 +94,8 @@ public:
     Phonon::State state() const;
     Phonon::ErrorType errorType() const;
     MediaSource source() const;
-    void setSource(const MediaSource & source);
-    void setNextSource(const MediaSource & source);
+    void setSource(const MediaSource &source);
+    void setNextSource(const MediaSource &source);
 
     qint32 prefinishMark() const;
     void setPrefinishMark(qint32 msecToEnd);
@@ -105,8 +106,8 @@ public:
 signals:
 
     void aboutToFinish();
-    void bufferStatus( int i_percent_filled );
-    void currentSourceChanged( const MediaSource & newSource );
+    void bufferStatus(int i_percent_filled);
+    void currentSourceChanged(const MediaSource &newSource);
     void finished();
     void hasVideoChanged(bool b_has_video);
     void metaDataChanged(const QMultiMap<QString, QString> & metaData);
@@ -125,7 +126,7 @@ signals:
 
 protected:
 
-    virtual void loadMediaInternal(const QString & filename) = 0;
+    virtual void loadMediaInternal(const QString &filename) = 0;
     virtual void playInternal() = 0;
     virtual void seekInternal(qint64 milliseconds) = 0;
 
@@ -147,12 +148,12 @@ private slots:
 
 private:
 
-    void loadMedia(const QString & filename);
+    void loadMedia(const QString &filename);
     void loadStream();
 
     void resume();
 
-    QString PhononStateToString( Phonon::State newState );
+    QString PhononStateToString(Phonon::State newState);
 
     MediaSource mediaSource;
     StreamReader *streamReader;

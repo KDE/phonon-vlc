@@ -26,14 +26,15 @@
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 
 EffectInfo::EffectInfo(const QString &name, const QString &description, const QString &author, int filter, Type type)
-        : m_name(name)
-        , m_description(description)
-        , m_author(author)
-        , m_filter(filter)
-        , m_type(type) {}
+    : m_name(name)
+    , m_description(description)
+    , m_author(author)
+    , m_filter(filter)
+    , m_type(type) {}
 
 /**
  * Creates a new effect manager. It creates the lists of effects.
@@ -44,8 +45,8 @@ EffectInfo::EffectInfo(const QString &name, const QString &description, const QS
  * \see EffectInfo
  */
 EffectManager::EffectManager(Backend *backend)
-        : QObject(backend)
-        , m_backend(backend)
+    : QObject(backend)
+    , m_backend(backend)
 {
 //    m_equalizerEnabled = false;
 

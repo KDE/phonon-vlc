@@ -35,15 +35,16 @@
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 
 /**
  * Constructs a new VideoWidget with the given parent. The video settings members
  * are set to their default values.
  */
 VideoWidget::VideoWidget(QWidget *p_parent) :
-        SinkNode(p_parent),
-        m_img(0)
+    SinkNode(p_parent),
+    m_img(0)
 {
     p_video_widget = new Widget(p_parent, this);
 
@@ -59,8 +60,9 @@ VideoWidget::VideoWidget(QWidget *p_parent) :
 
 VideoWidget::~VideoWidget()
 {
-    if (m_img)
+    if (m_img) {
         delete m_img;
+    }
 }
 
 /**
@@ -101,8 +103,9 @@ Phonon::VideoWidget::AspectRatio VideoWidget::aspectRatio() const
 void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspect)
 {
     // finish if no player
-    if (!p_vlc_player)
+    if (!p_vlc_player) {
         return;
+    }
 
     aspect_ratio = aspect;
 
@@ -297,10 +300,11 @@ void VideoWidget::videoWidgetSizeChanged(int width, int height)
     p_parent->setMinimumSize(previousSize);
 #endif
 
-    if (m_img)
+    if (m_img) {
         delete m_img;
+    }
     m_img = new QImage(videoSize, QImage::Format_RGB32);
-    libvlc_video_set_format(p_vlc_player, "RV32", width, height, width*4);
+    libvlc_video_set_format(p_vlc_player, "RV32", width, height, width * 4);
 }
 
 void VideoWidget::useCustomRender()
@@ -309,16 +313,17 @@ void VideoWidget::useCustomRender()
     int width = size.width();
     int height = size.height();
 
-    if (m_img)
+    if (m_img) {
         delete m_img;
+    }
     m_img = new QImage(size, QImage::Format_RGB32);
-    libvlc_video_set_format(p_vlc_player, "RV32", width, height, width*4);
+    libvlc_video_set_format(p_vlc_player, "RV32", width, height, width * 4);
     libvlc_video_set_callbacks(p_vlc_player, lock, unlock, 0, this);
 }
 
 void *VideoWidget::lock(void *data, void **bufRet)
 {
-    VideoWidget *cw = (VideoWidget*)data;
+    VideoWidget *cw = (VideoWidget *)data;
     cw->m_locker.lock();
     *bufRet = cw->m_img->bits();
 }
@@ -328,14 +333,14 @@ void VideoWidget::unlock(void *data, void *id, void *const *pixels)
     Q_UNUSED(id);
     Q_UNUSED(pixels);
 
-    VideoWidget *cw = (VideoWidget*)data;
+    VideoWidget *cw = (VideoWidget *)data;
 
     // Might be a good idea to cache these, but this should be insignificant overhead compared to the image conversion
 //    const char *aspect = libvlc_video_get_aspect_ratio(cw->p_vlc_player);
 //    delete aspect;
 
     cw->p_video_widget->setNextFrame(QByteArray::fromRawData((const char *)cw->m_img->bits(),
-                                                             cw->m_img->byteCount()),
+                                     cw->m_img->byteCount()),
                                      cw->m_img->width(), cw->m_img->height());
     cw->m_locker.unlock();
 }

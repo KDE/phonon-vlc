@@ -39,7 +39,8 @@ typedef QWidget BaseWidget;
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 
 /**
  * \brief Utility class: special widget for playing videos.
@@ -59,7 +60,7 @@ public:
      *
      * I don't know which one is best: 0x020202 or Qt::black...
      */
-    void setBackgroundColor(const QColor & color);
+    void setBackgroundColor(const QColor &color);
 
 private:
 

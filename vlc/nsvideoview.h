@@ -4,8 +4,8 @@
 #import <Cocoa/Cocoa.h>
 
 @interface VideoView : NSView
-- (void)addVoutSubview:(NSView *)view;
-- (void)removeVoutSubview:(NSView *)view;
+- (void)addVoutSubview: (NSView *)view;
+- (void)removeVoutSubview: (NSView *)view;
 @end
 
 #endif // NSVIDEOVIEW_H

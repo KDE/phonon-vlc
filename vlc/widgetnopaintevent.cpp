@@ -27,7 +27,8 @@
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 WidgetNoPaintEvent::WidgetNoPaintEvent(QWidget *p_parent) : BaseWidget(p_parent)
 {
     // When resizing fill with black (backgroundRole color) the rest is done by paintEvent
@@ -52,7 +53,7 @@ void WidgetNoPaintEvent::paintEvent(QPaintEvent *p_event)
     painter.eraseRect(rect());
 }
 
-void WidgetNoPaintEvent::setBackgroundColor(const QColor & color)
+void WidgetNoPaintEvent::setBackgroundColor(const QColor &color)
 {
     QPalette p = palette();
     p.setColor(backgroundRole(), color);

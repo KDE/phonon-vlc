@@ -47,52 +47,52 @@ QT_BEGIN_NAMESPACE
 #ifndef QT_NO_PHONON_ABSTRACTMEDIASTREAM
 namespace Phonon
 {
-    namespace VLC
-    {
-        /**
-         * Requests data from this stream. The stream requests data from the
-         * Phonon::MediaSource's abstract media stream with the needData() signal.
-         * If the requested data is available, it is copied into the buffer.
-         *
-         * \param pos Position in the stream
-         * \param length Length of the data requested
-         * \param buffer A buffer to put the data
-         */
-        bool StreamReader::read(quint64 pos, int *length, char * buffer)
-        {
-            bool ret = true;
+namespace VLC
+{
+/**
+ * Requests data from this stream. The stream requests data from the
+ * Phonon::MediaSource's abstract media stream with the needData() signal.
+ * If the requested data is available, it is copied into the buffer.
+ *
+ * \param pos Position in the stream
+ * \param length Length of the data requested
+ * \param buffer A buffer to put the data
+ */
+bool StreamReader::read(quint64 pos, int *length, char *buffer)
+{
+    bool ret = true;
 
-            if (currentPos() != pos) {
-                if (!streamSeekable()) {
-                    return false;
-                }
-                setCurrentPos(pos);
-            }
+    if (currentPos() != pos) {
+        if (!streamSeekable()) {
+            return false;
+        }
+        setCurrentPos(pos);
+    }
 
-            if( m_buffer.capacity() < *length )
-                m_buffer.reserve( *length );
+    if (m_buffer.capacity() < *length) {
+        m_buffer.reserve(*length);
+    }
 
-            while (currentBufferSize() < *length) {
-                int oldSize = currentBufferSize();
-                needData();
+    while (currentBufferSize() < *length) {
+        int oldSize = currentBufferSize();
+        needData();
 
-                if (oldSize == currentBufferSize())
-                {
-                    // We didn't get any more data
-                    *length = oldSize;
-                    ret = false;
-                }
-            }
-
-            qMemCopy(buffer, m_buffer.data(), *length);
-
-            // trim the buffer by the amount read
-            m_buffer = m_buffer.mid(*length);
-            m_pos += *length;
-
-            return ret;
+        if (oldSize == currentBufferSize()) {
+            // We didn't get any more data
+            *length = oldSize;
+            ret = false;
         }
     }
+
+    qMemCopy(buffer, m_buffer.data(), *length);
+
+    // trim the buffer by the amount read
+    m_buffer = m_buffer.mid(*length);
+    m_pos += *length;
+
+    return ret;
+}
+}
 }
 #endif //QT_NO_PHONON_ABSTRACTMEDIASTREAM
 

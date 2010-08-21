@@ -39,7 +39,8 @@ QT_BEGIN_NAMESPACE
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 
 AudioDevice::AudioDevice(DeviceManager *manager, const QByteArray &deviceId, const QByteArray &hw_id)
 {
@@ -59,8 +60,8 @@ AudioDevice::AudioDevice(DeviceManager *manager, const QByteArray &deviceId, con
 }
 
 DeviceManager::DeviceManager(Backend *parent)
-        : QObject(parent)
-        , m_backend(parent)
+    : QObject(parent)
+    , m_backend(parent)
 {
     updateDeviceList();
 }
@@ -81,8 +82,9 @@ bool DeviceManager::canOpenDevice() const
 int DeviceManager::deviceId(const QByteArray &nameId) const
 {
     for (int i = 0 ; i < m_audioDeviceList.size() ; ++i) {
-        if (m_audioDeviceList[i].vlcId == nameId)
+        if (m_audioDeviceList[i].vlcId == nameId) {
             return m_audioDeviceList[i].id;
+        }
     }
     return -1;
 }
@@ -93,8 +95,9 @@ int DeviceManager::deviceId(const QByteArray &nameId) const
 QByteArray DeviceManager::deviceDescription(int i_id) const
 {
     for (int i = 0 ; i < m_audioDeviceList.size() ; ++i) {
-        if (m_audioDeviceList[i].id == i_id)
+        if (m_audioDeviceList[i].id == i_id) {
             return m_audioDeviceList[i].description;
+        }
     }
     return QByteArray();
 }
@@ -110,8 +113,9 @@ void DeviceManager::updateDeviceList()
 
     // Get the list of available audio outputs
     libvlc_audio_output_t *p_ao_list = libvlc_audio_output_list_get(vlc_instance);
-    if(!p_ao_list)
+    if (!p_ao_list) {
         qDebug() << "libvlc exception:" << libvlc_errmsg();
+    }
     libvlc_audio_output_t *p_start = p_ao_list;
 
     bool checkpulse = false;
@@ -133,8 +137,9 @@ void DeviceManager::updateDeviceList()
 
 
 #ifdef PHONON_PULSESUPPORT
-    if (haspulse)
+    if (haspulse) {
         return;
+    }
     pulse->enable(false);
 #endif
 

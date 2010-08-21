@@ -48,12 +48,12 @@ AudioDataOutput::AudioDataOutput(Backend *backend, QObject *parent)
     connect(this, SIGNAL(sampleReadDone()), this, SLOT(sendData()));
 
     // Register channels
-    m_channels.append( Phonon::AudioDataOutput::LeftChannel );
-    m_channels.append( Phonon::AudioDataOutput::RightChannel );
-    m_channels.append( Phonon::AudioDataOutput::CenterChannel );
-    m_channels.append( Phonon::AudioDataOutput::LeftSurroundChannel );
-    m_channels.append( Phonon::AudioDataOutput::RightSurroundChannel );
-    m_channels.append( Phonon::AudioDataOutput::SubwooferChannel );
+    m_channels.append(Phonon::AudioDataOutput::LeftChannel);
+    m_channels.append(Phonon::AudioDataOutput::RightChannel);
+    m_channels.append(Phonon::AudioDataOutput::CenterChannel);
+    m_channels.append(Phonon::AudioDataOutput::LeftSurroundChannel);
+    m_channels.append(Phonon::AudioDataOutput::RightSurroundChannel);
+    m_channels.append(Phonon::AudioDataOutput::SubwooferChannel);
 }
 
 AudioDataOutput::~AudioDataOutput()
@@ -92,30 +92,30 @@ void AudioDataOutput::setDataSize(int size)
  * \see unlock()
  * \see SinkNode::connectToMediaObject()
  */
-void AudioDataOutput::addToMedia( libvlc_media_t * media )
+void AudioDataOutput::addToMedia(libvlc_media_t *media)
 {
     // WARNING: DO NOT CHANGE ANYTHING HERE FOR CODE CLEANING PURPOSES!
     // WARNING: REQUIRED FOR COMPATIBILITY WITH LIBVLC!
     char param[64];
 
     // Output to stream renderer
-    libvlc_media_add_option_flag( media, ":sout=#duplicate{dst=display,select=audio,dst='transcode{}'}:smem", libvlc_media_option_trusted );
-    libvlc_media_add_option_flag( media, ":sout-transcode-acodec=f32l", libvlc_media_option_trusted );
-    libvlc_media_add_option_flag( media, ":sout-smem-time-sync", libvlc_media_option_trusted );
+    libvlc_media_add_option_flag(media, ":sout=#duplicate{dst=display,select=audio,dst='transcode{}'}:smem", libvlc_media_option_trusted);
+    libvlc_media_add_option_flag(media, ":sout-transcode-acodec=f32l", libvlc_media_option_trusted);
+    libvlc_media_add_option_flag(media, ":sout-smem-time-sync", libvlc_media_option_trusted);
 
     // Add audio lock callback
-    void * lock_call = reinterpret_cast<void*>( &AudioDataOutput::lock );
-    sprintf( param, ":sout-smem-audio-prerender-callback=%"PRId64, (qint64)(intptr_t)lock_call );
-    libvlc_media_add_option_flag( media, param, libvlc_media_option_trusted );
+    void *lock_call = reinterpret_cast<void *>(&AudioDataOutput::lock);
+    sprintf(param, ":sout-smem-audio-prerender-callback=%"PRId64, (qint64)(intptr_t)lock_call);
+    libvlc_media_add_option_flag(media, param, libvlc_media_option_trusted);
 
     // Add audio unlock callback
-    void * unlock_call = reinterpret_cast<void*>( &AudioDataOutput::unlock );
-    sprintf( param, ":sout-smem-audio-postrender-callback=%"PRId64, (qint64)(intptr_t)unlock_call );
-    libvlc_media_add_option_flag( media, param, libvlc_media_option_trusted );
+    void *unlock_call = reinterpret_cast<void *>(&AudioDataOutput::unlock);
+    sprintf(param, ":sout-smem-audio-postrender-callback=%"PRId64, (qint64)(intptr_t)unlock_call);
+    libvlc_media_add_option_flag(media, param, libvlc_media_option_trusted);
 
     // Add pointer to ourselves...
-    sprintf( param, ":sout-smem-audio-data=%"PRId64, (qint64)(intptr_t)this );
-    libvlc_media_add_option_flag( media, param, libvlc_media_option_trusted );
+    sprintf(param, ":sout-smem-audio-data=%"PRId64, (qint64)(intptr_t)this);
+    libvlc_media_add_option_flag(media, param, libvlc_media_option_trusted);
 }
 
 /**
@@ -128,7 +128,7 @@ void AudioDataOutput::addToMedia( libvlc_media_t * media )
  *
  * \see unlock()
  */
-void AudioDataOutput::lock( AudioDataOutput *cw, quint8 **pcm_buffer , quint32 size )
+void AudioDataOutput::lock(AudioDataOutput *cw, quint8 **pcm_buffer , quint32 size)
 {
     cw->m_locker.lock();
 
@@ -146,43 +146,43 @@ void AudioDataOutput::lock( AudioDataOutput *cw, quint8 **pcm_buffer , quint32 s
  * \see lock()
  * \see sendData()
  */
-void AudioDataOutput::unlock( AudioDataOutput *cw, quint8 *pcm_buffer,
-                              quint32 channels, quint32 rate,
-                              quint32 nb_samples, quint32 bits_per_sample,
-                              quint32 size, qint64 pts )
+void AudioDataOutput::unlock(AudioDataOutput *cw, quint8 *pcm_buffer,
+                             quint32 channels, quint32 rate,
+                             quint32 nb_samples, quint32 bits_per_sample,
+                             quint32 size, qint64 pts)
 {
-    Q_UNUSED( size );
-    Q_UNUSED( pts );
-    Q_UNUSED( pcm_buffer );
+    Q_UNUSED(size);
+    Q_UNUSED(pts);
+    Q_UNUSED(pcm_buffer);
 
     // (bytesPerChannelPerSample * channels * read_samples) + (bytesPerChannelPerSample * read_channels)
     int bytesPerChannelPerSample = bits_per_sample / 8;
     cw->m_sampleRate = rate;
     cw->m_channel_count = channels;
 
-    for( quint32 read_samples = 0; nb_samples > read_samples; read_samples++ ) {
+    for (quint32 read_samples = 0; nb_samples > read_samples; read_samples++) {
         // Prepare a sample buffer, and initialise it
         quint16 sample_buffer[6];
-        for( int initialised = 0; initialised < 6; initialised++ ) {
+        for (int initialised = 0; initialised < 6; initialised++) {
             sample_buffer[initialised] = 0;
         }
 
         int buffer_pos = (bytesPerChannelPerSample * channels * read_samples);
 
-        for( quint32 channels_read = 0; channels_read < channels; channels_read++ ) {
-            for( int bytes_read = 0; bytes_read < bytesPerChannelPerSample; bytes_read++ ) {
+        for (quint32 channels_read = 0; channels_read < channels; channels_read++) {
+            for (int bytes_read = 0; bytes_read < bytesPerChannelPerSample; bytes_read++) {
                 // Read from the pcm_buffer into the per channel internal buffer
                 sample_buffer[channels_read] += cw->m_buffer[buffer_pos];
                 buffer_pos++;
             }
         }
 
-        if( channels == 1 ) {
-            cw->m_channel_samples[1].append( sample_buffer[0] );
+        if (channels == 1) {
+            cw->m_channel_samples[1].append(sample_buffer[0]);
         }
 
-        for( quint32 channels_read = 0; channels > channels_read; channels_read++ ) {
-            cw->m_channel_samples[channels_read].append( sample_buffer[channels_read] );
+        for (quint32 channels_read = 0; channels > channels_read; channels_read++) {
+            cw->m_channel_samples[channels_read].append(sample_buffer[channels_read]);
         }
         // Finished reading one sample
     }
@@ -205,24 +205,25 @@ void AudioDataOutput::sendData()
     m_locker.lock();
 
     int chan_count = m_channel_count;
-    if( m_channel_count == 1 ) {
+    if (m_channel_count == 1) {
         chan_count = 2;
     }
 
-    while( m_channel_samples[0].count() > m_dataSize ) {
+    while (m_channel_samples[0].count() > m_dataSize) {
         QMap<Phonon::AudioDataOutput::Channel, QVector<qint16> > m_data;
-        for( int position = 0; position < chan_count; position++ ) {
-            Phonon::AudioDataOutput::Channel chan = m_channels.value( position );
-            QVector<qint16> data = m_channel_samples[position].mid( 0, m_dataSize );
-            m_channel_samples[position].remove( 0, data.count() );
-            m_data.insert( chan, data );
+        for (int position = 0; position < chan_count; position++) {
+            Phonon::AudioDataOutput::Channel chan = m_channels.value(position);
+            QVector<qint16> data = m_channel_samples[position].mid(0, m_dataSize);
+            m_channel_samples[position].remove(0, data.count());
+            m_data.insert(chan, data);
         }
-        emit dataReady( m_data );
+        emit dataReady(m_data);
     }
     m_locker.unlock();
 }
 
-}} //namespace Phonon::VLC
+}
+} //namespace Phonon::VLC
 
 #include "moc_audiodataoutput.cpp"
 // vim: sw=4 ts=4

@@ -31,11 +31,12 @@
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 
 VLCVideoWidget::VLCVideoWidget(QWidget *parent, VideoWidget *videoWidget) :
-        WidgetNoPaintEvent(parent),
-        m_videoWidget(videoWidget)
+    WidgetNoPaintEvent(parent),
+    m_videoWidget(videoWidget)
 {
     // Set background color
     setBackgroundColor(Qt::black);
@@ -71,8 +72,9 @@ void VLCVideoWidget::setVideoSize(const QSize &size)
 
 QSize VLCVideoWidget::sizeHint() const
 {
-    if (!m_videoSize.isEmpty())
+    if (!m_videoSize.isEmpty()) {
         return m_videoSize;
+    }
     return QSize(640, 480);
 }
 

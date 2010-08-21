@@ -30,7 +30,8 @@
 
 namespace Phonon
 {
-namespace VLC {
+namespace VLC
+{
 class Backend;
 
 /** \brief AudioOutput implementation for Phonon-VLC
@@ -51,7 +52,7 @@ class AudioOutput : public SinkNode, public AudioOutputInterface
 
 public:
 
-    AudioOutput(Backend *p_back, QObject * p_parent);
+    AudioOutput(Backend *p_back, QObject *p_parent);
     ~AudioOutput();
 
     qreal volume() const;
@@ -60,7 +61,7 @@ public:
     int outputDevice() const;
     bool setOutputDevice(int);
 #if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 2, 0))
-    bool setOutputDevice(const AudioOutputDevice & device);
+    bool setOutputDevice(const AudioOutputDevice &device);
 #endif
 
 signals:
