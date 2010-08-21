@@ -23,6 +23,7 @@
 #ifndef STREAMHOOKS_H
 #define STREAMHOOKS_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 int c_stream_read(void *p_streamReaderCtx, size_t *i_length, char **p_buffer);
