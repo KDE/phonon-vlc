@@ -6,7 +6,7 @@ X-KDE-Library=phonon_vlc
 X-KDE-PhononBackendInfo-InterfaceVersion=1
 X-KDE-PhononBackendInfo-Version=0.2.0
 X-KDE-PhononBackendInfo-Website=http://www.videolan.org/
-Icon=phonon-vlc
+Icon=vlc
 InitialPreference=10
 
 Name=VLC

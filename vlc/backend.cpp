@@ -66,6 +66,7 @@ Backend::Backend(QObject *parent, const QVariantList &)
     setProperty("backendName",    QLatin1String("VLC"));
     setProperty("backendComment", QLatin1String("VLC backend for Phonon"));
     setProperty("backendVersion", QLatin1String("0.2.0"));
+    setProperty("backendIcon",    QLatin1String("vlc"));
     setProperty("backendWebsite", QLatin1String("http://gitorious.org/phonon/phonon-vlc"));
 
     // Check if we should enable debug output
