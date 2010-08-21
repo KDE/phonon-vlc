@@ -46,16 +46,16 @@ VLCVideoWidget::~VLCVideoWidget()
 {
 }
 
-void VLCVideoWidget::resizeEvent(QResizeEvent *p_event)
+void VLCVideoWidget::resizeEvent(QResizeEvent *event)
 {
-    qDebug() << "resizeEvent" << p_event->size();
+    qDebug() << "resizeEvent" << event->size();
 }
 
-void VLCVideoWidget::setAspectRatio(double f_aspect_ratio)
+void VLCVideoWidget::setAspectRatio(double aspectRatio)
 {
 }
 
-void VLCVideoWidget::setScaleAndCropMode(bool b_scale_and_crop)
+void VLCVideoWidget::setScaleAndCropMode(bool scaleAndCrop)
 {
 }
 

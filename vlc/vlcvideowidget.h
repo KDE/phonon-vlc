@@ -38,14 +38,14 @@ namespace VLC
 class VideoWidget;
 
 /**
- * \brief Widget where to show VLC video.
+ * @short Widget where to show VLC video.
  *
  * It's window system identifier is used by a VLC media object to provide libVLC
  * the place where to draw the video.
  *
- * \ref VLCMediaObject::setVLCWidgetId()
- * \sa VideoWidget
- * \sa VLCMediaObject
+ * @ref VLCMediaObject::setVLCWidgetId()
+ * @see VideoWidget
+ * @see VLCMediaObject
  */
 class VLCVideoWidget : public WidgetNoPaintEvent
 {
@@ -56,8 +56,8 @@ public:
     ~VLCVideoWidget();
 
     void setVideoSize(const QSize &videoSize);
-    void setAspectRatio(double f_aspect_ratio);
-    void setScaleAndCropMode(bool b_scale_and_crop);
+    void setAspectRatio(double aspectRatio);
+    void setScaleAndCropMode(bool scaleAndCrop);
 
     QSize sizeHint() const;
 
@@ -70,11 +70,9 @@ public slots:
 protected:
 
     virtual void paintEvent(QPaintEvent *event);
+    virtual void resizeEvent(QResizeEvent *event);
 
 private:
-
-    void resizeEvent(QResizeEvent *p_event);
-
     /**
      * Whether custom rendering is used.
      */
