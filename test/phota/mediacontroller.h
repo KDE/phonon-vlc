@@ -15,11 +15,11 @@ class MediaController : public QObject
 public:
     explicit MediaController(QObject *parent = 0);
 
-    void openFile();
-    void openURL();
 signals:
 
 public slots:
+    void openFile();
+    void openURL();
 
 private:
     MediaObject *media;

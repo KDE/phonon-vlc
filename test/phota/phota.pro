@@ -12,10 +12,13 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     mainwindow.cpp \
-    mediacontroller.cpp
+    mediacontroller.cpp \
+    videoeffects.cpp
 
 HEADERS  += \
     mainwindow.h \
-    mediacontroller.h
+    mediacontroller.h \
+    videoeffects.h
 
-FORMS +=
+FORMS += \
+    videoeffects.ui

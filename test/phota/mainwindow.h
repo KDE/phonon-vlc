@@ -3,6 +3,7 @@
 
 #include <QtGui/QMainWindow>
 
+namespace Phonon { class VideoWidget; }
 class MediaController;
 
 class MainWindow : public QMainWindow
@@ -15,11 +16,15 @@ signals:
 
 public slots:
 
+private slots:
+    void effectsDialog();
+
 protected:
     virtual void contextMenuEvent( QContextMenuEvent *e );
 
 private:
     MediaController *mediaControl;
+    Phonon::VideoWidget *videoWidget;
 };
 
 #endif // MAINWINDOW_H
