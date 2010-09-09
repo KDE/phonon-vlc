@@ -67,11 +67,16 @@ public:
     AudioDataOutput(Backend *, QObject *);
     ~AudioDataOutput();
 
+#ifndef PHONON_VLC_NO_EXPERIMENTAL
+    void connectToAvCapture(Experimental::AvCapture *avCapture);
+    void disconnectFromAvCapture(Experimental::AvCapture *avCapture);
+#endif//PHONON_VLC_NO_EXPERIMENTAL
+
 public Q_SLOTS:
     int dataSize() const;
     int sampleRate() const;
     void setDataSize(int size);
-    void addToMedia(libvlc_media_t *media);
+    void addToMedia( libvlc_media_t * media );
 
 public:
     Phonon::AudioDataOutput *frontendObject() const {

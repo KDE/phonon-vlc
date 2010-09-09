@@ -34,6 +34,10 @@
 #include "vlcloader.h"
 #include "vlcmediaobject.h"
 
+#ifndef PHONON_VLC_NO_EXPERIMENTAL
+#include "experimental/avcapture.h"
+#endif // PHONON_VLC_NO_EXPERIMENTAL
+
 #ifdef PHONON_PULSESUPPORT
 #  include <phonon/pulsesupport.h>
 #endif
@@ -107,8 +111,21 @@ Backend::~Backend()
  * \param args Optional arguments for the object creation
  * \return The desired object or NULL if the class is not implemented.
  */
-QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const QList<QVariant> &args)
+QObject *Backend::createObject(BackendInterface::Class c, QObject* parent, const QList<QVariant>& args)
 {
+    #ifndef PHONON_VLC_NO_EXPERIMENTAL
+    Phonon::Experimental::BackendInterface::Class cex = static_cast<Phonon::Experimental::BackendInterface::Class>(c);
+
+    switch (cex) {
+    case Phonon::Experimental::BackendInterface::AvCaptureClass:
+        logMessage("createObject() : AvCapture created - WARNING: Experimental!");
+        return new Experimental::AvCapture(parent);
+    default:
+        if ((quint32) cex >= (quint32) Phonon::Experimental::BackendInterface::VideoDataOutputClass)
+            logMessage("createObject() - experimental : Backend object not available");
+    }
+    #endif // PHONON_VLC_NO_EXPERIMENTAL
+
     switch (c) {
     case MediaObjectClass:
         return new VLCMediaObject(parent);
@@ -243,13 +260,26 @@ QStringList Backend::availableMimeTypes() const
 QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const
 {
     QList<int> list;
+    QList<DeviceInfo> deviceList;
+    int dev;
 
     switch (type) {
     case Phonon::AudioOutputDeviceType: {
-        QList<AudioDevice> deviceList = deviceManager()->audioOutputDevices();
-        for (int dev = 0 ; dev < deviceList.size() ; ++dev) {
+        deviceList = deviceManager()->audioOutputDevices();
+        for (dev = 0 ; dev < deviceList.size() ; ++dev)
             list.append(deviceList[dev].id);
-        }
+    }
+    break;
+    case Phonon::AudioCaptureDeviceType: {
+        deviceList = deviceManager()->audioCaptureDevices();
+        for (dev = 0 ; dev < deviceList.size() ; ++dev)
+            list.append(deviceList[dev].id);
+    }
+    break;
+    case Phonon::VideoCaptureDeviceType: {
+        deviceList = deviceManager()->videoCaptureDevices();
+        for (dev = 0 ; dev < deviceList.size() ; ++dev)
+            list.append(deviceList[dev].id);
     }
     break;
     case Phonon::EffectType: {
@@ -276,14 +306,39 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const
 QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescriptionType type, int index) const
 {
     QHash<QByteArray, QVariant> ret;
+    QList<DeviceInfo> deviceList;
 
     switch (type) {
     case Phonon::AudioOutputDeviceType: {
-        QList<AudioDevice> audioDevices = deviceManager()->audioOutputDevices();
-        if (index >= 0 && index < audioDevices.size()) {
-            ret.insert("name", audioDevices[index].vlcId);
-            ret.insert("description", audioDevices[index].description);
+        deviceList = deviceManager()->audioOutputDevices();
+        if (index >= 0 && index < deviceList.size()) {
+            ret.insert("name", deviceList[index].name);
+            ret.insert("description", deviceList[index].description);
             ret.insert("icon", QLatin1String("audio-card"));
+        }
+    }
+    break;
+    case Phonon::AudioCaptureDeviceType: {
+        deviceList = deviceManager()->audioCaptureDevices();
+        if (index >= 0 && index < deviceList.size()) {
+            ret.insert("name", deviceList[index].name);
+            ret.insert("description", deviceList[index].description);
+            ret.insert("icon", QLatin1String("audio-input-microphone"));
+            ret.insert("deviceAccessList", QVariant::fromValue<Phonon::DeviceAccessList>(deviceList[index].accessList));
+            if (deviceList[index].capabilities & DeviceInfo::VideoCapture)
+                ret.insert("hasvideo", true);
+        }
+    }
+    break;
+    case Phonon::VideoCaptureDeviceType: {
+        deviceList = deviceManager()->videoCaptureDevices();
+        if (index >= 0 && index < deviceList.size()) {
+            ret.insert("name", deviceList[index].name);
+            ret.insert("description", deviceList[index].description);
+            ret.insert("icon", QLatin1String("camera-web"));
+            ret.insert("deviceAccessList", QVariant::fromValue<Phonon::DeviceAccessList>(deviceList[index].accessList));
+            if (deviceList[index].capabilities & DeviceInfo::AudioCapture)
+                ret.insert("hasaudio", true);
         }
     }
     break;
@@ -353,6 +408,10 @@ bool Backend::connectNodes(QObject *source, QObject *sink)
     // source = Phonon::VLC_MPlayer::Effect
     // sink = Phonon::VLC_MPlayer::AudioOutput
 
+    // Example:
+    // source = Phonon::Experimental::AvCapture
+    // sink = Phonon::VLC::VideoWidget
+
     SinkNode *sinkNode = qobject_cast<SinkNode *>(sink);
     if (sinkNode) {
         PrivateMediaObject *mediaObject = qobject_cast<PrivateMediaObject *>(source);
@@ -360,11 +419,24 @@ bool Backend::connectNodes(QObject *source, QObject *sink)
             // Connect the SinkNode to a MediaObject
             sinkNode->connectToMediaObject(mediaObject);
             return true;
-        } else {
-            // FIXME try to find a better way...
-//            Effect *effect = qobject_cast<Effect *>(source);
+        }
+
+        #ifndef PHONON_VLC_NO_EXPERIMENTAL
+        Experimental::AvCapture *avCapture = qobject_cast<Experimental::AvCapture *>(source);
+        if (avCapture) {
+            // Connect the SinkNode to a AvCapture
+            sinkNode->connectToAvCapture(avCapture);
             return true;
         }
+        #endif // PHONON_VLC_NO_EXPERIMENTAL
+
+        /*
+        Effect *effect = qobject_cast<Effect *>(source);
+        if (effect) {
+            // FIXME connect the effect
+            return true;
+        }
+        */
     }
 
     logMessage(QString("Linking %0 to %1 failed")
@@ -391,11 +463,24 @@ bool Backend::disconnectNodes(QObject *source, QObject *sink)
             // Disconnect the SinkNode from a MediaObject
             sinkNode->disconnectFromMediaObject(mediaObject);
             return true;
-        } else {
-            // FIXME try to find a better way...
-//            Effect *effect = qobject_cast<Effect *>(source);
+        }
+
+        #ifndef PHONON_VLC_NO_EXPERIMENTAL
+        Experimental::AvCapture *avCapture = qobject_cast<Experimental::AvCapture *>(source);
+        if (avCapture) {
+            // Disconnect the SinkNode from a AvCapture
+            sinkNode->disconnectFromAvCapture(avCapture);
             return true;
         }
+        #endif // PHONON_VLC_NO_EXPERIMENTAL
+
+        /*
+        Effect *effect = qobject_cast<Effect *>(source);
+        if (effect) {
+            // FIXME disconnect the effect
+            return true;
+        }
+        */
     }
 
     return false;
