@@ -326,6 +326,7 @@ void *VideoWidget::lock(void *data, void **bufRet)
     VideoWidget *cw = (VideoWidget *)data;
     cw->m_locker.lock();
     *bufRet = cw->m_img->bits();
+    return NULL; // Picture identifier, not needed here.
 }
 
 void VideoWidget::unlock(void *data, void *id, void *const *pixels)
