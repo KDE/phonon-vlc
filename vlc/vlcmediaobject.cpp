@@ -109,7 +109,7 @@ void VLCMediaObject::loadMediaInternal(const QString &filename)
 {
     qDebug() << __FUNCTION__ << filename;
 
-    p_current_file = QUrl::toPercentEncoding(filename, ":/?=&");
+    p_current_file = QUrl::toPercentEncoding(filename, ":/?=&,");
 
     // Why is this needed???
     emit stateChanged(Phonon::StoppedState);
@@ -123,9 +123,9 @@ void VLCMediaObject::loadMediaInternal(const QString &filename)
  */
 void VLCMediaObject::setVLCVideoWidget()
 {
-    if (!p_video_widget) {
+    // Nothing to do if there is no video widget
+    if (!p_video_widget)
         return;
-    }
 
     // Get our media player to use our window
 #if defined(Q_OS_MAC)
@@ -183,6 +183,7 @@ void VLCMediaObject::playInternal()
     // This will reset the GUI
     clearMediaController();
 
+    // Set up the widget id for libVLC if there is a video widget available
     setVLCVideoWidget();
 
     // Play

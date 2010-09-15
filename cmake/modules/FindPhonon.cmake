@@ -1,10 +1,11 @@
 # Find libphonon
 # Once done this will define
 #
-#  PHONON_FOUND    - system has Phonon Library
-#  PHONON_INCLUDES - the Phonon include directory
-#  PHONON_LIBS     - link these to use Phonon
-#  PHONON_VERSION  - the version of the Phonon Library
+#  PHONON_FOUND                 - system has Phonon Library
+#  PHONON_FOUND_EXPERIMENTAL    - system also has Phonon Experimental Library
+#  PHONON_INCLUDES              - the Phonon include directory
+#  PHONON_LIBS                  - link these to use Phonon
+#  PHONON_VERSION               - the version of the Phonon Library
 
 # Copyright (c) 2008, Matthias Kretz <kretz@kde.org>
 # Copyright (c) 2010, Mark Kretschmann <kretschmann@kde.org>
@@ -40,8 +41,14 @@ else(PHONON_FOUND)
    # then at the default system locations (CMAKE_SYSTEM_PREFIX_PATH, i.e. /usr etc.)
    find_library(PHONON_LIBRARY NAMES phonon)
 
+   find_library(PHONON_LIBRARY_EXPERIMENTAL NAMES phononexperimental PATHS ${KDE4_LIB_INSTALL_DIR} ${QT_LIBRARY_DIR} NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_SYSTEM_PATH)
+   find_library(PHONON_LIBRARY_EXPERIMENTAL phononexperimental)
+
    find_path(PHONON_INCLUDE_DIR NAMES phonon/phonon_export.h PATHS ${KDE4_INCLUDE_INSTALL_DIR} ${QT_INCLUDE_DIR} ${INCLUDE_INSTALL_DIR} ${QT_LIBRARY_DIR} NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_SYSTEM_PATH)
    find_path(PHONON_INCLUDE_DIR NAMES phonon/phonon_export.h)
+
+   find_path(PHONON_INCLUDE_DIR_EXPERIMENTAL NAMES phonon/experimental/export.h PATHS ${KDE4_INCLUDE_INSTALL_DIR} ${QT_INCLUDE_DIR} ${INCLUDE_INSTALL_DIR} ${QT_LIBRARY_DIR} NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_SYSTEM_PATH)
+   find_path(PHONON_INCLUDE_DIR_EXPERIMENTAL NAMES phonon/experimental/export.h)
 
    if(PHONON_INCLUDE_DIR AND PHONON_LIBRARY)
       set(PHONON_LIBS ${phonon_LIB_DEPENDS} ${PHONON_LIBRARY})
@@ -56,6 +63,13 @@ else(PHONON_FOUND)
          string(REGEX MATCH "void enable" _phonon_pulse_match "${_pulsesupport_header}")
          set(PHONON_PULSESUPPORT "${_phonon_pulse_match}")
       endif(PHONON_PULSESUPPORT)
+
+      if(PHONON_INCLUDE_DIR_EXPERIMENTAL AND PHONON_LIBRARY_EXPERIMENTAL)
+         set(PHONON_LIBS ${PHONON_LIBS} ${PHONON_LIBRARY_EXPERIMENTAL})
+         set(PHONON_INCLUDES ${PHONON_INCLUDES} ${PHONON_INCLUDE_DIR_EXPERIMENTAL})
+         set(PHONON_FOUND_EXPERIMENTAL TRUE)
+         message(STATUS "Found Phonon Experimental: ${PHONON_LIBRARY_EXPERIMENTAL}")
+      endif(PHONON_INCLUDE_DIR_EXPERIMENTAL AND PHONON_LIBRARY_EXPERIMENTAL)
 
    else(PHONON_INCLUDE_DIR AND PHONON_LIBRARY)
       set(PHONON_FOUND FALSE)
@@ -86,5 +100,11 @@ else(PHONON_FOUND)
    endif(PHONON_FOUND)
 
 
-   mark_as_advanced(PHONON_INCLUDE_DIR PHONON_LIBRARY PHONON_INCLUDES)
+   mark_as_advanced(
+        PHONON_INCLUDE_DIR
+        PHONON_INCLUDE_DIR_EXPERIMENTAL
+        PHONON_LIBRARY
+        PHONON_LIBRARY_EXPERIMENTAL
+        PHONON_INCLUDES
+   )
 endif(PHONON_FOUND)

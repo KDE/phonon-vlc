@@ -56,6 +56,29 @@ AudioOutput::~AudioOutput()
 {
 }
 
+#ifndef PHONON_VLC_NO_EXPERIMENTAL
+/**
+ * Connects the AudioOutput to an AvCapture. connectToMediaObject() is called
+ * only for the video media of the AvCapture.
+ *
+ * \see AvCapture
+ */
+void AudioOutput::connectToAvCapture(Experimental::AvCapture *avCapture)
+{
+    connectToMediaObject(avCapture->audioMediaObject());
+}
+
+/**
+ * Disconnect the AudioOutput from the audio media of the AvCapture.
+ *
+ * \see connectToAvCapture()
+ */
+void AudioOutput::disconnectFromAvCapture(Experimental::AvCapture *avCapture)
+{
+    disconnectFromMediaObject(avCapture->audioMediaObject());
+}
+#endif // PHONON_VLC_NO_EXPERIMENTAL
+
 /**
  * \return The current volume for this audio output.
  */
@@ -110,16 +133,16 @@ bool AudioOutput::setOutputDevice(int device)
     }
 #endif
 
-    const QList<AudioDevice> deviceList = p_backend->deviceManager()->audioOutputDevices();
+    const QList<DeviceInfo> deviceList = p_backend->deviceManager()->audioOutputDevices();
     if (device >= 0 && device < deviceList.size()) {
 
         if (!p_vlc_player) {
             return false;
         }
         i_device = device;
-        const QByteArray deviceName = deviceList.at(device).vlcId;
-        libvlc_audio_output_set(p_vlc_player, (char *) deviceList.at(device).vlcId.data());
-        qDebug() << "set aout " << deviceList.at(device).vlcId.data();
+        const QByteArray deviceName = deviceList.at(device).name;
+        libvlc_audio_output_set(p_vlc_player, (char *) deviceList.at(device).name.data());
+        qDebug() << "set aout " << deviceList.at(device).name.data();
 //         if (deviceName == DEFAULT_ID) {
 //             libvlc_audio_device_set(p_vlc_instance, DEFAULT, vlc_exception);
 //             vlcExceptionRaised();

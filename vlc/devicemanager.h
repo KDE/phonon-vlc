@@ -37,16 +37,42 @@ class DeviceManager;
 class AbstractRenderer;
 class VideoWidget;
 
-class AudioDevice
+/** \brief Container for information about devices supported by libVLC
+ *
+ * It includes a (hopefully unique) device identifier, a name identifier, a
+ * description, a hardware identifier (may be a platform dependent device name),
+ * and other relevant info.
+ */
+class DeviceInfo
 {
-public :
-    AudioDevice(DeviceManager *s, const QByteArray &deviceId, const QByteArray &hw_id = "");
+public:
+    enum Capability {
+        None            = 0x0000,
+        AudioOutput     = 0x0001,
+        AudioCapture    = 0x0002,
+        VideoCapture    = 0x0004
+    };
+public:
+    DeviceInfo(const QByteArray& name, const QString& description = "");
+
     int id;
-    QByteArray vlcId;
-    QByteArray description;
-    QByteArray hwId;
+    QByteArray name;
+    QString description;
+    DeviceAccessList accessList;
+    quint16 capabilities;
 };
 
+/** \brief Keeps track of audio/video devices that libVLC supports
+ *
+ * This class maintains a device list for each of the following device categories:
+ * \li audio output devices
+ * \li audio capture devices
+ * \li video capture devices
+ *
+ * Methods are provided to retrieve information about these devices.
+ *
+ * \see EffectManager
+ */
 class DeviceManager : public QObject
 {
     Q_OBJECT
@@ -54,9 +80,11 @@ class DeviceManager : public QObject
 public:
     DeviceManager(Backend *parent);
     virtual ~DeviceManager();
-    const QList<AudioDevice> audioOutputDevices() const;
+    const QList<DeviceInfo> audioCaptureDevices() const;
+    const QList<DeviceInfo> videoCaptureDevices() const;
+    const QList<DeviceInfo> audioOutputDevices() const;
     int deviceId(const QByteArray &vlcId) const;
-    QByteArray deviceDescription(int id) const;
+    QString deviceDescription( int i_id) const;
 
 signals:
     void deviceAdded(int);
@@ -67,8 +95,13 @@ public slots:
 
 private:
     bool canOpenDevice() const;
+    void updateDeviceSublist(const QList<DeviceInfo> &newDevices, QList<Phonon::VLC::DeviceInfo> &deviceList);
+
+private:
     Backend *m_backend;
-    QList <AudioDevice> m_audioDeviceList;
+    QList<DeviceInfo> m_audioCaptureDeviceList;
+    QList<DeviceInfo> m_videoCaptureDeviceList;
+    QList<DeviceInfo> m_audioOutputDeviceList;
 };
 }
 } // namespace Phonon::VLC

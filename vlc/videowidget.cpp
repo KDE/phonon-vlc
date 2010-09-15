@@ -88,6 +88,29 @@ void VideoWidget::connectToMediaObject(PrivateMediaObject *mediaObject)
     mediaObject->setVideoWidget(p_video_widget);
 }
 
+#ifndef PHONON_VLC_NO_EXPERIMENTAL
+/**
+ * Connects the VideoWidget to an AvCapture. connectToMediaObject() is called
+ * only for the video media of the AvCapture.
+ *
+ * \see AvCapture
+ */
+void VideoWidget::connectToAvCapture(Experimental::AvCapture *avCapture)
+{
+    connectToMediaObject(avCapture->videoMediaObject());
+}
+
+/**
+ * Disconnect the VideoWidget from the video media of the AvCapture.
+ *
+ * \see connectToAvCapture()
+ */
+void VideoWidget::disconnectFromAvCapture(Experimental::AvCapture *avCapture)
+{
+    disconnectFromMediaObject(avCapture->videoMediaObject());
+}
+#endif // PHONON_VLC_NO_EXPERIMENTAL
+
 /**
  * \return The aspect ratio previously set for the video widget
  */
