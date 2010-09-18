@@ -37,7 +37,7 @@ if(PHONON_VLC_NO_EXPERIMENTAL)
     add_definitions(-DPHONON_VLC_NO_EXPERIMENTAL)
 else(PHONON_VLC_NO_EXPERIMENTAL)
     add_subdirectory(experimental)
-endif(PHONON_VLC_BUILD_EXPERIMENTAL)
+endif(PHONON_VLC_NO_EXPERIMENTAL)
 
 set(phonon_vlc_SRCS
     audiooutput.cpp
