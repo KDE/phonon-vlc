@@ -225,13 +225,17 @@ void DeviceManager::updateDeviceList()
     bool haspulse = false;
     while (p_ao_list) {
         if (checkpulse && 0 == strcmp(p_ao_list->psz_name, "pulse")) {
+#ifndef PHONON_VLC_NO_EXPERIMENTAL
             aos.last().accessList.append(DeviceAccess("pulse", "default"));
+#endif // PHONON_VLC_NO_EXPERIMENTAL
             haspulse = true;
             break;
         }
 
         aos.append(DeviceInfo(p_ao_list->psz_name));
+#ifndef PHONON_VLC_NO_EXPERIMENTAL
         aos.last().accessList.append(DeviceAccess("?", p_ao_list->psz_name));
+#endif // PHONON_VLC_NO_EXPERIMENTAL
         aos.last().capabilities = DeviceInfo::AudioOutput;
 
         p_ao_list = p_ao_list->p_next;

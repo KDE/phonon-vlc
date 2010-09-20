@@ -347,6 +347,7 @@ void MediaObject::setSource(const MediaSource &source)
             break;
         }
         break;
+#ifndef PHONON_VLC_NO_EXPERIMENTAL
     case MediaSource::CaptureDevice:
         if (source.deviceAccessList().isEmpty()) {
             qCritical() << __FUNCTION__ << "No device access list for this capture device";
@@ -367,6 +368,7 @@ void MediaObject::setSource(const MediaSource &source)
         }
 
         break;
+#endif // PHONON_VLC_NO_EXPERIMENTAL
     case MediaSource::Stream:
         if (!source.url().isEmpty()) {
             loadStream();

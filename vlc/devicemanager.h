@@ -58,7 +58,9 @@ public:
     int id;
     QByteArray name;
     QString description;
+#ifndef PHONON_VLC_NO_EXPERIMENTAL
     DeviceAccessList accessList;
+#endif // PHONON_VLC_NO_EXPERIMENTAL
     quint16 capabilities;
 };
 

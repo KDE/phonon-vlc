@@ -164,7 +164,9 @@ static bool probeDevice(QByteArray devicePath, QList<DeviceInfo> & devices)
         di.name = QByteArray((const char*) v4lDeviceInfo.dev_cap.card).trimmed();
         di.description = "Video For Linux 2 Video Device, using driver ";
         di.description.append(QString((const char*) v4lDeviceInfo.dev_cap.driver).trimmed());
+#ifndef PHONON_VLC_NO_EXPERIMENTAL
         di.accessList.append(DeviceAccess("v4l2", devicePath));
+#endif // PHONON_VLC_NO_EXPERIMENTAL
         ok = true;
     }
 
