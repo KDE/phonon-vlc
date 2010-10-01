@@ -1,6 +1,7 @@
 /*  This file is part of the KDE project
     Copyright (C) 2006 Matthias Kretz <kretz@kde.org>
     Copyright (C) 2009 Martin Sandsmark <sandsmark@samfundet.no>
+    Copyright (C) 2010 Harald Sitter <apachelogger@ubuntu.com>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -29,74 +30,99 @@
 #include <QtCore/QThread>
 #include <phonon/audiooutput.h>
 #include <phonon/experimental/abstractvideodataoutput.h>
-#include <phonon/experimental/videoframe.h>
+#include <phonon/experimental/videoframe2.h>
 
 namespace Phonon
 {
 namespace VLC
 {
-VideoDataOutput::VideoDataOutput(Backend *backend, QObject *parent)
-    : SinkNode(parent)
+VideoDataOutput::VideoDataOutput(QObject *parent) :
+        SinkNode(parent),
+        m_frontend(0),
+        m_img(0)
 {
-    Q_UNUSED(backend)
 }
 
 VideoDataOutput::~VideoDataOutput()
 {
 }
 
+void VideoDataOutput::connectToMediaObject(PrivateMediaObject *mediaObject)
+{
+    SinkNode::connectToMediaObject(mediaObject);
+
+// FIXME: second call to libvlc_video_set_format does not work, and thus break
+//        playback due to size mismatch between QImage and VLC.
+//    connect(mediaObject, SIGNAL(videoWidgetSizeChanged(int, int)),
+//            SLOT(videoSizeChanged(int, int)));
+}
+
 void VideoDataOutput::addToMedia(libvlc_media_t *media)
 {
-    libvlc_media_add_option_flag(media, ":vout=vmem", libvlc_media_option_trusted);
-
-    char param[64];
-    // Add lock callback
-    void *lock_call = reinterpret_cast<void *>(&VideoDataOutput::lock);
-    sprintf(param, ":vmem-lock=%"PRId64, (long)(intptr_t)lock_call);
-    libvlc_media_add_option_flag(media, param, libvlc_media_option_trusted);
-
-    // Add unlock callback
-    void *unlock_call = reinterpret_cast<void *>(&VideoDataOutput::unlock);
-    sprintf(param, ":vmem-unlock=%"PRId64, (long)(intptr_t)unlock_call);
-    libvlc_media_add_option_flag(media, param, libvlc_media_option_trusted);
-
-    // Add pointer to ourselves...
-    sprintf(param, ":vmem-data=%"PRId64, (long)(intptr_t)this);
-    libvlc_media_add_option_flag(media, param, libvlc_media_option_trusted);
+    const int width = 300;
+    const int height = width;
+    videoSizeChanged(width, height);
+    libvlc_video_set_callbacks(p_vlc_player, lock, unlock, 0, this);
 }
 
-void VideoDataOutput::lock(VideoDataOutput *cw, void **bufRet)
+void VideoDataOutput::videoSizeChanged(int width, int height)
 {
-    cw->m_locker.lock();
-
-    const int width = libvlc_video_get_width(cw->p_vlc_player);
-    const int height = libvlc_video_get_height(cw->p_vlc_player);
-
-    cw->m_buffer = new char[width * height];
-    *bufRet = cw->m_buffer;
+    QSize size (width, height);
+    if (m_img) {
+        if (size == m_img->size()) {
+            return; // False alarm.
+        }
+        delete m_img;
+    }
+    qDebug() << "changing video size to:" << size;
+    m_img = new QImage(size, QImage::Format_RGB32);
+    libvlc_video_set_format(p_vlc_player, "RV32", width, height, width * 4);
 }
 
-void VideoDataOutput::unlock(VideoDataOutput *cw)
+void *VideoDataOutput::lock(void *data, void **bufRet)
 {
+    Q_ASSERT(data);
+    VideoDataOutput *cw = (VideoDataOutput *)data;
+    cw->m_mutex.lock();
+
+//    const int width = libvlc_video_get_width(cw->p_vlc_player);
+//    const int height = libvlc_video_get_height(cw->p_vlc_player);
+
+//    cw->m_buffer = new char[width * height];
+//    *bufRet = cw->m_buffer;
+
+    *bufRet = cw->m_img->bits();
+
+    return NULL; // Picture identifier, not needed here. - NULL because we are called by Mr. C.
+}
+
+void VideoDataOutput::unlock(void *data, void *id, void *const *pixels)
+{
+    Q_ASSERT(data);
+    Q_UNUSED(id);
+    Q_UNUSED(pixels);
+
+    VideoDataOutput *cw = (VideoDataOutput *)data;
+
     // Might be a good idea to cache these, but this should be insignificant overhead compared to the image conversion
-    const int width = libvlc_video_get_width(cw->p_vlc_player);
-    const int height = libvlc_video_get_height(cw->p_vlc_player);
-    const char *aspect = libvlc_video_get_aspect_ratio(cw->p_vlc_player);
+//    const char *aspect = libvlc_video_get_aspect_ratio(cw->p_vlc_player);
 
     const Experimental::VideoFrame2 frame = {
-        width,
-        height,
-        *aspect,
-        Experimental::VideoFrame2::Format_RGB32,
-        QByteArray::fromRawData(cw->m_buffer, width *height), // data0
+        cw->m_img->width(),
+        cw->m_img->height(),
+        0,
+        Experimental::VideoFrame2::Format_RGB888,
+        QByteArray::fromRawData((const char *)cw->m_img->bits(),
+                                 cw->m_img->byteCount()), // data0
         0, //data1
         0  //data2
     };
-    delete aspect;
-    cw->m_locker.unlock();
 
     //TODO: check which thread?
-    emit cw->frameReadySignal(frame);
+    if (cw->m_frontend) {
+        cw->m_frontend->frameReady(frame);
+    }
+    cw->m_mutex.unlock();
 }
 
 Experimental::AbstractVideoDataOutput *VideoDataOutput::frontendObject() const
