@@ -24,10 +24,6 @@
 
 #include "videodataoutput.h"
 
-#include <QtCore/QVector>
-#include <QtCore/QMap>
-#include <QtCore/QThread>
-
 #include <phonon/medianode.h>
 #include <phonon/audiooutput.h>
 #include <phonon/experimental/abstractvideodataoutput.h>
