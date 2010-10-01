@@ -23,14 +23,17 @@
 */
 
 #include "videodataoutput.h"
-#include <phonon/medianode.h>
-#include "mediaobject.h"
+
 #include <QtCore/QVector>
 #include <QtCore/QMap>
 #include <QtCore/QThread>
+
+#include <phonon/medianode.h>
 #include <phonon/audiooutput.h>
 #include <phonon/experimental/abstractvideodataoutput.h>
 #include <phonon/experimental/videoframe2.h>
+
+#include "mediaobject.h"
 
 namespace Phonon
 {
@@ -111,6 +114,8 @@ void VideoDataOutput::unlock(void *data, void *id, void *const *pixels)
         cw->m_img->width(),
         cw->m_img->height(),
         0,
+        // FIXME: VideoFrame2 does not (yet) support RGB32, so we use 888 but really
+        //        hope the frontend implementation will convert to RGB32 QImage.
         Experimental::VideoFrame2::Format_RGB888,
         QByteArray::fromRawData((const char *)cw->m_img->bits(),
                                  cw->m_img->byteCount()), // data0
