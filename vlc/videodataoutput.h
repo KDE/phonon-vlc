@@ -31,10 +31,6 @@
 
 #include <QtCore/QMutex>
 
-// Allow PRId64 to be defined:
-#define __STDC_FORMAT_MACROS
-#include <inttypes.h>
-
 QT_BEGIN_HEADER
 QT_BEGIN_NAMESPACE
 
@@ -145,11 +141,11 @@ private:
     QMutex m_mutex;
     QImage *m_img;
 };
-}
-} //namespace Phonon::VLC
+} // namespace VLC
+} // namespace Phonon
 
 QT_END_NAMESPACE
 QT_END_HEADER
 
 // vim: sw=4 ts=4 tw=80
-#endif // Phonon_VLC_VIDEODATAOUTPUT_H
+#endif // PHONON_VLC_VIDEODATAOUTPUT_H
