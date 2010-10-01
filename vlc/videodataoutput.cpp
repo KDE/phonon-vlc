@@ -1,4 +1,4 @@
-/*  This file is part of the KDE project
+/*  libVLC backend for the Phonon library
     Copyright (C) 2006 Matthias Kretz <kretz@kde.org>
     Copyright (C) 2009 Martin Sandsmark <sandsmark@samfundet.no>
     Copyright (C) 2010 Harald Sitter <apachelogger@ubuntu.com>
@@ -19,7 +19,6 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library.  If not, see <http://www.gnu.org/licenses/>.
-
 */
 
 #include "videodataoutput.h"
