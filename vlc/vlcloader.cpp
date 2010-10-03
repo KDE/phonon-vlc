@@ -197,6 +197,9 @@ static QStringList findAllLibVlc()
         //If nothing is found in the registry try %PATH%
         QStringList searchPaths = QString::fromLatin1(qgetenv("PATH"))
                                   .split(QLatin1Char(';'), QString::SkipEmptyParts);
+		//search also in the application dir
+		searchPaths.append(QCoreApplication::applicationDirPath());
+
         QStringList foundVlcs;
         foreach(const QString & sp, searchPaths) {
             QDir dir = QDir(sp);
