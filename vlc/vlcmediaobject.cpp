@@ -484,12 +484,26 @@ void VLCMediaObject::updateMetaData()
 {
     QMultiMap<QString, QString> metaDataMap;
 
+    const char *artist = libvlc_media_get_meta(p_vlc_media, libvlc_meta_Artist);
+    const char *title = libvlc_media_get_meta(p_vlc_media, libvlc_meta_Title);
+    const char *nowplaying = libvlc_media_get_meta(p_vlc_media, libvlc_meta_NowPlaying);
+
+    // Streams sometimes have the artist and title munged in nowplaying.
+    // With ALBUM = Title and TITLE = NowPlaying it will still show up nicely in Amarok.
+    if (qstrlen(artist) == 0 && qstrlen(nowplaying) > 0) {
+        metaDataMap.insert(QLatin1String("ALBUM"),
+                        QString::fromUtf8(title));
+        metaDataMap.insert(QLatin1String("TITLE"),
+                        QString::fromUtf8(nowplaying));
+    } else {
+        metaDataMap.insert(QLatin1String("ALBUM"),
+                        QString::fromUtf8(libvlc_media_get_meta(p_vlc_media, libvlc_meta_Album)));
+        metaDataMap.insert(QLatin1String("TITLE"),
+                        QString::fromUtf8(title));
+    }
+
     metaDataMap.insert(QLatin1String("ARTIST"),
-                       QString::fromUtf8(libvlc_media_get_meta(p_vlc_media, libvlc_meta_Artist)));
-    metaDataMap.insert(QLatin1String("ALBUM"),
-                       QString::fromUtf8(libvlc_media_get_meta(p_vlc_media, libvlc_meta_Album)));
-    metaDataMap.insert(QLatin1String("TITLE"),
-                       QString::fromUtf8(libvlc_media_get_meta(p_vlc_media, libvlc_meta_Title)));
+                       QString::fromUtf8(artist));
     metaDataMap.insert(QLatin1String("DATE"),
                        QString::fromUtf8(libvlc_media_get_meta(p_vlc_media, libvlc_meta_Date)));
     metaDataMap.insert(QLatin1String("GENRE"),
@@ -511,11 +525,6 @@ void VLCMediaObject::updateMetaData()
     }
 
     p_vlc_meta_data = metaDataMap;
-
-    qDebug() << "updateMetaData(): artist:"
-             << libvlc_media_get_meta(p_vlc_media, libvlc_meta_Artist);
-    qDebug() << "updateMetaData(): title:"
-             << libvlc_media_get_meta(p_vlc_media, libvlc_meta_Title);
 
     emit metaDataChanged(metaDataMap);
 }
