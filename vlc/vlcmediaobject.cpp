@@ -64,7 +64,8 @@ VLCMediaObject::VLCMediaObject(QObject *parent)
     p_vlc_media_discoverer = 0;
     p_vlc_media_discoverer_event_manager = 0;
 
-    i_total_time = 0;
+    // default to -1, so that streams won't break and to comply with the docs (-1 if unknown)
+    i_total_time = -1;
     b_has_video = false;
     b_seekable = false;
     p_seek_point = 0;

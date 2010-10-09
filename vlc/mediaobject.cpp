@@ -169,7 +169,7 @@ void MediaObject::tickInternalSlot(qint64 currentTime)
                 emit prefinishMarkReached(totalTime - currentTime);
             }
         }
-        if (currentTime >= totalTime - ABOUT_TO_FINISH_TIME) {
+        if (totalTime > -1 && currentTime >= totalTime - ABOUT_TO_FINISH_TIME) {
             emitAboutToFinish();
         }
     }
