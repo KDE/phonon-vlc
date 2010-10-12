@@ -103,6 +103,8 @@ public:
     qint32 transitionTime() const;
     void setTransitionTime(qint32);
 
+    void emitAboutToFinish();
+
 signals:
 
     void aboutToFinish();

@@ -170,11 +170,7 @@ void MediaObject::tickInternalSlot(qint64 currentTime)
             }
         }
         if (currentTime >= totalTime - ABOUT_TO_FINISH_TIME) {
-            if (!b_about_to_finish_emitted) {
-                // Track is about to finish
-                b_about_to_finish_emitted = true;
-                emit aboutToFinish();
-            }
+            emitAboutToFinish();
         }
     }
 }
@@ -452,6 +448,15 @@ qint32 MediaObject::transitionTime() const
 void MediaObject::setTransitionTime(qint32 time)
 {
     i_transition_time = time;
+}
+
+void MediaObject::emitAboutToFinish()
+{
+    if (!b_about_to_finish_emitted) {
+        // Track is about to finish
+        b_about_to_finish_emitted = true;
+        emit aboutToFinish();
+    }
 }
 
 /**
