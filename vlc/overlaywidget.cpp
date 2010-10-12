@@ -21,7 +21,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA *
  *****************************************************************************/
 
-#include "widgetnopaintevent.h"
+#include "overlaywidget.h"
 
 #include <QtGui/QPainter>
 
@@ -29,7 +29,7 @@ namespace Phonon
 {
 namespace VLC
 {
-WidgetNoPaintEvent::WidgetNoPaintEvent(QWidget *parent) :
+OverlayWidget::OverlayWidget(QWidget *parent) :
     BaseWidget(parent)
 {
     // When resizing fill with black (backgroundRole color) the rest is done by paintEvent
@@ -46,7 +46,7 @@ WidgetNoPaintEvent::WidgetNoPaintEvent(QWidget *parent) :
     setMouseTracking(true);
 }
 
-void WidgetNoPaintEvent::paintEvent(QPaintEvent *event)
+void OverlayWidget::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
     // FIXME this makes the video flicker
@@ -55,7 +55,7 @@ void WidgetNoPaintEvent::paintEvent(QPaintEvent *event)
     painter.eraseRect(rect());
 }
 
-void WidgetNoPaintEvent::setBackgroundColor(const QColor &color)
+void OverlayWidget::setBackgroundColor(const QColor &color)
 {
     QPalette p = palette();
     p.setColor(backgroundRole(), color);

@@ -48,6 +48,7 @@ set(phonon_vlc_SRCS
     effectmanager.cpp
     mediacontroller.cpp
     mediaobject.cpp
+    overlaywidget.cpp
     seekstack.cpp
     sinknode.cpp
     streamhooks.cpp
@@ -59,7 +60,6 @@ set(phonon_vlc_SRCS
     vlcmediacontroller.cpp
     vlcmediaobject.cpp
     vlcvideowidget.cpp
-    widgetnopaintevent.cpp
     ${phonon_vlc_experimental_SRCS}
 )
 

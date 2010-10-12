@@ -24,7 +24,7 @@
 #ifndef PHONON_VLC_VLCVIDEOWIDGET_H
 #define PHONON_VLC_VLCVIDEOWIDGET_H
 
-#include "widgetnopaintevent.h"
+#include "overlaywidget.h"
 
 #include <QtGui/QWidget>
 
@@ -47,7 +47,7 @@ class VideoWidget;
  * @see VideoWidget
  * @see VLCMediaObject
  */
-class VLCVideoWidget : public WidgetNoPaintEvent
+class VLCVideoWidget : public OverlayWidget
 {
     Q_OBJECT
 public:

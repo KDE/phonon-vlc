@@ -32,7 +32,7 @@
 #include "streamreader.h"
 
 // for BaseWidget
-#include "widgetnopaintevent.h"
+#include "overlaywidget.h"
 
 
 namespace Phonon

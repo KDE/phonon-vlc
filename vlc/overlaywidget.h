@@ -43,7 +43,7 @@ namespace VLC
  *
  * Does not handle paintEvent()
  */
-class WidgetNoPaintEvent : public BaseWidget
+class OverlayWidget : public BaseWidget
 {
     Q_OBJECT
 
@@ -53,7 +53,7 @@ public:
      *
      * @param parent parent widget
      */
-    WidgetNoPaintEvent(QWidget *parent);
+    OverlayWidget(QWidget *parent);
 
     /**
      * Sets the background color.

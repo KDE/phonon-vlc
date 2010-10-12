@@ -35,7 +35,7 @@ namespace VLC
 {
 
 VLCVideoWidget::VLCVideoWidget(QWidget *parent, VideoWidget *videoWidget) :
-    WidgetNoPaintEvent(parent),
+    OverlayWidget(parent),
     m_videoWidget(videoWidget),
     m_customRender(false)
 {
@@ -107,7 +107,7 @@ void VLCVideoWidget::paintEvent(QPaintEvent *event)
         // TODO: more sensible rect calculation.
         painter.drawImage(rect(), m_frame);
     } else {
-        WidgetNoPaintEvent::paintEvent(event);
+        OverlayWidget::paintEvent(event);
     }
 }
 
