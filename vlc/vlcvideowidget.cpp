@@ -36,7 +36,8 @@ namespace VLC
 
 VLCVideoWidget::VLCVideoWidget(QWidget *parent, VideoWidget *videoWidget) :
     WidgetNoPaintEvent(parent),
-    m_videoWidget(videoWidget)
+    m_videoWidget(videoWidget),
+    m_customRender(false)
 {
     // Set background color
     setBackgroundColor(Qt::black);
@@ -106,7 +107,7 @@ void VLCVideoWidget::paintEvent(QPaintEvent *event)
         // TODO: more sensible rect calculation.
         painter.drawImage(rect(), m_frame);
     } else {
-        QWidget::paintEvent(event);
+        WidgetNoPaintEvent::paintEvent(event);
     }
 }
 
