@@ -62,7 +62,7 @@ public:
      */
     void setBackgroundColor(const QColor &color);
 
-private:
+protected:
     /*
      * Overloaded from BaseWidget (QWidget)
      */
