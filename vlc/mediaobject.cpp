@@ -408,13 +408,18 @@ void MediaObject::loadStream()
     char srptr[64];
     snprintf(srptr, sizeof(srptr), formatstr, streamReader);
 
-    loadMedia("imem/ffmpeg://");
+    loadMedia("imem://");
 
     setOption("imem-cat=4");
     setOption(QString("imem-data=%1").arg(srptr));
     setOption(QString("imem-get=%1").arg(rptr));
     setOption(QString("imem-release=%1").arg(rdptr));
     setOption(QString("imem-seek=%1").arg(sptr));
+
+    // if stream has known size, we may pass it
+    // imem module will use it and pass it to demux
+    if( streamReader->streamSize() > 0 )
+        setOption(QString("imem-size=%1").arg( streamReader->streamSize() ));
 }
 
 /**
