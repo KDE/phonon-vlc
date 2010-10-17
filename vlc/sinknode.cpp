@@ -74,8 +74,10 @@ void SinkNode::disconnectFromMediaObject(PrivateMediaObject *mediaObject)
         qCritical() << __FUNCTION__ << "SinkNode was not connected to mediaObject";
     }
 
-    p_media_object->removeSink(this);
-    disconnect(p_media_object, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
+    if( p_media_object ){
+        p_media_object->removeSink(this);
+        disconnect(p_media_object, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
+    }
 }
 
 #ifndef PHONON_VLC_NO_EXPERIMENTAL

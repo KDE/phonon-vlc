@@ -565,7 +565,8 @@ void VLCMediaObject::addSink(SinkNode *node)
  */
 void VLCMediaObject::removeSink(SinkNode *node)
 {
-    m_sinks.removeAll(node);
+    if( node != NULL )
+        m_sinks.removeAll(node);
 }
 
 /**
