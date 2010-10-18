@@ -134,7 +134,7 @@ void VLCMediaObject::setVLCVideoWidget()
 #elif defined(Q_OS_UNIX)
     libvlc_media_player_set_xwindow(p_vlc_media_player, p_video_widget->winId());
 #elif defined(Q_OS_WIN)
-    libvlc_media_player_set_hwnd(p_vlc_media_player, p_video_widget->windId());
+    libvlc_media_player_set_hwnd(p_vlc_media_player, p_video_widget->winId());
 #endif
 }
 
