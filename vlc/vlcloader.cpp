@@ -81,6 +81,9 @@ bool vlcInit(int debugLevl)
             verboseLevl.constData(),
             "--reset-plugins-cache",
             "--no-media-library",
+#ifdef Q_WS_X11
+            "--no-xlib",
+#endif
 #ifndef Q_OS_MAC
             "--no-one-instance",
 #endif
