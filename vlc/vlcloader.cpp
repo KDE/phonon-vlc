@@ -79,7 +79,6 @@ bool vlcInit(int debugLevl)
             log.constData(),
             logFile.constData(),
             verboseLevl.constData(),
-            "--intf=dummy",
             "--reset-plugins-cache",
             "--no-media-library",
 #ifndef Q_OS_MAC
