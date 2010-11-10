@@ -208,7 +208,9 @@ void VLCMediaObject::pause()
     libvlc_media_t *media = libvlc_media_player_get_media(p_vlc_media_player);
 
     if (state() == Phonon::PausedState) {
+#ifdef __GNUC__
 #warning HACK!!!! -> after loading we are in pause, even though no media is loaded
+#endif
         if (media == 0) {
             // Nothing playing yet -> play
             playInternal();
