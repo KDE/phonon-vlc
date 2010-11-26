@@ -158,6 +158,8 @@ void VLCMediaObject::playInternal()
         p_vlc_media = 0;
     }
 
+    i_total_time = -1;
+
     // Create a media with the given MRL
     p_vlc_media = libvlc_media_new_location(vlc_instance, p_current_file);
     if (!p_vlc_media) {
