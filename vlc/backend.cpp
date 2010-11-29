@@ -39,7 +39,7 @@
 #endif // PHONON_VLC_NO_EXPERIMENTAL
 
 #ifdef PHONON_PULSESUPPORT
-#  include <phonon/pulsesupport.h>
+#include <phonon/pulsesupport.h>
 #endif
 
 #include <QtCore/QSet>
