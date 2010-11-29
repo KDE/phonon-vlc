@@ -1,4 +1,4 @@
-project(Phonon)
+project(PhononVLC)
 
 cmake_minimum_required(VERSION 2.6.2 FATAL_ERROR)
 
@@ -216,8 +216,8 @@ add_definitions(-DPHONON_LIB_INSTALL_DIR="${LIB_INSTALL_DIR}")
 if(APPLE)
    set(INSTALL_TARGETS_DEFAULT_ARGS  ${INSTALL_TARGETS_DEFAULT_ARGS}
                                      BUNDLE DESTINATION "${BUNDLE_INSTALL_DIR}" )
-	set(CMAKE_SHARED_MODULE_CREATE_C_FLAGS   "${CMAKE_SHARED_MODULE_CREATE_C_FLAGS}   -flat_namespace -undefined dynamic_lookup")
-	set(CMAKE_SHARED_MODULE_CREATE_CXX_FLAGS "${CMAKE_SHARED_MODULE_CREATE_CXX_FLAGS} -flat_namespace -undefined dynamic_lookup")
+        set(CMAKE_SHARED_MODULE_CREATE_C_FLAGS   "${CMAKE_SHARED_MODULE_CREATE_C_FLAGS}   -flat_namespace -undefined dynamic_lookup")
+        set(CMAKE_SHARED_MODULE_CREATE_CXX_FLAGS "${CMAKE_SHARED_MODULE_CREATE_CXX_FLAGS} -flat_namespace -undefined dynamic_lookup")
 endif(APPLE)
 
 if (CMAKE_SYSTEM_NAME MATCHES Linux)
