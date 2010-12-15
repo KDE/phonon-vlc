@@ -101,7 +101,9 @@ Backend::Backend(QObject *parent, const QVariantList &)
 Backend::~Backend()
 {
 //    vlcRelease();
+#ifdef PHONON_PULSESUPPORT
     PulseSupport::shutdown();
+#endif
 }
 
 /**

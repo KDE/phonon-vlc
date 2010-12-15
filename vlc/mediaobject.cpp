@@ -330,7 +330,7 @@ void MediaObject::setSource(const MediaSource &source)
             return;
         case Phonon::Cd:
             qDebug() << mediaSource.deviceName();
-            loadMedia(mediaSource.deviceName());
+            loadMedia("cdda://" + mediaSource.deviceName());
             break;
         case Phonon::Dvd:
             loadMedia("dvd://" + mediaSource.deviceName());
