@@ -6,7 +6,7 @@ include_directories(${QT_INCLUDES}
 
 if (MSVC)
     set (CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX}/share/apps/cmake/modules)
-    find_package(KDEWIN)
+    find_package(KDEWin)
         if (KDEWIN_FOUND)
             include_directories(${KDEWIN_INCLUDES}/msvc)
             link_libraries(${KDEWIN_LIBRARIES})
