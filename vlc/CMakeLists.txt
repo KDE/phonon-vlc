@@ -5,6 +5,8 @@ include_directories(${QT_INCLUDES}
                     ${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_BINARY_DIR})
 
+add_definitions(-DPHONON_LIB_INSTALL_DIR="${LIB_INSTALL_DIR}")
+
 if (MSVC)
     set (CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX}/share/apps/cmake/modules)
     find_package(KDEWin)
