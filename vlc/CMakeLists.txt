@@ -2,7 +2,8 @@ project(phonon-vlc)
 include_directories(${QT_INCLUDES}
                     ${PHONON_INCLUDE_DIR}
                     ${LIBVLC_INCLUDE_DIR}
-                    ${CMAKE_CURRENT_SOURCE_DIR})
+                    ${CMAKE_CURRENT_SOURCE_DIR}
+                    ${CMAKE_CURRENT_BINARY_DIR})
 
 if (MSVC)
     set (CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX}/share/apps/cmake/modules)
