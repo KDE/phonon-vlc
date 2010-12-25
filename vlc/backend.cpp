@@ -69,7 +69,7 @@ Backend::Backend(QObject *parent, const QVariantList &)
     setProperty("identifier",     QLatin1String("phonon_vlc"));
     setProperty("backendName",    QLatin1String("VLC"));
     setProperty("backendComment", QLatin1String("VLC backend for Phonon"));
-    setProperty("backendVersion", QLatin1String("0.3-Git"));
+    setProperty("backendVersion", QLatin1String(PHONON_VLC_VERSION));
     setProperty("backendIcon",    QLatin1String("vlc"));
     setProperty("backendWebsite", QLatin1String("http://gitorious.org/phonon/phonon-vlc"));
 

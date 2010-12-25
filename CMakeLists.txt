@@ -28,7 +28,12 @@ endif(MSVC)
 
 include_directories(${QT_INCLUDES} ${PHONON_INCLUDES})
 
+set(PHONON_VLC_MAJOR_VERSION "0")
+set(PHONON_VLC_MINOR_VERSION "3")
+set(PHONON_VLC_PATCH_VERSION "2")
+set(PHONON_VLC_VERSION "${PHONON_VLC_MAJOR_VERSION}.${PHONON_VLC_MINOR_VERSION}.${PHONON_VLC_PATCH_VERSION}")
+add_definitions(-DPHONON_VLC_VERSION="${PHONON_VLC_VERSION}")
+
 add_subdirectory(vlc)
 
 macro_display_feature_log()
-
