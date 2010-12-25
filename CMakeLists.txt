@@ -27,7 +27,7 @@ if(MSVC)
 endif(MSVC)
 
 # for including config.h and for includes like <kparts/foo.h>
-include_directories(${QT_INCLUDES} ${PHONON_INCLUDES})
+include_directories(${QT_INCLUDES} ${PHONON_INCLUDES} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/includes ${CMAKE_CURRENT_SOURCE_DIR}/phonon ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/phonon)
 
 list(APPEND PHONON_LIBS ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
 if(QT_QTDBUS_FOUND)
