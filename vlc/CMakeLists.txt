@@ -1,9 +1,4 @@
-project(phonon-vlc)
-include_directories(${QT_INCLUDES}
-                    ${PHONON_INCLUDE_DIR}
-                    ${LIBVLC_INCLUDE_DIR}
-                    ${CMAKE_CURRENT_SOURCE_DIR}
-                    ${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 add_definitions(-DPHONON_LIB_INSTALL_DIR="${LIB_INSTALL_DIR}")
 
@@ -66,8 +61,6 @@ set(phonon_vlc_SRCS
     ${phonon_vlc_experimental_SRCS}
 )
 
-automoc4(phonon_vlc phonon_vlc_SRCS)
-
 if(APPLE)
 set(phonon_vlc_mac_SRCS
      nsvideoview.mm
@@ -75,10 +68,14 @@ set(phonon_vlc_mac_SRCS
      vlcvideoview.mm)
 endif(APPLE)
 
-add_library(phonon_vlc MODULE ${phonon_vlc_SRCS} ${phonon_vlc_mac_SRCS})
+automoc4_add_library(phonon_vlc MODULE ${phonon_vlc_SRCS} )
 
 set_target_properties(phonon_vlc PROPERTIES PREFIX "")
-target_link_libraries(phonon_vlc ${PHONON_LIBS} ${LIBVLC_LIBRARY} ${LIBVLCCORE_LIBRARY})
+target_link_libraries(phonon_vlc ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${PHONON_LIBRARY} ${LIBVLC_LIBRARY} ${LIBVLCCORE_LIBRARY})
+
+if(QT_QTDBUS_FOUND)
+    target_link_libraries(phonon_vlc ${QT_QTDBUS_LIBRARY})
+endif(QT_QTDBUS_FOUND)
 
 if (V4L2_FOUND)
     target_link_libraries(phonon_vlc ${V4L2_LIBRARY})

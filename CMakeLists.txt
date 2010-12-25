@@ -1,4 +1,4 @@
-project(Phonon)
+project(PhononVLC)
 
 cmake_minimum_required(VERSION 2.6.2 FATAL_ERROR)
 
@@ -26,13 +26,7 @@ if(MSVC)
   remove_definitions(-DQT_DEBUG)
 endif(MSVC)
 
-# for including config.h and for includes like <kparts/foo.h>
-include_directories(${QT_INCLUDES} ${PHONON_INCLUDES} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/includes ${CMAKE_CURRENT_SOURCE_DIR}/phonon ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/phonon)
-
-list(APPEND PHONON_LIBS ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
-if(QT_QTDBUS_FOUND)
-    list(APPEND PHONON_LIBS ${QT_QTDBUS_LIBRARY})
-endif(QT_QTDBUS_FOUND)
+include_directories(${QT_INCLUDES} ${PHONON_INCLUDES})
 
 add_subdirectory(vlc)
 
