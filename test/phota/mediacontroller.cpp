@@ -1,8 +1,10 @@
 #include "mediacontroller.h"
 
 #include <QtGui/QFileDialog>
-#include <Phonon/MediaSource>
-#include <Phonon/MediaObject>
+//#include <Phonon/MediaSource>
+//#include <Phonon/MediaObject>
+#include <phonon/mediasource.h>
+#include <phonon/mediaobject.h>
 
 using namespace Phonon;
 

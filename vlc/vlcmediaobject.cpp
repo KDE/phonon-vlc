@@ -125,14 +125,14 @@ void VLCMediaObject::loadMediaInternal(const QString &filename)
 void VLCMediaObject::setVLCVideoWidget()
 {
     // Nothing to do if there is no video widget
-    if (!p_video_widget)
+    if (!m_videoWidget)
         return;
 
     // Get our media player to use our window
 #if defined(Q_OS_MAC)
     libvlc_media_player_set_nsobject(p_vlc_media_player, p_video_widget->cocoaView());
 #elif defined(Q_OS_UNIX)
-    libvlc_media_player_set_xwindow(p_vlc_media_player, p_video_widget->winId());
+    libvlc_media_player_set_xwindow(p_vlc_media_player, m_videoWidget->winId());
 #elif defined(Q_OS_WIN)
     libvlc_media_player_set_hwnd(p_vlc_media_player, p_video_widget->winId());
 #endif
@@ -234,7 +234,7 @@ void VLCMediaObject::pause()
  */
 void VLCMediaObject::stop()
 {
-    p_next_source = MediaSource(QUrl());
+    m_nextSource = MediaSource(QUrl());
     libvlc_media_player_stop(p_vlc_media_player);
 //    unloadMedia();
     emit stateChanged(Phonon::StoppedState);
