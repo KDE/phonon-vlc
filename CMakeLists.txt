@@ -1,7 +1,6 @@
 project(PhononVLC)
 
 cmake_minimum_required(VERSION 2.6.2 FATAL_ERROR)
-
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 
 # Phonon
@@ -21,10 +20,6 @@ find_package(LIBVLC REQUIRED)
 
 add_definitions(${QT_DEFINITIONS})
 remove_definitions(-DQT3_SUPPORT_WARNINGS -DQT3_SUPPORT)
-if(MSVC)
-  add_definitions( -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -D_SCL_SECURE_NO_WARNINGS -DQT_NO_DEBUG)
-  remove_definitions(-DQT_DEBUG)
-endif(MSVC)
 
 include_directories(${QT_INCLUDES} ${PHONON_INCLUDES})
 
