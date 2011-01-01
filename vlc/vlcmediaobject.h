@@ -152,15 +152,15 @@ private:
     libvlc_media_discoverer_t *p_vlc_media_discoverer;
     libvlc_event_manager_t *p_vlc_media_discoverer_event_manager;
 
-    qint64 i_total_time;
-    QByteArray p_current_file;
-    QMultiMap<QString, QString> p_vlc_meta_data;
+    qint64 m_totalTime;
+    QByteArray m_currentFile;
+    QMultiMap<QString, QString> m_vlcMetaData;
     QList<SinkNode *> m_sinks;
 
-    bool b_has_video;
+    bool m_hasVideo;
 
-    bool b_seekable;
-    qint64 p_seek_point;
+    bool m_seekable;
+    qint64 m_seekpoint;
 };
 
 }

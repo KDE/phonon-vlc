@@ -140,6 +140,10 @@ protected:
     BaseWidget *m_videoWidget;
     MediaSource m_nextSource;
 
+    MediaSource m_mediaSource;
+    StreamReader *m_streamReader;
+    Phonon::State m_currentState;
+
 private slots:
 
     void stateChangedInternal(Phonon::State newState);
@@ -157,9 +161,6 @@ private:
 
     QString PhononStateToString(Phonon::State newState);
 
-    MediaSource m_mediaSource;
-    StreamReader *m_streamReader;
-    Phonon::State m_currentState;
 
     qint32 m_prefinishMark;
     bool m_prefinishEmitted;

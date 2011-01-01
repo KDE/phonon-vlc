@@ -33,6 +33,8 @@
 #include <QtCore/QTimer>
 #include <QtCore/QtDebug>
 
+#include "streamhooks.h"
+
 namespace Phonon
 {
 namespace VLC
@@ -65,10 +67,10 @@ VLCMediaObject::VLCMediaObject(QObject *parent)
     p_vlc_media_discoverer_event_manager = 0;
 
     // default to -1, so that streams won't break and to comply with the docs (-1 if unknown)
-    i_total_time = -1;
-    b_has_video = false;
-    b_seekable = false;
-    p_seek_point = 0;
+    m_totalTime = -1;
+    m_hasVideo = false;
+    m_seekable = false;
+    m_seekpoint = 0;
 
     connect(this, SIGNAL(metaDataNeedsRefresh()), this, SLOT(updateMetaData()));
     connect(this, SIGNAL(durationChanged(qint64)), this, SLOT(updateDuration(qint64)));
@@ -110,7 +112,7 @@ void VLCMediaObject::loadMediaInternal(const QString &filename)
 {
     qDebug() << __FUNCTION__ << filename;
 
-    p_current_file = QUrl::toPercentEncoding(filename, ":/?=&,");
+    m_currentFile = QUrl::toPercentEncoding(filename, ":/?=&,");
 
     // Why is this needed???
     emit stateChanged(Phonon::StoppedState);
@@ -158,13 +160,48 @@ void VLCMediaObject::playInternal()
         p_vlc_media = 0;
     }
 
-    i_total_time = -1;
+
+    m_totalTime = -1;
 
     // Create a media with the given MRL
-    p_vlc_media = libvlc_media_new_location(vlc_instance, p_current_file);
+    p_vlc_media = libvlc_media_new_location(vlc_instance, m_currentFile);
     if (!p_vlc_media) {
         qDebug() << "libvlc exception:" << libvlc_errmsg();
     }
+
+    if (m_currentFile == "imem://") {
+#ifdef _MSC_VER
+            char formatstr[] = "0x%p";
+#else
+            char formatstr[] = "%p";
+#endif
+
+            char rptr[64];
+            snprintf(rptr, sizeof(rptr), formatstr, streamReadCallback);
+
+            char rdptr[64];
+            snprintf(rdptr, sizeof(rdptr), formatstr, streamReadDoneCallback);
+
+            char sptr[64];
+            snprintf(sptr, sizeof(sptr), formatstr, streamSeekCallback);
+
+            char srptr[64];
+            snprintf(srptr, sizeof(srptr), formatstr, m_streamReader);
+
+
+            setOption("imem-cat=4");
+            setOption(QString("imem-data=%1").arg(srptr));
+            setOption(QString("imem-get=%1").arg(rptr));
+            setOption(QString("imem-release=%1").arg(rdptr));
+            setOption(QString("imem-seek=%1").arg(sptr));
+
+            // if stream has known size, we may pass it
+            // imem module will use it and pass it to demux
+            if( m_streamReader->streamSize() > 0 )
+                setOption(QString("imem-size=%1").arg( m_streamReader->streamSize() ));
+
+    }
+
 
     foreach(SinkNode * sink, m_sinks) {
         sink->addToMedia(p_vlc_media);
@@ -194,9 +231,9 @@ void VLCMediaObject::playInternal()
         qDebug() << "libvlc exception:" << libvlc_errmsg();
     }
 
-    if (p_seek_point != 0) {  // Workaround that seeking needs to work before the file is being played...
-        seekInternal(p_seek_point);
-        p_seek_point = 0;
+    if (m_seekpoint != 0) {  // Workaround that seeking needs to work before the file is being played...
+        seekInternal(m_seekpoint);
+        m_seekpoint = 0;
     }
 
     emit stateChanged(Phonon::PlayingState);
@@ -246,7 +283,7 @@ void VLCMediaObject::stop()
 void VLCMediaObject::seekInternal(qint64 milliseconds)
 {
     if (state() != Phonon::PlayingState) {  // Is we aren't playing, seeking is invalid...
-        p_seek_point = milliseconds;
+        m_seekpoint = milliseconds;
     }
 
     qDebug() << __FUNCTION__ << milliseconds;
@@ -263,12 +300,12 @@ QString VLCMediaObject::errorString() const
 
 bool VLCMediaObject::hasVideo() const
 {
-    return b_has_video;
+    return m_hasVideo;
 }
 
 bool VLCMediaObject::isSeekable() const
 {
-    return b_seekable;
+    return m_seekable;
 }
 
 /**
@@ -360,9 +397,9 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user
     // Media player events
     if (p_event->type == libvlc_MediaPlayerSeekableChanged) {
         const bool b_seekable = libvlc_media_player_is_seekable(p_vlc_mediaObject->p_vlc_media_player);
-        if (b_seekable != p_vlc_mediaObject->b_seekable) {
-            p_vlc_mediaObject->b_seekable = b_seekable;
-            emit p_vlc_mediaObject->seekableChanged(p_vlc_mediaObject->b_seekable);
+        if (b_seekable != p_vlc_mediaObject->m_seekable) {
+            p_vlc_mediaObject->m_seekable = b_seekable;
+            emit p_vlc_mediaObject->seekableChanged(p_vlc_mediaObject->m_seekable);
         }
     }
     if (p_event->type == libvlc_MediaPlayerTimeChanged) {
@@ -382,9 +419,9 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user
 
             // Does this media player have a video output
             const bool b_has_video = libvlc_media_player_has_vout(p_vlc_mediaObject->p_vlc_media_player);
-            if (b_has_video != p_vlc_mediaObject->b_has_video) {
-                p_vlc_mediaObject->b_has_video = b_has_video;
-                emit p_vlc_mediaObject->hasVideoChanged(p_vlc_mediaObject->b_has_video);
+            if (b_has_video != p_vlc_mediaObject->m_hasVideo) {
+                p_vlc_mediaObject->m_hasVideo = b_has_video;
+                emit p_vlc_mediaObject->hasVideoChanged(p_vlc_mediaObject->m_hasVideo);
             }
 
             if (b_has_video) {
@@ -524,19 +561,19 @@ void VLCMediaObject::updateMetaData()
     metaDataMap.insert(QLatin1String("ENCODEDBY"),
                        QString::fromUtf8(libvlc_media_get_meta(p_vlc_media, libvlc_meta_EncodedBy)));
 
-    if (metaDataMap == p_vlc_meta_data) {
+    if (metaDataMap == m_vlcMetaData) {
         // No need to issue any change, the data is the same
         return;
     }
 
-    p_vlc_meta_data = metaDataMap;
+    m_vlcMetaData = metaDataMap;
 
     emit metaDataChanged(metaDataMap);
 }
 
 qint64 VLCMediaObject::totalTime() const
 {
-    return i_total_time;
+    return m_totalTime;
 }
 
 qint64 VLCMediaObject::currentTimeInternal() const
@@ -550,11 +587,11 @@ qint64 VLCMediaObject::currentTimeInternal() const
 void VLCMediaObject::updateDuration(qint64 newDuration)
 {
     // If its within 5ms of the current total time, don't bother....
-    if (newDuration - 5 > i_total_time || newDuration + 5 < i_total_time) {
-        qDebug() << __FUNCTION__ << "Length changing from " << i_total_time
+    if (newDuration - 5 > m_totalTime || newDuration + 5 < m_totalTime) {
+        qDebug() << __FUNCTION__ << "Length changing from " << m_totalTime
                  << " to " << newDuration;
-        i_total_time = newDuration;
-        emit totalTimeChanged(i_total_time);
+        m_totalTime = newDuration;
+        emit totalTimeChanged(m_totalTime);
     }
 }
 
@@ -590,6 +627,8 @@ void VLCMediaObject::removeSink(SinkNode *node)
  */
 void VLCMediaObject::setOption(QString opt)
 {
+    Q_ASSERT(p_vlc_media);
+    qDebug() << Q_FUNC_INFO << opt;
     libvlc_media_add_option_flag(p_vlc_media, opt.toLocal8Bit(), libvlc_media_option_trusted);
 }
 

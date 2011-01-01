@@ -366,9 +366,7 @@ void MediaObject::setSource(const MediaSource &source)
         break;
 #endif // PHONON_VLC_NO_EXPERIMENTAL
     case MediaSource::Stream:
-//        if (!source.url().isEmpty()) {
-            loadStream();
-//        }
+        loadStream();
         break;
     default:
         qCritical() << __FUNCTION__ << "Error: Unsupported MediaSource Type:" << source.type();
@@ -391,36 +389,6 @@ void MediaObject::loadStream()
     m_streamReader = new StreamReader(m_mediaSource);
 
     loadMedia("imem://");
-
-#ifdef _MSC_VER
-    char formatstr[] = "0x%p";
-#else
-    char formatstr[] = "%p";
-#endif
-
-    char rptr[64];
-    snprintf(rptr, sizeof(rptr), formatstr, streamReadCallback);
-
-    char rdptr[64];
-    snprintf(rdptr, sizeof(rdptr), formatstr, streamReadDoneCallback);
-
-    char sptr[64];
-    snprintf(sptr, sizeof(sptr), formatstr, streamSeekCallback);
-
-    char srptr[64];
-    snprintf(srptr, sizeof(srptr), formatstr, m_streamReader);
-
-
-    setOption("imem-cat=4");
-    setOption(QString("imem-data=%1").arg(srptr));
-    setOption(QString("imem-get=%1").arg(rptr));
-    setOption(QString("imem-release=%1").arg(rdptr));
-    setOption(QString("imem-seek=%1").arg(sptr));
-
-    // if stream has known size, we may pass it
-    // imem module will use it and pass it to demux
-    if( m_streamReader->streamSize() > 0 )
-        setOption(QString("imem-size=%1").arg( m_streamReader->streamSize() ));
 }
 
 /**

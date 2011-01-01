@@ -45,6 +45,10 @@ along with this library.  If not, see <http://www.gnu.org/licenses/>.
 #include <phonon/mediasource.h>
 #include <phonon/streaminterface.h>
 
+#include <QMutex>
+#include <QMutexLocker>
+#include <QWaitCondition>
+
 QT_BEGIN_NAMESPACE
 
 #ifndef QT_NO_PHONON_ABSTRACTMEDIASTREAM
@@ -72,7 +76,7 @@ class StreamReader : public Phonon::StreamInterface
 public:
 
     StreamReader(const Phonon::MediaSource &source)
-        :  m_pos(0)
+        : m_pos(0)
         , m_size(0)
         , m_seekable(false) {
         connectToSource(source);
@@ -82,17 +86,9 @@ public:
         return m_buffer.size();
     }
 
-    void writeData(const QByteArray &data) {
-        m_buffer += data;
-    }
+    void writeData(const QByteArray &data);
 
-    void setCurrentPos(qint64 pos) {
-        m_pos = pos;
-        m_buffer.clear();
-        m_size = 0;
-
-        seekStream(pos);
-    }
+    void setCurrentPos(qint64 pos);
 
     quint64 currentPos() const {
         return m_pos;
@@ -100,7 +96,9 @@ public:
 
     bool read(quint64 offset, int *length, char *buffer);
 
-    void endOfData() {}
+    void endOfData() {
+        m_waitingForData.wakeAll();
+    }
 
     void setStreamSize(qint64 newSize) {
         m_size = newSize;
@@ -123,7 +121,10 @@ protected:
     quint64 m_pos;
     quint64 m_size;
     bool m_seekable;
+    QMutex m_mutex;
+    QWaitCondition m_waitingForData;
 };
+
 }
 }
 

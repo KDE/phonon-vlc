@@ -29,6 +29,7 @@ using namespace Phonon::VLC;
 
 int c_stream_read(void *p_streamReaderCtx, size_t *i_length, char **p_buffer)
 {
+
     StreamReader *streamReader = (StreamReader *)p_streamReaderCtx;
     size_t length = BLOCKSIZE;
 
