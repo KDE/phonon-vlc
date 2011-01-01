@@ -59,6 +59,8 @@ class MediaSource;
 namespace VLC
 {
 
+class MediaObject;
+
 /** \brief Class for supporting custom data streams to the backend
  *
  * This class receives data from a Phonon MediaSource that is a stream.
@@ -75,10 +77,11 @@ class StreamReader : public Phonon::StreamInterface
 {
 public:
 
-    StreamReader(const Phonon::MediaSource &source)
+    StreamReader(const Phonon::MediaSource &source, MediaObject *parent)
         : m_pos(0)
         , m_size(0)
-        , m_seekable(false) {
+        , m_seekable(false)
+        , m_mediaObject(parent) {
         connectToSource(source);
     }
 
@@ -123,6 +126,7 @@ protected:
     bool m_seekable;
     QMutex m_mutex;
     QWaitCondition m_waitingForData;
+    MediaObject *m_mediaObject;
 };
 
 }

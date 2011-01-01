@@ -386,7 +386,7 @@ void MediaObject::setSource(const MediaSource &source)
  */
 void MediaObject::loadStream()
 {
-    m_streamReader = new StreamReader(m_mediaSource);
+    m_streamReader = new StreamReader(m_mediaSource, this);
 
     loadMedia("imem://");
 }

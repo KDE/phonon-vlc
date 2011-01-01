@@ -38,7 +38,7 @@ along with this library.  If not, see <http://www.gnu.org/licenses/>.
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA *
  *****************************************************************************/
 
-
+#include "mediaobject.h"
 #include "streamreader.h"
 
 #include <phonon/streaminterface.h>
@@ -99,7 +99,11 @@ void StreamReader::writeData(const QByteArray &data)
 {
     QMutexLocker lock(&m_mutex);
     m_buffer += data;
+
     m_waitingForData.wakeAll();
+
+    if (m_mediaObject->state() != Phonon::BufferingState && m_mediaObject->state() != Phonon::LoadingState)
+        enoughData();
 }
 
 void StreamReader::setCurrentPos(qint64 pos)
