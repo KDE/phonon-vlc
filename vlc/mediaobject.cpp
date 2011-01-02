@@ -49,15 +49,15 @@ namespace VLC
 MediaObject::MediaObject(QObject *p_parent)
     : QObject(p_parent)
 {
-    currentState = Phonon::StoppedState;
-    p_video_widget = NULL;
-    b_prefinish_mark_reached_emitted = false;
-    b_about_to_finish_emitted = false;
-    i_transition_time = 0;
+    m_currentState = Phonon::StoppedState;
+    m_videoWidget = NULL;
+    m_prefinishEmitted = false;
+    m_aboutToFinishEmitted = false;
+    m_transitionTime = 0;
 
     // By default, no tick() signal
     // FIXME: Not implemented yet
-    i_tick_interval = 0;
+    m_tickInterval = 0;
 
     qRegisterMetaType<QMultiMap<QString, QString> >("QMultiMap<QString, QString>");
 
@@ -70,8 +70,8 @@ MediaObject::MediaObject(QObject *p_parent)
     connect(this, SIGNAL(moveToNext()),
             SLOT(moveToNextSource()));
 
-    p_next_source = MediaSource(QUrl());
-    p_video_widget = NULL;
+    m_nextSource = MediaSource(QUrl());
+    m_videoWidget = NULL;
 }
 
 MediaObject::~MediaObject()
@@ -102,7 +102,7 @@ MediaObject::~MediaObject()
 
 void MediaObject::setVideoWidget(BaseWidget *widget)
 {
-    this->p_video_widget = widget;
+    this->m_videoWidget = widget;
 }
 
 /**
@@ -113,11 +113,11 @@ void MediaObject::play()
 {
     qDebug() << __FUNCTION__;
 
-    if (currentState == Phonon::PausedState) {
+    if (m_currentState == Phonon::PausedState) {
         resume();
     } else {
-        b_prefinish_mark_reached_emitted = false;
-        b_about_to_finish_emitted = false;
+        m_prefinishEmitted = false;
+        m_aboutToFinishEmitted = false;
         // Play the file
         playInternal();
     }
@@ -138,11 +138,11 @@ void MediaObject::seek(qint64 milliseconds)
     qint64 currentTime = this->currentTime();
     qint64 totalTime = this->totalTime();
 
-    if (currentTime < totalTime - i_prefinish_mark) {
-        b_prefinish_mark_reached_emitted = false;
+    if (currentTime < totalTime - m_prefinishMark) {
+        m_prefinishEmitted = false;
     }
     if (currentTime < totalTime - ABOUT_TO_FINISH_TIME) {
-        b_about_to_finish_emitted = false;
+        m_aboutToFinishEmitted = false;
     }
 }
 
@@ -156,16 +156,16 @@ void MediaObject::tickInternalSlot(qint64 currentTime)
 {
     qint64 totalTime = this->totalTime();
 
-    if (i_tick_interval > 0) {
+    if (m_tickInterval > 0) {
         // If _tickInternal == 0 means tick() signal is disabled
         // Default is _tickInternal = 0
         emit tick(currentTime);
     }
 
-    if (currentState == Phonon::PlayingState) {
-        if (currentTime >= totalTime - i_prefinish_mark) {
-            if (!b_prefinish_mark_reached_emitted) {
-                b_prefinish_mark_reached_emitted = true;
+    if (m_currentState == Phonon::PlayingState) {
+        if (currentTime >= totalTime - m_prefinishMark) {
+            if (!m_prefinishEmitted) {
+                m_prefinishEmitted = true;
                 emit prefinishMarkReached(totalTime - currentTime);
             }
         }
@@ -199,7 +199,7 @@ void MediaObject::resume()
  */
 qint32 MediaObject::tickInterval() const
 {
-    return i_tick_interval;
+    return m_tickInterval;
 }
 
 /**
@@ -208,7 +208,7 @@ qint32 MediaObject::tickInterval() const
  */
 void MediaObject::setTickInterval(qint32 tickInterval)
 {
-    i_tick_interval = tickInterval;
+    m_tickInterval = tickInterval;
 //    if (_tickInterval <= 0) {
 //        _tickTimer->setInterval(50);
 //    } else {
@@ -257,7 +257,7 @@ qint64 MediaObject::currentTime() const
  */
 Phonon::State MediaObject::state() const
 {
-    return currentState;
+    return m_currentState;
 }
 
 /**
@@ -273,7 +273,7 @@ Phonon::ErrorType MediaObject::errorType() const
  */
 MediaSource MediaObject::source() const
 {
-    return mediaSource;
+    return m_mediaSource;
 }
 
 /**
@@ -298,7 +298,7 @@ void MediaObject::setSource(const MediaSource &source)
 {
     qDebug() << __FUNCTION__;
 
-    mediaSource = source;
+    m_mediaSource = source;
 
     QByteArray driverName;
     QString deviceName;
@@ -329,14 +329,14 @@ void MediaObject::setSource(const MediaSource &source)
                         << "Error: the MediaSource::Disc doesn't specify which one (Phonon::NoDisc)";
             return;
         case Phonon::Cd:
-            qDebug() << mediaSource.deviceName();
-            loadMedia("cdda://" + mediaSource.deviceName());
+            qDebug() << m_mediaSource.deviceName();
+            loadMedia("cdda://" + m_mediaSource.deviceName());
             break;
         case Phonon::Dvd:
-            loadMedia("dvd://" + mediaSource.deviceName());
+            loadMedia("dvd://" + m_mediaSource.deviceName());
             break;
         case Phonon::Vcd:
-            loadMedia(mediaSource.deviceName());
+            loadMedia(m_mediaSource.deviceName());
             break;
         default:
             qCritical() << __FUNCTION__ << "Error: unsupported MediaSource::Disc:" << source.discType();
@@ -366,16 +366,14 @@ void MediaObject::setSource(const MediaSource &source)
         break;
 #endif // PHONON_VLC_NO_EXPERIMENTAL
     case MediaSource::Stream:
-        if (!source.url().isEmpty()) {
-            loadStream();
-        }
+        loadStream();
         break;
     default:
         qCritical() << __FUNCTION__ << "Error: Unsupported MediaSource Type:" << source.type();
         break;
     }
 
-    emit currentSourceChanged(mediaSource);
+    emit currentSourceChanged(m_mediaSource);
 }
 
 /**
@@ -388,38 +386,9 @@ void MediaObject::setSource(const MediaSource &source)
  */
 void MediaObject::loadStream()
 {
-    streamReader = new StreamReader(mediaSource);
-
-#ifdef _MSC_VER
-    char formatstr[] = "0x%p";
-#else
-    char formatstr[] = "%p";
-#endif
-
-    char rptr[64];
-    snprintf(rptr, sizeof(rptr), formatstr, streamReadCallback);
-
-    char rdptr[64];
-    snprintf(rdptr, sizeof(rdptr), formatstr, streamReadDoneCallback);
-
-    char sptr[64];
-    snprintf(sptr, sizeof(sptr), formatstr, streamSeekCallback);
-
-    char srptr[64];
-    snprintf(srptr, sizeof(srptr), formatstr, streamReader);
+    m_streamReader = new StreamReader(m_mediaSource, this);
 
     loadMedia("imem://");
-
-    setOption("imem-cat=4");
-    setOption(QString("imem-data=%1").arg(srptr));
-    setOption(QString("imem-get=%1").arg(rptr));
-    setOption(QString("imem-release=%1").arg(rdptr));
-    setOption(QString("imem-seek=%1").arg(sptr));
-
-    // if stream has known size, we may pass it
-    // imem module will use it and pass it to demux
-    if( streamReader->streamSize() > 0 )
-        setOption(QString("imem-size=%1").arg( streamReader->streamSize() ));
 }
 
 /**
@@ -428,38 +397,38 @@ void MediaObject::loadStream()
 void MediaObject::setNextSource(const MediaSource &source)
 {
     qDebug() << __FUNCTION__;
-    p_next_source = source;
+    m_nextSource = source;
 }
 
 qint32 MediaObject::prefinishMark() const
 {
-    return i_prefinish_mark;
+    return m_prefinishMark;
 }
 
 void MediaObject::setPrefinishMark(qint32 msecToEnd)
 {
-    i_prefinish_mark = msecToEnd;
-    if (currentTime() < totalTime() - i_prefinish_mark) {
+    m_prefinishMark = msecToEnd;
+    if (currentTime() < totalTime() - m_prefinishMark) {
         // Not about to finish
-        b_prefinish_mark_reached_emitted = false;
+        m_prefinishEmitted = false;
     }
 }
 
 qint32 MediaObject::transitionTime() const
 {
-    return i_transition_time;
+    return m_transitionTime;
 }
 
 void MediaObject::setTransitionTime(qint32 time)
 {
-    i_transition_time = time;
+    m_transitionTime = time;
 }
 
 void MediaObject::emitAboutToFinish()
 {
-    if (!b_about_to_finish_emitted) {
+    if (!m_aboutToFinishEmitted) {
         // Track is about to finish
-        b_about_to_finish_emitted = true;
+        m_aboutToFinishEmitted = true;
         emit aboutToFinish();
     }
 }
@@ -471,22 +440,22 @@ void MediaObject::emitAboutToFinish()
 void MediaObject::stateChangedInternal(Phonon::State newState)
 {
     qDebug() << __FUNCTION__ << "newState:" << PhononStateToString(newState)
-             << "previousState:" << PhononStateToString(currentState) ;
+             << "previousState:" << PhononStateToString(m_currentState) ;
 
-    if (newState == currentState) {
+    if (newState == m_currentState) {
         // State not changed
         return;
     } else if (checkGaplessWaiting()) {
         // This is a no-op, warn that we are....
         qDebug() << __FUNCTION__ << "no-op gapless item awaiting in queue - "
-                 << p_next_source.type() ;
+                 << m_nextSource.type() ;
         return;
     }
 
     // State changed
-    Phonon::State previousState = currentState;
-    currentState = newState;
-    emit stateChanged(currentState, previousState);
+    Phonon::State previousState = m_currentState;
+    m_currentState = newState;
+    emit stateChanged(m_currentState, previousState);
 }
 
 /**
@@ -526,19 +495,19 @@ QString MediaObject::PhononStateToString(Phonon::State newState)
  */
 void MediaObject::moveToNextSource()
 {
-    if (p_next_source.type() == MediaSource::Invalid) {
+    if (m_nextSource.type() == MediaSource::Invalid) {
         // No item is scheduled to be next...
         return;
     }
 
-    setSource(p_next_source);
+    setSource(m_nextSource);
     play();
-    p_next_source = MediaSource(QUrl());
+    m_nextSource = MediaSource(QUrl());
 }
 
 bool MediaObject::checkGaplessWaiting()
 {
-    return p_next_source.type() != MediaSource::Invalid && p_next_source.type() != MediaSource::Empty;
+    return m_nextSource.type() != MediaSource::Invalid && m_nextSource.type() != MediaSource::Empty;
 }
 
 

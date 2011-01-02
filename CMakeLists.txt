@@ -21,7 +21,7 @@ find_package(LIBVLC REQUIRED)
 add_definitions(${QT_DEFINITIONS})
 remove_definitions(-DQT3_SUPPORT_WARNINGS -DQT3_SUPPORT)
 
-include_directories(${QT_INCLUDES} ${PHONON_INCLUDES})
+include_directories(${QT_INCLUDES} ${PHONON_INCLUDES} ${LIBVLC_INCLUDE_DIR})
 
 set(PHONON_VLC_MAJOR_VERSION "0")
 set(PHONON_VLC_MINOR_VERSION "3")

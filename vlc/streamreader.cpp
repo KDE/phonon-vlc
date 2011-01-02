@@ -38,7 +38,7 @@ along with this library.  If not, see <http://www.gnu.org/licenses/>.
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA *
  *****************************************************************************/
 
-
+#include "mediaobject.h"
 #include "streamreader.h"
 
 #include <phonon/streaminterface.h>
@@ -60,6 +60,7 @@ namespace VLC
  */
 bool StreamReader::read(quint64 pos, int *length, char *buffer)
 {
+    QMutexLocker lock(&m_mutex);
     bool ret = true;
 
     if (currentPos() != pos) {
@@ -76,6 +77,7 @@ bool StreamReader::read(quint64 pos, int *length, char *buffer)
     while (currentBufferSize() < *length) {
         int oldSize = currentBufferSize();
         needData();
+        m_waitingForData.wait(&m_mutex);
 
         if (oldSize == currentBufferSize()) {
             // We didn't get any more data
@@ -92,8 +94,30 @@ bool StreamReader::read(quint64 pos, int *length, char *buffer)
 
     return ret;
 }
+
+void StreamReader::writeData(const QByteArray &data)
+{
+    QMutexLocker lock(&m_mutex);
+    m_buffer += data;
+
+    m_waitingForData.wakeAll();
+
+    if (m_mediaObject->state() != Phonon::BufferingState && m_mediaObject->state() != Phonon::LoadingState)
+        enoughData();
 }
+
+void StreamReader::setCurrentPos(qint64 pos)
+{
+    QMutexLocker lock(&m_mutex);
+    m_pos = pos;
+    m_buffer.clear();
+    m_size = 0;
+
+    seekStream(pos);
 }
+
+}// namespace VLC
+}// namespace Phonon
 #endif //QT_NO_PHONON_ABSTRACTMEDIASTREAM
 
 QT_END_NAMESPACE

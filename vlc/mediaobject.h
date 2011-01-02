@@ -137,8 +137,12 @@ protected:
 
     bool checkGaplessWaiting();
 
-    BaseWidget *p_video_widget;
-    MediaSource p_next_source;
+    BaseWidget *m_videoWidget;
+    MediaSource m_nextSource;
+
+    MediaSource m_mediaSource;
+    StreamReader *m_streamReader;
+    Phonon::State m_currentState;
 
 private slots:
 
@@ -157,17 +161,14 @@ private:
 
     QString PhononStateToString(Phonon::State newState);
 
-    MediaSource mediaSource;
-    StreamReader *streamReader;
-    Phonon::State currentState;
 
-    qint32 i_prefinish_mark;
-    bool b_prefinish_mark_reached_emitted;
+    qint32 m_prefinishMark;
+    bool m_prefinishEmitted;
 
-    bool b_about_to_finish_emitted;
+    bool m_aboutToFinishEmitted;
 
-    qint32 i_tick_interval;
-    qint32 i_transition_time;
+    qint32 m_tickInterval;
+    qint32 m_transitionTime;
 };
 
 }

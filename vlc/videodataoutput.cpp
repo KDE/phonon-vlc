@@ -28,6 +28,8 @@
 #include <phonon/experimental/abstractvideodataoutput.h>
 #include <phonon/experimental/videoframe2.h>
 
+#include <QMetaObject>
+
 #include "mediaobject.h"
 
 namespace Phonon
@@ -59,13 +61,14 @@ void VideoDataOutput::addToMedia(libvlc_media_t *media)
 {
     const int width = 300;
     const int height = width;
-    videoSizeChanged(width, height);
+//    videoSizeChanged(width, height);
+    libvlc_media_add_option_flag(media, ":vmem-chroma=RV24", libvlc_media_option_trusted);
     libvlc_video_set_callbacks(p_vlc_player, lock, unlock, 0, this);
 }
 
 void VideoDataOutput::videoSizeChanged(int width, int height)
 {
-    QSize size (width, height);
+    const QSize size (width, height);
     if (m_img) {
         if (size == m_img->size()) {
             return; // False alarm.
@@ -73,8 +76,8 @@ void VideoDataOutput::videoSizeChanged(int width, int height)
         delete m_img;
     }
     qDebug() << "changing video size to:" << size;
-    m_img = new QImage(size, QImage::Format_RGB32);
-    libvlc_video_set_format(p_vlc_player, "RV32", width, height, width * 4);
+    m_img = new QImage(size, QImage::Format_RGB888);
+    //libvlc_video_set_format(p_vlc_player, "RV24", width, height, width * 3);
 }
 
 void *VideoDataOutput::lock(void *data, void **bufRet)
@@ -83,11 +86,9 @@ void *VideoDataOutput::lock(void *data, void **bufRet)
     VideoDataOutput *cw = (VideoDataOutput *)data;
     cw->m_mutex.lock();
 
-//    const int width = libvlc_video_get_width(cw->p_vlc_player);
-//    const int height = libvlc_video_get_height(cw->p_vlc_player);
-
-//    cw->m_buffer = new char[width * height];
-//    *bufRet = cw->m_buffer;
+    const int width = libvlc_video_get_width(cw->p_vlc_player);
+    const int height = libvlc_video_get_height(cw->p_vlc_player);
+    cw->videoSizeChanged(width, height);
 
     *bufRet = cw->m_img->bits();
 
@@ -112,7 +113,7 @@ void VideoDataOutput::unlock(void *data, void *id, void *const *pixels)
         // FIXME: VideoFrame2 does not (yet) support RGB32, so we use 888 but really
         //        hope the frontend implementation will convert to RGB32 QImage.
         Experimental::VideoFrame2::Format_RGB888,
-        QByteArray::fromRawData((const char *)cw->m_img->bits(),
+        QByteArray::fromRawData((const char *)cw->m_img->constBits(),
                                  cw->m_img->byteCount()), // data0
         0, //data1
         0  //data2

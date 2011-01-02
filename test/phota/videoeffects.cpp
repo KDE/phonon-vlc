@@ -2,7 +2,8 @@
 #include "ui_videoeffects.h"
 #include <assert.h>
 
-#include <Phonon/VideoWidget>
+//#include <Phonon/VideoWidget>
+#include <phonon/videowidget.h>
 
 VideoEffects::VideoEffects(Phonon::VideoWidget *_w, QWidget *parent) :
     QDialog(parent),

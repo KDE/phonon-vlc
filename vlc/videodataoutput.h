@@ -140,6 +140,9 @@ private:
 
     QMutex m_mutex;
     QImage *m_img;
+    char *m_buffer;
+    int m_height;
+    int m_width;
 };
 } // namespace VLC
 } // namespace Phonon
