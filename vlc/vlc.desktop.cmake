@@ -10,21 +10,5 @@ Icon=vlc
 InitialPreference=10
 
 Name=VLC
-Name[x-test]=xxVLCxx
 
 Comment=Phonon VLC backend
-Comment[el]=Σύστημα υποστήριξης Phonon του VLC
-Comment[et]=Phononi VLC taustaprogramm
-Comment[fr]=Système de gestion VLC pour Phonon
-Comment[ga]=Inneall VLC Phonon
-Comment[gl]=Infraestrutura de VLC para Phonon
-Comment[km]=កម្មវិធី​ខាងក្រោយ​របស់ Phonon VLC
-Comment[nb]=Phonon VLC-motor
-Comment[nds]=Phonon-Hülpprogramm VLC
-Comment[nl]=VLC-backend (Phonon)
-Comment[pt]=Infra-estrutura do VLC para o Phonon
-Comment[pt_BR]=Infraestrutura Phonon VLC
-Comment[sv]=Phonon VLC-gränssnitt
-Comment[tr]=Phonon VLC arka ucu
-Comment[uk]=Сервер VLC Phonon
-Comment[x-test]=xxPhonon VLC backendxx
