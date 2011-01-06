@@ -102,7 +102,8 @@ void StreamReader::writeData(const QByteArray &data)
 
     m_waitingForData.wakeAll();
 
-    if (m_mediaObject->state() != Phonon::BufferingState && m_mediaObject->state() != Phonon::LoadingState)
+    if (m_mediaObject->state() != Phonon::BufferingState
+        && m_mediaObject->state() != Phonon::LoadingState)
         enoughData();
 }
 
@@ -110,7 +111,7 @@ void StreamReader::setCurrentPos(qint64 pos)
 {
     QMutexLocker lock(&m_mutex);
     m_pos = pos;
-    m_buffer.clear();
+    m_buffer.clear(); // Not optimal, but meh
     m_size = 0;
 
     seekStream(pos);

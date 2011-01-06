@@ -169,7 +169,7 @@ void VLCMediaObject::playInternal()
         qDebug() << "libvlc exception:" << libvlc_errmsg();
     }
 
-    if (m_currentFile == "imem://") {
+    if (m_currentFile == "imem://") { // Set callbacks for stream reading using imem
 #ifdef _MSC_VER
             char formatstr[] = "0x%p";
 #else
@@ -465,6 +465,10 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user
         }
 
         emit p_vlc_mediaObject->tickInternal(p_vlc_mediaObject->currentTime());
+    }
+
+    if (p_event->type == libvlc_MediaPlayerBuffering) {
+        emit p_vlc_mediaObject->stateChanged(Phonon::BufferingState);
     }
 
     if (p_event->type == libvlc_MediaPlayerPlaying) {
