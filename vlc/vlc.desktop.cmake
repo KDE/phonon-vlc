@@ -10,6 +10,7 @@ Icon=vlc
 InitialPreference=10
 
 Name=VLC
+Name[ca]=VLC
 Name[cs]=VLC
 Name[da]=VLC
 Name[es]=VLC
@@ -23,6 +24,7 @@ Name[uk]=VLC
 Name[x-test]=xxVLCxx
 
 Comment=Phonon VLC backend
+Comment[ca]=Dorsal del VLC pel Phonon
 Comment[cs]=Podpůrná vrstva VLC
 Comment[da]=Phonon VLC-motor
 Comment[es]=Motor VLC para Phonon
