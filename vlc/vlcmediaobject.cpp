@@ -425,6 +425,8 @@ void VLCMediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user
             }
 
             if (b_has_video) {
+                qDebug() << Q_FUNC_INFO << "hasVideo!";
+
                 // Give info about audio tracks
                 p_vlc_mediaObject->refreshAudioChannels();
                 // Give info about subtitle tracks
