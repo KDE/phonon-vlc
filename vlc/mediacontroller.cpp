@@ -31,7 +31,7 @@ namespace VLC
 {
 
 MediaController::MediaController()
-    : p_vlc_media_player(0)
+    : m_player(0)
 {
     resetMembers();
 }
@@ -222,20 +222,20 @@ void MediaController::resetMembers()
     current_subtitle = Phonon::SubtitleDescription();
     available_subtitles.clear();
 
-    i_current_angle = 0;
-    i_available_angles = 0;
+    m_currentAngle = 0;
+    m_availableAngles = 0;
 
-//    current_chapter = Phonon::ChapterDescription();
-//    available_chapters.clear();
-    current_chapter = 0;
-    available_chapters = 0;
+//    m_currentChapter = Phonon::ChapterDescription();
+//    m_availableChapters.clear();
+    m_currentChapter = 0;
+    m_availableChapters = 0;
 
 //    current_title = Phonon::TitleDescription();
-//    available_titles.clear();
-    current_title = 0;
-    available_titles = 0;
+//    m_availableTitles.clear();
+    m_currentTitle = 0;
+    m_availableTitles = 0;
 
-    b_autoplay_titles = false;
+    m_autoPlayTitles = false;
 }
 
 // Add audio channel -> in libvlc it is track, it means audio in another language
@@ -268,9 +268,9 @@ void MediaController::titleAdded(int id, const QString &name)
 //    properties.insert("name", name);
 //    properties.insert("description", "");
 
-//    available_titles << Phonon::TitleDescription(id, properties);
-    available_titles++;
-    emit availableTitlesChanged(available_titles);
+//    m_availableTitles << Phonon::TitleDescription(id, properties);
+    ++m_availableTitles;
+    emit availableTitlesChanged(m_availableTitles);
 }
 
 // Add chapter
@@ -280,9 +280,9 @@ void MediaController::chapterAdded(int titleId, const QString &name)
 //    properties.insert("name", name);
 //    properties.insert("description", "");
 
-//    available_chapters << Phonon::ChapterDescription(titleId, properties);
-    available_chapters++;
-    emit availableChaptersChanged(available_chapters);
+//    m_availableChapters << Phonon::ChapterDescription(titleId, properties);
+    ++m_availableChapters;
+    emit availableChaptersChanged(m_availableChapters);
 }
 
 // Audio channel
@@ -290,7 +290,7 @@ void MediaController::chapterAdded(int titleId, const QString &name)
 void MediaController::setCurrentAudioChannel(const Phonon::AudioChannelDescription &audioChannel)
 {
     current_audio_channel = audioChannel;
-    if (libvlc_audio_set_track(p_vlc_media_player, audioChannel.index())) {
+    if (libvlc_audio_set_track(m_player, audioChannel.index())) {
         qDebug() << "libvlc exception:" << libvlc_errmsg();
     }
 }
@@ -310,7 +310,7 @@ void MediaController::refreshAudioChannels()
     current_audio_channel = Phonon::AudioChannelDescription();
     available_audio_channels.clear();
 
-    libvlc_track_description_t *p_info = libvlc_audio_get_track_description(p_vlc_media_player);
+    libvlc_track_description_t *p_info = libvlc_audio_get_track_description(m_player);
     while (p_info) {
         audioChannelAdded(p_info->i_id, p_info->psz_name);
         p_info = p_info->p_next;
@@ -329,7 +329,7 @@ void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &subt
     if (type == "file") {
         QString filename = current_subtitle.property("name").toString();
         if (!filename.isEmpty()) {
-            if (!libvlc_video_set_subtitle_file(p_vlc_media_player,
+            if (!libvlc_video_set_subtitle_file(m_player,
                                                 filename.toAscii().data())) {
                 qDebug() << "libvlc exception:" << libvlc_errmsg();
             }
@@ -339,7 +339,7 @@ void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &subt
             emit availableSubtitlesChanged();
         }
     } else {
-        if (libvlc_video_set_spu(p_vlc_media_player, subtitle.index())) {
+        if (libvlc_video_set_spu(m_player, subtitle.index())) {
             qDebug() << "libvlc exception:" << libvlc_errmsg();
         }
     }
@@ -361,7 +361,7 @@ void MediaController::refreshSubtitles()
     available_subtitles.clear();
 
     libvlc_track_description_t *p_info = libvlc_video_get_spu_description(
-            p_vlc_media_player);
+            m_player);
     while (p_info) {
         subtitleAdded(p_info->i_id, p_info->psz_name, "");
         p_info = p_info->p_next;
@@ -374,32 +374,32 @@ void MediaController::refreshSubtitles()
 //void MediaController::setCurrentTitle( const Phonon::TitleDescription & title )
 void MediaController::setCurrentTitle(int title)
 {
-    current_title = title;
+    m_currentTitle = title;
 
-//    libvlc_media_player_set_title(p_vlc_media_player, title.index(), vlc_exception);
-    libvlc_media_player_set_title(p_vlc_media_player, title);
+//    libvlc_media_player_set_title(m_player, title.index(), vlc_exception);
+    libvlc_media_player_set_title(m_player, title);
 }
 
 //QList<Phonon::TitleDescription> MediaController::availableTitles() const
 int MediaController::availableTitles() const
 {
-    return available_titles;
+    return m_availableTitles;
 }
 
 //Phonon::TitleDescription MediaController::currentTitle() const
 int MediaController::currentTitle() const
 {
-    return current_title;
+    return m_currentTitle;
 }
 
 void MediaController::setAutoplayTitles(bool autoplay)
 {
-    b_autoplay_titles = autoplay;
+    m_autoPlayTitles = autoplay;
 }
 
 bool MediaController::autoplayTitles() const
 {
-    return b_autoplay_titles;
+    return m_autoPlayTitles;
 }
 
 // Chapter
@@ -407,34 +407,34 @@ bool MediaController::autoplayTitles() const
 //void MediaController::setCurrentChapter(const Phonon::ChapterDescription &chapter)
 void MediaController::setCurrentChapter(int chapter)
 {
-    current_chapter = chapter;
-//    libvlc_media_player_set_chapter(p_vlc_media_player, chapter.index(), vlc_exception);
-    libvlc_media_player_set_chapter(p_vlc_media_player, chapter);
+    m_currentChapter = chapter;
+//    libvlc_media_player_set_chapter(m_player, chapter.index(), vlc_exception);
+    libvlc_media_player_set_chapter(m_player, chapter);
 }
 
 //QList<Phonon::ChapterDescription> MediaController::availableChapters() const
 int MediaController::availableChapters() const
 {
-    return available_chapters;
+    return m_availableChapters;
 }
 
 //Phonon::ChapterDescription MediaController::currentChapter() const
 int MediaController::currentChapter() const
 {
-    return current_chapter;
+    return m_currentChapter;
 }
 
 // We need to rebuild available chapters when title is changed
 void MediaController::refreshChapters(int i_title)
 {
-//    current_chapter = Phonon::ChapterDescription();
-//    available_chapters.clear();
-    current_chapter = 0;
-    available_chapters = 0;
+//    m_currentChapter = Phonon::ChapterDescription();
+//    m_availableChapters.clear();
+    m_currentChapter = 0;
+    m_availableChapters = 0;
 
     // Get the description of available chapters for specific title
     libvlc_track_description_t *p_info = libvlc_video_get_chapter_description(
-            p_vlc_media_player, i_title);
+            m_player, i_title);
     while (p_info) {
         chapterAdded(p_info->i_id, p_info->psz_name);
         p_info = p_info->p_next;
@@ -446,17 +446,17 @@ void MediaController::refreshChapters(int i_title)
 
 void MediaController::setCurrentAngle(int angleNumber)
 {
-    i_current_angle = angleNumber;
+    m_currentAngle = angleNumber;
 }
 
 int MediaController::availableAngles() const
 {
-    return i_available_angles;
+    return m_availableAngles;
 }
 
 int MediaController::currentAngle() const
 {
-    return i_current_angle;
+    return m_currentAngle;
 }
 
 }

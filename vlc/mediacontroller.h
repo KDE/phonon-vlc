@@ -76,9 +76,7 @@ public:
     void titleAdded(int id, const QString &name);
     void chapterAdded(int titleId, const QString &name);
 
-
 protected:
-
     // AudioChannel
     void setCurrentAudioChannel(const Phonon::AudioChannelDescription &audioChannel);
     QList<Phonon::AudioChannelDescription> availableAudioChannels() const;
@@ -139,24 +137,21 @@ protected:
 
 //    Phonon::ChapterDescription current_chapter;
 //    QList<Phonon::ChapterDescription> available_chapters;
-    int current_chapter;
-    int available_chapters;
+    int m_currentChapter;
+    int m_availableChapters;
 
 //    Phonon::TitleDescription current_title;
 //    QList<Phonon::TitleDescription> available_titles;
-    int current_title;
-    int available_titles;
+    int m_currentTitle;
+    int m_availableTitles;
 
-    int i_current_angle;
-    int i_available_angles;
+    int m_currentAngle;
+    int m_availableAngles;
 
-    bool b_autoplay_titles;
+    bool m_autoPlayTitles;
 
     // MediaPlayer
-    libvlc_media_player_t *p_vlc_media_player;
-
-
-private:
+    libvlc_media_player_t *m_player;
 };
 
 }

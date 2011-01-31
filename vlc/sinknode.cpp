@@ -56,7 +56,7 @@ void SinkNode::connectToMediaObject(MediaObject *mediaObject)
     }
 
     m_mediaObject = mediaObject;
-    m_vlcPlayer = mediaObject->p_vlc_media_player;
+    m_vlcPlayer = mediaObject->m_player;
     connect(m_mediaObject, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
     m_mediaObject->addSink(this);
 }

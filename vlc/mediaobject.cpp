@@ -78,11 +78,11 @@ MediaObject::MediaObject(QObject *p_parent)
 //    m_nextSource = MediaSource(QUrl());
 
     // Create an empty Media Player object
-    p_vlc_media_player = libvlc_media_player_new(vlc_instance);
-    if (!p_vlc_media_player) {
+    m_player = libvlc_media_player_new(vlc_instance);
+    if (!m_player) {
         qDebug() << "libvlc exception:" << libvlc_errmsg();
     }
-    p_vlc_media_player_event_manager = 0;
+    m_eventManager = 0;
     connectToPlayerVLCEvents();
 
     // Media
@@ -107,8 +107,8 @@ MediaObject::~MediaObject()
 {
     unloadMedia();
 
-    libvlc_media_player_stop(p_vlc_media_player); // ensure that we are stopped
-    libvlc_media_player_release(p_vlc_media_player);
+    libvlc_media_player_stop(m_player); // ensure that we are stopped
+    libvlc_media_player_release(m_player);
 }
 
 /**
@@ -549,9 +549,9 @@ bool MediaObject::checkGaplessWaiting()
  */
 void MediaObject::unloadMedia()
 {
-//    if( p_vlc_media_player ) {
-//        libvlc_media_player_release(p_vlc_media_player);
-//        p_vlc_media_player = 0;
+//    if( m_player ) {
+//        libvlc_media_player_release(m_player);
+//        m_player = 0;
 //    }
 
     if (p_vlc_media) {
@@ -589,11 +589,11 @@ void MediaObject::setVLCVideoWidget()
 
     // Get our media player to use our window
 #if defined(Q_OS_MAC)
-    libvlc_media_player_set_nsobject(p_vlc_media_player, m_videoWidget->cocoaView());
+    libvlc_media_player_set_nsobject(m_player, m_videoWidget->cocoaView());
 #elif defined(Q_OS_UNIX)
-    libvlc_media_player_set_xwindow(p_vlc_media_player, m_videoWidget->winId());
+    libvlc_media_player_set_xwindow(m_player, m_videoWidget->winId());
 #elif defined(Q_OS_WIN)
-    libvlc_media_player_set_hwnd(p_vlc_media_player, m_videoWidget->winId());
+    libvlc_media_player_set_hwnd(m_player, m_videoWidget->winId());
 #endif
 }
 
@@ -665,7 +665,7 @@ void MediaObject::playInternal()
     }
 
     // Set the media that will be used by the media player
-    libvlc_media_player_set_media(p_vlc_media_player, p_vlc_media);
+    libvlc_media_player_set_media(m_player, p_vlc_media);
 
     // connectToMediaVLCEvents() at the end since it needs to be done for each new libvlc_media_t instance
     connectToMediaVLCEvents();
@@ -684,7 +684,7 @@ void MediaObject::playInternal()
     setVLCVideoWidget();
 
     // Play
-    if (libvlc_media_player_play(p_vlc_media_player)) {
+    if (libvlc_media_player_play(m_player)) {
         qDebug() << "libvlc exception:" << libvlc_errmsg();
     }
 
@@ -701,7 +701,7 @@ void MediaObject::playInternal()
  */
 void MediaObject::pause()
 {
-    libvlc_media_t *media = libvlc_media_player_get_media(p_vlc_media_player);
+    libvlc_media_t *media = libvlc_media_player_get_media(m_player);
 
     if (state() == Phonon::PausedState) {
 #ifdef __GNUC__
@@ -712,12 +712,12 @@ void MediaObject::pause()
             playInternal();
         } else {
             // Resume
-            libvlc_media_player_set_pause(p_vlc_media_player, 0);
+            libvlc_media_player_set_pause(m_player, 0);
             emit stateChanged(Phonon::PlayingState);
         }
     } else {
         // Pause
-        libvlc_media_player_set_pause(p_vlc_media_player, 1);
+        libvlc_media_player_set_pause(m_player, 1);
         emit stateChanged(Phonon::PausedState);
     }
 
@@ -729,7 +729,7 @@ void MediaObject::pause()
 void MediaObject::stop()
 {
     m_nextSource = MediaSource(QUrl());
-    libvlc_media_player_stop(p_vlc_media_player);
+    libvlc_media_player_stop(m_player);
 //    unloadMedia();
     emit stateChanged(Phonon::StoppedState);
 }
@@ -744,7 +744,7 @@ void MediaObject::seekInternal(qint64 milliseconds)
     }
 
     qDebug() << __FUNCTION__ << milliseconds;
-    libvlc_media_player_set_time(p_vlc_media_player, milliseconds);
+    libvlc_media_player_set_time(m_player, milliseconds);
 }
 
 /**
@@ -774,7 +774,7 @@ bool MediaObject::isSeekable() const
 void MediaObject::connectToPlayerVLCEvents()
 {
     // Get the event manager from which the media player send event
-    p_vlc_media_player_event_manager = libvlc_media_player_event_manager(p_vlc_media_player);
+    m_eventManager = libvlc_media_player_event_manager(m_player);
     libvlc_event_type_t eventsMediaPlayer[] = {
         libvlc_MediaPlayerPlaying,
         libvlc_MediaPlayerPaused,
@@ -789,7 +789,7 @@ void MediaObject::connectToPlayerVLCEvents()
     };
     int i_nbEvents = sizeof(eventsMediaPlayer) / sizeof(*eventsMediaPlayer);
     for (int i = 0; i < i_nbEvents; i++) {
-        libvlc_event_attach(p_vlc_media_player_event_manager, eventsMediaPlayer[i],
+        libvlc_event_attach(m_eventManager, eventsMediaPlayer[i],
                             libvlc_callback, this);
     }
 }
@@ -853,7 +853,7 @@ void MediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user_da
 
     // Media player events
     if (p_event->type == libvlc_MediaPlayerSeekableChanged) {
-        const bool b_seekable = libvlc_media_player_is_seekable(p_vlc_mediaObject->p_vlc_media_player);
+        const bool b_seekable = libvlc_media_player_is_seekable(p_vlc_mediaObject->m_player);
         if (b_seekable != p_vlc_mediaObject->m_seekable) {
             p_vlc_mediaObject->m_seekable = b_seekable;
             emit p_vlc_mediaObject->seekableChanged(p_vlc_mediaObject->m_seekable);
@@ -871,11 +871,11 @@ void MediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user_da
             // Get current video width and height
             uint width = 0;
             uint height = 0;
-            libvlc_video_get_size(p_vlc_mediaObject->p_vlc_media_player, 0, &width, &height);
+            libvlc_video_get_size(p_vlc_mediaObject->m_player, 0, &width, &height);
             emit p_vlc_mediaObject->videoWidgetSizeChanged(width, height);
 
             // Does this media player have a video output
-            const bool b_has_video = libvlc_media_player_has_vout(p_vlc_mediaObject->p_vlc_media_player);
+            const bool b_has_video = libvlc_media_player_has_vout(p_vlc_mediaObject->m_player);
             if (b_has_video != p_vlc_mediaObject->m_hasVideo) {
                 p_vlc_mediaObject->m_hasVideo = b_has_video;
                 emit p_vlc_mediaObject->hasVideoChanged(p_vlc_mediaObject->m_hasVideo);
@@ -892,12 +892,12 @@ void MediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user_da
                 // Get movie chapter count
                 // It is not a title/chapter media if there is no chapter
                 if (libvlc_media_player_get_chapter_count(
-                            p_vlc_mediaObject->p_vlc_media_player) > 0) {
+                            p_vlc_mediaObject->m_player) > 0) {
                     // Give info about title
                     // only first time, no when title changed
                     if (!b_media_player_title_changed) {
                         libvlc_track_description_t *p_info = libvlc_video_get_title_description(
-                                p_vlc_mediaObject->p_vlc_media_player);
+                                p_vlc_mediaObject->m_player);
                         while (p_info) {
                             p_vlc_mediaObject->titleAdded(p_info->i_id, p_info->psz_name);
                             p_info = p_info->p_next;
@@ -908,7 +908,7 @@ void MediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user_da
                     // Give info about chapters for actual title 0
                     if (b_media_player_title_changed)
                         p_vlc_mediaObject->refreshChapters(libvlc_media_player_get_title(
-                                                               p_vlc_mediaObject->p_vlc_media_player));
+                                                               p_vlc_mediaObject->m_player));
                     else {
                         p_vlc_mediaObject->refreshChapters(0);
                     }
@@ -1041,7 +1041,7 @@ qint64 MediaObject::totalTime() const
 
 qint64 MediaObject::currentTimeInternal() const
 {
-    return libvlc_media_player_get_time(p_vlc_media_player);
+    return libvlc_media_player_get_time(m_player);
 }
 
 /**

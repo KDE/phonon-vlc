@@ -222,7 +222,7 @@ private:
 
     // MediaPlayer
 //    libvlc_media_player_t * p_vlc_media_player;
-    libvlc_event_manager_t *p_vlc_media_player_event_manager;
+    libvlc_event_manager_t *m_eventManager;
 
     // Media
     libvlc_media_t *p_vlc_media;
