@@ -62,7 +62,7 @@ public:
     VideoWidget(QWidget *p_parent);
     ~VideoWidget();
 
-    void connectToMediaObject(PrivateMediaObject *mediaObject);
+    void connectToMediaObject(MediaObject *mediaObject);
 
     #ifndef PHONON_VLC_NO_EXPERIMENTAL
     void connectToAvCapture(Experimental::AvCapture *avCapture);

@@ -76,7 +76,7 @@ VideoWidget::~VideoWidget()
  * \see VLCMediaObject
  * \param mediaObject What media object to connect to
  */
-void VideoWidget::connectToMediaObject(PrivateMediaObject *mediaObject)
+void VideoWidget::connectToMediaObject(MediaObject *mediaObject)
 {
     SinkNode::connectToMediaObject(mediaObject);
 
@@ -125,7 +125,7 @@ Phonon::VideoWidget::AspectRatio VideoWidget::aspectRatio() const
 void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspect)
 {
     // finish if no player
-    if (!p_vlc_player) {
+    if (!m_vlcPlayer) {
         return;
     }
 
@@ -194,7 +194,7 @@ void VideoWidget::setBrightness(qreal brightness)
     f_brightness = brightness;
 
     // vlc takes brightness in range 0.0 - 2.0
-    if (p_vlc_player) {
+    if (m_vlcPlayer) {
         if (!b_filter_adjust_activated) {
 //            p_libvlc_video_filter_add(p_vlc_current_media_player, ADJUST, vlc_exception);
 //            vlcExceptionRaised();
@@ -222,7 +222,7 @@ void VideoWidget::setContrast(qreal contrast)
 
     // vlc takes contrast in range 0.0 - 2.0
     float f_contrast = contrast;
-    if (p_vlc_player) {
+    if (m_vlcPlayer) {
         if (!b_filter_adjust_activated) {
 //            p_libvlc_video_filter_add(p_vlc_current_media_player, ADJUST, vlc_exception);
 //            vlcExceptionRaised();
@@ -250,7 +250,7 @@ void VideoWidget::setHue(qreal hue)
 
     // vlc takes hue in range 0 - 360 in integer
     int i_hue = (f_hue + 1.0) * 180;
-    if (p_vlc_player) {
+    if (m_vlcPlayer) {
         if (!b_filter_adjust_activated) {
 //            p_libvlc_video_filter_add(p_vlc_current_media_player, ADJUST, vlc_exception);
 //            vlcExceptionRaised();
@@ -278,7 +278,7 @@ void VideoWidget::setSaturation(qreal saturation)
     f_saturation = saturation;
 
     // vlc takes brightness in range 0.0 - 3.0
-    if (p_vlc_player) {
+    if (m_vlcPlayer) {
         if (!b_filter_adjust_activated) {
 //            p_libvlc_video_filter_add(p_vlc_current_media_player, ADJUST, vlc_exception);
 //            vlcExceptionRaised();
@@ -326,7 +326,7 @@ void VideoWidget::videoWidgetSizeChanged(int width, int height)
         delete m_img;
     }
     m_img = new QImage(videoSize, QImage::Format_RGB32);
-    libvlc_video_set_format(p_vlc_player, "RV32", width, height, width * 4);
+    libvlc_video_set_format(m_vlcPlayer, "RV32", width, height, width * 4);
 }
 
 void VideoWidget::useCustomRender()
@@ -339,8 +339,8 @@ void VideoWidget::useCustomRender()
         delete m_img;
     }
     m_img = new QImage(size, QImage::Format_RGB32);
-    libvlc_video_set_format(p_vlc_player, "RV32", width, height, width * 4);
-    libvlc_video_set_callbacks(p_vlc_player, lock, unlock, 0, this);
+    libvlc_video_set_format(m_vlcPlayer, "RV32", width, height, width * 4);
+    libvlc_video_set_callbacks(m_vlcPlayer, lock, unlock, 0, this);
 }
 
 void *VideoWidget::lock(void *data, void **bufRet)
@@ -359,7 +359,7 @@ void VideoWidget::unlock(void *data, void *id, void *const *pixels)
     VideoWidget *cw = (VideoWidget *)data;
 
     // Might be a good idea to cache these, but this should be insignificant overhead compared to the image conversion
-//    const char *aspect = libvlc_video_get_aspect_ratio(cw->p_vlc_player);
+//    const char *aspect = libvlc_video_get_aspect_ratio(cw->m_vlcPlayer);
 //    delete aspect;
 
     cw->p_video_widget->setNextFrame(QByteArray::fromRawData((const char *)cw->m_img->bits(),

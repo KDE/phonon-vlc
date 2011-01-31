@@ -27,12 +27,12 @@
 #include <QtCore/QObject>
 #include <QtCore/QString>
 
-#include "vlcloader.h"
-#include "mediaobject.h"
-
 #ifndef PHONON_VLC_NO_EXPERIMENTAL
 #include "experimental/avcapture.h"
 #endif // PHONON_VLC_NO_EXPERIMENTAL
+
+struct libvlc_media_t;
+struct libvlc_media_player_t;
 
 namespace Phonon
 {
@@ -40,7 +40,6 @@ namespace VLC
 {
 
 class MediaObject;
-typedef MediaObject PrivateMediaObject;
 
 /** \brief The sink node is essentialy an output for a media object
  *
@@ -54,26 +53,21 @@ class SinkNode : public QObject
     Q_OBJECT
 
 public:
-
     SinkNode(QObject *p_parent);
     virtual ~SinkNode();
 
-    virtual void connectToMediaObject(PrivateMediaObject *mediaObject);
-
-    virtual void disconnectFromMediaObject(PrivateMediaObject *mediaObject);
-
-    #ifndef PHONON_VLC_NO_EXPERIMENTAL
-    virtual void connectToAvCapture(Experimental::AvCapture *avCapture);
-
-    virtual void disconnectFromAvCapture(Experimental::AvCapture *avCapture);
-    #endif // PHONON_VLC_NO_EXPERIMENTAL
-
+    virtual void connectToMediaObject(MediaObject *mediaObject);
+    virtual void disconnectFromMediaObject(MediaObject *mediaObject);
     virtual void addToMedia(libvlc_media_t *media);
 
-protected:
+#ifndef PHONON_VLC_NO_EXPERIMENTAL
+    virtual void connectToAvCapture(Experimental::AvCapture *avCapture);
+    virtual void disconnectFromAvCapture(Experimental::AvCapture *avCapture);
+#endif // PHONON_VLC_NO_EXPERIMENTAL
 
-    PrivateMediaObject *p_media_object;
-    libvlc_media_player_t *p_vlc_player;
+protected:
+    MediaObject *m_mediaObject;
+    libvlc_media_player_t *m_vlcPlayer;
 
 private slots:
     virtual void updateVolume();

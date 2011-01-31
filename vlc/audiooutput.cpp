@@ -46,7 +46,6 @@ AudioOutput::AudioOutput(Backend *p_back, QObject *p_parent)
       i_device(0),
       p_backend(p_back)
 {
-    p_media_object = 0;
 }
 
 AudioOutput::~AudioOutput()
@@ -90,10 +89,10 @@ qreal AudioOutput::volume() const
  */
 void AudioOutput::setVolume(qreal volume)
 {
-    if (p_vlc_player) {
-        const int previous_volume = libvlc_audio_get_volume(p_vlc_player);
+    if (m_vlcPlayer) {
+        const int previous_volume = libvlc_audio_get_volume(m_vlcPlayer);
         f_volume = volume;
-        libvlc_audio_set_volume(p_vlc_player, (int)(f_volume * 50));
+        libvlc_audio_set_volume(m_vlcPlayer, (int)(f_volume * 50));
         qDebug() << __FUNCTION__ << "Volume changed to - " << (int)(f_volume * 100) << " From " << previous_volume;
         emit volumeChanged(f_volume);
     }
@@ -124,7 +123,7 @@ bool AudioOutput::setOutputDevice(int device)
 #ifdef PHONON_PULSESUPPORT
     if (PulseSupport::getInstance()->isActive()) {
         i_device = device;
-        libvlc_audio_output_set(p_vlc_player, "pulse");
+        libvlc_audio_output_set(m_vlcPlayer, "pulse");
         qDebug() << "set aout " << "pulse";
         return true;
     }
@@ -133,12 +132,12 @@ bool AudioOutput::setOutputDevice(int device)
     const QList<DeviceInfo> deviceList = p_backend->deviceManager()->audioOutputDevices();
     if (device >= 0 && device < deviceList.size()) {
 
-        if (!p_vlc_player) {
+        if (!m_vlcPlayer) {
             return false;
         }
         i_device = device;
         const QByteArray deviceName = deviceList.at(device).name;
-        libvlc_audio_output_set(p_vlc_player, (char *) deviceList.at(device).name.data());
+        libvlc_audio_output_set(m_vlcPlayer, (char *) deviceList.at(device).name.data());
         qDebug() << "set aout " << deviceList.at(device).name.data();
 //         if (deviceName == DEFAULT_ID) {
 //             libvlc_audio_device_set(p_vlc_instance, DEFAULT, vlc_exception);
@@ -171,9 +170,9 @@ bool AudioOutput::setOutputDevice(const Phonon::AudioOutputDevice &device)
  */
 void AudioOutput::updateVolume()
 {
-    if (p_vlc_player) {
-        const int previous_volume = libvlc_audio_get_volume(p_vlc_player);
-        libvlc_audio_set_volume(p_vlc_player, (int)(f_volume * 50));
+    if (m_vlcPlayer) {
+        const int previous_volume = libvlc_audio_get_volume(m_vlcPlayer);
+        libvlc_audio_set_volume(m_vlcPlayer, (int)(f_volume * 50));
         qDebug() << __FUNCTION__ << "Volume changed to - " << (int)(f_volume * 50) << " From " << previous_volume;
     }
 }

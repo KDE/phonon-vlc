@@ -53,7 +53,7 @@ Effect::~Effect()
     parameterList.clear();
 }
 
-void Effect::connectToMediaObject(PrivateMediaObject *p_media_object)
+void Effect::connectToMediaObject(MediaObject *p_media_object)
 {
     SinkNode::connectToMediaObject(p_media_object);
 
@@ -69,7 +69,7 @@ void Effect::connectToMediaObject(PrivateMediaObject *p_media_object)
     }
 }
 
-void Effect::disconnectFromMediaObject(PrivateMediaObject *p_media_object)
+void Effect::disconnectFromMediaObject(MediaObject *p_media_object)
 {
     SinkNode::disconnectFromMediaObject(p_media_object);
 

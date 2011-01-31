@@ -64,8 +64,8 @@ public:
     QVariant parameterValue(const EffectParameter &param) const;
     void setParameterValue(const EffectParameter &param, const QVariant &newValue);
 
-    void connectToMediaObject(PrivateMediaObject *p_media_object);
-    void disconnectFromMediaObject(PrivateMediaObject *p_media_object);
+    void connectToMediaObject(MediaObject *p_media_object);
+    void disconnectFromMediaObject(MediaObject *p_media_object);
 
 private:
 

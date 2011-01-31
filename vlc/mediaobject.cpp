@@ -23,14 +23,19 @@
  *****************************************************************************/
 
 #include "mediaobject.h"
+
+#include <QtCore/QUrl>
+#include <QtCore/QMetaType>
+#include <QtCore/QTimer>
+
+#include "vlc/vlc.h"
+
 #include "streamhooks.h"
 
 #include "seekstack.h"
 #include "sinknode.h"
 
-#include <QtCore/QUrl>
-#include <QtCore/QMetaType>
-#include <QtCore/QTimer>
+extern libvlc_instance_t *vlc_instance;
 
 //Time in milliseconds before sending aboutToFinish() signal
 //2 seconds

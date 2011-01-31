@@ -422,7 +422,7 @@ bool Backend::connectNodes(QObject *source, QObject *sink)
 
     SinkNode *sinkNode = qobject_cast<SinkNode *>(sink);
     if (sinkNode) {
-        PrivateMediaObject *mediaObject = qobject_cast<PrivateMediaObject *>(source);
+        MediaObject *mediaObject = qobject_cast<MediaObject *>(source);
         if (mediaObject) {
             // Connect the SinkNode to a MediaObject
             sinkNode->connectToMediaObject(mediaObject);
@@ -466,7 +466,7 @@ bool Backend::disconnectNodes(QObject *source, QObject *sink)
 {
     SinkNode *sinkNode = qobject_cast<SinkNode *>(sink);
     if (sinkNode) {
-        PrivateMediaObject *const mediaObject = qobject_cast<PrivateMediaObject *>(source);
+        MediaObject *const mediaObject = qobject_cast<MediaObject *>(source);
         if (mediaObject) {
             // Disconnect the SinkNode from a MediaObject
             sinkNode->disconnectFromMediaObject(mediaObject);

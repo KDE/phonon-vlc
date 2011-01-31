@@ -32,8 +32,8 @@ namespace VLC
 
 SinkNode::SinkNode(QObject *p_parent)
     : QObject(p_parent)
-    , p_media_object(0)
-    , p_vlc_player(0)
+    , m_mediaObject(0)
+    , m_vlcPlayer(0)
 {
 }
 
@@ -42,23 +42,23 @@ SinkNode::~SinkNode()
 }
 
 /**
- * Associates the sink node to the provided media object. The p_media_object and p_vlc_player
+ * Associates the sink node to the provided media object. The m_mediaObject and m_vlcPlayer
  * attributes are set, and the sink is added to the media object's sinks.
  *
  * \param mediaObject A VLCMediaObject to connect to.
  *
  * \see disconnectFromMediaObject()
  */
-void SinkNode::connectToMediaObject(PrivateMediaObject *mediaObject)
+void SinkNode::connectToMediaObject(MediaObject *mediaObject)
 {
-    if (p_media_object) {
-        qCritical() << __FUNCTION__ << "p_media_object already connected";
+    if (m_mediaObject) {
+        qCritical() << __FUNCTION__ << "m_mediaObject already connected";
     }
 
-    p_media_object = mediaObject;
-    p_vlc_player = mediaObject->p_vlc_media_player;
-    connect(p_media_object, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
-    p_media_object->addSink(this);
+    m_mediaObject = mediaObject;
+    m_vlcPlayer = mediaObject->p_vlc_media_player;
+    connect(m_mediaObject, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
+    m_mediaObject->addSink(this);
 }
 
 /**
@@ -68,15 +68,15 @@ void SinkNode::connectToMediaObject(PrivateMediaObject *mediaObject)
  *
  * \see connectToMediaObject()
  */
-void SinkNode::disconnectFromMediaObject(PrivateMediaObject *mediaObject)
+void SinkNode::disconnectFromMediaObject(MediaObject *mediaObject)
 {
-    if (p_media_object != mediaObject) {
+    if (m_mediaObject != mediaObject) {
         qCritical() << __FUNCTION__ << "SinkNode was not connected to mediaObject";
     }
 
-    if( p_media_object ){
-        p_media_object->removeSink(this);
-        disconnect(p_media_object, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
+    if( m_mediaObject ){
+        m_mediaObject->removeSink(this);
+        disconnect(m_mediaObject, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
     }
 }
 

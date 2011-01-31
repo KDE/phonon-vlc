@@ -23,11 +23,16 @@
 */
 
 #include "audiodataoutput.h"
-#include <phonon/medianode.h>
-#include "mediaobject.h"
+
 #include <QtCore/QVector>
 #include <QtCore/QMap>
+
+#include <phonon/medianode.h>
 #include <phonon/audiooutput.h>
+
+#include <vlc/vlc.h>
+
+#include "mediaobject.h"
 
 namespace Phonon
 {
