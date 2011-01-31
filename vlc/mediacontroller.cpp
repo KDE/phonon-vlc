@@ -33,7 +33,7 @@ namespace VLC
 MediaController::MediaController()
     : p_vlc_media_player(0)
 {
-    clearMediaController();
+    resetMembers();
 }
 
 MediaController::~MediaController()
@@ -205,7 +205,16 @@ QVariant MediaController::interfaceCall(Interface iface, int i_command, const QL
 
 
 
-void MediaController::clearMediaController()
+void MediaController::resetMediaController()
+{
+    resetMembers();
+    emit availableAudioChannelsChanged();
+    emit availableSubtitlesChanged();
+    emit availableTitlesChanged(0);
+    emit availableChaptersChanged(0);
+}
+
+void MediaController::resetMembers()
 {
     current_audio_channel = Phonon::AudioChannelDescription();
     available_audio_channels.clear();
@@ -227,11 +236,6 @@ void MediaController::clearMediaController()
     available_titles = 0;
 
     b_autoplay_titles = false;
-
-    emit availableAudioChannelsChanged();
-    emit availableSubtitlesChanged();
-    emit availableTitlesChanged(0);
-    emit availableChaptersChanged(0);
 }
 
 // Add audio channel -> in libvlc it is track, it means audio in another language

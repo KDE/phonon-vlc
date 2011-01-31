@@ -678,7 +678,7 @@ void MediaObject::playInternal()
     // There is no audio channel/subtitle/angle/chapter events inside libvlc
     // so let's send our own events...
     // This will reset the GUI
-    clearMediaController();
+    resetMediaController();
 
     // Set up the widget id for libVLC if there is a video widget available
     setVLCVideoWidget();
@@ -943,7 +943,7 @@ void MediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user_da
 
     if (p_event->type == libvlc_MediaPlayerEndReached && !p_vlc_mediaObject->checkGaplessWaiting()) {
         i_first_time_media_player_time_changed = 0;
-        p_vlc_mediaObject->clearMediaController();
+        p_vlc_mediaObject->resetMediaController();
         p_vlc_mediaObject->emitAboutToFinish();
         emit p_vlc_mediaObject->finished();
         emit p_vlc_mediaObject->stateChanged(Phonon::StoppedState);
@@ -953,7 +953,7 @@ void MediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user_da
 
     if (p_event->type == libvlc_MediaPlayerEncounteredError && !p_vlc_mediaObject->checkGaplessWaiting()) {
         i_first_time_media_player_time_changed = 0;
-        p_vlc_mediaObject->clearMediaController();
+        p_vlc_mediaObject->resetMediaController();
         emit p_vlc_mediaObject->finished();
         emit p_vlc_mediaObject->stateChanged(Phonon::ErrorState);
     } else if (p_event->type == libvlc_MediaPlayerEncounteredError) {
@@ -962,7 +962,7 @@ void MediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user_da
 
     if (p_event->type == libvlc_MediaPlayerStopped && !p_vlc_mediaObject->checkGaplessWaiting()) {
         i_first_time_media_player_time_changed = 0;
-        p_vlc_mediaObject->clearMediaController();
+        p_vlc_mediaObject->resetMediaController();
         emit p_vlc_mediaObject->stateChanged(Phonon::StoppedState);
     }
 

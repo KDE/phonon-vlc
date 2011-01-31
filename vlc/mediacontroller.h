@@ -117,11 +117,19 @@ protected:
     bool autoplayTitles() const;
 
     /**
-     * Clear all (i.e availableSubtitles, availableChapters...).
-     *
+     * Clear all member variables and emit appropriate signals.
      * This is used each time we restart the video.
+     *
+     * \see resetMembers
      */
-    virtual void clearMediaController();
+    void resetMediaController();
+
+    /**
+     * Reset all member variables.
+     *
+     * \see resetMediaController
+     */
+    void resetMembers();
 
     Phonon::AudioChannelDescription current_audio_channel;
     QList<Phonon::AudioChannelDescription> available_audio_channels;
