@@ -25,6 +25,8 @@
 #define PHONON_VLC_MEDIAOBJECT_H
 
 #include <phonon/mediaobjectinterface.h>
+#include <phonon/addoninterface.h>
+#include "vlcmediacontroller.h"
 
 #include <QtCore/QObject>
 #include <QtGui/QWidget>
@@ -41,6 +43,7 @@ namespace VLC
 {
 
 class SeekStack;
+class SinkNode;
 
 /** \brief Implementation for the most important class in Phonon
  *
@@ -67,15 +70,29 @@ class SeekStack;
  * \see Phonon::MediaObjectInterface
  * \see VLCMediaObject
  */
-class MediaObject : public QObject, public MediaObjectInterface
+class MediaObject : public QObject, public MediaObjectInterface, public VLCMediaController
 {
     Q_OBJECT
+    Q_INTERFACES(Phonon::MediaObjectInterface  Phonon::AddonInterface)
+    friend class SinkNode;
     friend class SeekStack;
 
 public:
-
     MediaObject(QObject *p_parent);
     virtual ~MediaObject();
+
+    void pause();
+    void stop();
+
+    bool hasVideo() const;
+    bool isSeekable() const;
+
+    qint64 totalTime() const;
+
+    QString errorString() const;
+
+    void addSink(SinkNode *node);
+    void removeSink(SinkNode *node);
 
     /**
      * Widget Id where VLC will show the videos.
@@ -106,6 +123,28 @@ public:
     void emitAboutToFinish();
 
 signals:
+    // MediaController signals
+    void availableSubtitlesChanged();
+    void availableAudioChannelsChanged();
+
+//    void availableChaptersChanged();
+//    void availableTitlesChanged();
+    void availableChaptersChanged(int);
+    void availableTitlesChanged(int);
+
+    void availableAnglesChanged(int availableAngles);
+    void angleChanged(int angleNumber);
+    void chapterChanged(int chapterNumber);
+    void titleChanged(int titleNumber);
+    void metaDataNeedsRefresh();
+    void durationChanged(qint64 newDuration);
+
+    /**
+     * New widget size computed by VLC.
+     *
+     * It should be applied to the widget that contains the VLC video.
+     */
+    void videoWidgetSizeChanged(int i_width, int i_height);
 
     void aboutToFinish();
     void bufferStatus(int i_percent_filled);
@@ -127,13 +166,12 @@ signals:
     void tickInternal(qint64 time);
 
 protected:
+    void loadMediaInternal(const QString &filename);
+    void playInternal();
+    void seekInternal(qint64 milliseconds);
+    void setOption(QString opt);
 
-    virtual void loadMediaInternal(const QString &filename) = 0;
-    virtual void playInternal() = 0;
-    virtual void seekInternal(qint64 milliseconds) = 0;
-
-    virtual qint64 currentTimeInternal() const = 0;
-    virtual void setOption(QString opt) = 0;
+    qint64 currentTimeInternal() const;
 
     bool checkGaplessWaiting();
 
@@ -145,6 +183,8 @@ protected:
     Phonon::State m_currentState;
 
 private slots:
+    void updateMetaData();
+    void updateDuration(qint64 newDuration);
 
     void stateChangedInternal(Phonon::State newState);
 
@@ -153,6 +193,14 @@ private slots:
     void moveToNextSource();
 
 private:
+    void connectToMediaVLCEvents();
+    void connectToPlayerVLCEvents();
+
+    static void libvlc_callback(const libvlc_event_t *p_event, void *p_user_data);
+
+    void unloadMedia();
+
+    void setVLCVideoWidget();
 
     void loadMedia(const QString &filename);
     void loadStream();
@@ -161,7 +209,6 @@ private:
 
     QString PhononStateToString(Phonon::State newState);
 
-
     qint32 m_prefinishMark;
     bool m_prefinishEmitted;
 
@@ -169,6 +216,28 @@ private:
 
     qint32 m_tickInterval;
     qint32 m_transitionTime;
+
+    // MediaPlayer
+//    libvlc_media_player_t * p_vlc_media_player;
+    libvlc_event_manager_t *p_vlc_media_player_event_manager;
+
+    // Media
+    libvlc_media_t *p_vlc_media;
+    libvlc_event_manager_t *p_vlc_media_event_manager;
+
+    // MediaDiscoverer
+    libvlc_media_discoverer_t *p_vlc_media_discoverer;
+    libvlc_event_manager_t *p_vlc_media_discoverer_event_manager;
+
+    qint64 m_totalTime;
+    QByteArray m_currentFile;
+    QMultiMap<QString, QString> m_vlcMetaData;
+    QList<SinkNode *> m_sinks;
+
+    bool m_hasVideo;
+
+    bool m_seekable;
+    qint64 m_seekpoint;
 };
 
 }

@@ -23,9 +23,6 @@
 #include "devicemanager.h"
 #include "backend.h"
 
-#include "mediaobject.h"
-#include "vlcmediaobject.h"
-
 #include "vlcloader.h"
 
 #ifdef PHONON_PULSESUPPORT

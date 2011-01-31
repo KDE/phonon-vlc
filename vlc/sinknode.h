@@ -28,7 +28,7 @@
 #include <QtCore/QString>
 
 #include "vlcloader.h"
-#include "vlcmediaobject.h"
+#include "mediaobject.h"
 
 #ifndef PHONON_VLC_NO_EXPERIMENTAL
 #include "experimental/avcapture.h"
@@ -39,8 +39,8 @@ namespace Phonon
 namespace VLC
 {
 
-class VLCMediaObject;
-typedef VLCMediaObject PrivateMediaObject;
+class MediaObject;
+typedef MediaObject PrivateMediaObject;
 
 /** \brief The sink node is essentialy an output for a media object
  *

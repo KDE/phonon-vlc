@@ -29,7 +29,6 @@
 #include <QtCore/QtDebug>
 
 #include "mediaobject.h"
-#include "vlcmediaobject.h"
 
 #include "vlcloader.h"
 

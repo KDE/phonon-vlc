@@ -32,7 +32,6 @@
 #include "sinknode.h"
 //#include "videodataoutput.h"
 #include "vlcloader.h"
-#include "vlcmediaobject.h"
 
 #ifndef PHONON_VLC_NO_EXPERIMENTAL
 #include "experimental/avcapture.h"
@@ -131,7 +130,7 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject* parent, const
 
     switch (c) {
     case MediaObjectClass:
-        return new VLCMediaObject(parent);
+        return new MediaObject(parent);
     case VolumeFaderEffectClass:
         logMessage("createObject() : VolumeFaderEffect not implemented");
         break;

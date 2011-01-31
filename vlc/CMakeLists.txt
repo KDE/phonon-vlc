@@ -56,7 +56,6 @@ set(phonon_vlc_SRCS
     videowidget.cpp
     vlcloader.cpp
     vlcmediacontroller.cpp
-    vlcmediaobject.cpp
     vlcvideowidget.cpp
     ${phonon_vlc_experimental_SRCS}
 )
