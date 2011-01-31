@@ -23,42 +23,21 @@
 
 #include "mediacontroller.h"
 
+#include <vlc/vlc.h>
+
 namespace Phonon
 {
 namespace VLC
 {
 
 MediaController::MediaController()
+    : p_vlc_media_player(0)
 {
     clearMediaController();
 }
 
 MediaController::~MediaController()
 {
-}
-
-void MediaController::clearMediaController()
-{
-    current_audio_channel = Phonon::AudioChannelDescription();
-    available_audio_channels.clear();
-
-    current_subtitle = Phonon::SubtitleDescription();
-    available_subtitles.clear();
-
-//    current_chapter = Phonon::ChapterDescription();
-//    available_chapters.clear();
-    current_chapter = 0;
-    available_chapters = 0;
-
-//    current_title = Phonon::TitleDescription();
-//    available_titles.clear();
-    current_title = 0;
-    available_titles = 0;
-
-    i_current_angle = 0;
-    i_available_angles = 0;
-
-    b_autoplay_titles = false;
 }
 
 bool MediaController::hasInterface(Interface iface) const
@@ -220,6 +199,260 @@ QVariant MediaController::interfaceCall(Interface iface, int i_command, const QL
     }
 
     return QVariant();
+}
+
+
+
+
+
+void MediaController::clearMediaController()
+{
+    current_audio_channel = Phonon::AudioChannelDescription();
+    available_audio_channels.clear();
+
+    current_subtitle = Phonon::SubtitleDescription();
+    available_subtitles.clear();
+
+    i_current_angle = 0;
+    i_available_angles = 0;
+
+//    current_chapter = Phonon::ChapterDescription();
+//    available_chapters.clear();
+    current_chapter = 0;
+    available_chapters = 0;
+
+//    current_title = Phonon::TitleDescription();
+//    available_titles.clear();
+    current_title = 0;
+    available_titles = 0;
+
+    b_autoplay_titles = false;
+
+    emit availableAudioChannelsChanged();
+    emit availableSubtitlesChanged();
+    emit availableTitlesChanged(0);
+    emit availableChaptersChanged(0);
+}
+
+// Add audio channel -> in libvlc it is track, it means audio in another language
+void MediaController::audioChannelAdded(int id, const QString &lang)
+{
+    QHash<QByteArray, QVariant> properties;
+    properties.insert("name", lang);
+    properties.insert("description", "");
+
+    available_audio_channels << Phonon::AudioChannelDescription(id, properties);
+    emit availableAudioChannelsChanged();
+}
+
+// Add subtitle
+void MediaController::subtitleAdded(int id, const QString &lang, const QString &type)
+{
+    QHash<QByteArray, QVariant> properties;
+    properties.insert("name", lang);
+    properties.insert("description", "");
+    properties.insert("type", type);
+
+    available_subtitles << Phonon::SubtitleDescription(id, properties);
+    emit availableSubtitlesChanged();
+}
+
+// Add title
+void MediaController::titleAdded(int id, const QString &name)
+{
+//    QHash<QByteArray, QVariant> properties;
+//    properties.insert("name", name);
+//    properties.insert("description", "");
+
+//    available_titles << Phonon::TitleDescription(id, properties);
+    available_titles++;
+    emit availableTitlesChanged(available_titles);
+}
+
+// Add chapter
+void MediaController::chapterAdded(int titleId, const QString &name)
+{
+//    QHash<QByteArray, QVariant> properties;
+//    properties.insert("name", name);
+//    properties.insert("description", "");
+
+//    available_chapters << Phonon::ChapterDescription(titleId, properties);
+    available_chapters++;
+    emit availableChaptersChanged(available_chapters);
+}
+
+// Audio channel
+
+void MediaController::setCurrentAudioChannel(const Phonon::AudioChannelDescription &audioChannel)
+{
+    current_audio_channel = audioChannel;
+    if (libvlc_audio_set_track(p_vlc_media_player, audioChannel.index())) {
+        qDebug() << "libvlc exception:" << libvlc_errmsg();
+    }
+}
+
+QList<Phonon::AudioChannelDescription> MediaController::availableAudioChannels() const
+{
+    return available_audio_channels;
+}
+
+Phonon::AudioChannelDescription MediaController::currentAudioChannel() const
+{
+    return current_audio_channel;
+}
+
+void MediaController::refreshAudioChannels()
+{
+    current_audio_channel = Phonon::AudioChannelDescription();
+    available_audio_channels.clear();
+
+    libvlc_track_description_t *p_info = libvlc_audio_get_track_description(p_vlc_media_player);
+    while (p_info) {
+        audioChannelAdded(p_info->i_id, p_info->psz_name);
+        p_info = p_info->p_next;
+    }
+    libvlc_track_description_release(p_info);
+}
+
+// Subtitle
+
+void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &subtitle)
+{
+    current_subtitle = subtitle;
+//    int id = current_subtitle.index();
+    QString type = current_subtitle.property("type").toString();
+
+    if (type == "file") {
+        QString filename = current_subtitle.property("name").toString();
+        if (!filename.isEmpty()) {
+            if (!libvlc_video_set_subtitle_file(p_vlc_media_player,
+                                                filename.toAscii().data())) {
+                qDebug() << "libvlc exception:" << libvlc_errmsg();
+            }
+
+            // There is no subtitle event inside libvlc so let's send our own event...
+            available_subtitles << current_subtitle;
+            emit availableSubtitlesChanged();
+        }
+    } else {
+        if (libvlc_video_set_spu(p_vlc_media_player, subtitle.index())) {
+            qDebug() << "libvlc exception:" << libvlc_errmsg();
+        }
+    }
+}
+
+QList<Phonon::SubtitleDescription> MediaController::availableSubtitles() const
+{
+    return available_subtitles;
+}
+
+Phonon::SubtitleDescription MediaController::currentSubtitle() const
+{
+    return current_subtitle;
+}
+
+void MediaController::refreshSubtitles()
+{
+    current_subtitle = Phonon::SubtitleDescription();
+    available_subtitles.clear();
+
+    libvlc_track_description_t *p_info = libvlc_video_get_spu_description(
+            p_vlc_media_player);
+    while (p_info) {
+        subtitleAdded(p_info->i_id, p_info->psz_name, "");
+        p_info = p_info->p_next;
+    }
+    libvlc_track_description_release(p_info);
+}
+
+// Title
+
+//void MediaController::setCurrentTitle( const Phonon::TitleDescription & title )
+void MediaController::setCurrentTitle(int title)
+{
+    current_title = title;
+
+//    libvlc_media_player_set_title(p_vlc_media_player, title.index(), vlc_exception);
+    libvlc_media_player_set_title(p_vlc_media_player, title);
+}
+
+//QList<Phonon::TitleDescription> MediaController::availableTitles() const
+int MediaController::availableTitles() const
+{
+    return available_titles;
+}
+
+//Phonon::TitleDescription MediaController::currentTitle() const
+int MediaController::currentTitle() const
+{
+    return current_title;
+}
+
+void MediaController::setAutoplayTitles(bool autoplay)
+{
+    b_autoplay_titles = autoplay;
+}
+
+bool MediaController::autoplayTitles() const
+{
+    return b_autoplay_titles;
+}
+
+// Chapter
+
+//void MediaController::setCurrentChapter(const Phonon::ChapterDescription &chapter)
+void MediaController::setCurrentChapter(int chapter)
+{
+    current_chapter = chapter;
+//    libvlc_media_player_set_chapter(p_vlc_media_player, chapter.index(), vlc_exception);
+    libvlc_media_player_set_chapter(p_vlc_media_player, chapter);
+}
+
+//QList<Phonon::ChapterDescription> MediaController::availableChapters() const
+int MediaController::availableChapters() const
+{
+    return available_chapters;
+}
+
+//Phonon::ChapterDescription MediaController::currentChapter() const
+int MediaController::currentChapter() const
+{
+    return current_chapter;
+}
+
+// We need to rebuild available chapters when title is changed
+void MediaController::refreshChapters(int i_title)
+{
+//    current_chapter = Phonon::ChapterDescription();
+//    available_chapters.clear();
+    current_chapter = 0;
+    available_chapters = 0;
+
+    // Get the description of available chapters for specific title
+    libvlc_track_description_t *p_info = libvlc_video_get_chapter_description(
+            p_vlc_media_player, i_title);
+    while (p_info) {
+        chapterAdded(p_info->i_id, p_info->psz_name);
+        p_info = p_info->p_next;
+    }
+    libvlc_track_description_release(p_info);
+}
+
+// Angle
+
+void MediaController::setCurrentAngle(int angleNumber)
+{
+    i_current_angle = angleNumber;
+}
+
+int MediaController::availableAngles() const
+{
+    return i_available_angles;
+}
+
+int MediaController::currentAngle() const
+{
+    return i_current_angle;
 }
 
 }

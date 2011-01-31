@@ -49,15 +49,15 @@ namespace VLC
  */
 MediaObject::MediaObject(QObject *p_parent)
     : QObject(p_parent)
-    , m_currentState(Phonon::StoppedState)
     , m_videoWidget(0)
+    , m_nextSource(MediaSource(QUrl()))
+    , m_currentState(Phonon::StoppedState)
     , m_prefinishEmitted(false)
     , m_aboutToFinishEmitted(false)
-    , m_transitionTime(0)
     // By default, no tick() signal
     // FIXME: Not implemented yet
     , m_tickInterval(0)
-    , m_nextSource(MediaSource(QUrl()))
+    , m_transitionTime(0)
 {
     qRegisterMetaType<QMultiMap<QString, QString> >("QMultiMap<QString, QString>");
 

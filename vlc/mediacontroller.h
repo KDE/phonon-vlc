@@ -27,6 +27,8 @@
 #include <phonon/addoninterface.h>
 #include <phonon/objectdescription.h>
 
+struct libvlc_media_player_t;
+
 namespace Phonon
 {
 namespace VLC
@@ -61,51 +63,58 @@ public:
     virtual void availableSubtitlesChanged() = 0;
     virtual void availableAudioChannelsChanged() = 0;
 
-//    virtual void availableChaptersChanged() = 0;
-//    virtual void availableTitlesChanged() = 0;
     virtual void availableChaptersChanged(int) = 0;
     virtual void availableTitlesChanged(int) = 0;
 
     virtual void availableAnglesChanged(int i_available_angles) = 0;
     virtual void angleChanged(int i_angle_number) = 0;
     virtual void chapterChanged(int i_chapter_number) = 0;
-    virtual void titleChanged(int i_title_number) = 0;
+
+
+    void audioChannelAdded(int id, const QString &lang);
+    void subtitleAdded(int id, const QString &lang, const QString &type);
+    void titleAdded(int id, const QString &name);
+    void chapterAdded(int titleId, const QString &name);
+
 
 protected:
 
     // AudioChannel
-    virtual void setCurrentAudioChannel(const Phonon::AudioChannelDescription &audioChannel) = 0;
-    virtual QList<Phonon::AudioChannelDescription> availableAudioChannels() const = 0;
-    virtual Phonon::AudioChannelDescription currentAudioChannel() const = 0;
+    void setCurrentAudioChannel(const Phonon::AudioChannelDescription &audioChannel);
+    QList<Phonon::AudioChannelDescription> availableAudioChannels() const;
+    Phonon::AudioChannelDescription currentAudioChannel() const;
+    void refreshAudioChannels();
 
     // Subtitle
-    virtual void setCurrentSubtitle(const Phonon::SubtitleDescription &subtitle) = 0;
-    virtual QList<Phonon::SubtitleDescription> availableSubtitles() const = 0;
-    virtual Phonon::SubtitleDescription currentSubtitle() const = 0;
+    void setCurrentSubtitle(const Phonon::SubtitleDescription &subtitle);
+    QList<Phonon::SubtitleDescription> availableSubtitles() const;
+    Phonon::SubtitleDescription currentSubtitle() const;
+    void refreshSubtitles();
 
     // Angle
-    virtual void setCurrentAngle(int i_angle_number) = 0;
-    virtual int availableAngles() const = 0;
-    virtual int currentAngle() const = 0;
+    void setCurrentAngle(int angleNumber);
+    int availableAngles() const;
+    int currentAngle() const;
 
     // Chapter
-//    virtual void setCurrentChapter( const Phonon::ChapterDescription & chapter ) = 0;
-//    virtual QList<Phonon::ChapterDescription> availableChapters() const = 0;
-//    virtual Phonon::ChapterDescription currentChapter() const = 0;
-    virtual void setCurrentChapter(int chapterNumber) = 0;
-    virtual int availableChapters() const = 0;
-    virtual int currentChapter() const = 0;
+//    void setCurrentChapter( const Phonon::ChapterDescription & chapter );
+//    QList<Phonon::ChapterDescription> availableChapters() const;
+//    Phonon::ChapterDescription currentChapter() const;
+    void setCurrentChapter(int chapterNumber);
+    int availableChapters() const;
+    int currentChapter() const;
+    void refreshChapters(int i_title);
 
     // Title
-//    virtual void setCurrentTitle( const Phonon::TitleDescription & title ) = 0;
-//    virtual QList<Phonon::TitleDescription> availableTitles() const = 0;
-//    virtual Phonon::TitleDescription currentTitle() const = 0;
-    virtual void setCurrentTitle(int titleNumber) = 0;
-    virtual int availableTitles() const = 0;
-    virtual int currentTitle() const = 0;
+//    void setCurrentTitle( const Phonon::TitleDescription & title );
+//    QList<Phonon::TitleDescription> availableTitles() const;
+//    Phonon::TitleDescription currentTitle() const;
+    void setCurrentTitle(int titleNumber);
+    int availableTitles() const;
+    int currentTitle() const;
 
-    virtual void setAutoplayTitles(bool b_autoplay) = 0;
-    virtual bool autoplayTitles() const = 0;
+    void setAutoplayTitles(bool autoplay);
+    bool autoplayTitles() const;
 
     /**
      * Clear all (i.e availableSubtitles, availableChapters...).
@@ -134,6 +143,10 @@ protected:
     int i_available_angles;
 
     bool b_autoplay_titles;
+
+    // MediaPlayer
+    libvlc_media_player_t *p_vlc_media_player;
+
 
 private:
 };

@@ -24,11 +24,11 @@
 #ifndef PHONON_VLC_MEDIAOBJECT_H
 #define PHONON_VLC_MEDIAOBJECT_H
 
+#include <QtCore/QObject>
 #include <phonon/mediaobjectinterface.h>
 #include <phonon/addoninterface.h>
-#include "vlcmediacontroller.h"
+#include "mediacontroller.h"
 
-#include <QtCore/QObject>
 #include <QtGui/QWidget>
 
 #include "streamreader.h"
@@ -36,6 +36,10 @@
 // for BaseWidget
 #include "overlaywidget.h"
 
+struct libvlc_event_t;
+struct libvlc_event_manager_t;
+struct libvlc_media_t;
+struct libvlc_media_discoverer_t;
 
 namespace Phonon
 {
@@ -70,7 +74,7 @@ class SinkNode;
  * \see Phonon::MediaObjectInterface
  * \see VLCMediaObject
  */
-class MediaObject : public QObject, public MediaObjectInterface, public VLCMediaController
+class MediaObject : public QObject, public MediaObjectInterface, public MediaController
 {
     Q_OBJECT
     Q_INTERFACES(Phonon::MediaObjectInterface  Phonon::AddonInterface)
