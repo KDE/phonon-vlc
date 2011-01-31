@@ -25,7 +25,6 @@
 #define PHONON_VLC_SINKNODE_H
 
 #include <QtCore/QObject>
-#include <QtCore/QString>
 
 #ifndef PHONON_VLC_NO_EXPERIMENTAL
 #include "experimental/avcapture.h"
@@ -46,7 +45,7 @@ class MediaObject;
  * This class handles connections for the sink to a media object. It remembers
  * the media object and the libVLC media player associated with it.
  *
- * \see VLCMediaObject
+ * \see MediaObject
  */
 class SinkNode : public QObject
 {

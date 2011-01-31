@@ -202,12 +202,11 @@ private:
 
     static void libvlc_callback(const libvlc_event_t *p_event, void *p_user_data);
 
+    void loadMedia(const QString &filename);
     void unloadMedia();
+    void loadStream();
 
     void setVLCVideoWidget();
-
-    void loadMedia(const QString &filename);
-    void loadStream();
 
     void resume();
 
