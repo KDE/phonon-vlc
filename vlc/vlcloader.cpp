@@ -29,6 +29,8 @@
 #include <QtCore/QLibrary>
 #include <QtCore/QSettings>
 #include <QtCore/QString>
+#include <QtCore/QLatin1Literal>
+#include <QtCore/QStringBuilder>
 #include <QtCore/QStringList>
 #include <QtCore/QCoreApplication>
 
@@ -184,6 +186,16 @@ static QStringList findAllLibVlc()
 
     return foundVlcs;
 #elif defined(Q_OS_WIN)
+    // Current application path has highest priority.
+    // Application could be delivered with own copy of qt, phonon, backend, vlc and vlc plugins.
+    QString appDirVlc =
+            QDir::toNativeSeparators(QCoreApplication::applicationDirPath()
+                                     % QLatin1Char('\\')
+                                     % QLatin1Literal("libvlc.dll"));
+    if (QFile::exists(appDirVlc)) {
+        paths << appDirVlc;
+    }
+
     // Read VLC version and installation directory from Windows registry
     QSettings settings(QSettings::SystemScope, "VideoLAN", "VLC");
     QString vlcVersion = settings.value("Version").toString();
@@ -195,8 +207,6 @@ static QStringList findAllLibVlc()
         //If nothing is found in the registry try %PATH%
         QStringList searchPaths = QString::fromLatin1(qgetenv("PATH"))
                                   .split(QLatin1Char(';'), QString::SkipEmptyParts);
-        //search also in the application dir
-        searchPaths.append(QCoreApplication::applicationDirPath());
 
         QStringList foundVlcs;
         foreach(const QString & sp, searchPaths) {
