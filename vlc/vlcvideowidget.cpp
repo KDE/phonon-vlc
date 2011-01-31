@@ -36,8 +36,8 @@ namespace VLC
 
 VLCVideoWidget::VLCVideoWidget(QWidget *parent, VideoWidget *videoWidget) :
     OverlayWidget(parent),
-    m_videoWidget(videoWidget),
-    m_customRender(false)
+    m_customRender(false),
+    m_videoWidget(videoWidget)
 {
     // Set background color
     setBackgroundColor(Qt::black);
