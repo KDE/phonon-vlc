@@ -32,9 +32,9 @@ namespace VLC
 
 SinkNode::SinkNode(QObject *p_parent)
     : QObject(p_parent)
+    , p_media_object(0)
+    , p_vlc_player(0)
 {
-    p_media_object = 0;
-    p_vlc_player = 0;
 }
 
 SinkNode::~SinkNode()

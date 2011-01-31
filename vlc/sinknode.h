@@ -68,7 +68,7 @@ public:
     virtual void disconnectFromAvCapture(Experimental::AvCapture *avCapture);
     #endif // PHONON_VLC_NO_EXPERIMENTAL
 
-    virtual void addToMedia( libvlc_media_t * media );
+    virtual void addToMedia(libvlc_media_t *media);
 
 protected:
 
