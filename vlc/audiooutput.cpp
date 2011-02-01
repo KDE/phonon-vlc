@@ -27,8 +27,9 @@
 
 #include <vlc/vlc.h>
 
-#include "devicemanager.h"
 #include "backend.h"
+#include "devicemanager.h"
+#include "mediaobject.h"
 
 namespace Phonon
 {
@@ -42,7 +43,7 @@ namespace VLC
  * \param p_parent A parent object
  */
 AudioOutput::AudioOutput(Backend *p_back, QObject *p_parent)
-    : SinkNode(p_parent),
+    : QObject(p_parent),
       f_volume(1.0),
       i_device(0),
       p_backend(p_back)
@@ -51,6 +52,20 @@ AudioOutput::AudioOutput(Backend *p_back, QObject *p_parent)
 
 AudioOutput::~AudioOutput()
 {
+}
+
+void AudioOutput::connectToMediaObject(MediaObject *mediaObject)
+{
+    SinkNode::connectToMediaObject(mediaObject);
+    connect(m_mediaObject, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
+}
+
+void AudioOutput::disconnectFromMediaObject(MediaObject *mediaObject)
+{
+    SinkNode::disconnectFromMediaObject(mediaObject);
+    if (m_mediaObject) {
+        disconnect(m_mediaObject, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
+    }
 }
 
 #ifndef PHONON_VLC_NO_EXPERIMENTAL

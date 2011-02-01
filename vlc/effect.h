@@ -49,7 +49,7 @@ class EffectManager;
  * \see EffectManager
  * \see VolumeFaderEffect
  */
-class Effect : public SinkNode, public EffectInterface
+class Effect : public QObject, public SinkNode, public EffectInterface
 {
     Q_OBJECT
     Q_INTERFACES(Phonon::EffectInterface)

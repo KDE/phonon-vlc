@@ -45,7 +45,7 @@ namespace VLC
  * \li Left \li Right \li Center \li LeftSurround \li RightSurround \li Subwoofer
  */
 AudioDataOutput::AudioDataOutput(Backend *backend, QObject *parent)
-    : SinkNode(parent)
+    : QObject(parent)
 {
     Q_UNUSED(backend)
 

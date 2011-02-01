@@ -24,8 +24,6 @@
 #ifndef PHONON_VLC_SINKNODE_H
 #define PHONON_VLC_SINKNODE_H
 
-#include <QtCore/QObject>
-
 struct libvlc_media_t;
 struct libvlc_media_player_t;
 
@@ -49,12 +47,10 @@ class MediaObject;
  *
  * \see MediaObject
  */
-class SinkNode : public QObject
+class SinkNode
 {
-    Q_OBJECT
-
 public:
-    SinkNode(QObject *p_parent);
+    SinkNode();
     virtual ~SinkNode();
 
     /**
@@ -109,12 +105,6 @@ public:
 protected:
     MediaObject *m_mediaObject;
     libvlc_media_player_t *m_player;
-
-private slots:
-    /**
-     * Does nothing. To be reimplemented in child classes.
-     */
-    virtual void updateVolume();
 };
 
 }

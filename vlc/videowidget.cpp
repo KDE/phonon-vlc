@@ -42,7 +42,8 @@ namespace VLC
  * are set to their default values.
  */
 VideoWidget::VideoWidget(QWidget *p_parent) :
-    SinkNode(p_parent),
+    QObject(p_parent),
+    SinkNode(),
     m_img(0)
 {
     p_video_widget = new Widget(p_parent, this);

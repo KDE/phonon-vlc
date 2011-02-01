@@ -432,7 +432,7 @@ bool Backend::connectNodes(QObject *source, QObject *sink)
     // source = Phonon::Experimental::AvCapture
     // sink = Phonon::VLC::VideoWidget
 
-    SinkNode *sinkNode = qobject_cast<SinkNode *>(sink);
+    SinkNode *sinkNode = reinterpret_cast<SinkNode *>(sink);
     if (sinkNode) {
         MediaObject *mediaObject = qobject_cast<MediaObject *>(source);
         if (mediaObject) {
@@ -476,7 +476,7 @@ bool Backend::connectNodes(QObject *source, QObject *sink)
  */
 bool Backend::disconnectNodes(QObject *source, QObject *sink)
 {
-    SinkNode *sinkNode = qobject_cast<SinkNode *>(sink);
+    SinkNode *sinkNode = reinterpret_cast<SinkNode *>(sink);
     if (sinkNode) {
         MediaObject *const mediaObject = qobject_cast<MediaObject *>(source);
         if (mediaObject) {

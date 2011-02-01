@@ -33,7 +33,8 @@ namespace VLC
 {
 
 Effect::Effect(EffectManager *p_em, int i_effectId, QObject *p_parent)
-    : SinkNode(p_parent)
+    : QObject(p_parent)
+    , SinkNode()
 {
     p_effectManager = p_em;
     const QList<EffectInfo *> effects = p_effectManager->effects();
@@ -101,7 +102,7 @@ void Effect::setupEffectParams()
 //    if( !p_list )
 //        return;
 
-    int i_index = 0;
+//    int i_index = 0;
 //    libvlc_filter_parameter_list_t *p_parameter_list = p_list;
 //    while (p_parameter_list) {
 //        switch (p_parameter_list->var_type) {

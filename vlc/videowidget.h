@@ -24,13 +24,13 @@
 #ifndef PHONON_VLC_VIDEOWIDGET_H
 #define PHONON_VLC_VIDEOWIDGET_H
 
+#include <QtCore/QObject>
 #include "sinknode.h"
+#include <phonon/videowidgetinterface.h>
 
 #ifndef PHONON_VLC_NO_EXPERIMENTAL
 #include "experimental/avcapture.h"
 #endif // PHONON_VLC_NO_EXPERIMENTAL
-
-#include <phonon/videowidgetinterface.h>
 
 #include "vlcvideowidget.h"
 typedef Phonon::VLC::VLCVideoWidget Widget;
@@ -53,7 +53,7 @@ namespace VLC
  * \internal A VLCVideoWidget is owned by this widget. That widget is used for the actual
  * drawings of libVLC.
  */
-class VideoWidget : public SinkNode, public VideoWidgetInterface
+class VideoWidget : public QObject, public SinkNode, public VideoWidgetInterface
 {
     Q_OBJECT
     Q_INTERFACES(Phonon::VideoWidgetInterface)

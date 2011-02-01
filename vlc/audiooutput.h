@@ -24,9 +24,9 @@
 #ifndef PHONON_VLC_AUDIOOUTPUT_H
 #define PHONON_VLC_AUDIOOUTPUT_H
 
-#include "sinknode.h"
-
+#include <QtCore/QObject>
 #include <phonon/audiooutputinterface.h>
+#include "sinknode.h"
 
 namespace Phonon
 {
@@ -45,7 +45,7 @@ class Backend;
  *
  * \see AudioDataOutput
  */
-class AudioOutput : public SinkNode, public AudioOutputInterface
+class AudioOutput : public QObject, public SinkNode, public AudioOutputInterface
 {
     Q_OBJECT
     Q_INTERFACES(Phonon::AudioOutputInterface)
@@ -55,10 +55,19 @@ public:
     AudioOutput(Backend *p_back, QObject *p_parent);
     ~AudioOutput();
 
-    #ifndef PHONON_VLC_NO_EXPERIMENTAL
+    /* Overload */
+    virtual void connectToMediaObject(MediaObject *mediaObject);
+
+    /* Overload */
+    virtual void disconnectFromMediaObject(MediaObject *mediaObject);
+
+#ifndef PHONON_VLC_NO_EXPERIMENTAL
+    /* Overload */
     void connectToAvCapture(Experimental::AvCapture *avCapture);
+
+    /* Overload */
     void disconnectFromAvCapture(Experimental::AvCapture *avCapture);
-    #endif // PHONON_VLC_NO_EXPERIMENTAL
+#endif // PHONON_VLC_NO_EXPERIMENTAL
 
     qreal volume() const;
     void setVolume(qreal volume);

@@ -23,11 +23,16 @@
 #ifndef Phonon_VLC_AUDIODATAOUTPUT_H
 #define Phonon_VLC_AUDIODATAOUTPUT_H
 
-#include "backend.h"
-#include "sinknode.h"
-#include <QtCore/QMutex>
-#include <phonon/audiodataoutput.h>
+#include <QtCore/QObject>
 #include <phonon/audiodataoutputinterface.h>
+#include "sinknode.h"
+
+#include <QtCore/QMutex>
+
+#include <phonon/audiodataoutput.h>
+
+#include "backend.h"
+#include "abstractaudiooutput.h"
 
 //Allow PRId64 to be defined:
 #define __STDC_FORMAT_MACROS
@@ -57,8 +62,7 @@ namespace VLC
  *
  * \author Martin Sandsmark <sandsmark@samfundet.no>
  */
-class AudioDataOutput : public SinkNode,
-    public AudioDataOutputInterface
+class AudioDataOutput : public QObject, public SinkNode, public AudioDataOutputInterface
 {
     Q_OBJECT
     Q_INTERFACES(Phonon::AudioDataOutputInterface)

@@ -34,9 +34,8 @@ namespace Phonon
 namespace VLC
 {
 
-SinkNode::SinkNode(QObject *p_parent)
-    : QObject(p_parent)
-    , m_mediaObject(0)
+SinkNode::SinkNode()
+    : m_mediaObject(0)
     , m_player(0)
 {
 }
@@ -53,7 +52,6 @@ void SinkNode::connectToMediaObject(MediaObject *mediaObject)
 
     m_mediaObject = mediaObject;
     m_player = mediaObject->m_player;
-    connect(m_mediaObject, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
     m_mediaObject->addSink(this);
 }
 
@@ -65,7 +63,6 @@ void SinkNode::disconnectFromMediaObject(MediaObject *mediaObject)
 
     if (m_mediaObject) {
         m_mediaObject->removeSink(this);
-        disconnect(m_mediaObject, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
     }
 }
 
@@ -87,9 +84,5 @@ void SinkNode::disconnectFromAvCapture(Experimental::AvCapture *avCapture)
 }
 #endif // PHONON_VLC_NO_EXPERIMENTAL
 
-void SinkNode::updateVolume()
-{
 }
-
-}
-} // Namespace Phonon::VLC_MPlayer
+} // Namespace Phonon::VLC
