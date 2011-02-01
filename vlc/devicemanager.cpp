@@ -31,8 +31,6 @@
 
 #include "devicescan.h"
 #include "backend.h"
-//#include "videowidget.h"
-//#include "widgetrenderer.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -41,9 +39,6 @@ namespace Phonon
 namespace VLC
 {
 
-/**
- * Constructs a device info object and sets it's device identifiers.
- */
 DeviceInfo::DeviceInfo( const QByteArray& name, const QString& description)
 {
     // Get an id
@@ -56,9 +51,6 @@ DeviceInfo::DeviceInfo( const QByteArray& name, const QString& description)
     capabilities = None;
 }
 
-/**
- * Constructs a device manager and immediately updates the device lists.
- */
 DeviceManager::DeviceManager(Backend *parent)
     : QObject(parent)
     , m_backend(parent)
@@ -66,9 +58,6 @@ DeviceManager::DeviceManager(Backend *parent)
     updateDeviceList();
 }
 
-/**
- * Clears all the device lists before destroying.
- */
 DeviceManager::~DeviceManager()
 {
     m_audioCaptureDeviceList.clear();
@@ -76,20 +65,11 @@ DeviceManager::~DeviceManager()
     m_audioOutputDeviceList.clear();
 }
 
-/**
- * \return True if the device can be opened.
- */
 bool DeviceManager::canOpenDevice() const
 {
     return true;
 }
 
-/**
- * Searches for the device in the device lists, by comparing it's name
- *
- * \param name Name identifier for the device to search for
- * \return A positive device id or -1 if device does not exist.
- */
 int DeviceManager::deviceId(const QByteArray &name) const
 {
     for (int i = 0 ; i < m_audioCaptureDeviceList.size() ; ++i) {
@@ -110,10 +90,6 @@ int DeviceManager::deviceId(const QByteArray &name) const
     return -1;
 }
 
-/**
- * Get a human-readable description from a device id.
- * \param i_id Device identifier
- */
 QString DeviceManager::deviceDescription(int i_id) const
 {
     for (int i = 0 ; i < m_audioCaptureDeviceList.size() ; ++i) {
@@ -134,17 +110,6 @@ QString DeviceManager::deviceDescription(int i_id) const
     return QByteArray();
 }
 
-/** \internal
- * Compares the list with the devices available at the moment with the last list. If
- * a new device is seen, a signal is emitted. If a device dissapeared, another signal
- * is emitted. The devices are only from one category (example audio output devices).
- *
- * \param newDevices The list for the devices currently available
- * \param deviceList The old device list
- *
- * \see deviceAdded
- * \see deviceRemoved
- */
 void DeviceManager::updateDeviceSublist(const QList<DeviceInfo> &newDevices, QList<DeviceInfo> &deviceList)
 {
     // New and old device counts
@@ -179,11 +144,6 @@ void DeviceManager::updateDeviceSublist(const QList<DeviceInfo> &newDevices, QLi
     }
 }
 
-/**
- * Update the current list of active devices. It probes for audio output devices,
- * audio capture devices, video capture devices. The methods depend on the
- * device types.
- */
 void DeviceManager::updateDeviceList()
 {
     // Lists for capture devices
@@ -258,25 +218,16 @@ void DeviceManager::updateDeviceList()
     updateDeviceSublist(aos, m_audioOutputDeviceList);
 }
 
-/**
-* Return a list of name identifiers for audio capture devices.
-*/
 const QList<DeviceInfo> DeviceManager::audioCaptureDevices() const
 {
     return m_audioCaptureDeviceList;
 }
 
-/**
-* Return a list of name identifiers for video capture devices.
-*/
 const QList<DeviceInfo> DeviceManager::videoCaptureDevices() const
 {
     return m_videoCaptureDeviceList;
 }
 
-/**
- * Return a list of name identifiers for audio output devices.
- */
 const QList<DeviceInfo> DeviceManager::audioOutputDevices() const
 {
     return m_audioOutputDeviceList;

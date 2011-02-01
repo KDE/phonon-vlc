@@ -21,8 +21,6 @@
 #ifndef Phonon_VLC_DEVICEMANAGER_H
 #define Phonon_VLC_DEVICEMANAGER_H
 
-#include <phonon/audiooutputinterface.h>
-
 #include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
@@ -34,8 +32,6 @@ namespace VLC
 
 class Backend;
 class DeviceManager;
-class AbstractRenderer;
-class VideoWidget;
 
 /** \brief Container for information about devices supported by libVLC
  *
@@ -53,6 +49,9 @@ public:
         VideoCapture    = 0x0004
     };
 public:
+    /**
+     * Constructs a device info object and sets it's device identifiers.
+     */
     DeviceInfo(const QByteArray& name, const QString& description = "");
 
     int id;
@@ -80,12 +79,43 @@ class DeviceManager : public QObject
     Q_OBJECT
 
 public:
+    /**
+     * Constructs a device manager and immediately updates the device lists.
+     */
     DeviceManager(Backend *parent);
+
+    /**
+     * Clears all the device lists before destroying.
+     */
     virtual ~DeviceManager();
+
+    /**
+    * \return a list of name identifiers for audio capture devices.
+    */
     const QList<DeviceInfo> audioCaptureDevices() const;
+
+    /**
+    * \return a list of name identifiers for video capture devices.
+    */
     const QList<DeviceInfo> videoCaptureDevices() const;
+
+    /**
+     * \return a list of name identifiers for audio output devices.
+     */
     const QList<DeviceInfo> audioOutputDevices() const;
+
+    /**
+     * Searches for the device in the device lists, by comparing it's name
+     *
+     * \param name Name identifier for the device to search for
+     * \return A positive device id or -1 if device does not exist.
+     */
     int deviceId(const QByteArray &vlcId) const;
+
+    /**
+     * Get a human-readable description from a device id.
+     * \param i_id Device identifier
+     */
     QString deviceDescription( int i_id) const;
 
 signals:
@@ -93,10 +123,30 @@ signals:
     void deviceRemoved(int);
 
 public slots:
+    /**
+     * Update the current list of active devices. It probes for audio output devices,
+     * audio capture devices, video capture devices. The methods depend on the
+     * device types.
+     */
     void updateDeviceList();
 
 private:
+    /**
+     * \return True if the device can be opened.
+     */
     bool canOpenDevice() const;
+
+    /** \internal
+     * Compares the list with the devices available at the moment with the last list. If
+     * a new device is seen, a signal is emitted. If a device dissapeared, another signal
+     * is emitted. The devices are only from one category (example audio output devices).
+     *
+     * \param newDevices The list for the devices currently available
+     * \param deviceList The old device list
+     *
+     * \see deviceAdded
+     * \see deviceRemoved
+     */
     void updateDeviceSublist(const QList<DeviceInfo> &newDevices, QList<Phonon::VLC::DeviceInfo> &deviceList);
 
 private:
