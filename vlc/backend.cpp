@@ -25,9 +25,11 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
+#include <QtCore/QLatin1Literal>
 #include <QtCore/QLibrary>
 #include <QtCore/QSet>
-#include <QtCore/QStringList>
+#include <QtCore/QSettings>
+#include <QtCore/QStringBuilder>
 #include <QtCore/QtPlugin>
 #include <QtCore/QVariant>
 
