@@ -28,9 +28,9 @@
 #include <QtGui/QDesktopWidget>
 #include <QtCore/QtDebug>
 
-#include "mediaobject.h"
+#include <vlc/vlc.h>
 
-#include "vlcloader.h"
+#include "mediaobject.h"
 
 namespace Phonon
 {

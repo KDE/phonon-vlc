@@ -22,15 +22,17 @@
  *****************************************************************************/
 
 #include "devicemanager.h"
-#include "devicescan.h"
-#include "backend.h"
-//#include "videowidget.h"
-//#include "widgetrenderer.h"
-#include "vlcloader.h"
 
 #ifdef PHONON_PULSESUPPORT
 #  include <phonon/pulsesupport.h>
 #endif
+
+#include <vlc/vlc.h>
+
+#include "devicescan.h"
+#include "backend.h"
+//#include "videowidget.h"
+//#include "widgetrenderer.h"
 
 QT_BEGIN_NAMESPACE
 

@@ -38,6 +38,13 @@
 #include <QtCore/QPointer>
 #include <QtCore/QStringList>
 
+struct libvlc_instance_t;
+
+/**
+ * VLC library instance global variable.
+ */
+extern libvlc_instance_t *vlc_instance;
+
 namespace Phonon
 {
 namespace VLC
@@ -97,6 +104,32 @@ Q_SIGNALS:
     void objectDescriptionChanged(ObjectDescriptionType);
 
 private:
+    /**
+     * Get VLC path.
+     *
+     * @return the VLC path
+     */
+    QString vlcPath();
+
+    /**
+     * Unload VLC library.
+     */
+    void vlcUnload();
+
+    /**
+     * Initialize and launch VLC library.
+     *
+     * instance and global variables are initialized.
+     *
+     * @return VLC initialization result
+     */
+    bool vlcInit(int debugLevl = 0);
+
+    /**
+     * Stop VLC library.
+     */
+    void vlcRelease();
+
     mutable QStringList m_supportedMimeTypes;
     QList<QPointer<AudioOutput> > m_audioOutputs;
 

@@ -20,14 +20,15 @@
  *****************************************************************************/
 
 #include "audiooutput.h"
-#include "devicemanager.h"
-#include "backend.h"
-
-#include "vlcloader.h"
 
 #ifdef PHONON_PULSESUPPORT
 #  include <phonon/pulsesupport.h>
 #endif
+
+#include <vlc/vlc.h>
+
+#include "devicemanager.h"
+#include "backend.h"
 
 namespace Phonon
 {
