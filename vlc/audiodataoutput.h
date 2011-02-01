@@ -32,7 +32,6 @@
 #include <phonon/audiodataoutput.h>
 
 #include "backend.h"
-#include "abstractaudiooutput.h"
 
 //Allow PRId64 to be defined:
 #define __STDC_FORMAT_MACROS
