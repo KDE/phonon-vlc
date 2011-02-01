@@ -30,13 +30,13 @@ struct libvlc_media_player_t;
 namespace Phonon
 {
 
+namespace VLC
+{
+
 namespace Experimental
 {
     class AvCapture;
 }
-
-namespace VLC
-{
 
 class MediaObject;
 

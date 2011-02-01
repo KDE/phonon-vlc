@@ -56,12 +56,12 @@ void AvCapture::stop()
     m_videoMedia.stop();
 }
 
-PrivateMediaObject* AvCapture::audioMediaObject()
+MediaObject* AvCapture::audioMediaObject()
 {
     return &m_audioMedia;
 }
 
-PrivateMediaObject* AvCapture::videoMediaObject()
+MediaObject* AvCapture::videoMediaObject()
 {
     return &m_videoMedia;
 }

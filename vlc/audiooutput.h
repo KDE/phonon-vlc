@@ -65,7 +65,7 @@ public:
     /* Overload */
     void connectToAvCapture(Experimental::AvCapture *avCapture);
 
-    /* Overload */
+   /* Overload */
     void disconnectFromAvCapture(Experimental::AvCapture *avCapture);
 #endif // PHONON_VLC_NO_EXPERIMENTAL
 

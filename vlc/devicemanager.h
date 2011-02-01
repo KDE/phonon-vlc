@@ -23,6 +23,8 @@
 
 #include <QtCore/QObject>
 
+#include <Phonon/ObjectDescription>
+
 QT_BEGIN_NAMESPACE
 
 namespace Phonon
@@ -31,7 +33,6 @@ namespace VLC
 {
 
 class Backend;
-class DeviceManager;
 
 /** \brief Container for information about devices supported by libVLC
  *
