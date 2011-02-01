@@ -66,7 +66,7 @@ public:
 
 protected:
     MediaObject *m_mediaObject;
-    libvlc_media_player_t *m_vlcPlayer;
+    libvlc_media_player_t *m_player;
 
 private slots:
     virtual void updateVolume();

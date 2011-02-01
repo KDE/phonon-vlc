@@ -33,7 +33,7 @@ namespace VLC
 SinkNode::SinkNode(QObject *p_parent)
     : QObject(p_parent)
     , m_mediaObject(0)
-    , m_vlcPlayer(0)
+    , m_player(0)
 {
 }
 
@@ -56,7 +56,7 @@ void SinkNode::connectToMediaObject(MediaObject *mediaObject)
     }
 
     m_mediaObject = mediaObject;
-    m_vlcPlayer = mediaObject->m_player;
+    m_player = mediaObject->m_player;
     connect(m_mediaObject, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
     m_mediaObject->addSink(this);
 }
