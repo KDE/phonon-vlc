@@ -112,7 +112,9 @@ void StreamReader::setCurrentPos(qint64 pos)
     QMutexLocker lock(&m_mutex);
     m_pos = pos;
     m_buffer.clear(); // Not optimal, but meh
-    m_size = 0;
+
+    // Do not touch m_size here, it reflects the size of the stream not the size of the buffer,
+    // and generally seeking does not change the size!
 
     seekStream(pos);
 }
