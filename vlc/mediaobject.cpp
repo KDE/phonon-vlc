@@ -24,9 +24,10 @@
 
 #include "mediaobject.h"
 
-#include <QtCore/QUrl>
+#include <QtCore/QFile>
 #include <QtCore/QMetaType>
 #include <QtCore/QTimer>
+#include <QtCore/QUrl>
 
 #include "vlc/vlc.h"
 
@@ -217,7 +218,7 @@ void MediaObject::loadMedia(const QString &filename)
     // Default MediaObject state is Phonon::BufferingState
     emit stateChanged(Phonon::BufferingState);
 
-    m_currentFile = QUrl::toPercentEncoding(filename, ":/?=&,@");
+    m_currentFile = filename.toAscii().toPercentEncoding(":/?=&,@");
 
 #ifdef __GNUC__
 #warning TODO Why is this needed??? - probably Qt demo foobar?
@@ -350,9 +351,15 @@ void MediaObject::setSource(const MediaSource &source)
     case MediaSource::LocalFile:
     case MediaSource::Url: {
         qCritical() << __FUNCTION__ << "yeap, 'tis a local file or url" << source.url().scheme();
-        const QString &mrl = (source.url().scheme() == QLatin1String("") ?
-                              QLatin1String("file://") + source.url().toString() :
-                              source.url().toString());
+        QString mrl;
+        const QUrl &url = source.url();
+        if (url.scheme() == QLatin1String("")) {
+            mrl = QFile::encodeName("file://" + url.toString());
+        } else if ((url.scheme() ==  QLatin1String("file://"))) {
+            mrl = QFile::encodeName(url.toString());
+        } else {
+            mrl = QString(url.toString());
+        }
         loadMedia(mrl);
     }
     break;
