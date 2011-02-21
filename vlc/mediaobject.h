@@ -65,7 +65,7 @@ class SinkNode;
  *
  * This class does not contain methods directly involved with libVLC. This part is
  * handled by the VLCMediaObject class. There are protected methods and slots
- * inherited by that class, like loadMediaInternal(), playInternal(), seekInternal().
+ * inherited by that class, like playInternal(), seekInternal().
  * These methods have no implementation here.
  *
  * For documentation regarding the methods implemented for MediaObjectInterface, see
@@ -77,7 +77,7 @@ class SinkNode;
 class MediaObject : public QObject, public MediaObjectInterface, public MediaController
 {
     Q_OBJECT
-    Q_INTERFACES(Phonon::MediaObjectInterface  Phonon::AddonInterface)
+    Q_INTERFACES(Phonon::MediaObjectInterface Phonon::AddonInterface)
     friend class SinkNode;
     friend class SeekStack;
 
@@ -170,7 +170,6 @@ signals:
     void tickInternal(qint64 time);
 
 protected:
-    void loadMediaInternal(const QString &filename);
     void playInternal();
     void seekInternal(qint64 milliseconds);
     void setOption(QString opt);

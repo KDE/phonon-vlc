@@ -212,11 +212,17 @@ void MediaObject::tickInternalSlot(qint64 currentTime)
  */
 void MediaObject::loadMedia(const QString &filename)
 {
+    qDebug() << __FUNCTION__ << filename;
+
     // Default MediaObject state is Phonon::BufferingState
     emit stateChanged(Phonon::BufferingState);
 
-    // Load the media
-    loadMediaInternal(filename);
+    m_currentFile = QUrl::toPercentEncoding(filename, ":/?=&,@");
+
+#ifdef __GNUC__
+#warning TODO Why is this needed??? - probably Qt demo foobar?
+#endif
+    emit stateChanged(Phonon::StoppedState);
 }
 
 void MediaObject::resume()
@@ -565,21 +571,6 @@ void MediaObject::unloadMedia()
         libvlc_media_release(p_vlc_media);
         p_vlc_media = 0;
     }
-}
-
-/**
- * Sets p_current file to the desired filename. It will be loaded in playInternal().
- *
- * \see playInternal()
- */
-void MediaObject::loadMediaInternal(const QString &filename)
-{
-    qDebug() << __FUNCTION__ << filename;
-
-    m_currentFile = QUrl::toPercentEncoding(filename, ":/?=&,@");
-
-    // Why is this needed???
-    emit stateChanged(Phonon::StoppedState);
 }
 
 /**
