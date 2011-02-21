@@ -38,13 +38,6 @@
 #include <QtCore/QPointer>
 #include <QtCore/QStringList>
 
-struct libvlc_instance_t;
-
-/**
- * VLC library instance global variable.
- */
-extern libvlc_instance_t *vlc_instance;
-
 namespace Phonon
 {
 namespace VLC

@@ -35,8 +35,6 @@
 #include "sinknode.h"
 #include "streamhooks.h"
 
-extern libvlc_instance_t *vlc_instance;
-
 //Time in milliseconds before sending aboutToFinish() signal
 //2 seconds
 static const int ABOUT_TO_FINISH_TIME = 2000;
