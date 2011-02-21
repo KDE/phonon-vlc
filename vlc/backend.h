@@ -38,6 +38,8 @@
 #include <QtCore/QPointer>
 #include <QtCore/QStringList>
 
+class LibVLC;
+
 namespace Phonon
 {
 namespace VLC
@@ -99,6 +101,8 @@ Q_SIGNALS:
 private:
     mutable QStringList m_supportedMimeTypes;
     QList<QPointer<AudioOutput> > m_audioOutputs;
+
+    LibVLC *m_libVlc;
 
     DeviceManager *m_deviceManager;
     EffectManager *m_effectManager;

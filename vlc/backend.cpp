@@ -70,8 +70,9 @@ namespace VLC
  */
 Backend::Backend(QObject *parent, const QVariantList &)
     : QObject(parent)
-    , m_deviceManager(NULL)
-    , m_effectManager(NULL)
+    , m_libVlc(0)
+    , m_deviceManager(0)
+    , m_effectManager(0)
 {
     /* Backend information properties */
     setProperty("identifier",     QLatin1String("phonon_vlc"));
@@ -92,7 +93,7 @@ Backend::Backend(QObject *parent, const QVariantList &)
 #warning maybe have init called separately to enable more error handling??
 #endif
     /* Actual libVLC initialisation */
-    LibVLC(m_debugLevel);
+    m_libVlc = new LibVLC(m_debugLevel);
     logMessage(QString("Using VLC version %0").arg(libvlc_get_version()));
 
     m_deviceManager = new DeviceManager(this);
@@ -108,7 +109,7 @@ Backend::Backend(QObject *parent, const QVariantList &)
 
 Backend::~Backend()
 {
-//    vlcRelease();
+    delete m_libVlc;
 #ifdef PHONON_PULSESUPPORT
     PulseSupport::shutdown();
 #endif
