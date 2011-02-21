@@ -390,6 +390,15 @@ void MediaObject::setSource(const MediaSource &source)
         if (driverName == "v4l2") {
             loadMedia("v4l2://" + deviceName);
         } else if (driverName == "alsa") {
+            /*
+             * Replace "default" with "hw" for capture device names, because
+             * VLC does not want to open them when using default instead of hw.
+             * plughw also does not work.
+             */
+            if (deviceName.startsWith("default")) {
+                deviceName.replace(0, 7, "hw");
+            }
+
             loadMedia("alsa://" + deviceName);
         } else {
             qCritical() << __FUNCTION__ << "Error: unsupported MediaSource::CaptureDevice:" << driverName;
