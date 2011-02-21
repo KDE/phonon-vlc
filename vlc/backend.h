@@ -102,8 +102,6 @@ private:
     mutable QStringList m_supportedMimeTypes;
     QList<QPointer<AudioOutput> > m_audioOutputs;
 
-    LibVLC *m_libVlc;
-
     DeviceManager *m_deviceManager;
     EffectManager *m_effectManager;
     DebugLevel m_debugLevel;

@@ -93,7 +93,7 @@ Backend::Backend(QObject *parent, const QVariantList &)
 #warning maybe have init called separately to enable more error handling??
 #endif
     /* Actual libVLC initialisation */
-    m_libVlc = new LibVLC(m_debugLevel);
+    new LibVLC(m_debugLevel);
     logMessage(QString("Using VLC version %0").arg(libvlc_get_version()));
 
     m_deviceManager = new DeviceManager(this);
@@ -109,7 +109,9 @@ Backend::Backend(QObject *parent, const QVariantList &)
 
 Backend::~Backend()
 {
-    delete m_libVlc;
+    if (LibVLC::self) {
+        delete LibVLC::self;
+    }
 #ifdef PHONON_PULSESUPPORT
     PulseSupport::shutdown();
 #endif
