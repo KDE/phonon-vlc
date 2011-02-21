@@ -82,7 +82,9 @@ bool StreamReader::read(quint64 pos, int *length, char *buffer)
         if (oldSize == currentBufferSize()) {
             // We didn't get any more data
             *length = oldSize;
-            ret = false;
+            // If we have some data to return, why tell to reader that we failed?
+            // Remember that length argument is more like maxSize not requiredSize
+            ret = *length > 0;
         }
     }
 
