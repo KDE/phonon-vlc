@@ -38,7 +38,7 @@ SeekStack::SeekStack(MediaObject *mediaObject)
 
     p_timer = new QTimer(this);
     connect(p_timer, SIGNAL(timeout()),
-            p_timer, SLOT(popSeek()));
+            this, SLOT(popSeek()));
     p_timer->setInterval(1000);
 }
 
