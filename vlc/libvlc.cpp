@@ -41,6 +41,7 @@ LibVLC::~LibVLC()
 {
     libvlc_release(m_vlcInstance);
     vlcUnload();
+    self = 0;
 }
 
 void LibVLC::init(int debugLevel)
