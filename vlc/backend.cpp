@@ -70,7 +70,6 @@ namespace VLC
  */
 Backend::Backend(QObject *parent, const QVariantList &)
     : QObject(parent)
-    , m_libVlc(0)
     , m_deviceManager(0)
     , m_effectManager(0)
 {
