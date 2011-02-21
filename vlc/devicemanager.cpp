@@ -29,8 +29,9 @@
 
 #include <vlc/vlc.h>
 
-#include "devicescan.h"
 #include "backend.h"
+#include "devicescan.h"
+#include "libvlc.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -172,11 +173,11 @@ void DeviceManager::updateDeviceList()
     aos.append(DeviceInfo("default"));
     aos.last().capabilities = DeviceInfo::AudioOutput;
 
-    if(!vlc_instance)
+    if (!LibVLC::self)
         return;
 
     // Get the list of available audio outputs
-    libvlc_audio_output_t *p_ao_list = libvlc_audio_output_list_get(vlc_instance);
+    libvlc_audio_output_t *p_ao_list = libvlc_audio_output_list_get(libvlc);
     if (!p_ao_list) {
         qDebug() << "libvlc exception:" << libvlc_errmsg();
     }

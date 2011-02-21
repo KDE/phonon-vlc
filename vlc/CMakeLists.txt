@@ -44,6 +44,7 @@ set(phonon_vlc_SRCS
     devicemanager.cpp
     effect.cpp
     effectmanager.cpp
+    libvlc.cpp
     mediacontroller.cpp
     mediaobject.cpp
     overlaywidget.cpp

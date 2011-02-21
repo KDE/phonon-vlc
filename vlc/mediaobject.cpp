@@ -30,10 +30,10 @@
 
 #include "vlc/vlc.h"
 
-#include "streamhooks.h"
-
+#include "libvlc.h"
 #include "seekstack.h"
 #include "sinknode.h"
+#include "streamhooks.h"
 
 extern libvlc_instance_t *vlc_instance;
 
@@ -78,7 +78,7 @@ MediaObject::MediaObject(QObject *p_parent)
 //    m_nextSource = MediaSource(QUrl());
 
     // Create an empty Media Player object
-    m_player = libvlc_media_player_new(vlc_instance);
+    m_player = libvlc_media_player_new(libvlc);
     if (!m_player) {
         qDebug() << "libvlc exception:" << libvlc_errmsg();
     }
@@ -621,7 +621,7 @@ void MediaObject::playInternal()
     m_totalTime = -1;
 
     // Create a media with the given MRL
-    p_vlc_media = libvlc_media_new_location(vlc_instance, m_currentFile);
+    p_vlc_media = libvlc_media_new_location(libvlc, m_currentFile);
     if (!p_vlc_media) {
         qDebug() << "libvlc exception:" << libvlc_errmsg();
     }
