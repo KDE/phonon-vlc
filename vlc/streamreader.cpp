@@ -50,6 +50,17 @@ namespace Phonon
 namespace VLC
 {
 
+StreamReader::StreamReader(const Phonon::MediaSource &source, MediaObject *parent)
+    : m_pos(0)
+    , m_size(0)
+    , m_eos(false)
+    , m_gotDataOnce(false)
+    , m_seekable(false)
+    , m_mediaObject(parent)
+{
+    connectToSource(source);
+}
+
 bool StreamReader::read(quint64 pos, int *length, char *buffer)
 {
     QMutexLocker lock(&m_mutex);
@@ -66,18 +77,23 @@ bool StreamReader::read(quint64 pos, int *length, char *buffer)
         m_buffer.reserve(*length);
     }
 
-    while (currentBufferSize() < *length) {
+    while (currentBufferSize() < *length || !m_gotDataOnce) {
         int oldSize = currentBufferSize();
         needData();
 
         m_waitingForData.wait(&m_mutex);
 
-        if (oldSize == currentBufferSize()) {
+        if (oldSize == currentBufferSize() && m_gotDataOnce) {
+            if (m_eos) {
+                return false;
+            }
             // We didn't get any more data
             *length = oldSize;
             // If we have some data to return, why tell to reader that we failed?
             // Remember that length argument is more like maxSize not requiredSize
             ret = *length > 0;
+        } else if (!m_gotDataOnce && currentBufferSize() >= *length) {
+            m_gotDataOnce = true;
         }
     }
 
@@ -91,6 +107,12 @@ bool StreamReader::read(quint64 pos, int *length, char *buffer)
     // trim the buffer by the amount read
     m_buffer = m_buffer.mid(*length);
     return ret;
+}
+
+void StreamReader::endOfData()
+{
+    m_eos = true;
+    m_waitingForData.wakeAll();
 }
 
 void StreamReader::writeData(const QByteArray &data)

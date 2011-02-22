@@ -77,13 +77,7 @@ class StreamReader : public Phonon::StreamInterface
 {
 public:
 
-    StreamReader(const Phonon::MediaSource &source, MediaObject *parent)
-        : m_pos(0)
-        , m_size(0)
-        , m_seekable(false)
-        , m_mediaObject(parent) {
-        connectToSource(source);
-    }
+    StreamReader(const Phonon::MediaSource &source, MediaObject *parent);
 
     quint64 currentBufferSize() const {
         return m_buffer.size();
@@ -108,9 +102,7 @@ public:
      */
     bool read(quint64 offset, int *length, char *buffer);
 
-    void endOfData() {
-        m_waitingForData.wakeAll();
-    }
+    void endOfData();
 
     void setStreamSize(qint64 newSize) {
         m_size = newSize;
@@ -132,6 +124,8 @@ protected:
     QByteArray m_buffer;
     quint64 m_pos;
     quint64 m_size;
+    bool m_eos;
+    bool m_gotDataOnce;
     bool m_seekable;
     QMutex m_mutex;
     QWaitCondition m_waitingForData;
