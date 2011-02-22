@@ -21,7 +21,7 @@ along with this library.  If not, see <http://www.gnu.org/licenses/>.
  * Copyright (C) 2007-2008 Tanguy Krotoff <tkrotoff@gmail.com>               *
  * Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>                *
  * Copyright (C) 2009 Fathi Boudra <fabo@kde.org>                            *
- * Copyright (C) 2009-2010 vlc-phonon AUTHORS                                *
+ * Copyright (C) 2009-2011 vlc-phonon AUTHORS                                *
  *                                                                           *
  * This program is free software; you can redistribute it and/or             *
  * modify it under the terms of the GNU Lesser General Public                *
@@ -49,15 +49,7 @@ namespace Phonon
 {
 namespace VLC
 {
-/**
- * Requests data from this stream. The stream requests data from the
- * Phonon::MediaSource's abstract media stream with the needData() signal.
- * If the requested data is available, it is copied into the buffer.
- *
- * \param pos Position in the stream
- * \param length Length of the data requested
- * \param buffer A buffer to put the data
- */
+
 bool StreamReader::read(quint64 pos, int *length, char *buffer)
 {
     QMutexLocker lock(&m_mutex);
@@ -77,6 +69,7 @@ bool StreamReader::read(quint64 pos, int *length, char *buffer)
     while (currentBufferSize() < *length) {
         int oldSize = currentBufferSize();
         needData();
+
         m_waitingForData.wait(&m_mutex);
 
         if (oldSize == currentBufferSize()) {
@@ -88,25 +81,23 @@ bool StreamReader::read(quint64 pos, int *length, char *buffer)
         }
     }
 
-    qMemCopy(buffer, m_buffer.data(), *length);
+    if (m_mediaObject->state() != Phonon::BufferingState &&
+        m_mediaObject->state() != Phonon::LoadingState) {
+        enoughData();
+    }
 
+    qMemCopy(buffer, m_buffer.data(), *length);
+    m_pos += *length;
     // trim the buffer by the amount read
     m_buffer = m_buffer.mid(*length);
-    m_pos += *length;
-
     return ret;
 }
 
 void StreamReader::writeData(const QByteArray &data)
 {
     QMutexLocker lock(&m_mutex);
-    m_buffer += data;
-
+    m_buffer.append(data);
     m_waitingForData.wakeAll();
-
-    if (m_mediaObject->state() != Phonon::BufferingState
-        && m_mediaObject->state() != Phonon::LoadingState)
-        enoughData();
 }
 
 void StreamReader::setCurrentPos(qint64 pos)

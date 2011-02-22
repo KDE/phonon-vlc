@@ -97,6 +97,15 @@ public:
         return m_pos;
     }
 
+    /**
+     * Requests data from this stream. The stream requests data from the
+     * Phonon::MediaSource's abstract media stream with the needData() signal.
+     * If the requested data is available, it is copied into the buffer.
+     *
+     * \param pos Position in the stream
+     * \param length Length of the data requested
+     * \param buffer A buffer to put the data
+     */
     bool read(quint64 offset, int *length, char *buffer);
 
     void endOfData() {
