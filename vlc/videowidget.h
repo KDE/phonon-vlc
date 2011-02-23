@@ -28,16 +28,17 @@
 #include "sinknode.h"
 #include <phonon/videowidgetinterface.h>
 
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-#include "experimental/avcapture.h"
-#endif // PHONON_VLC_NO_EXPERIMENTAL
-
 #include <QtCore/QMutex>
 
 namespace Phonon
 {
 namespace VLC
 {
+
+namespace Experimental
+{
+class AvCapture;
+}
 
 /** \brief Implements the Phonon VideoWidget MediaNode, responsible for displaying video
  *
@@ -55,7 +56,15 @@ class VideoWidget : public OverlayWidget, public SinkNode, public VideoWidgetInt
     Q_OBJECT
     Q_INTERFACES(Phonon::VideoWidgetInterface)
 public:
+    /**
+     * Constructs a new VideoWidget with the given parent. The video settings members
+     * are set to their default values.
+     */
     VideoWidget(QWidget *parent);
+
+    /**
+     * Death to the VideoWidget!
+     */
     ~VideoWidget();
 
     /**

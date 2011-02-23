@@ -28,11 +28,13 @@
 #include <QtGui/QDesktopWidget>
 #include <QtGui/QPainter>
 #include <QtGui/QResizeEvent>
-#include <QtGui/QWidget>
 
 #include <vlc/vlc.h>
 
 #include "debug.h"
+#ifndef PHONON_VLC_NO_EXPERIMENTAL
+#include "experimental/avcapture.h"
+#endif // PHONON_VLC_NO_EXPERIMENTAL
 #include "mediaobject.h"
 
 namespace Phonon
@@ -40,10 +42,6 @@ namespace Phonon
 namespace VLC
 {
 
-/**
- * Constructs a new VideoWidget with the given parent. The video settings members
- * are set to their default values.
- */
 VideoWidget::VideoWidget(QWidget *parent) :
     OverlayWidget(parent),
     SinkNode(),
