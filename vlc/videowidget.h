@@ -201,9 +201,6 @@ public:
     /* Overloading QWidget */
     QSize sizeHint() const;
 
-    void setAspectRatio(double aspectRatio);
-    void setScaleAndCropMode(bool scaleAndCrop);
-
     void setVisible(bool visible);
 
 public slots:
@@ -223,6 +220,35 @@ protected:
     virtual void resizeEvent(QResizeEvent *event);
 
 private:
+    /**
+     * Sets whether filter adjust is active or not.
+     *
+     * \param adjust true if adjust is supposed to be activated, false if not
+     */
+    void enableFilterAdjust(bool adjust = true);
+
+    /**
+     * Converts a Phonon range to a VLC value range.
+     *
+     * A Phonon range is always a qreal between -1.0 and 1.0, a VLC range however
+     * can be any between 0 and 360. This functon maps the Phonon value to an
+     * appropriate value within a specified target range.
+     *
+     * \param phononValue the incoming Phonon specific value, should be -1.0:1.0
+     *                    should it however not be within that range will it be
+     *                    manually locked (i.e. exceeding values become either -1.0 or 1.0)
+     * \param upperBoundary the upper boundary for the target range. The lower
+     *                      boundary is currently always assumed to be 0
+     * \param shift whether or not to shift the Phonon range to positive values
+     *        before mapping to VLC values (useful when our 0 must be a VLC 0).
+     *        Please note that if you do not shift the range will be reduced to
+     *        0:1, phononValue < 0 will be set to 0.
+     *
+     * \returns float usable to VLC
+     */
+    static float phononRangeToVlcRange(qreal phononValue, float upperBoundary = 2.0,
+                                       bool shift = true);
+
     /**
      * Whether custom rendering is used.
      */

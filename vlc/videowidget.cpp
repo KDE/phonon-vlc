@@ -32,6 +32,7 @@
 
 #include <vlc/vlc.h>
 
+#include "debug.h"
 #include "mediaobject.h"
 
 namespace Phonon
@@ -96,6 +97,7 @@ Phonon::VideoWidget::AspectRatio VideoWidget::aspectRatio() const
 
 void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspect)
 {
+    DEBUG_BLOCK;
     if (!m_player) {
         return;
     }
@@ -151,23 +153,19 @@ qreal VideoWidget::brightness() const
 
 void VideoWidget::setBrightness(qreal brightness)
 {
-#ifdef __GNUC__
-#warning OMG WTF
-#endif
-    m_brightness = brightness;
-
-    // vlc takes brightness in range 0.0 - 2.0
-    if (m_player) {
-        if (!m_filterAdjustActivated) {
-//            p_libvlc_video_filter_add(p_vlc_current_media_player, ADJUST, vlc_exception);
-//            vlcExceptionRaised();
-            m_filterAdjustActivated = true;
-        }
-//        p_libvlc_video_set_brightness(p_vlc_current_media_player, f_brightness + 1.0, vlc_exception);
-//        vlcExceptionRaised();
+    DEBUG_BLOCK;
+    if (!m_player) {
+        return;
     }
-}
+    enableFilterAdjust();
 
+    // VLC operates within a 0.0 to 2.0 range for brightness.
+    m_brightness = brightness;
+    debug() << "brightness: " << phononRangeToVlcRange(m_brightness);
+    libvlc_video_set_adjust_float(m_player,
+                                  libvlc_adjust_Brightness,
+                                  phononRangeToVlcRange(m_brightness));
+}
 
 qreal VideoWidget::contrast() const
 {
@@ -176,22 +174,17 @@ qreal VideoWidget::contrast() const
 
 void VideoWidget::setContrast(qreal contrast)
 {
-#ifdef __GNUC__
-#warning OMG WTF
-#endif
-    m_contrast = contrast;
-
-    // vlc takes contrast in range 0.0 - 2.0
-    float f_contrast = contrast;
-    if (m_player) {
-        if (!m_filterAdjustActivated) {
-//            p_libvlc_video_filter_add(p_vlc_current_media_player, ADJUST, vlc_exception);
-//            vlcExceptionRaised();
-            m_filterAdjustActivated = true;
-        }
-//        p_libvlc_video_set_contrast(p_vlc_current_media_player, f_contrast + 1.0, vlc_exception);
-//        vlcExceptionRaised();
+    DEBUG_BLOCK;
+    if (!m_player) {
+        return;
     }
+    enableFilterAdjust();
+
+    // VLC operates within a 0.0 to 2.0 range for contrast.
+    m_contrast = contrast;
+    libvlc_video_set_adjust_float(m_player,
+                                  libvlc_adjust_Contrast,
+                                  phononRangeToVlcRange(m_contrast));
 }
 
 qreal VideoWidget::hue() const
@@ -201,23 +194,17 @@ qreal VideoWidget::hue() const
 
 void VideoWidget::setHue(qreal hue)
 {
-#ifdef __GNUC__
-#warning OMG WTF
-#endif
-    m_hue = hue;
-
-    // vlc takes hue in range 0 - 360 in integer
-    int i_hue = (m_hue + 1.0) * 180;
-    if (m_player) {
-        if (!m_filterAdjustActivated) {
-//            p_libvlc_video_filter_add(p_vlc_current_media_player, ADJUST, vlc_exception);
-//            vlcExceptionRaised();
-            m_filterAdjustActivated = true;
-        }
-//        p_libvlc_video_set_hue(p_vlc_current_media_player, i_hue, vlc_exception);
-//        vlcExceptionRaised();
+    DEBUG_BLOCK;
+    if (!m_player) {
+        return;
     }
+    enableFilterAdjust();
 
+    // VLC operates within a 0 to 360 range for hue.
+    m_hue = hue;
+    libvlc_video_set_adjust_int(m_player,
+                                libvlc_adjust_Hue,
+                                static_cast<int>(phononRangeToVlcRange(m_hue, 360.0, false)));
 }
 
 qreal VideoWidget::saturation() const
@@ -227,20 +214,18 @@ qreal VideoWidget::saturation() const
 
 void VideoWidget::setSaturation(qreal saturation)
 {
-    m_saturation = saturation;
-
-    // vlc takes brightness in range 0.0 - 3.0
-    if (m_player) {
-        if (!m_filterAdjustActivated) {
-//            p_libvlc_video_filter_add(p_vlc_current_media_player, ADJUST, vlc_exception);
-//            vlcExceptionRaised();
-            m_filterAdjustActivated = true;
-        }
-//        p_libvlc_video_set_saturation(p_vlc_current_media_player, (f_saturation + 1.0) * 1.5, vlc_exception);
-//        vlcExceptionRaised();
+    DEBUG_BLOCK;
+    if (!m_player) {
+        return;
     }
-}
+    enableFilterAdjust();
 
+    // VLC operates within a 0.0 to 3.0 range for saturation.
+    m_saturation = saturation;
+    libvlc_video_set_adjust_float(m_player,
+                                  libvlc_adjust_Saturation,
+                                  phononRangeToVlcRange(m_saturation, 3.0));
+}
 
 void VideoWidget::useCustomRender()
 {
@@ -288,24 +273,9 @@ QWidget *VideoWidget::widget()
     return this;
 }
 
-
 void VideoWidget::resizeEvent(QResizeEvent *event)
 {
     qDebug() << "resizeEvent" << event->size();
-}
-
-void VideoWidget::setAspectRatio(double aspectRatio)
-{
-#ifdef __GNUC__
-#warning OMG WTF
-#endif
-}
-
-void VideoWidget::setScaleAndCropMode(bool scaleAndCrop)
-{
-#ifdef __GNUC__
-#warning OMG WTF
-#endif
 }
 
 void VideoWidget::setVideoSize(const QSize &size)
@@ -383,6 +353,74 @@ void VideoWidget::paintEvent(QPaintEvent *event)
     }
 }
 
+void VideoWidget::enableFilterAdjust(bool adjust)
+{
+    DEBUG_BLOCK;
+    // Need to check for MO here, because we can get called before a VOut is actually
+    // around in which case we just ignore this.
+#ifdef __GNUC__
+#warning TODO: if we need to ignore hue, brightness etc. sets we might as well set them pending
+#endif
+    if (!m_mediaObject || !m_mediaObject->hasVideo()) {
+        debug() << "no mo or no video!!!";
+        return;
+    }
+    if ((!m_filterAdjustActivated && adjust) ||
+            (m_filterAdjustActivated && !adjust)) {
+        debug() << "adjust: " << adjust;
+        libvlc_video_set_adjust_int(m_player, libvlc_adjust_Enable, adjust);
+        m_filterAdjustActivated = adjust;
+    }
+}
+
+float VideoWidget::phononRangeToVlcRange(qreal phononValue, float upperBoundary,
+                                         bool shift)
+{
+    DEBUG_BLOCK;
+    // VLC operates on different ranges than Phonon. Phonon always uses a range of
+    // -1:1 with 0 as the default value.
+    // It is therefore necessary to convert between the two schemes using sophisticated magic.
+    // First an incoming range is locked between the valid range of Phonon, then
+    // everything is shifted into a positive value range.
+    // Finally this range gets mapped onto a target range between 0 and the
+    // provided upper boundary.
+    float value = static_cast<float>(phononValue);
+    int max = 1.0;
+
+    // Ensure valid range
+    if (value < -1.0) {
+        value = -1.0;
+    } else if (value > 1.0) {
+        value = 1.0;
+    }
+
+    if (shift) {
+        value += 1;
+        max += 1;
+    } else {
+        if (value < 0) {
+            value = 0;
+        }
+    }
+
+    debug() << "incoming: " << phononValue;
+    debug() << "shifted: " << value;
+    debug() << "upperBoundary: " << upperBoundary;
+
+    // value now holds a float between 0.0 and max.
+    // If our upper boundary was 2 then we are done. If not we will have to
+    // convert a range of 0-2 to 0-upperBoundary. This is achieved by calculating
+    // the percentual value of value within the 0-2 range and then map this
+    // to a value within the target range.
+
+    float percentValue = (100.0 * value) / max;
+    float ret = (upperBoundary * percentValue) / 100.0;
+
+    debug() << "precent: " << percentValue;
+    debug() << "ret: " << ret;
+
+    return ret;
+}
 
 }
 } // Namespace Phonon::VLC
