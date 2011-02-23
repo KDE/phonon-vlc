@@ -96,7 +96,6 @@ Phonon::VideoWidget::AspectRatio VideoWidget::aspectRatio() const
 
 void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspect)
 {
-    // finish if no player
     if (!m_player) {
         return;
     }
@@ -104,21 +103,23 @@ void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspect)
     m_aspectRatio = aspect;
 
     switch (m_aspectRatio) {
-    case Phonon::VideoWidget::AspectRatioAuto: // Let the decoder find the aspect ratio automatically from the media file (this is the default)
-//        p_libvlc_video_set_aspect_ratio(p_vlc_current_media_player, "", vlc_exception);
+    case Phonon::VideoWidget::AspectRatioAuto:
+        libvlc_video_set_aspect_ratio(m_player, 0);
         break;
-    case Phonon::VideoWidget::AspectRatioWidget: // Fit the video into the widget making the aspect ratio depend solely on the size of the widget
-        // This way the aspect ratio is freely resizeable by the user
-//        p_libvlc_video_set_aspect_ratio(p_vlc_current_media_player, "", vlc_exception);
+    case Phonon::VideoWidget::AspectRatioWidget:
+#ifdef __GNUC__
+#warning might need work
+#endif
+        libvlc_video_set_aspect_ratio(m_player, 0);
         break;
     case Phonon::VideoWidget::AspectRatio4_3:
-//        p_libvlc_video_set_aspect_ratio(p_vlc_current_media_player, "4:3", vlc_exception);
+        libvlc_video_set_aspect_ratio(m_player, "4:3");
         break;
     case Phonon::VideoWidget::AspectRatio16_9:
-//        p_libvlc_video_set_aspect_ratio(p_vlc_current_media_player, "16:9", vlc_exception);
+        libvlc_video_set_aspect_ratio(m_player, "16:9");
         break;
     default:
-        qCritical() << __FUNCTION__ << "error: unsupported AspectRatio:" << (int) m_aspectRatio;
+        qCritical() << __FUNCTION__ << "error: unsupported AspectRatio:" << m_aspectRatio;
     }
 }
 
@@ -129,6 +130,9 @@ Phonon::VideoWidget::ScaleMode VideoWidget::scaleMode() const
 
 void VideoWidget::setScaleMode(Phonon::VideoWidget::ScaleMode scale)
 {
+#ifdef __GNUC__
+#warning OMG WTF
+#endif
     m_scaleMode = scale;
     switch (m_scaleMode) {
     case Phonon::VideoWidget::FitInView: // The video will be fitted to fill the view keeping aspect ratio
@@ -147,6 +151,9 @@ qreal VideoWidget::brightness() const
 
 void VideoWidget::setBrightness(qreal brightness)
 {
+#ifdef __GNUC__
+#warning OMG WTF
+#endif
     m_brightness = brightness;
 
     // vlc takes brightness in range 0.0 - 2.0
@@ -194,6 +201,9 @@ qreal VideoWidget::hue() const
 
 void VideoWidget::setHue(qreal hue)
 {
+#ifdef __GNUC__
+#warning OMG WTF
+#endif
     m_hue = hue;
 
     // vlc takes hue in range 0 - 360 in integer
