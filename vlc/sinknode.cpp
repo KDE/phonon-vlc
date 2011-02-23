@@ -68,6 +68,7 @@ void SinkNode::disconnectFromMediaObject(MediaObject *mediaObject)
 
 void SinkNode::addToMedia(libvlc_media_t *media)
 {
+    Q_UNUSED(media);
 }
 
 #ifndef PHONON_VLC_NO_EXPERIMENTAL

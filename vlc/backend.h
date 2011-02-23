@@ -79,7 +79,6 @@ public:
 
     bool supportsVideo() const;
     bool supportsOSD() const;
-    bool supportsFourcc(quint32 fourcc) const;
     bool supportsSubtitles() const;
     QStringList availableMimeTypes() const;
 
