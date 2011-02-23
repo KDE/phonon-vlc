@@ -23,10 +23,12 @@
 
 #include "videowidget.h"
 
-#include <QtGui/QWidget>
+#include <QtCore/QtDebug>
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopWidget>
-#include <QtCore/QtDebug>
+#include <QtGui/QPainter>
+#include <QtGui/QResizeEvent>
+#include <QtGui/QWidget>
 
 #include <vlc/vlc.h>
 
@@ -42,11 +44,12 @@ namespace VLC
  * are set to their default values.
  */
 VideoWidget::VideoWidget(QWidget *p_parent) :
-    QObject(p_parent),
+    OverlayWidget(p_parent),
     SinkNode(),
+    m_customRender(false),
     m_img(0)
 {
-    p_video_widget = new Widget(p_parent, this);
+    setBackgroundColor(Qt::black);
 
     aspect_ratio = Phonon::VideoWidget::AspectRatioAuto;
     scale_mode = Phonon::VideoWidget::FitInView;
@@ -85,7 +88,7 @@ void VideoWidget::connectToMediaObject(MediaObject *mediaObject)
             SLOT(videoWidgetSizeChanged(int, int)));
 
     //  mediaObject->setVideoWidgetId(p_video_widget->winId());
-    mediaObject->setVideoWidget(p_video_widget);
+    mediaObject->setVideoWidget(this);
 }
 
 #ifndef PHONON_VLC_NO_EXPERIMENTAL
@@ -214,11 +217,19 @@ qreal VideoWidget::contrast() const
     return f_contrast;
 }
 
+QWidget *VideoWidget::widget()
+{
+    return this;
+}
+
 /**
  * Set the contrast of the video
  */
 void VideoWidget::setContrast(qreal contrast)
 {
+#ifdef __GNUC__
+#warning OMG WTF
+#endif
     f_contrast = contrast;
 
     // vlc takes contrast in range 0.0 - 2.0
@@ -291,14 +302,6 @@ void VideoWidget::setSaturation(qreal saturation)
 }
 
 /**
- * \return The owned widget that is used for the actual draw.
- */
-Widget *VideoWidget::widget()
-{
-    return p_video_widget;
-}
-
-/**
  * Handles the change in the size of the video
  */
 void VideoWidget::videoWidgetSizeChanged(int width, int height)
@@ -311,16 +314,16 @@ void VideoWidget::videoWidgetSizeChanged(int width, int height)
     QSize videoSize(width, height);
     videoSize.boundedTo(QApplication::desktop()->availableGeometry().size());
 
-    p_video_widget->hide();
-    p_video_widget->setVideoSize(videoSize);
+    hide();
+    setVideoSize(videoSize);
 #ifdef Q_OS_WIN
     QWidget *p_parent = qobject_cast<QWidget *>(this->parent());
     QSize previousSize = p_parent->minimumSize();
     p_parent->setMinimumSize(videoSize);
 #endif
-    p_video_widget->show();
+    show();
 #ifdef Q_OS_WIN
-    p_parent->setMinimumSize(previousSize);
+    setMinimumSize(previousSize);
 #endif
 
     if (m_img) {
@@ -332,7 +335,8 @@ void VideoWidget::videoWidgetSizeChanged(int width, int height)
 
 void VideoWidget::useCustomRender()
 {
-    QSize size = p_video_widget->sizeHint();
+    m_customRender = true;
+    QSize size = sizeHint();
     int width = size.width();
     int height = size.height();
 
@@ -363,11 +367,76 @@ void VideoWidget::unlock(void *data, void *id, void *const *pixels)
 //    const char *aspect = libvlc_video_get_aspect_ratio(cw->m_vlcPlayer);
 //    delete aspect;
 
-    cw->p_video_widget->setNextFrame(QByteArray::fromRawData((const char *)cw->m_img->bits(),
+    cw->setNextFrame(QByteArray::fromRawData((const char *)cw->m_img->bits(),
                                      cw->m_img->byteCount()),
                                      cw->m_img->width(), cw->m_img->height());
     cw->m_locker.unlock();
 }
+
+
+void VideoWidget::resizeEvent(QResizeEvent *event)
+{
+    qDebug() << "resizeEvent" << event->size();
+}
+
+void VideoWidget::setAspectRatio(double aspectRatio)
+{
+}
+
+void VideoWidget::setScaleAndCropMode(bool scaleAndCrop)
+{
+}
+
+/**
+ * Sets an approximate video size to provide a size hint. It will be set
+ * to the original size of the video.
+ */
+void VideoWidget::setVideoSize(const QSize &size)
+{
+    m_videoSize = size;
+    updateGeometry();
+    update();
+}
+
+QSize VideoWidget::sizeHint() const
+{
+    if (!m_videoSize.isEmpty()) {
+        return m_videoSize;
+    }
+    return QSize(640, 480);
+}
+
+void VideoWidget::setVisible(bool visible)
+{
+    if (window() && window()->testAttribute(Qt::WA_DontShowOnScreen)) {
+        qDebug() << "Widget rendering forced";
+        useCustomRender();
+    }
+    QWidget::setVisible(visible);
+}
+
+void VideoWidget::setNextFrame(const QByteArray &array, int width, int height)
+{
+    // TODO: Should preloading ever become available ... what do to here?
+
+    m_frame = QImage();
+    {
+        m_frame = QImage((uchar *)array.constData(), width, height, QImage::Format_RGB32);
+    }
+    update();
+}
+
+void VideoWidget::paintEvent(QPaintEvent *event)
+{
+    if (m_customRender) {
+        QPainter painter(this);
+        // TODO: more sensible rect calculation.
+        painter.drawImage(rect(), m_frame);
+    } else {
+        OverlayWidget::paintEvent(event);
+    }
+}
+
 
 }
 } // Namespace Phonon::VLC

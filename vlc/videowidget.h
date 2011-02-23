@@ -32,8 +32,7 @@
 #include "experimental/avcapture.h"
 #endif // PHONON_VLC_NO_EXPERIMENTAL
 
-#include "vlcvideowidget.h"
-typedef Phonon::VLC::VLCVideoWidget Widget;
+#include "overlaywidget.h"
 
 #include <QtCore/QMutex>
 
@@ -53,12 +52,11 @@ namespace VLC
  * \internal A VLCVideoWidget is owned by this widget. That widget is used for the actual
  * drawings of libVLC.
  */
-class VideoWidget : public QObject, public SinkNode, public VideoWidgetInterface
+class VideoWidget : public OverlayWidget, public SinkNode, public VideoWidgetInterface
 {
     Q_OBJECT
     Q_INTERFACES(Phonon::VideoWidgetInterface)
 public:
-
     VideoWidget(QWidget *p_parent);
     ~VideoWidget();
 
@@ -87,23 +85,52 @@ public:
     qreal saturation() const;
     void setSaturation(qreal saturation);
 
-    Widget *widget();
-
     void useCustomRender();
 
     static void *lock(void *data, void **bufRet);
     static void unlock(void *data, void *id, void *const *pixels);
 
-private slots:
+    /**
+     * \return The owned widget that is used for the actual draw.
+     */
+    QWidget *widget();
 
+    void setVideoSize(const QSize &videoSize);
+    void setAspectRatio(double aspectRatio);
+    void setScaleAndCropMode(bool scaleAndCrop);
+
+    QSize sizeHint() const;
+
+    void setVisible(bool visible);
+
+public slots:
+    void setNextFrame(const QByteArray &array, int width, int height);
+
+private slots:
     void videoWidgetSizeChanged(int width, int height);
 
+protected:
+    virtual void paintEvent(QPaintEvent *event);
+    virtual void resizeEvent(QResizeEvent *event);
+
 private:
+    /**
+     * Whether custom rendering is used.
+     */
+    bool m_customRender;
+
+    /**
+     * Next drawable frame (if any).
+     */
+    mutable QImage m_frame;
+
+    /**
+     * Original size of the video, needed for sizeHint().
+     */
+    QSize m_videoSize;
 
     QMutex m_locker;
     QImage *m_img;
-
-    Widget *p_video_widget;
 
     Phonon::VideoWidget::AspectRatio aspect_ratio;
 
