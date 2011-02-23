@@ -41,6 +41,7 @@ set(phonon_vlc_SRCS
     audiooutput.cpp
     audiodataoutput.cpp
     backend.cpp
+    debug.cpp
     devicemanager.cpp
     effect.cpp
     effectmanager.cpp
