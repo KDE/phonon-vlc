@@ -4,7 +4,7 @@
  * Copyright (C) 2007-2008 Tanguy Krotoff <tkrotoff@gmail.com>               *
  * Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>                *
  * Copyright (C) 2009 Fathi Boudra <fabo@kde.org>                            *
- * Copyright (C) 2009-2010 vlc-phonon AUTHORS                                *
+ * Copyright (C) 2009-2011 vlc-phonon AUTHORS                                *
  *                                                                           *
  * This program is free software; you can redistribute it and/or             *
  * modify it under the terms of the GNU Lesser General Public                *
@@ -43,22 +43,20 @@ namespace VLC
  * Constructs a new VideoWidget with the given parent. The video settings members
  * are set to their default values.
  */
-VideoWidget::VideoWidget(QWidget *p_parent) :
-    OverlayWidget(p_parent),
+VideoWidget::VideoWidget(QWidget *parent) :
+    OverlayWidget(parent),
     SinkNode(),
     m_customRender(false),
-    m_img(0)
+    m_img(0),
+    m_aspectRatio(Phonon::VideoWidget::AspectRatioAuto),
+    m_scaleMode(Phonon::VideoWidget::FitInView),
+    m_filterAdjustActivated(false),
+    m_brightness(0.0),
+    m_contrast(0.0),
+    m_hue(0.0),
+    m_saturation(0.0)
 {
     setBackgroundColor(Qt::black);
-
-    aspect_ratio = Phonon::VideoWidget::AspectRatioAuto;
-    scale_mode = Phonon::VideoWidget::FitInView;
-
-    b_filter_adjust_activated = false;
-    f_brightness = 0.0;
-    f_contrast = 0.0;
-    f_hue = 0.0;
-    f_saturation = 0.0;
 }
 
 VideoWidget::~VideoWidget()
@@ -68,18 +66,6 @@ VideoWidget::~VideoWidget()
     }
 }
 
-/**
- * Connects the VideoWidget to a media object by setting the video widget
- * window system identifier of the media object to that of the owned private
- * video widget. It also connects the signal from the mediaObject regarding
- * a resize of the video.
- *
- * If the mediaObject was connected to another VideoWidget, the connection is
- * lost.
- *
- * \see VLCMediaObject
- * \param mediaObject What media object to connect to
- */
 void VideoWidget::connectToMediaObject(MediaObject *mediaObject)
 {
     SinkNode::connectToMediaObject(mediaObject);
@@ -92,40 +78,22 @@ void VideoWidget::connectToMediaObject(MediaObject *mediaObject)
 }
 
 #ifndef PHONON_VLC_NO_EXPERIMENTAL
-/**
- * Connects the VideoWidget to an AvCapture. connectToMediaObject() is called
- * only for the video media of the AvCapture.
- *
- * \see AvCapture
- */
 void VideoWidget::connectToAvCapture(Experimental::AvCapture *avCapture)
 {
     connectToMediaObject(avCapture->videoMediaObject());
 }
 
-/**
- * Disconnect the VideoWidget from the video media of the AvCapture.
- *
- * \see connectToAvCapture()
- */
 void VideoWidget::disconnectFromAvCapture(Experimental::AvCapture *avCapture)
 {
     disconnectFromMediaObject(avCapture->videoMediaObject());
 }
 #endif // PHONON_VLC_NO_EXPERIMENTAL
 
-/**
- * \return The aspect ratio previously set for the video widget
- */
 Phonon::VideoWidget::AspectRatio VideoWidget::aspectRatio() const
 {
-    return aspect_ratio;
+    return m_aspectRatio;
 }
 
-/**
- * Set the aspect ratio of the video.
- * VLC accepted formats are x:y (4:3, 16:9, etc...) expressing the global image aspect.
- */
 void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspect)
 {
     // finish if no player
@@ -133,9 +101,9 @@ void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspect)
         return;
     }
 
-    aspect_ratio = aspect;
+    m_aspectRatio = aspect;
 
-    switch (aspect_ratio) {
+    switch (m_aspectRatio) {
     case Phonon::VideoWidget::AspectRatioAuto: // Let the decoder find the aspect ratio automatically from the media file (this is the default)
 //        p_libvlc_video_set_aspect_ratio(p_vlc_current_media_player, "", vlc_exception);
         break;
@@ -150,123 +118,91 @@ void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspect)
 //        p_libvlc_video_set_aspect_ratio(p_vlc_current_media_player, "16:9", vlc_exception);
         break;
     default:
-        qCritical() << __FUNCTION__ << "error: unsupported AspectRatio:" << (int) aspect_ratio;
+        qCritical() << __FUNCTION__ << "error: unsupported AspectRatio:" << (int) m_aspectRatio;
     }
 }
 
-/**
- * \return The scale mode previously set for the video widget
- */
 Phonon::VideoWidget::ScaleMode VideoWidget::scaleMode() const
 {
-    return scale_mode;
+    return m_scaleMode;
 }
 
-/**
- * Set how the video is scaled, keeping the aspect ratio into account when the video is resized.
- *
- * The ScaleMode enumeration describes how to treat aspect ratio during resizing of video.
- * \li Phonon::VideoWidget::FitInView - the video will be fitted to fill the view keeping aspect ratio
- * \li Phonon::VideoWidget::ScaleAndCrop - the video is scaled
- */
 void VideoWidget::setScaleMode(Phonon::VideoWidget::ScaleMode scale)
 {
-    scale_mode = scale;
-    switch (scale_mode) {
+    m_scaleMode = scale;
+    switch (m_scaleMode) {
     case Phonon::VideoWidget::FitInView: // The video will be fitted to fill the view keeping aspect ratio
         break;
     case Phonon::VideoWidget::ScaleAndCrop: // The video is scaled
         break;
     default:
-        qWarning() << __FUNCTION__ << "unknow Phonon::VideoWidget::ScaleMode:" << scale_mode;
+        qWarning() << __FUNCTION__ << "unknow Phonon::VideoWidget::ScaleMode:" << m_scaleMode;
     }
 }
 
-/**
- * \return The brightness previously set for the video widget
- */
 qreal VideoWidget::brightness() const
 {
-    return f_brightness;
+    return m_brightness;
 }
 
-/**
- * Set the brightness of the video
- */
 void VideoWidget::setBrightness(qreal brightness)
 {
-    f_brightness = brightness;
+    m_brightness = brightness;
 
     // vlc takes brightness in range 0.0 - 2.0
     if (m_player) {
-        if (!b_filter_adjust_activated) {
+        if (!m_filterAdjustActivated) {
 //            p_libvlc_video_filter_add(p_vlc_current_media_player, ADJUST, vlc_exception);
 //            vlcExceptionRaised();
-            b_filter_adjust_activated = true;
+            m_filterAdjustActivated = true;
         }
 //        p_libvlc_video_set_brightness(p_vlc_current_media_player, f_brightness + 1.0, vlc_exception);
 //        vlcExceptionRaised();
     }
 }
 
-/**
- * \return The contrast previously set for the video widget
- */
+
 qreal VideoWidget::contrast() const
 {
-    return f_contrast;
+    return m_contrast;
 }
 
-QWidget *VideoWidget::widget()
-{
-    return this;
-}
-
-/**
- * Set the contrast of the video
- */
 void VideoWidget::setContrast(qreal contrast)
 {
 #ifdef __GNUC__
 #warning OMG WTF
 #endif
-    f_contrast = contrast;
+    m_contrast = contrast;
 
     // vlc takes contrast in range 0.0 - 2.0
     float f_contrast = contrast;
     if (m_player) {
-        if (!b_filter_adjust_activated) {
+        if (!m_filterAdjustActivated) {
 //            p_libvlc_video_filter_add(p_vlc_current_media_player, ADJUST, vlc_exception);
 //            vlcExceptionRaised();
-            b_filter_adjust_activated = true;
+            m_filterAdjustActivated = true;
         }
 //        p_libvlc_video_set_contrast(p_vlc_current_media_player, f_contrast + 1.0, vlc_exception);
 //        vlcExceptionRaised();
     }
 }
 
-/**
- * \return The hue previously set for the video widget
- */
 qreal VideoWidget::hue() const
 {
-    return f_hue;
+    return m_hue;
 }
 
-/**
- * Set the hue of the video
- */
 void VideoWidget::setHue(qreal hue)
 {
-    f_hue = hue;
+    m_hue = hue;
 
     // vlc takes hue in range 0 - 360 in integer
-    int i_hue = (f_hue + 1.0) * 180;
+    int i_hue = (m_hue + 1.0) * 180;
     if (m_player) {
-        if (!b_filter_adjust_activated) {
+        if (!m_filterAdjustActivated) {
 //            p_libvlc_video_filter_add(p_vlc_current_media_player, ADJUST, vlc_exception);
 //            vlcExceptionRaised();
-            b_filter_adjust_activated = true;
+            m_filterAdjustActivated = true;
         }
 //        p_libvlc_video_set_hue(p_vlc_current_media_player, i_hue, vlc_exception);
 //        vlcExceptionRaised();
@@ -274,64 +210,27 @@ void VideoWidget::setHue(qreal hue)
 
 }
 
-/**
- * \return The saturation previously set for the video widget
- */
 qreal VideoWidget::saturation() const
 {
-    return f_saturation;
+    return m_saturation;
 }
 
-/**
- * Set the saturation of the video
- */
 void VideoWidget::setSaturation(qreal saturation)
 {
-    f_saturation = saturation;
+    m_saturation = saturation;
 
     // vlc takes brightness in range 0.0 - 3.0
     if (m_player) {
-        if (!b_filter_adjust_activated) {
+        if (!m_filterAdjustActivated) {
 //            p_libvlc_video_filter_add(p_vlc_current_media_player, ADJUST, vlc_exception);
 //            vlcExceptionRaised();
-            b_filter_adjust_activated = true;
+            m_filterAdjustActivated = true;
         }
 //        p_libvlc_video_set_saturation(p_vlc_current_media_player, (f_saturation + 1.0) * 1.5, vlc_exception);
 //        vlcExceptionRaised();
     }
 }
 
-/**
- * Handles the change in the size of the video
- */
-void VideoWidget::videoWidgetSizeChanged(int width, int height)
-{
-    qDebug() << __FUNCTION__ << "video width" << width << "height:" << height;
-
-    // It resizes dynamically the widget and the main window
-    // Note: I didn't find another way
-
-    QSize videoSize(width, height);
-    videoSize.boundedTo(QApplication::desktop()->availableGeometry().size());
-
-    hide();
-    setVideoSize(videoSize);
-#ifdef Q_OS_WIN
-    QWidget *p_parent = qobject_cast<QWidget *>(this->parent());
-    QSize previousSize = p_parent->minimumSize();
-    p_parent->setMinimumSize(videoSize);
-#endif
-    show();
-#ifdef Q_OS_WIN
-    setMinimumSize(previousSize);
-#endif
-
-    if (m_img) {
-        delete m_img;
-    }
-    m_img = new QImage(videoSize, QImage::Format_RGB32);
-    libvlc_video_set_format(m_player, "RV32", width, height, width * 4);
-}
 
 void VideoWidget::useCustomRender()
 {
@@ -374,6 +273,12 @@ void VideoWidget::unlock(void *data, void *id, void *const *pixels)
 }
 
 
+QWidget *VideoWidget::widget()
+{
+    return this;
+}
+
+
 void VideoWidget::resizeEvent(QResizeEvent *event)
 {
     qDebug() << "resizeEvent" << event->size();
@@ -381,16 +286,18 @@ void VideoWidget::resizeEvent(QResizeEvent *event)
 
 void VideoWidget::setAspectRatio(double aspectRatio)
 {
+#ifdef __GNUC__
+#warning OMG WTF
+#endif
 }
 
 void VideoWidget::setScaleAndCropMode(bool scaleAndCrop)
 {
+#ifdef __GNUC__
+#warning OMG WTF
+#endif
 }
 
-/**
- * Sets an approximate video size to provide a size hint. It will be set
- * to the original size of the video.
- */
 void VideoWidget::setVideoSize(const QSize &size)
 {
     m_videoSize = size;
@@ -424,6 +331,35 @@ void VideoWidget::setNextFrame(const QByteArray &array, int width, int height)
         m_frame = QImage((uchar *)array.constData(), width, height, QImage::Format_RGB32);
     }
     update();
+}
+
+void VideoWidget::videoWidgetSizeChanged(int width, int height)
+{
+    qDebug() << __FUNCTION__ << "video width" << width << "height:" << height;
+
+    // It resizes dynamically the widget and the main window
+    // Note: I didn't find another way
+
+    QSize videoSize(width, height);
+    videoSize.boundedTo(QApplication::desktop()->availableGeometry().size());
+
+    hide();
+    setVideoSize(videoSize);
+#ifdef Q_OS_WIN
+    QWidget *p_parent = qobject_cast<QWidget *>(this->parent());
+    QSize previousSize = p_parent->minimumSize();
+    p_parent->setMinimumSize(videoSize);
+#endif
+    show();
+#ifdef Q_OS_WIN
+    setMinimumSize(previousSize);
+#endif
+
+    if (m_img) {
+        delete m_img;
+    }
+    m_img = new QImage(videoSize, QImage::Format_RGB32);
+    libvlc_video_set_format(m_player, "RV32", width, height, width * 4);
 }
 
 void VideoWidget::paintEvent(QPaintEvent *event)
