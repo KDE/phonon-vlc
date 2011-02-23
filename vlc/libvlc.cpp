@@ -1,22 +1,19 @@
-/*****************************************************************************
- * libVLC backend for the Phonon library                                     *
- *                                                                           *
- * Copyright (C) 2011 vlc-phonon AUTHORS                                     *
- *                                                                           *
- * This program is free software; you can redistribute it and/or             *
- * modify it under the terms of the GNU Lesser General Public                *
- * License as published by the Free Software Foundation; either              *
- * version 2.1 of the License, or (at your option) any later version.        *
- *                                                                           *
- * This program is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of            *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU         *
- * Lesser General Public License for more details.                           *
- *                                                                           *
- * You should have received a copy of the GNU Lesser General Public          *
- * License along with this package; if not, write to the Free Software       *
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA *
- *****************************************************************************/
+/*
+    Copyright (C) 2011 vlc-phonon AUTHORS
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "libvlc.h"
 
@@ -31,10 +28,9 @@
 
 LibVLC *LibVLC::self;
 
-LibVLC::LibVLC(int debugLevel) :
+LibVLC::LibVLC() :
     m_vlcInstance(0)
 {
-    init(debugLevel);
 }
 
 LibVLC::~LibVLC()
@@ -44,14 +40,14 @@ LibVLC::~LibVLC()
     self = 0;
 }
 
-void LibVLC::init(int debugLevel)
+bool LibVLC::init(int debugLevel)
 {
     Q_ASSERT_X(!self, "LibVLC", "there should be only one LibVLC object");
-    LibVLC::self = this;
+    LibVLC::self = new LibVLC;
 
-    QString path = vlcPath();
+    QString path = self->vlcPath();
     if (!path.isEmpty()) {
-        QString pluginsPath = QString("--plugin-path=") + QDir::toNativeSeparators(QFileInfo(vlcPath()).dir().path());
+        QString pluginsPath = QString("--plugin-path=") + QDir::toNativeSeparators(QFileInfo(self->vlcPath()).dir().path());
 
 #if defined(Q_OS_UNIX)
         pluginsPath.append("/vlc");
@@ -95,11 +91,14 @@ void LibVLC::init(int debugLevel)
         };
 
         // Create and initialize a libvlc instance (it should be done only once)
-        m_vlcInstance = libvlc_new(sizeof(vlcArgs) / sizeof(*vlcArgs), vlcArgs);
-        if (!m_vlcInstance) {
+        self->m_vlcInstance = libvlc_new(sizeof(vlcArgs) / sizeof(*vlcArgs), vlcArgs);
+        if (!self->m_vlcInstance) {
             qCritical() << "libvlc exception:" << libvlc_errmsg();
+            return false;
         }
+        return true;
     }
+    return false;
 }
 
 #if defined(Q_OS_UNIX)

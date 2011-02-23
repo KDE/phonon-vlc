@@ -88,12 +88,12 @@ Backend::Backend(QObject *parent, const QVariantList &)
     }
     m_debugLevel = (DebugLevel)debugLevel;
 
-#ifdef __GNUC__
-#warning maybe have init called separately to enable more error handling??
-#endif
     /* Actual libVLC initialisation */
-    new LibVLC(m_debugLevel);
-    logMessage(QString("Using VLC version %0").arg(libvlc_get_version()));
+    if (LibVLC::init(m_debugLevel)) {
+        logMessage(QString("Using VLC version %0").arg(libvlc_get_version()));
+    } else {
+        qCritical("Phonon::VLC::vlcInit: Failed to initialize VLC");
+    }
 
     m_deviceManager = new DeviceManager(this);
     m_effectManager = new EffectManager(this);
