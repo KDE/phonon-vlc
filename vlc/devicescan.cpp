@@ -55,7 +55,7 @@ typedef enum {
     IO_METHOD_AUTO,
     IO_METHOD_READ,
     IO_METHOD_MMAP,
-    IO_METHOD_USERPTR,
+    IO_METHOD_USERPTR
 } io_method;
 
 struct demux_sys_t {

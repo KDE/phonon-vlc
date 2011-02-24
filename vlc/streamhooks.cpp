@@ -48,7 +48,7 @@ int c_stream_read(void *p_streamReaderCtx, size_t *i_length, char **p_buffer)
 int c_stream_seek(void *p_streamReaderCtx, const uint64_t i_pos)
 {
     StreamReader *streamReader = (StreamReader *)p_streamReaderCtx;
-    if (i_pos > streamReader->streamSize()) {
+    if (static_cast<int64_t>(i_pos) > streamReader->streamSize()) {
         // attempt to seek past the end of our data.
         return -1;
     }
@@ -75,7 +75,7 @@ extern "C"
 
     int streamReadDoneCallback(void *data, const char *cookie, size_t sz, void *buf)
     {
-        delete buf;
+        delete static_cast<char *>(buf);
         return 0;
     }
 }
