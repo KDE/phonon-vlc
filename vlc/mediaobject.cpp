@@ -80,12 +80,12 @@ MediaObject::MediaObject(QObject *p_parent)
     connectToPlayerVLCEvents();
 
     // Media
-    p_vlc_media = 0;
-    p_vlc_media_event_manager = 0;
+    m_media = 0;
+    m_mediaEventManager = 0;
 
     // Media Discoverer
-    p_vlc_media_discoverer = 0;
-    p_vlc_media_discoverer_event_manager = 0;
+    m_mediaDiscoverer = 0;
+    m_mediaDiscovererEventManager = 0;
 
     // default to -1, so that streams won't break and to comply with the docs (-1 if unknown)
     m_totalTime = -1;
@@ -463,9 +463,9 @@ void MediaObject::unloadMedia()
 //        m_player = 0;
 //    }
 
-    if (p_vlc_media) {
-        libvlc_media_release(p_vlc_media);
-        p_vlc_media = 0;
+    if (m_media) {
+        libvlc_media_release(m_media);
+        m_media = 0;
     }
 }
 
@@ -487,17 +487,17 @@ void MediaObject::setVLCVideoWidget()
 
 void MediaObject::playInternal()
 {
-    if (p_vlc_media) {  // We are changing media, discard the old one
-        libvlc_media_release(p_vlc_media);
-        p_vlc_media = 0;
+    if (m_media) {  // We are changing media, discard the old one
+        libvlc_media_release(m_media);
+        m_media = 0;
     }
 
 
     m_totalTime = -1;
 
     // Create a media with the given MRL
-    p_vlc_media = libvlc_media_new_location(libvlc, m_currentFile);
-    if (!p_vlc_media) {
+    m_media = libvlc_media_new_location(libvlc, m_currentFile);
+    if (!m_media) {
         qDebug() << "libvlc exception:" << libvlc_errmsg();
     }
 
@@ -536,11 +536,11 @@ void MediaObject::playInternal()
 
 
     foreach(SinkNode * sink, m_sinks) {
-        sink->addToMedia(p_vlc_media);
+        sink->addToMedia(m_media);
     }
 
     // Set the media that will be used by the media player
-    libvlc_media_player_set_media(m_player, p_vlc_media);
+    libvlc_media_player_set_media(m_player, m_media);
 
     // connectToMediaVLCEvents() at the end since it needs to be done for each new libvlc_media_t instance
     connectToMediaVLCEvents();
@@ -654,7 +654,7 @@ void MediaObject::connectToPlayerVLCEvents()
 void MediaObject::connectToMediaVLCEvents()
 {
     // Get event manager from media descriptor object
-    p_vlc_media_event_manager = libvlc_media_event_manager(p_vlc_media);
+    m_mediaEventManager = libvlc_media_event_manager(m_media);
     libvlc_event_type_t eventsMedia[] = {
         libvlc_MediaMetaChanged,
         //libvlc_MediaSubItemAdded, // Could this be used for Audio Channels / Subtitles / Chapter info??
@@ -664,7 +664,7 @@ void MediaObject::connectToMediaVLCEvents()
     };
     int i_nbEvents = sizeof(eventsMedia) / sizeof(*eventsMedia);
     for (int i = 0; i < i_nbEvents; i++) {
-        libvlc_event_attach(p_vlc_media_event_manager, eventsMedia[i], libvlc_callback, this);
+        libvlc_event_attach(m_mediaEventManager, eventsMedia[i], libvlc_callback, this);
     }
 
     // Get event manager from media service discoverer object
@@ -824,9 +824,9 @@ void MediaObject::updateMetaData()
 {
     QMultiMap<QString, QString> metaDataMap;
 
-    const char *artist = libvlc_media_get_meta(p_vlc_media, libvlc_meta_Artist);
-    const char *title = libvlc_media_get_meta(p_vlc_media, libvlc_meta_Title);
-    const char *nowplaying = libvlc_media_get_meta(p_vlc_media, libvlc_meta_NowPlaying);
+    const char *artist = libvlc_media_get_meta(m_media, libvlc_meta_Artist);
+    const char *title = libvlc_media_get_meta(m_media, libvlc_meta_Title);
+    const char *nowplaying = libvlc_media_get_meta(m_media, libvlc_meta_NowPlaying);
 
     // Streams sometimes have the artist and title munged in nowplaying.
     // With ALBUM = Title and TITLE = NowPlaying it will still show up nicely in Amarok.
@@ -837,7 +837,7 @@ void MediaObject::updateMetaData()
                         QString::fromUtf8(nowplaying));
     } else {
         metaDataMap.insert(QLatin1String("ALBUM"),
-                        QString::fromUtf8(libvlc_media_get_meta(p_vlc_media, libvlc_meta_Album)));
+                        QString::fromUtf8(libvlc_media_get_meta(m_media, libvlc_meta_Album)));
         metaDataMap.insert(QLatin1String("TITLE"),
                         QString::fromUtf8(title));
     }
@@ -845,19 +845,19 @@ void MediaObject::updateMetaData()
     metaDataMap.insert(QLatin1String("ARTIST"),
                        QString::fromUtf8(artist));
     metaDataMap.insert(QLatin1String("DATE"),
-                       QString::fromUtf8(libvlc_media_get_meta(p_vlc_media, libvlc_meta_Date)));
+                       QString::fromUtf8(libvlc_media_get_meta(m_media, libvlc_meta_Date)));
     metaDataMap.insert(QLatin1String("GENRE"),
-                       QString::fromUtf8(libvlc_media_get_meta(p_vlc_media, libvlc_meta_Genre)));
+                       QString::fromUtf8(libvlc_media_get_meta(m_media, libvlc_meta_Genre)));
     metaDataMap.insert(QLatin1String("TRACKNUMBER"),
-                       QString::fromUtf8(libvlc_media_get_meta(p_vlc_media, libvlc_meta_TrackNumber)));
+                       QString::fromUtf8(libvlc_media_get_meta(m_media, libvlc_meta_TrackNumber)));
     metaDataMap.insert(QLatin1String("DESCRIPTION"),
-                       QString::fromUtf8(libvlc_media_get_meta(p_vlc_media, libvlc_meta_Description)));
+                       QString::fromUtf8(libvlc_media_get_meta(m_media, libvlc_meta_Description)));
     metaDataMap.insert(QLatin1String("COPYRIGHT"),
-                       QString::fromUtf8(libvlc_media_get_meta(p_vlc_media, libvlc_meta_Copyright)));
+                       QString::fromUtf8(libvlc_media_get_meta(m_media, libvlc_meta_Copyright)));
     metaDataMap.insert(QLatin1String("URL"),
-                       QString::fromUtf8(libvlc_media_get_meta(p_vlc_media, libvlc_meta_URL)));
+                       QString::fromUtf8(libvlc_media_get_meta(m_media, libvlc_meta_URL)));
     metaDataMap.insert(QLatin1String("ENCODEDBY"),
-                       QString::fromUtf8(libvlc_media_get_meta(p_vlc_media, libvlc_meta_EncodedBy)));
+                       QString::fromUtf8(libvlc_media_get_meta(m_media, libvlc_meta_EncodedBy)));
 
     if (metaDataMap == m_vlcMetaData) {
         // No need to issue any change, the data is the same
@@ -902,9 +902,9 @@ void MediaObject::removeSink(SinkNode *node)
 
 void MediaObject::setOption(QString opt)
 {
-    Q_ASSERT(p_vlc_media);
+    Q_ASSERT(m_media);
     qDebug() << Q_FUNC_INFO << opt;
-    libvlc_media_add_option_flag(p_vlc_media, opt.toLocal8Bit(), libvlc_media_option_trusted);
+    libvlc_media_add_option_flag(m_media, opt.toLocal8Bit(), libvlc_media_option_trusted);
 }
 
 

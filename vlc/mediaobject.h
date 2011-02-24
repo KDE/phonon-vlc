@@ -423,17 +423,16 @@ private:
     qint32 m_tickInterval;
     qint32 m_transitionTime;
 
-    // MediaPlayer
-//    libvlc_media_player_t * p_vlc_media_player;
+    // EventManager
     libvlc_event_manager_t *m_eventManager;
 
     // Media
-    libvlc_media_t *p_vlc_media;
-    libvlc_event_manager_t *p_vlc_media_event_manager;
+    libvlc_media_t *m_media;
+    libvlc_event_manager_t *m_mediaEventManager;
 
     // MediaDiscoverer
-    libvlc_media_discoverer_t *p_vlc_media_discoverer;
-    libvlc_event_manager_t *p_vlc_media_discoverer_event_manager;
+    libvlc_media_discoverer_t *m_mediaDiscoverer;
+    libvlc_event_manager_t *m_mediaDiscovererEventManager;
 
     qint64 m_totalTime;
     QByteArray m_currentFile;
