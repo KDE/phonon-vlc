@@ -364,7 +364,7 @@ void MediaObject::setSource(const MediaSource &source)
             mrl = url.toEncoded();
         }
         loadMedia(mrl);
-    }
+    } // Keep these braces and the follwing break as-is, some compilers fall over the var decl above.
         break;
     case MediaSource::Disc:
         switch (source.discType()) {
