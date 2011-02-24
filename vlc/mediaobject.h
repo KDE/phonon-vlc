@@ -111,7 +111,6 @@ public:
      */
     QString errorString() const;
 
-
     /**
      * Adds a sink for this media object. During playInternal(), all the sinks
      * will have their addToMedia() called.
@@ -268,43 +267,6 @@ signals:
 
     void tickInternal(qint64 time);
 
-protected:
-    /**
-     * This method actually calls the functions needed to begin playing the media.
-     * If another media is already playing, it is discarded. The new media filename is set
-     * with loadMediaInternal(). A new VLC Media is created and set into the VLC Media Player.
-     * All the connected sink nodes are connected to the new media. It connects the media object
-     * to the events for the VLC Media, updates the meta-data, sets up the video widget id, and
-     * starts playing.
-     *
-     * \see loadMediaInternal()
-     * \see connectToMediaVLCEvents()
-     * \see updateMetaData()
-     * \see setVLCWidgetId()
-     */
-    void playInternal();
-
-    /**
-     * Seeks to the required position. If the state is not playing, the seek position is remembered.
-     */
-    void seekInternal(qint64 milliseconds);
-
-    /**
-     * Adds an option to the libVLC media.
-     *
-     * \param opt What option to add
-     */
-    void setOption(QString opt);
-
-    bool checkGaplessWaiting();
-
-    BaseWidget *m_videoWidget;
-    MediaSource m_nextSource;
-
-    MediaSource m_mediaSource;
-    StreamReader *m_streamReader;
-    Phonon::State m_currentState;
-
 private slots:
     /**
      * Retrieve meta data of a file (i.e ARTIST, TITLE, ALBUM, etc...).
@@ -339,6 +301,36 @@ private slots:
     void moveToNextSource();
 
 private:
+
+    /**
+     * This method actually calls the functions needed to begin playing the media.
+     * If another media is already playing, it is discarded. The new media filename is set
+     * with loadMediaInternal(). A new VLC Media is created and set into the VLC Media Player.
+     * All the connected sink nodes are connected to the new media. It connects the media object
+     * to the events for the VLC Media, updates the meta-data, sets up the video widget id, and
+     * starts playing.
+     *
+     * \see loadMediaInternal()
+     * \see connectToMediaVLCEvents()
+     * \see updateMetaData()
+     * \see setVLCWidgetId()
+     */
+    void playInternal();
+
+    /**
+     * Seeks to the required position. If the state is not playing, the seek position is remembered.
+     */
+    void seekInternal(qint64 milliseconds);
+
+    /**
+     * Adds an option to the libVLC media.
+     *
+     * \param opt What option to add
+     */
+    void setOption(QString opt);
+
+    bool checkGaplessWaiting();
+
     /**
      * Connect libvlc_callback() to all VLC media events.
      *
@@ -414,7 +406,14 @@ private:
     /**
      * \return A string representation of a Phonon state.
      */
-    QString PhononStateToString(Phonon::State newState);
+    static QString phononStateToString(Phonon::State newState);
+
+    BaseWidget *m_videoWidget;
+    MediaSource m_nextSource;
+
+    MediaSource m_mediaSource;
+    StreamReader *m_streamReader;
+    Phonon::State m_currentState;
 
     qint32 m_prefinishMark;
     bool m_prefinishEmitted;

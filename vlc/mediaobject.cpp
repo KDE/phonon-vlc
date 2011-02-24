@@ -394,8 +394,8 @@ void MediaObject::emitAboutToFinish()
 
 void MediaObject::stateChangedInternal(Phonon::State newState)
 {
-    qDebug() << __FUNCTION__ << "newState:" << PhononStateToString(newState)
-             << "previousState:" << PhononStateToString(m_currentState) ;
+    qDebug() << __FUNCTION__ << "newState:" << phononStateToString(newState)
+             << "previousState:" << phononStateToString(m_currentState) ;
 
     if (newState == m_currentState) {
         // State not changed
@@ -413,30 +413,30 @@ void MediaObject::stateChangedInternal(Phonon::State newState)
     emit stateChanged(m_currentState, previousState);
 }
 
-QString MediaObject::PhononStateToString(Phonon::State newState)
+QString MediaObject::phononStateToString(Phonon::State state)
 {
-    QString stream;
-    switch (newState) {
+    QString string;
+    switch (state) {
     case Phonon::ErrorState:
-        stream += "ErrorState";
+        string = QLatin1String("ErrorState");
         break;
     case Phonon::LoadingState:
-        stream += "LoadingState";
+        string = QLatin1String("LoadingState");
         break;
     case Phonon::StoppedState:
-        stream += "StoppedState";
+        string = QLatin1String("StoppedState");
         break;
     case Phonon::PlayingState:
-        stream += "PlayingState";
+        string = QLatin1String("PlayingState");
         break;
     case Phonon::BufferingState:
-        stream += "BufferingState";
+        string = QLatin1String("BufferingState");
         break;
     case Phonon::PausedState:
-        stream += "PausedState";
+        string = QLatin1String("PausedState");
         break;
     }
-    return stream;
+    return string;
 }
 
 void MediaObject::moveToNextSource()
