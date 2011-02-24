@@ -82,10 +82,23 @@ class MediaObject : public QObject, public MediaObjectInterface, public MediaCon
     friend class SeekStack;
 
 public:
+    /**
+     * Initializes the members, connects the private slots to their corresponding signals,
+     * sets the next media source to an empty media source.
+     *
+     * \param p_parent A parent for the QObject
+     */
     MediaObject(QObject *p_parent);
-    virtual ~MediaObject();
+    ~MediaObject();
 
+    /**
+     * Pauses the playback for the media player.
+     */
     void pause();
+
+    /**
+     * Sets the next media source to an empty one and stops playback.
+     */
     void stop();
 
     bool hasVideo() const;
@@ -93,29 +106,115 @@ public:
 
     qint64 totalTime() const;
 
+    /**
+     * \return An error message with the last libVLC error.
+     */
     QString errorString() const;
 
-    void addSink(SinkNode *node);
-    void removeSink(SinkNode *node);
 
     /**
-     * Widget Id where VLC will show the videos.
+     * Adds a sink for this media object. During playInternal(), all the sinks
+     * will have their addToMedia() called.
+     *
+     * \see playInternal()
+     * \see SinkNode::addToMedia()
      */
+    void addSink(SinkNode *node);
+
+    /**
+     * Removes a sink from this media object.
+     */
+    void removeSink(SinkNode *node);
+
+//    /**
+//     * Remembers the widget id (window system identifier) that will be
+//     * later passed to libVLC to draw the video on it, if this media object
+//     * will have video.
+//     *
+//     * \param i_widget_id The widget id to be remembered for video
+//     * \see MediaObject::setVLCWidgetId()
+//     */
 //    void setVideoWidgetId(WId i_widget_id);
 
+    /**
+     * Remembers the widget id (window system identifier) that will be
+     * later passed to libVLC to draw the video on it, if this media object
+     * will have video.
+     * note : I prefer to have a full access to the widget
+     * \param widget the widget to pass to vlc
+     * \see MediaObject::setVLCWidgetId()
+     */
     void setVideoWidget(BaseWidget *widget);
 
+    /**
+     * If the current state is paused, it resumes playing. Else, the playback
+     * is commenced. The corresponding playbackCommenced() signal is emitted.
+     */
     void play();
+
+    /**
+     * Pushes a seek command to the SeekStack for this media object. The SeekStack then
+     * calls seekInternal() when it's popped.
+     */
     void seek(qint64 milliseconds);
 
+    /**
+     * \return The interval between successive tick() signals. If set to 0, the emission
+     * of these signals is disabled.
+     */
     qint32 tickInterval() const;
+
+    /**
+     * Sets the interval between successive tick() signals. If set to 0, it disables the
+     * emission of these signals.
+     */
     void setTickInterval(qint32 tickInterval);
 
+    /**
+     * \return The current time of the media, depending on the current state.
+     * If the current state is stopped or loading, 0 is returned.
+     * If the current state is error or unknown, -1 is returned.
+     */
     qint64 currentTime() const;
+
+    /**
+     * \return The current state for this media object.
+     */
     Phonon::State state() const;
+
+    /**
+     * All errors are categorized as normal errors.
+     */
     Phonon::ErrorType errorType() const;
+
+    /**
+     * \return The current media source for this media object.
+     */
     MediaSource source() const;
+
+    /**
+     * Sets the current media source for this media object. Depending on the source type,
+     * the media object loads the specified media. The MRL is passed to loadMedia(), if the media
+     * is not a stream. If it is a stream, loadStream() is used. The currentSourceChanged() signal
+     * is emitted.
+     *
+     * Supported media source types:
+     * \li local files
+     * \li URL
+     * \li discs (CD, DVD, VCD)
+     * \li capture devices (V4L)
+     * \li streams
+     *
+     * \param source The media source that will become the current source.
+     *
+     * \see loadMedia()
+     * \see loadStream()
+     */
     void setSource(const MediaSource &source);
+
+    /**
+     * Sets the media source that will replace the current one, after the playback for it finishes.
+     */
     void setNextSource(const MediaSource &source);
 
     qint32 prefinishMark() const;
@@ -170,8 +269,31 @@ signals:
     void tickInternal(qint64 time);
 
 protected:
+    /**
+     * This method actually calls the functions needed to begin playing the media.
+     * If another media is already playing, it is discarded. The new media filename is set
+     * with loadMediaInternal(). A new VLC Media is created and set into the VLC Media Player.
+     * All the connected sink nodes are connected to the new media. It connects the media object
+     * to the events for the VLC Media, updates the meta-data, sets up the video widget id, and
+     * starts playing.
+     *
+     * \see loadMediaInternal()
+     * \see connectToMediaVLCEvents()
+     * \see updateMetaData()
+     * \see setVLCWidgetId()
+     */
     void playInternal();
+
+    /**
+     * Seeks to the required position. If the state is not playing, the seek position is remembered.
+     */
     void seekInternal(qint64 milliseconds);
+
+    /**
+     * Adds an option to the libVLC media.
+     *
+     * \param opt What option to add
+     */
     void setOption(QString opt);
 
     qint64 currentTimeInternal() const;
@@ -186,19 +308,68 @@ protected:
     Phonon::State m_currentState;
 
 private slots:
+    /**
+     * Retrieve meta data of a file (i.e ARTIST, TITLE, ALBUM, etc...).
+     */
     void updateMetaData();
+
+    /**
+     * Update media duration time
+     */
     void updateDuration(qint64 newDuration);
 
+    /**
+     * If the new state is different from the current state, the current state is
+     * changed and the corresponding signal is emitted.
+     */
     void stateChangedInternal(Phonon::State newState);
 
+    /**
+     * Checks when the tick(), prefinishMarkReached(), aboutToFinish() signals need to
+     * be emitted and emits them if necessary.
+     *
+     * \param currentTime The current play time for the media, in miliseconds.
+     */
     void tickInternalSlot(qint64 time);
 
+    /**
+     * If the next media source is valid, the current source is replaced and playback is commenced.
+     * The next source is set to an empty source.
+     *
+     * \see setNextSource()
+     */
     void moveToNextSource();
 
 private:
+    /**
+     * Connect libvlc_callback() to all VLC media events.
+     *
+     * \see libvlc_callback()
+     * \see connectToPlayerVLCEvents()
+     */
     void connectToMediaVLCEvents();
+
+    /**
+     * Connect libvlc_callback() to all VLC media player events.
+     *
+     * \see libvlc_callback()
+     * \see connectToMediaVLCEvents()
+     */
     void connectToPlayerVLCEvents();
 
+    /**
+     * Libvlc callback.
+     *
+     * Receive all vlc events.
+     *
+     * Most of the events trigger the emission of one or more signals from the media object.
+     *
+     * \warning This code will be owned by the libVLC thread.
+     *
+     * \see connectToMediaVLCEvents()
+     * \see connectToPlayerVLCEvents()
+     * \see libvlc_event_attach()
+     */
     static void libvlc_callback(const libvlc_event_t *p_event, void *p_user_data);
 
     /**
@@ -217,13 +388,34 @@ private:
      */
     void loadMedia(const QString &filename);
 
+    /**
+     * Uninitializes the media
+     */
     void unloadMedia();
+
+    /**
+     * Loads a stream specified by the current media source. It creates a stream reader
+     * for the media source. Then, loadMedia() is called. The stream callbacks are set up
+     * using special options. These callbacks are implemented in streamhooks.cpp, and
+     * are basically part of StreamReader.
+     *
+     * \see StreamReader
+     */
     void loadStream();
 
+    /**
+     * Configures the VLC Media Player to draw the video on the desired widget. The actual function
+     * call depends on the platform.
+     *
+     * \see setVideoWidgetId()
+     */
     void setVLCVideoWidget();
 
     void resume();
 
+    /**
+     * \return A string representation of a Phonon state.
+     */
     QString PhononStateToString(Phonon::State newState);
 
     qint32 m_prefinishMark;
