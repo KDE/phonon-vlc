@@ -352,7 +352,7 @@ void MediaObject::setSource(const MediaSource &source)
         qCritical() << __FUNCTION__ << "Error: MediaSource is empty.";
         break;
     case MediaSource::LocalFile:
-    case MediaSource::Url:
+    case MediaSource::Url: {
         qCritical() << __FUNCTION__ << "yeap, 'tis a local file or url" << source.url().scheme();
         QByteArray mrl;
         const QUrl &url = source.url();
@@ -364,6 +364,7 @@ void MediaObject::setSource(const MediaSource &source)
             mrl = url.toEncoded();
         }
         loadMedia(mrl);
+    }
         break;
     case MediaSource::Disc:
         switch (source.discType()) {
