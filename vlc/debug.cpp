@@ -25,7 +25,7 @@
 #include <QtCore/QObject>
 #include <QtGui/QApplication>
 
-#include <iostream>b
+#include <iostream>
 #include <unistd.h>
 
 // Define Application wide prefix
