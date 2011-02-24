@@ -34,7 +34,7 @@ struct libvlc_instance_t;
 #define libvlc LibVLC::self->vlc()
 
 /**
- * Singleton class containing a libvlc instance.
+ * \brief Singleton class containing a libvlc instance.
  *
  * This class is a convenience class implementing the singleton pattern to hold
  * an instance of libvlc. This instance is necessary to call various libvlc

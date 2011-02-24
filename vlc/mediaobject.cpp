@@ -31,6 +31,7 @@
 
 #include "vlc/vlc.h"
 
+#include "debug.h"
 #include "libvlc.h"
 #include "seekstack.h"
 #include "sinknode.h"
@@ -207,23 +208,25 @@ void MediaObject::tickInternalSlot(qint64 currentTime)
     }
 }
 
-/**
- * Changes the current state to buffering and calls loadMediaInternal()
- * \param filename A MRL from the media source
- */
-void MediaObject::loadMedia(const QString &filename)
+void MediaObject::loadMedia(const QByteArray &filename)
 {
-    qDebug() << __FUNCTION__ << filename;
+    DEBUG_BLOCK;
 
     // Default MediaObject state is Phonon::BufferingState
     emit stateChanged(Phonon::BufferingState);
 
-    m_currentFile = filename.toAscii().toPercentEncoding(":/?=&,@");
+    m_currentFile = filename;
+    debug() << "loading encoded:" << m_currentFile;
 
 #ifdef __GNUC__
 #warning TODO Why is this needed??? - probably Qt demo foobar?
 #endif
     emit stateChanged(Phonon::StoppedState);
+}
+
+void MediaObject::loadMedia(const QString &filename)
+{
+    loadMedia(filename.toUtf8());
 }
 
 void MediaObject::resume()
@@ -349,23 +352,19 @@ void MediaObject::setSource(const MediaSource &source)
         qCritical() << __FUNCTION__ << "Error: MediaSource is empty.";
         break;
     case MediaSource::LocalFile:
-    case MediaSource::Url: {
+    case MediaSource::Url:
         qCritical() << __FUNCTION__ << "yeap, 'tis a local file or url" << source.url().scheme();
-        QString mrl;
+        QByteArray mrl;
         const QUrl &url = source.url();
         if (url.scheme() == QLatin1String("")) {
-            mrl = QFile::encodeName("file://" + url.toString());
+            mrl = QFile::encodeName("file://" + url.toString()).toPercentEncoding(":/\\?=&,@");
         } else if ((url.scheme() ==  QLatin1String("file://"))) {
-            mrl = QFile::encodeName(url.toString());
+            mrl = QFile::encodeName(url.toString()).toPercentEncoding(":/\\?=&,@");
         } else {
-            mrl = QString(url.toString());
+            mrl = url.toEncoded();
         }
         loadMedia(mrl);
-    }
-    break;
-    /*    case MediaSource::Url:
-            loadMedia(mediaSource.url().toEncoded());
-            break;*/
+        break;
     case MediaSource::Disc:
         switch (source.discType()) {
         case Phonon::NoDisc:
@@ -441,7 +440,7 @@ void MediaObject::loadStream()
 {
     m_streamReader = new StreamReader(m_mediaSource, this);
 
-    loadMedia("imem://");
+    loadMedia(QByteArray("imem://"));
 }
 
 /**

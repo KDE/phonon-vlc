@@ -201,7 +201,22 @@ private:
 
     static void libvlc_callback(const libvlc_event_t *p_event, void *p_user_data);
 
+    /**
+     * Changes the current state to buffering and sets the new current file.
+     *
+     * \param filename The MRL of the media source
+     */
+    void loadMedia(const QByteArray &filename);
+
+    /**
+     * Overload for loadMedia, converting a QString to a QByteArray.
+     *
+     * \param filename The MRL of the media source
+     *
+     * \see loadMedia
+     */
     void loadMedia(const QString &filename);
+
     void unloadMedia();
     void loadStream();
 
