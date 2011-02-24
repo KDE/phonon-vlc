@@ -296,8 +296,6 @@ protected:
      */
     void setOption(QString opt);
 
-    qint64 currentTimeInternal() const;
-
     bool checkGaplessWaiting();
 
     BaseWidget *m_videoWidget;

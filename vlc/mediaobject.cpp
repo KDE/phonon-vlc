@@ -216,21 +216,14 @@ void MediaObject::setTickInterval(qint32 tickInterval)
 qint64 MediaObject::currentTime() const
 {
     qint64 time = -1;
-    Phonon::State st = state();
 
-    switch (st) {
+    switch (state()) {
     case Phonon::PausedState:
-        time = currentTimeInternal();
-        break;
     case Phonon::BufferingState:
-        time = currentTimeInternal();
-        break;
     case Phonon::PlayingState:
-        time = currentTimeInternal();
+        time = libvlc_media_player_get_time(m_player);
         break;
     case Phonon::StoppedState:
-        time = 0;
-        break;
     case Phonon::LoadingState:
         time = 0;
         break;
@@ -238,7 +231,7 @@ qint64 MediaObject::currentTime() const
         time = -1;
         break;
     default:
-        qCritical() << __FUNCTION__ << "Error: unsupported Phonon::State:" << st;
+        qCritical() << __FUNCTION__ << "Error: unsupported Phonon::State:" << state();
     }
 
     return time;
@@ -879,11 +872,6 @@ void MediaObject::updateMetaData()
 qint64 MediaObject::totalTime() const
 {
     return m_totalTime;
-}
-
-qint64 MediaObject::currentTimeInternal() const
-{
-    return libvlc_media_player_get_time(m_player);
 }
 
 void MediaObject::updateDuration(qint64 newDuration)
