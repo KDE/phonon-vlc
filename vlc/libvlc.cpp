@@ -22,7 +22,9 @@
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QLibrary>
+#include <QtCore/QSettings>
 #include <QtCore/QString>
+#include <QtCore/QStringBuilder>
 
 #include <vlc/libvlc.h>
 
@@ -47,7 +49,8 @@ bool LibVLC::init(int debugLevel)
 
     QString path = self->vlcPath();
     if (!path.isEmpty()) {
-        QString pluginsPath = QString("--plugin-path=") + QDir::toNativeSeparators(QFileInfo(self->vlcPath()).dir().path());
+        QString pluginsPath = QLatin1Literal("--plugin-path=") %
+                QDir::toNativeSeparators(QFileInfo(self->vlcPath()).dir().path());
 
 #if defined(Q_OS_UNIX)
         pluginsPath.append("/vlc");
@@ -153,9 +156,9 @@ QStringList LibVLC::findAllLibVlcPaths()
 #if defined(Q_WS_MAC)
     paths
             << QCoreApplication::applicationDirPath()
-            << QCoreApplication::applicationDirPath() + QLatin1String("/../Frameworks")
-            << QCoreApplication::applicationDirPath() + QLatin1String("/../PlugIns")
-            << QCoreApplication::applicationDirPath() + QLatin1String("/lib");
+            << QCoreApplication::applicationDirPath() % QLatin1Literal("/../Frameworks")
+            << QCoreApplication::applicationDirPath() % QLatin1Literal("/../PlugIns")
+            << QCoreApplication::applicationDirPath() % QLatin1Literal("/lib");
 #endif
 
     QStringList foundVlcs;
@@ -168,7 +171,7 @@ QStringList LibVLC::findAllLibVlcPaths()
             if (entry.contains(".debug")) {
                 continue;
             }
-            foundVlcs << path + QLatin1Char('/') + entry;
+            foundVlcs << path % QLatin1Char('/') % entry;
         }
     }
 
@@ -189,7 +192,7 @@ QStringList LibVLC::findAllLibVlcPaths()
     QString vlcVersion = settings.value("Version").toString();
     QString vlcInstallDir = settings.value("InstallDir").toString();
     if (vlcVersion.startsWith("1.1") && !vlcInstallDir.isEmpty()) {
-        paths << vlcInstallDir + QLatin1Char('\\') + "libvlc.dll";
+        paths << vlcInstallDir % QLatin1Char('\\') % QLatin1Literal("libvlc.dll");
         return paths;
     } else {
         //If nothing is found in the registry try %PATH%
@@ -201,7 +204,7 @@ QStringList LibVLC::findAllLibVlcPaths()
             QDir dir = QDir(sp);
             QStringList entryList = dir.entryList(QStringList() << QLatin1String("libvlc.dll"), QDir::Files);
             foreach(const QString & entry, entryList){
-                foundVlcs << sp + QLatin1Char('\\') + entry;
+                foundVlcs << sp % QLatin1Char('\\') % entry;
             }
         }
         paths << foundVlcs;
