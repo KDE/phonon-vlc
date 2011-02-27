@@ -96,7 +96,6 @@ protected:
     quint64 m_pos;
     quint64 m_size;
     bool m_eos;
-    bool m_gotDataOnce;
     bool m_seekable;
     QMutex m_mutex;
     QWaitCondition m_waitingForData;

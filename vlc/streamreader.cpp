@@ -24,6 +24,7 @@
 
 #include <QtCore/QMutexLocker>
 
+#include "debug.h"
 #include "mediaobject.h"
 
 QT_BEGIN_NAMESPACE
@@ -39,7 +40,6 @@ StreamReader::StreamReader(const Phonon::MediaSource &source, MediaObject *paren
     : m_pos(0)
     , m_size(0)
     , m_eos(false)
-    , m_gotDataOnce(false)
     , m_seekable(false)
     , m_mediaObject(parent)
 {
@@ -103,6 +103,7 @@ quint64 StreamReader::currentBufferSize() const
 
 bool StreamReader::read(quint64 pos, int *length, char *buffer)
 {
+    DEBUG_BLOCK;
     QMutexLocker lock(&m_mutex);
     bool ret = true;
 
@@ -117,13 +118,13 @@ bool StreamReader::read(quint64 pos, int *length, char *buffer)
         m_buffer.reserve(*length);
     }
 
-    while (currentBufferSize() < static_cast<unsigned int>(*length) || !m_gotDataOnce) {
+    while (currentBufferSize() < static_cast<unsigned int>(*length)) {
         quint64 oldSize = currentBufferSize();
         needData();
 
         m_waitingForData.wait(&m_mutex);
 
-        if (oldSize == currentBufferSize() && m_gotDataOnce) {
+        if (oldSize == currentBufferSize()) {
             if (m_eos) {
                 return false;
             }
@@ -131,9 +132,7 @@ bool StreamReader::read(quint64 pos, int *length, char *buffer)
             *length = static_cast<int>(oldSize);
             // If we have some data to return, why tell to reader that we failed?
             // Remember that length argument is more like maxSize not requiredSize
-            ret = *length > 0;
-        } else if (!m_gotDataOnce && currentBufferSize() >= static_cast<unsigned int>(*length)) {
-            m_gotDataOnce = true;
+            ret = true;
         }
     }
 
@@ -146,6 +145,10 @@ bool StreamReader::read(quint64 pos, int *length, char *buffer)
     m_pos += *length;
     // trim the buffer by the amount read
     m_buffer = m_buffer.mid(*length);
+
+
+    debug() << "ret:" << ret;
+    debug() << "length:" << *length;
     return ret;
 }
 
@@ -157,6 +160,7 @@ void StreamReader::endOfData()
 
 void StreamReader::writeData(const QByteArray &data)
 {
+//    DEBUG_BLOCK;
     QMutexLocker lock(&m_mutex);
     m_buffer.append(data);
     m_waitingForData.wakeAll();
