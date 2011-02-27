@@ -67,7 +67,7 @@ class AudioDataOutput : public QObject, public SinkNode, public AudioDataOutputI
     Q_INTERFACES(Phonon::AudioDataOutputInterface)
 
 public:
-    AudioDataOutput(Backend *, QObject *);
+    AudioDataOutput(QObject *parent);
     ~AudioDataOutput();
 
 #ifndef PHONON_VLC_NO_EXPERIMENTAL

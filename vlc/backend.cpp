@@ -61,6 +61,8 @@ namespace Phonon
 namespace VLC
 {
 
+Backend *Backend::self;
+
 /**
  * Constructs the backend. Sets the backend properties, fetches the debug level from the
  * environment, initializes libVLC, constructs the device and effect managers, initializes
@@ -73,6 +75,8 @@ Backend::Backend(QObject *parent, const QVariantList &)
     , m_deviceManager(0)
     , m_effectManager(0)
 {
+    self = this;
+
     /* Backend information properties */
     setProperty("identifier",     QLatin1String("phonon_vlc"));
     setProperty("backendName",    QLatin1String("VLC"));
@@ -146,12 +150,12 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
         logMessage("createObject() : VolumeFaderEffect not implemented");
         break;
     case AudioOutputClass: {
-        AudioOutput *ao = new AudioOutput(this, parent);
+        AudioOutput *ao = new AudioOutput(parent);
         m_audioOutputs.append(ao);
         return ao;
     }
     case AudioDataOutputClass:
-        return new AudioDataOutput(this, parent);
+        return new AudioDataOutput(parent);
         logMessage("createObject() : AudioDataOutput created - WARNING: POSSIBLY INCORRECTLY IMPLEMENTED");
         break;
     case VisualizationClass:

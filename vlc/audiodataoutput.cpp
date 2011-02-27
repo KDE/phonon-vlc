@@ -48,11 +48,9 @@ namespace VLC
  * The available audio channels are registered. These are:
  * \li Left \li Right \li Center \li LeftSurround \li RightSurround \li Subwoofer
  */
-AudioDataOutput::AudioDataOutput(Backend *backend, QObject *parent)
+AudioDataOutput::AudioDataOutput(QObject *parent)
     : QObject(parent)
 {
-    Q_UNUSED(backend)
-
     m_sampleRate = 44100;
     connect(this, SIGNAL(sampleReadDone()), this, SLOT(sendData()));
 

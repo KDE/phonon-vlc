@@ -40,17 +40,10 @@ namespace Phonon
 namespace VLC
 {
 
-/**
- * Creates an AudioOutput with the given backend object. The volume is set to 1.0
- *
- * \param p_back Parent backend
- * \param p_parent A parent object
- */
-AudioOutput::AudioOutput(Backend *p_back, QObject *p_parent)
-    : QObject(p_parent),
-      f_volume(1.0),
-      i_device(0),
-      p_backend(p_back)
+AudioOutput::AudioOutput(QObject *parent)
+    : QObject(parent),
+      m_volume(1.0),
+      m_deviceIndex(0)
 {
 }
 
@@ -73,89 +66,61 @@ void AudioOutput::disconnectFromMediaObject(MediaObject *mediaObject)
 }
 
 #ifndef PHONON_VLC_NO_EXPERIMENTAL
-/**
- * Connects the AudioOutput to an AvCapture. connectToMediaObject() is called
- * only for the video media of the AvCapture.
- *
- * \see AvCapture
- */
 void AudioOutput::connectToAvCapture(Experimental::AvCapture *avCapture)
 {
     connectToMediaObject(avCapture->audioMediaObject());
 }
 
-/**
- * Disconnect the AudioOutput from the audio media of the AvCapture.
- *
- * \see connectToAvCapture()
- */
 void AudioOutput::disconnectFromAvCapture(Experimental::AvCapture *avCapture)
 {
     disconnectFromMediaObject(avCapture->audioMediaObject());
 }
 #endif // PHONON_VLC_NO_EXPERIMENTAL
 
-/**
- * \return The current volume for this audio output.
- */
 qreal AudioOutput::volume() const
 {
-    return f_volume;
+    return m_volume;
 }
 
-/**
- * Sets the volume of the audio output. See the Phonon::AudioOutputInterface::setVolume() documentation
- * for details.
- */
 void AudioOutput::setVolume(qreal volume)
 {
     if (m_player) {
         const int previous_volume = libvlc_audio_get_volume(m_player);
-        f_volume = volume;
-        libvlc_audio_set_volume(m_player, (int)(f_volume * 50));
-        qDebug() << __FUNCTION__ << "Volume changed to - " << (int)(f_volume * 100) << " From " << previous_volume;
-        emit volumeChanged(f_volume);
+        m_volume = volume;
+        libvlc_audio_set_volume(m_player, (int)(m_volume * 50));
+        qDebug() << __FUNCTION__ << "Volume changed to - " << (int)(m_volume * 100) << " From " << previous_volume;
+        emit volumeChanged(m_volume);
     }
 }
 
-/**
- * \return The index of the current audio output device from the list obtained from the backend object.
- */
 int AudioOutput::outputDevice() const
 {
-    return i_device;
+    return m_deviceIndex;
 }
 
-/**
- * Sets the current output device for this audio output. The validity of the device index
- * is verified before attempting to change the device.
- *
- * \param device The index of the device, obtained from the backend's audio device list
- * \return \c true if succeeded, or no change was made
- * \return \c false if failed
- */
 bool AudioOutput::setOutputDevice(int device)
 {
-    if (i_device == device) {
+    if (m_deviceIndex == device) {
         return true;
     }
 
 #ifdef PHONON_PULSESUPPORT
     if (PulseSupport::getInstance()->isActive()) {
-        i_device = device;
+        m_deviceIndex = device;
         libvlc_audio_output_set(m_player, "pulse");
-        qDebug() << "set aout " << "pulse";
+        qDebug() << "set aout pulse";
         return true;
     }
 #endif
 
-    const QList<DeviceInfo> deviceList = p_backend->deviceManager()->audioOutputDevices();
+    // TODO: turn DeviceManager into a singleton?
+    const QList<DeviceInfo> deviceList = Backend::self->deviceManager()->audioOutputDevices();
     if (device >= 0 && device < deviceList.size()) {
 
         if (!m_player) {
             return false;
         }
-        i_device = device;
+        m_deviceIndex = device;
         const QByteArray deviceName = deviceList.at(device).name;
         libvlc_audio_output_set(m_player, (char *) deviceList.at(device).name.data());
         qDebug() << "set aout " << deviceList.at(device).name.data();
@@ -176,24 +141,18 @@ bool AudioOutput::setOutputDevice(int device)
 }
 
 #if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 2, 0))
-/**
- * Does nothing.
- */
 bool AudioOutput::setOutputDevice(const Phonon::AudioOutputDevice &device)
 {
     return true;
 }
 #endif
 
-/**
- * Sets the volume to f_volume.
- */
 void AudioOutput::updateVolume()
 {
     if (m_player) {
         const int previous_volume = libvlc_audio_get_volume(m_player);
-        libvlc_audio_set_volume(m_player, (int)(f_volume * 50));
-        qDebug() << __FUNCTION__ << "Volume changed to - " << (int)(f_volume * 50) << " From " << previous_volume;
+        libvlc_audio_set_volume(m_player, (int)(m_volume * 50));
+        qDebug() << __FUNCTION__ << "Volume changed to - " << (int)(m_volume * 50) << " From " << previous_volume;
     }
 }
 

@@ -32,7 +32,6 @@ namespace Phonon
 {
 namespace VLC
 {
-class Backend;
 
 /** \brief AudioOutput implementation for Phonon-VLC
  *
@@ -51,8 +50,13 @@ class AudioOutput : public QObject, public SinkNode, public AudioOutputInterface
     Q_INTERFACES(Phonon::AudioOutputInterface)
 
 public:
-
-    AudioOutput(Backend *p_back, QObject *p_parent);
+    /**
+     * Creates an AudioOutput with the given backend object. The volume is set to 1.0
+     *
+     * \param p_back Parent backend
+     * \param p_parent A parent object
+     */
+    AudioOutput(QObject *p_parent);
     ~AudioOutput();
 
     /* Overload */
@@ -62,36 +66,68 @@ public:
     virtual void disconnectFromMediaObject(MediaObject *mediaObject);
 
 #ifndef PHONON_VLC_NO_EXPERIMENTAL
-    /* Overload */
+    /**
+     * Connects the AudioOutput to an AvCapture. connectToMediaObject() is called
+     * only for the video media of the AvCapture.
+     *
+     * \see AvCapture
+     */
     void connectToAvCapture(Experimental::AvCapture *avCapture);
 
-   /* Overload */
+    /**
+     * Disconnect the AudioOutput from the audio media of the AvCapture.
+     *
+     * \see connectToAvCapture()
+     */
     void disconnectFromAvCapture(Experimental::AvCapture *avCapture);
 #endif // PHONON_VLC_NO_EXPERIMENTAL
 
+    /**
+     * \return The current volume for this audio output.
+     */
     qreal volume() const;
+
+    /**
+     * Sets the volume of the audio output. See the Phonon::AudioOutputInterface::setVolume() documentation
+     * for details.
+     */
     void setVolume(qreal volume);
 
+    /**
+     * \return The index of the current audio output device from the list obtained from the backend object.
+     */
     int outputDevice() const;
+
+    /**
+     * Sets the current output device for this audio output. The validity of the device index
+     * is verified before attempting to change the device.
+     *
+     * \param device The index of the device, obtained from the backend's audio device list
+     * \return \c true if succeeded, or no change was made
+     * \return \c false if failed
+     */
     bool setOutputDevice(int);
+
 #if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 2, 0))
+    /**
+     * Does nothing.
+     */
     bool setOutputDevice(const AudioOutputDevice &device);
 #endif
 
 signals:
-
     void volumeChanged(qreal volume);
     void audioDeviceFailed();
 
 private slots:
+    /**
+     * Sets the volume to m_volume.
+     */
     void updateVolume();
 
 private:
-
-    qreal f_volume;
-    int i_device;
-    Backend *p_backend;
-
+    qreal m_volume;
+    int m_deviceIndex;
 };
 
 }

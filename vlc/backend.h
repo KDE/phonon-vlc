@@ -67,6 +67,11 @@ class Backend : public QObject, public BackendInterface
     Q_INTERFACES(Phonon::BackendInterface)
 
 public:
+    /**
+     * Instance. Since there is no backend instance without actual Backend object
+     * this class behaves likes a singleton.
+     */
+    static Backend *self;
 
     enum DebugLevel {NoDebug, Warning, Info, Debug};
     explicit Backend(QObject *parent = 0, const QVariantList & = QVariantList());
