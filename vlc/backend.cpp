@@ -564,7 +564,7 @@ void Backend::logMessage(const QString &message, int priority, QObject *obj) con
             className = className.right(nameLength);
             output.sprintf("%s %s (%s %p)", message.toLatin1().constData(),
                            obj->objectName().toLatin1().constData(),
-                           className.toLatin1().constData(), obj);
+                           className.toLatin1().constData(), static_cast<void *>(obj));
         } else {
             output = message;
         }

@@ -176,15 +176,20 @@ void MediaObject::loadMedia(const QByteArray &filename)
 {
     DEBUG_BLOCK;
 
-    // Default MediaObject state is Phonon::BufferingState
-    emit stateChanged(Phonon::BufferingState);
+    // Initial state is loading, from which we quickly progress to stopped because
+    // libvlc does not provide feedback on loading and the media does not get loaded
+    // until we play it.
+    // FIXME: libvlc should really allow for this as it can cause unexpected delay
+    // even though the GUI might indicate that playback should start right away.
+    emit stateChanged(Phonon::LoadingState);
 
     m_currentFile = filename;
     debug() << "loading encoded:" << m_currentFile;
 
-#ifdef __GNUC__
-#warning TODO Why is this needed??? - probably Qt demo foobar?
-#endif
+    // We do not have a loading state generally speaking, usually the backend
+    // is exepected to go to loading state and then at some point reach stopped,
+    // at which point playback can be started.
+    // See state enum documentation for more information.
     emit stateChanged(Phonon::StoppedState);
 }
 
