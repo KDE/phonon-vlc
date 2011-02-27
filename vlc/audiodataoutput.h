@@ -1,24 +1,25 @@
-/*****************************************************************************
- * libVLC backend for the Phonon library                                     *
- *                                                                           *
- * Copyright (C) 2006 Matthias Kretz <kretz@kde.org>
- * Copyright (C) 2009 Martin Sandsmark <sandsmark@samfundet.no>
- * Copyright (C) 2010 Ben Cooksley <sourtooth@gmail.com>
- *                                                                           *
- * This program is free software; you can redistribute it and/or             *
- * modify it under the terms of the GNU Lesser General Public                *
- * License as published by the Free Software Foundation; either              *
- * version 2.1 of the License, or (at your option) any later version.        *
- *                                                                           *
- * This program is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of            *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU         *
- * Lesser General Public License for more details.                           *
- *                                                                           *
- * You should have received a copy of the GNU Lesser General Public          *
- * License along with this package; if not, write to the Free Software       *
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA *
- *****************************************************************************/
+/*
+    Copyright (C) 2006 Matthias Kretz <kretz@kde.org>
+    Copyright (C) 2009 Martin Sandsmark <sandsmark@samfundet.no>
+    Copyright (C) 2010 Ben Cooksley <sourtooth@gmail.com>
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) version 3, or any
+    later version accepted by the membership of KDE e.V. (or its
+    successor approved by the membership of KDE e.V.), Nokia Corporation
+    (or its successors, if any) and the KDE Free Qt Foundation, which shall
+    act as a proxy defined in Section 6 of version 3 of the license.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #ifndef Phonon_VLC_AUDIODATAOUTPUT_H
 #define Phonon_VLC_AUDIODATAOUTPUT_H
@@ -30,8 +31,6 @@
 #include <QtCore/QMutex>
 
 #include <phonon/audiodataoutput.h>
-
-#include "backend.h"
 
 //Allow PRId64 to be defined:
 #define __STDC_FORMAT_MACROS
@@ -65,29 +64,66 @@ class AudioDataOutput : public QObject, public SinkNode, public AudioDataOutputI
 {
     Q_OBJECT
     Q_INTERFACES(Phonon::AudioDataOutputInterface)
-
 public:
+    /**
+     * Creates an audio data output. The sample rate is set to 44100 Hz.
+     * The available audio channels are registered. These are:
+     * \li Left \li Right \li Center \li LeftSurround \li RightSurround \li Subwoofer
+     */
     AudioDataOutput(QObject *parent);
     ~AudioDataOutput();
 
 #ifndef PHONON_VLC_NO_EXPERIMENTAL
+    /**
+     * Connect this AudioDataOutput only to the audio media part of the AvCapture.
+     *
+     * \see AvCapture
+     */
     void connectToAvCapture(Experimental::AvCapture *avCapture);
+
+    /**
+     * Disconnect the AudioDataOutput from the video media of the AvCapture.
+     *
+     * \see connectToAvCapture()
+     */
     void disconnectFromAvCapture(Experimental::AvCapture *avCapture);
 #endif//PHONON_VLC_NO_EXPERIMENTAL
 
-public Q_SLOTS:
-    int dataSize() const;
-    int sampleRate() const;
-    void setDataSize(int size);
-    void addToMedia( libvlc_media_t * media );
-
-public:
-    Phonon::AudioDataOutput *frontendObject() const {
+    Phonon::AudioDataOutput *frontendObject() const
+    {
         return m_frontend;
     }
-    void setFrontendObject(Phonon::AudioDataOutput *frontend) {
+
+    void setFrontendObject(Phonon::AudioDataOutput *frontend)
+    {
         m_frontend = frontend;
     }
+
+public Q_SLOTS:
+    /**
+     * \return The currently used number of samples passed through the signal.
+     */
+    int dataSize() const;
+
+    /**
+     * \return The current sample rate in Hz.
+     */
+    int sampleRate() const;
+
+    /**
+     * Sets the number of samples to be passed in one signal emission.
+     */
+    void setDataSize(int size);
+
+    /**
+     * Adds special options to the libVLC Media Object to adapt it to give audio data
+     * directly. There are two callbacks used: lock(), unlock().
+     *
+     * \see lock()
+     * \see unlock()
+     * \see SinkNode::connectToMediaObject()
+     */
+    void addToMedia( libvlc_media_t *media);
 
 signals:
     void dataReady(const QMap<Phonon::AudioDataOutput::Channel, QVector<qint16> > &data);
@@ -96,10 +132,38 @@ signals:
     void sampleReadDone();
 
 private Q_SLOTS:
+    /**
+     * Looks at the channel samples generated in lock() and creates the QMap required for
+     * the dataReady() signal. Then the signal is emitted. This repeats as long as there is
+     * data remaining.
+     *
+     * \see lock()
+     */
     void sendData();
 
 private:
+    /**
+     * This is a VLC prerender callback. The m_locker mutex is locked, and a new buffer is prepared
+     * for the incoming audio data.
+     *
+     * \param cw The AudioDataOutput for this callback
+     * \param pcm_buffer The new data buffer
+     * \param size Size for the incoming data
+     *
+     * \see unlock()
+     */
     static void lock(AudioDataOutput *cw, quint8 **pcm_buffer , quint32 size);
+
+    /**
+     * This is a VLC postrender callback. Interprets the data received in m_buffer,
+     * separating the samples and channels. Finally, the buffer is freed and m_locker
+     * is unlocked. Now the audio data output is ready for sending data.
+     *
+     * \param cw The AudioDataOutput for this callback
+     *
+     * \see lock()
+     * \see sendData()
+     */
     static void unlock(AudioDataOutput *cw, quint8 *pcm_buffer,
                        quint32 channels, quint32 rate,
                        quint32 nb_samples, quint32 bits_per_sample,

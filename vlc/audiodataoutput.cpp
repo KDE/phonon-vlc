@@ -1,4 +1,4 @@
-/*  This file is part of the KDE project
+/*
     Copyright (C) 2006 Matthias Kretz <kretz@kde.org>
     Copyright (C) 2009 Martin Sandsmark <sandsmark@samfundet.no>
     Copyright (C) 2010 Ben Cooksley <sourtooth@gmail.com>
@@ -19,7 +19,6 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library.  If not, see <http://www.gnu.org/licenses/>.
-
 */
 
 #include "audiodataoutput.h"
@@ -43,11 +42,6 @@ namespace Phonon
 namespace VLC
 {
 
-/**
- * Creates an audio data output. The sample rate is set to 44100 Hz.
- * The available audio channels are registered. These are:
- * \li Left \li Right \li Center \li LeftSurround \li RightSurround \li Subwoofer
- */
 AudioDataOutput::AudioDataOutput(QObject *parent)
     : QObject(parent)
 {
@@ -68,59 +62,32 @@ AudioDataOutput::~AudioDataOutput()
 }
 
 #ifndef PHONON_VLC_NO_EXPERIMENTAL
-/**
- * Connect this AudioDataOutput only to the audio media part of the AvCapture.
- *
- * \see AvCapture
- */
 void AudioDataOutput::connectToAvCapture(Experimental::AvCapture *avCapture)
 {
     connectToMediaObject(avCapture->audioMediaObject());
 }
 
-/**
- * Disconnect the AudioDataOutput from the video media of the AvCapture.
- *
- * \see connectToAvCapture()
- */
 void AudioDataOutput::disconnectFromAvCapture(Experimental::AvCapture *avCapture)
 {
     disconnectFromMediaObject(avCapture->audioMediaObject());
 }
 #endif // PHONON_VLC_NO_EXPERIMENTAL
 
-/**
- * \return The currently used number of samples passed through the signal.
- */
 int AudioDataOutput::dataSize() const
 {
     return m_dataSize;
 }
 
-/**
- * \return The current sample rate in Hz.
- */
 int AudioDataOutput::sampleRate() const
 {
     return m_sampleRate;
 }
 
-/**
- * Sets the number of samples to be passed in one signal emission.
- */
 void AudioDataOutput::setDataSize(int size)
 {
     m_dataSize = size;
 }
 
-/**
- * Adds special options to the libVLC Media Object to adapt it to give audio data
- * directly. There are two callbacks used: lock(), unlock().
- *
- * \see lock()
- * \see unlock()
- * \see SinkNode::connectToMediaObject()
- */
 void AudioDataOutput::addToMedia(libvlc_media_t *media)
 {
     // WARNING: DO NOT CHANGE ANYTHING HERE FOR CODE CLEANING PURPOSES!
@@ -133,13 +100,13 @@ void AudioDataOutput::addToMedia(libvlc_media_t *media)
     libvlc_media_add_option_flag(media, ":sout-smem-time-sync", libvlc_media_option_trusted);
 
     // Add audio lock callback
-    void *lock_call = reinterpret_cast<void *>(&AudioDataOutput::lock);
-    sprintf(param, ":sout-smem-audio-prerender-callback=%"PRId64, (qint64)(intptr_t)lock_call);
+    intptr_t lockPtr = reinterpret_cast<intptr_t>(&AudioDataOutput::lock);
+    sprintf(param, ":sout-smem-audio-prerender-callback=%"PRId64, static_cast<qint64>(lockPtr));
     libvlc_media_add_option_flag(media, param, libvlc_media_option_trusted);
 
     // Add audio unlock callback
-    void *unlock_call = reinterpret_cast<void *>(&AudioDataOutput::unlock);
-    sprintf(param, ":sout-smem-audio-postrender-callback=%"PRId64, (qint64)(intptr_t)unlock_call);
+    intptr_t unlockPtr = reinterpret_cast<intptr_t>(&AudioDataOutput::unlock);
+    sprintf(param, ":sout-smem-audio-postrender-callback=%"PRId64, static_cast<qint64>(unlockPtr));
     libvlc_media_add_option_flag(media, param, libvlc_media_option_trusted);
 
     // Add pointer to ourselves...
@@ -147,16 +114,6 @@ void AudioDataOutput::addToMedia(libvlc_media_t *media)
     libvlc_media_add_option_flag(media, param, libvlc_media_option_trusted);
 }
 
-/**
- * This is a VLC prerender callback. The m_locker mutex is locked, and a new buffer is prepared
- * for the incoming audio data.
- *
- * \param cw The AudioDataOutput for this callback
- * \param pcm_buffer The new data buffer
- * \param size Size for the incoming data
- *
- * \see unlock()
- */
 void AudioDataOutput::lock(AudioDataOutput *cw, quint8 **pcm_buffer , quint32 size)
 {
     cw->m_locker.lock();
@@ -165,16 +122,6 @@ void AudioDataOutput::lock(AudioDataOutput *cw, quint8 **pcm_buffer , quint32 si
     *pcm_buffer = cw->m_buffer;
 }
 
-/**
- * This is a VLC postrender callback. Interprets the data received in m_buffer,
- * separating the samples and channels. Finally, the buffer is freed and m_locker
- * is unlocked. Now the audio data output is ready for sending data.
- *
- * \param cw The AudioDataOutput for this callback
- *
- * \see lock()
- * \see sendData()
- */
 void AudioDataOutput::unlock(AudioDataOutput *cw, quint8 *pcm_buffer,
                              quint32 channels, quint32 rate,
                              quint32 nb_samples, quint32 bits_per_sample,
@@ -222,13 +169,6 @@ void AudioDataOutput::unlock(AudioDataOutput *cw, quint8 *pcm_buffer,
     emit cw->sampleReadDone();
 }
 
-/**
- * Looks at the channel samples generated in lock() and creates the QMap required for
- * the dataReady() signal. Then the signal is emitted. This repeats as long as there is
- * data remaining.
- *
- * \see lock()
- */
 void AudioDataOutput::sendData()
 {
     m_locker.lock();
