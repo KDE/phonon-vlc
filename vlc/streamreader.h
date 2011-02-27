@@ -24,8 +24,11 @@
 #include <phonon/mediasource.h>
 #include <phonon/streaminterface.h>
 
+#include <stdint.h>
+
 #include <QtCore/QMutex>
 #include <QtCore/QWaitCondition>
+
 
 QT_BEGIN_NAMESPACE
 
@@ -54,8 +57,17 @@ class MediaObject;
 class StreamReader : public Phonon::StreamInterface
 {
 public:
-
     StreamReader(const Phonon::MediaSource &source, MediaObject *parent);
+    ~StreamReader();
+
+    static int readCallback(void *data, const char *cookie,
+                            int64_t *dts, int64_t *pts, unsigned *flags,
+                            size_t *bufferSize, void **buffer);
+
+    static int readDoneCallback(void *data, const char *cookie,
+                                size_t bufferSize, void *buffer);
+
+    static int seekCallback(void *data, const uint64_t pos);
 
     quint64 currentBufferSize() const;
     void writeData(const QByteArray &data);

@@ -35,7 +35,6 @@
 #include "libvlc.h"
 #include "seekstack.h"
 #include "sinknode.h"
-#include "streamhooks.h"
 
 //Time in milliseconds before sending aboutToFinish() signal
 //2 seconds
@@ -514,13 +513,13 @@ void MediaObject::playInternal()
 #endif
 
             char rptr[64];
-            snprintf(rptr, sizeof(rptr), formatstr, streamReadCallback);
+            snprintf(rptr, sizeof(rptr), formatstr, StreamReader::readCallback);
 
             char rdptr[64];
-            snprintf(rdptr, sizeof(rdptr), formatstr, streamReadDoneCallback);
+            snprintf(rdptr, sizeof(rdptr), formatstr, StreamReader::readDoneCallback);
 
             char sptr[64];
-            snprintf(sptr, sizeof(sptr), formatstr, streamSeekCallback);
+            snprintf(sptr, sizeof(sptr), formatstr, StreamReader::seekCallback);
 
             char srptr[64];
             snprintf(srptr, sizeof(srptr), formatstr, m_streamReader);

@@ -33,6 +33,8 @@ namespace Phonon
 namespace VLC
 {
 
+#define BLOCKSIZE 32768
+
 StreamReader::StreamReader(const Phonon::MediaSource &source, MediaObject *parent)
     : m_pos(0)
     , m_size(0)
@@ -42,6 +44,56 @@ StreamReader::StreamReader(const Phonon::MediaSource &source, MediaObject *paren
     , m_mediaObject(parent)
 {
     connectToSource(source);
+}
+
+StreamReader::~StreamReader()
+{
+}
+
+int StreamReader::readCallback(void *data, const char *cookie,
+                               int64_t *dts, int64_t *pts, unsigned *flags,
+                               size_t *bufferSize, void **buffer)
+{
+    Q_UNUSED(cookie);
+    Q_UNUSED(dts);
+    Q_UNUSED(pts);
+    Q_UNUSED(flags);
+
+    StreamReader *that = static_cast<StreamReader *>(data);
+    size_t length = BLOCKSIZE;
+
+    *buffer = new char[length];
+
+    int size = length;
+    bool ret = that->read(that->currentPos(), &size, static_cast<char*>(*buffer));
+
+    *bufferSize = static_cast<size_t>(size);
+
+    return ret ? 0 : -1;
+}
+
+int StreamReader::readDoneCallback(void *data, const char *cookie,
+                                   size_t bufferSize, void *buffer)
+{
+    Q_UNUSED(data);
+    Q_UNUSED(cookie);
+    Q_UNUSED(bufferSize);
+    delete static_cast<char *>(buffer);
+    return 0;
+}
+
+int StreamReader::seekCallback(void *data, const uint64_t pos)
+{
+    StreamReader *that = static_cast<StreamReader *>(data);
+    if (static_cast<int64_t>(pos) > that->streamSize()) {
+        // attempt to seek past the end of our data.
+        return -1;
+    }
+
+    that->setCurrentPos(pos);
+    // this should return a true/false, but it doesn't, so assume success.
+
+    return 0;
 }
 
 quint64 StreamReader::currentBufferSize() const
