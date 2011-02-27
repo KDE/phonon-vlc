@@ -123,7 +123,7 @@ public:
     /**
      * Set the brightness of the video
      */
-    void setBrightness(qreal brightness);
+    Q_INVOKABLE void setBrightness(qreal brightness);
 
     /**
      * \return The contrast previously set for the video widget
@@ -133,7 +133,7 @@ public:
     /**
      * Set the contrast of the video
      */
-    void setContrast(qreal contrast);
+    Q_INVOKABLE void setContrast(qreal contrast);
 
     /**
      * \return The hue previously set for the video widget
@@ -143,7 +143,7 @@ public:
     /**
      * Set the hue of the video
      */
-    void setHue(qreal hue);
+    Q_INVOKABLE void setHue(qreal hue);
 
     /**
      * \return The saturation previously set for the video widget
@@ -153,7 +153,7 @@ public:
     /**
      * Set the saturation of the video
      */
-    void setSaturation(qreal saturation);
+    Q_INVOKABLE void setSaturation(qreal saturation);
 
     void useCustomRender();
 
@@ -213,6 +213,12 @@ private slots:
      */
     void videoWidgetSizeChanged(int width, int height);
 
+    /**
+     * Sets all pending video adjusts (hue, brightness etc.) that the application
+     * wanted to set before the vidoe became available.
+     */
+    void clearPendingAdjusts(bool videoAvailable);
+
 protected:
     /* Overloading QWidget */
     virtual void paintEvent(QPaintEvent *event);
@@ -225,8 +231,14 @@ private:
      * Sets whether filter adjust is active or not.
      *
      * \param adjust true if adjust is supposed to be activated, false if not
+     *
+     * \returns whether the adjust request was accepted, if not the callee should
+     *          add the request to m_pendingAdjusts for later processing once a video
+     *          became available. Adjusts get accepted always except when
+     *          MediaObject::hasVideo() is false, so it is not related to the
+     *          actual execution of the request.
      */
-    void enableFilterAdjust(bool adjust = true);
+    bool enableFilterAdjust(bool adjust = true);
 
     /**
      * Converts a Phonon range to a VLC value range.
@@ -255,18 +267,26 @@ private:
      */
     bool m_customRender;
 
+
     /**
      * Next drawable frame (if any).
      */
     mutable QImage m_frame;
 
+    QImage *m_img;
+
+    /**
+     * Pending video adjusts the appliction tried to set before we actually
+     * had a video to set them on.
+     */
+    QHash<QByteArray, qreal> m_pendingAdjusts;
+
+    QMutex m_locker;
+
     /**
      * Original size of the video, needed for sizeHint().
      */
     QSize m_videoSize;
-
-    QMutex m_locker;
-    QImage *m_img;
 
     Phonon::VideoWidget::AspectRatio m_aspectRatio;
 

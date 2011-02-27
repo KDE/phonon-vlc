@@ -68,6 +68,8 @@ void VideoWidget::connectToMediaObject(MediaObject *mediaObject)
 
     connect(mediaObject, SIGNAL(videoWidgetSizeChanged(int, int)),
             SLOT(videoWidgetSizeChanged(int, int)));
+    connect(mediaObject, SIGNAL(hasVideoChanged(bool)),
+            SLOT(clearPendingAdjusts(bool)));
 
     //  mediaObject->setVideoWidgetId(p_video_widget->winId());
     mediaObject->setVideoWidget(this);
@@ -152,7 +154,11 @@ void VideoWidget::setBrightness(qreal brightness)
     if (!m_player) {
         return;
     }
-    enableFilterAdjust();
+    if (!enableFilterAdjust()) {
+        // Add to pending adjusts
+        m_pendingAdjusts.insert(QByteArray("setBrightness"), brightness);
+        return;
+    }
 
     // VLC operates within a 0.0 to 2.0 range for brightness.
     m_brightness = brightness;
@@ -173,7 +179,11 @@ void VideoWidget::setContrast(qreal contrast)
     if (!m_player) {
         return;
     }
-    enableFilterAdjust();
+    if (!enableFilterAdjust()) {
+        // Add to pending adjusts
+        m_pendingAdjusts.insert(QByteArray("setContrast"), contrast);
+        return;
+    }
 
     // VLC operates within a 0.0 to 2.0 range for contrast.
     m_contrast = contrast;
@@ -193,7 +203,11 @@ void VideoWidget::setHue(qreal hue)
     if (!m_player) {
         return;
     }
-    enableFilterAdjust();
+    if (!enableFilterAdjust()) {
+        // Add to pending adjusts
+        m_pendingAdjusts.insert(QByteArray("setHue"), hue);
+        return;
+    }
 
     // VLC operates within a 0 to 360 range for hue.
     m_hue = hue;
@@ -213,7 +227,11 @@ void VideoWidget::setSaturation(qreal saturation)
     if (!m_player) {
         return;
     }
-    enableFilterAdjust();
+    if (!enableFilterAdjust()) {
+        // Add to pending adjusts
+        m_pendingAdjusts.insert(QByteArray("setSaturation"), saturation);
+        return;
+    }
 
     // VLC operates within a 0.0 to 3.0 range for saturation.
     m_saturation = saturation;
@@ -337,6 +355,20 @@ void VideoWidget::videoWidgetSizeChanged(int width, int height)
     libvlc_video_set_format(m_player, "RV32", width, height, width * 4);
 }
 
+void VideoWidget::clearPendingAdjusts(bool videoAvailable)
+{
+    if (!videoAvailable || !m_mediaObject || !m_mediaObject->hasVideo()) {
+        return;
+    }
+
+    QHashIterator<QByteArray, qreal> it(m_pendingAdjusts);
+    while (it.hasNext()) {
+        it.next();
+        QMetaObject::invokeMethod(this, it.key().constData(), Q_ARG(qreal, it.value()));
+    }
+    m_pendingAdjusts.clear();
+}
+
 void VideoWidget::paintEvent(QPaintEvent *event)
 {
     if (m_customRender) {
@@ -348,17 +380,14 @@ void VideoWidget::paintEvent(QPaintEvent *event)
     }
 }
 
-void VideoWidget::enableFilterAdjust(bool adjust)
+bool VideoWidget::enableFilterAdjust(bool adjust)
 {
     DEBUG_BLOCK;
     // Need to check for MO here, because we can get called before a VOut is actually
     // around in which case we just ignore this.
-#ifdef __GNUC__
-#warning TODO: if we need to ignore hue, brightness etc. sets we might as well set them pending
-#endif
     if (!m_mediaObject || !m_mediaObject->hasVideo()) {
         debug() << "no mo or no video!!!";
-        return;
+        return false;
     }
     if ((!m_filterAdjustActivated && adjust) ||
             (m_filterAdjustActivated && !adjust)) {
@@ -366,6 +395,7 @@ void VideoWidget::enableFilterAdjust(bool adjust)
         libvlc_video_set_adjust_int(m_player, libvlc_adjust_Enable, adjust);
         m_filterAdjustActivated = adjust;
     }
+    return true;
 }
 
 float VideoWidget::phononRangeToVlcRange(qreal phononValue, float upperBoundary,
