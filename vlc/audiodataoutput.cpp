@@ -110,7 +110,8 @@ void AudioDataOutput::addToMedia(libvlc_media_t *media)
     libvlc_media_add_option_flag(media, param, libvlc_media_option_trusted);
 
     // Add pointer to ourselves...
-    sprintf(param, ":sout-smem-audio-data=%"PRId64, (qint64)(intptr_t)this);
+    intptr_t thisPtr = reinterpret_cast<intptr_t>(this);
+    sprintf(param, ":sout-smem-audio-data=%"PRId64, static_cast<qint64>(thisPtr));
     libvlc_media_add_option_flag(media, param, libvlc_media_option_trusted);
 }
 
