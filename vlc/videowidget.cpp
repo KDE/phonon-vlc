@@ -258,7 +258,7 @@ void VideoWidget::useCustomRender()
 void *VideoWidget::lock(void *data, void **bufRet)
 {
     VideoWidget *cw = (VideoWidget *)data;
-    cw->m_locker.lock();
+    cw->m_mutex.lock();
     *bufRet = cw->m_img->bits();
     return NULL; // Picture identifier, not needed here.
 }
@@ -277,7 +277,7 @@ void VideoWidget::unlock(void *data, void *id, void *const *pixels)
     cw->setNextFrame(QByteArray::fromRawData((const char *)cw->m_img->bits(),
                                      cw->m_img->byteCount()),
                                      cw->m_img->width(), cw->m_img->height());
-    cw->m_locker.unlock();
+    cw->m_mutex.unlock();
 }
 
 

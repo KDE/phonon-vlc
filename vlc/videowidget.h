@@ -267,7 +267,6 @@ private:
      */
     bool m_customRender;
 
-
     /**
      * Next drawable frame (if any).
      */
@@ -281,7 +280,10 @@ private:
      */
     QHash<QByteArray, qreal> m_pendingAdjusts;
 
-    QMutex m_locker;
+    /**
+     * Mutex for surface paintaing callbacks (i.e. when frames arrive)
+     */
+    QMutex m_mutex;
 
     /**
      * Original size of the video, needed for sizeHint().
