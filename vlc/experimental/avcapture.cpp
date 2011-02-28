@@ -36,7 +36,7 @@ AvCapture::AvCapture(QObject* parent)
     m_audioMedia(parent),
     m_videoMedia(parent)
 {
-
+    m_connectedMO = NULL;
 }
 
 AvCapture::~AvCapture()
@@ -80,12 +80,35 @@ void AvCapture::setAudioCaptureDevice(const Phonon::AudioCaptureDevice &device)
 {
     m_audioMedia.setSource(device);
     m_audioCaptureDevice = device;
+    setupStateChangedSignal();
 }
 
 void AvCapture::setVideoCaptureDevice(const Phonon::VideoCaptureDevice &device)
 {
     m_videoMedia.setSource(device);
     m_videoCaptureDevice = device;
+    setupStateChangedSignal();
+}
+
+void AvCapture::setupStateChangedSignal()
+{
+    // Disconnect the old media object state change signal
+    if (m_connectedMO)
+        disconnect(m_connectedMO, SIGNAL(stateChanged(Phonon::State,Phonon::State)), this, SIGNAL(stateChanged(Phonon::State,Phonon::State)));
+
+    // Determine the media object from which the state change signal will be connected
+    m_connectedMO = NULL;
+    if (m_videoCaptureDevice.isValid()) {
+        m_connectedMO = &m_videoMedia;
+    } else {
+        if (m_audioCaptureDevice.isValid()) {
+            m_connectedMO = &m_audioMedia;
+        }
+    }
+
+    // Connect the state change signal
+    if (m_connectedMO)
+        connect(m_connectedMO, SIGNAL(stateChanged(Phonon::State,Phonon::State)), this, SIGNAL(stateChanged(Phonon::State,Phonon::State)));
 }
 
 } // Experimental namespace

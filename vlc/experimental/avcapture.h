@@ -57,11 +57,18 @@ class AvCapture : public QObject, public Phonon::Experimental::AvCaptureInterfac
         MediaObject* audioMediaObject();
         MediaObject* videoMediaObject();
 
+    signals:
+        void stateChanged(Phonon::State newState, Phonon::State oldState);
+
+    private:
+        void setupStateChangedSignal();
+
     private:
         AudioCaptureDevice m_audioCaptureDevice;
         VideoCaptureDevice m_videoCaptureDevice;
         MediaObject m_audioMedia;
         MediaObject m_videoMedia;
+        MediaObject *m_connectedMO;
 };
 
 } // Experimental namespace
