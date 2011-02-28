@@ -44,10 +44,24 @@ AvCapture::~AvCapture()
     stop();
 }
 
+State AvCapture::state() const
+{
+    if (m_connectedMO)
+        return m_connectedMO->state();
+
+    return ErrorState;
+}
+
 void AvCapture::start()
 {
     m_audioMedia.play();
     m_videoMedia.play();
+}
+
+void AvCapture::pause()
+{
+    m_audioMedia.pause();
+    m_videoMedia.pause();
 }
 
 void AvCapture::stop()

@@ -46,7 +46,9 @@ class AvCapture : public QObject, public Phonon::Experimental::AvCaptureInterfac
         AvCapture(QObject *parent);
         ~AvCapture();
 
+        Phonon::State state() const;
         void start();
+        void pause();
         void stop();
 
         AudioCaptureDevice audioCaptureDevice() const;
