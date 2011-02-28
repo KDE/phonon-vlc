@@ -78,15 +78,13 @@ VideoCaptureDevice AvCapture::videoCaptureDevice() const
 
 void AvCapture::setAudioCaptureDevice(const Phonon::AudioCaptureDevice &device)
 {
-    MediaSource source(device);
-    m_audioMedia.setSource(source);
+    m_audioMedia.setSource(device);
     m_audioCaptureDevice = device;
 }
 
 void AvCapture::setVideoCaptureDevice(const Phonon::VideoCaptureDevice &device)
 {
-    MediaSource source(device);
-    m_videoMedia.setSource(source);
+    m_videoMedia.setSource(device);
     m_videoCaptureDevice = device;
 }
 
