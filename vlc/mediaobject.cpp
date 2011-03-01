@@ -507,36 +507,17 @@ void MediaObject::playInternal()
     }
 
     if (m_currentFile == "imem://") { // Set callbacks for stream reading using imem
-#ifdef _MSC_VER
-            char formatstr[] = "0x%p";
-#else
-            char formatstr[] = "%p";
-#endif
-
-            char rptr[64];
-            snprintf(rptr, sizeof(rptr), formatstr, StreamReader::readCallback);
-
-            char rdptr[64];
-            snprintf(rdptr, sizeof(rdptr), formatstr, StreamReader::readDoneCallback);
-
-            char sptr[64];
-            snprintf(sptr, sizeof(sptr), formatstr, StreamReader::seekCallback);
-
-            char srptr[64];
-            snprintf(srptr, sizeof(srptr), formatstr, m_streamReader);
-
-
             addOption(QString("imem-cat=4"));
-            addOption(QString("imem-data=%1").arg(srptr));
-            addOption(QString("imem-get=%1").arg(rptr));
-            addOption(QString("imem-release=%1").arg(rdptr));
-            addOption(QString("imem-seek=%1").arg(sptr));
+            addOption(QString("imem-data="), INTPTR_PTR(m_streamReader));
+            addOption(QString("imem-get="), INTPTR_FUNC(StreamReader::readCallback));
+            addOption(QString("imem-release="), INTPTR_FUNC(StreamReader::readDoneCallback));
+            addOption(QString("imem-seek="), INTPTR_FUNC(StreamReader::seekCallback));
 
             // if stream has known size, we may pass it
             // imem module will use it and pass it to demux
-            if( m_streamReader->streamSize() > 0 )
-                QString(QString("imem-size=%1").arg( m_streamReader->streamSize() ));
-
+            if (m_streamReader->streamSize() > 0) {
+                QString(QString("imem-size=%1").arg(m_streamReader->streamSize()));
+            }
     }
 
     foreach(SinkNode * sink, m_sinks) {
@@ -919,18 +900,18 @@ void MediaObject::addOption(libvlc_media_t *media, const QString &option)
     libvlc_media_add_option_flag(media, qPrintable(option), libvlc_media_option_trusted);
 }
 
-void MediaObject::addOption(const QString &option, void *functionPtr)
+void MediaObject::addOption(const QString &option, intptr_t functionPtr)
 {
     addOption(m_media, option, functionPtr);
 }
 
 void MediaObject::addOption(libvlc_media_t *media, const QString &option,
-                            void *functionPtr)
+                            intptr_t functionPtr)
 {
     Q_ASSERT(media);
-    qDebug() << Q_FUNC_INFO << option;
     QString optionWithPtr = option;
-    optionWithPtr.append(QString::number(static_cast<qint64>(reinterpret_cast<intptr_t>(functionPtr))));
+    optionWithPtr.append(QString::number(static_cast<qint64>(functionPtr)));
+    qDebug() << Q_FUNC_INFO << optionWithPtr;
     libvlc_media_add_option_flag(media, qPrintable(optionWithPtr), libvlc_media_option_trusted);
 }
 

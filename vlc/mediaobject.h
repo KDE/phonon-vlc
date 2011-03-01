@@ -41,6 +41,9 @@ struct libvlc_event_manager_t;
 struct libvlc_media_t;
 struct libvlc_media_discoverer_t;
 
+#define INTPTR_PTR(x) reinterpret_cast<intptr_t>(x)
+#define INTPTR_FUNC(x) reinterpret_cast<intptr_t>(&x)
+
 namespace Phonon
 {
 namespace VLC
@@ -335,8 +338,8 @@ private:
      *
      * \param option What option to add
      */
-    void addOption(const QString &option, void *functionPtr);
-    static void addOption(libvlc_media_t *media, const QString &option, void *functionPtr);
+    void addOption(const QString &option, intptr_t functionPtr);
+    static void addOption(libvlc_media_t *media, const QString &option, intptr_t functionPtr);
 
     bool checkGaplessWaiting();
 
