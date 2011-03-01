@@ -90,29 +90,16 @@ void AudioDataOutput::setDataSize(int size)
 
 void AudioDataOutput::addToMedia(libvlc_media_t *media)
 {
-    // WARNING: DO NOT CHANGE ANYTHING HERE FOR CODE CLEANING PURPOSES!
-    // WARNING: REQUIRED FOR COMPATIBILITY WITH LIBVLC!
-    char param[64];
-
-    // Output to stream renderer
-    libvlc_media_add_option_flag(media, ":sout=#duplicate{dst=display,select=audio,dst='transcode{}'}:smem", libvlc_media_option_trusted);
-    libvlc_media_add_option_flag(media, ":sout-transcode-acodec=f32l", libvlc_media_option_trusted);
-    libvlc_media_add_option_flag(media, ":sout-smem-time-sync", libvlc_media_option_trusted);
+    MediaObject::addOption(media, ":sout=#duplicate{dst=display,select=audio,dst='transcode{}'}:smem");
+    MediaObject::addOption(media, ":sout-transcode-acodec=f32l");
+    MediaObject::addOption(media, ":sout-smem-time-sync");
 
     // Add audio lock callback
-    intptr_t lockPtr = reinterpret_cast<intptr_t>(&AudioDataOutput::lock);
-    sprintf(param, ":sout-smem-audio-prerender-callback=%"PRId64, static_cast<qint64>(lockPtr));
-    libvlc_media_add_option_flag(media, param, libvlc_media_option_trusted);
-
+    MediaObject::addOption(media, ":sout-smem-audio-prerender-callback=", INTPTR_FUNC(AudioDataOutput::lock));
     // Add audio unlock callback
-    intptr_t unlockPtr = reinterpret_cast<intptr_t>(&AudioDataOutput::unlock);
-    sprintf(param, ":sout-smem-audio-postrender-callback=%"PRId64, static_cast<qint64>(unlockPtr));
-    libvlc_media_add_option_flag(media, param, libvlc_media_option_trusted);
-
+    MediaObject::addOption(media, ":sout-smem-audio-postrender-callback=", INTPTR_FUNC(AudioDataOutput::unlock));
     // Add pointer to ourselves...
-    intptr_t thisPtr = reinterpret_cast<intptr_t>(this);
-    sprintf(param, ":sout-smem-audio-data=%"PRId64, static_cast<qint64>(thisPtr));
-    libvlc_media_add_option_flag(media, param, libvlc_media_option_trusted);
+    MediaObject::addOption(media, ":sout-smem-audio-data=", INTPTR_PTR(this));
 }
 
 void AudioDataOutput::lock(AudioDataOutput *cw, quint8 **pcm_buffer , quint32 size)
