@@ -90,8 +90,9 @@ void AudioDataOutput::setDataSize(int size)
 
 void AudioDataOutput::addToMedia(libvlc_media_t *media)
 {
-    MediaObject::addOption(media, ":sout=#duplicate{dst=display,select=audio,dst='transcode{}'}:smem");
+    MediaObject::addOption(media, ":sout=#duplicate{dst=display,dst='transcode{}'}:smem");
     MediaObject::addOption(media, ":sout-transcode-acodec=f32l");
+    MediaObject::addOption(media, ":sout-transcode-vcodec=none");
     MediaObject::addOption(media, ":sout-smem-time-sync");
 
     // Add audio lock callback
