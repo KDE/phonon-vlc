@@ -227,6 +227,9 @@ public:
 
     void emitAboutToFinish();
 
+    static void addOption(libvlc_media_t *media, const QString &option);
+    static void addOption(libvlc_media_t *media, const QString &option, intptr_t functionPtr);
+
 signals:
     // MediaController signals
     void availableSubtitlesChanged();
@@ -331,7 +334,6 @@ private:
      * \param option What option to add
      */
     void addOption(const QString &option);
-    static void addOption(libvlc_media_t *media, const QString &option);
 
     /**
      * Adds an option to the libVLC media and appends a function point address to it.
@@ -339,7 +341,6 @@ private:
      * \param option What option to add
      */
     void addOption(const QString &option, intptr_t functionPtr);
-    static void addOption(libvlc_media_t *media, const QString &option, intptr_t functionPtr);
 
     bool checkGaplessWaiting();
 
