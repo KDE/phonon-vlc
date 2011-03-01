@@ -325,9 +325,18 @@ private:
     /**
      * Adds an option to the libVLC media.
      *
-     * \param opt What option to add
+     * \param option What option to add
      */
-    void setOption(QString opt);
+    void addOption(const QString &option);
+    static void addOption(libvlc_media_t *media, const QString &option);
+
+    /**
+     * Adds an option to the libVLC media and appends a function point address to it.
+     *
+     * \param option What option to add
+     */
+    void addOption(const QString &option, void *functionPtr);
+    static void addOption(libvlc_media_t *media, const QString &option, void *functionPtr);
 
     bool checkGaplessWaiting();
 

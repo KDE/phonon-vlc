@@ -526,19 +526,18 @@ void MediaObject::playInternal()
             snprintf(srptr, sizeof(srptr), formatstr, m_streamReader);
 
 
-            setOption("imem-cat=4");
-            setOption(QString("imem-data=%1").arg(srptr));
-            setOption(QString("imem-get=%1").arg(rptr));
-            setOption(QString("imem-release=%1").arg(rdptr));
-            setOption(QString("imem-seek=%1").arg(sptr));
+            addOption(QString("imem-cat=4"));
+            addOption(QString("imem-data=%1").arg(srptr));
+            addOption(QString("imem-get=%1").arg(rptr));
+            addOption(QString("imem-release=%1").arg(rdptr));
+            addOption(QString("imem-seek=%1").arg(sptr));
 
             // if stream has known size, we may pass it
             // imem module will use it and pass it to demux
             if( m_streamReader->streamSize() > 0 )
-                setOption(QString("imem-size=%1").arg( m_streamReader->streamSize() ));
+                QString(QString("imem-size=%1").arg( m_streamReader->streamSize() ));
 
     }
-
 
     foreach(SinkNode * sink, m_sinks) {
         sink->addToMedia(m_media);
@@ -908,13 +907,32 @@ void MediaObject::removeSink(SinkNode *node)
         m_sinks.removeAll(node);
 }
 
-void MediaObject::setOption(QString opt)
+void MediaObject::addOption(const QString &option)
 {
-    Q_ASSERT(m_media);
-    qDebug() << Q_FUNC_INFO << opt;
-    libvlc_media_add_option_flag(m_media, opt.toLocal8Bit(), libvlc_media_option_trusted);
+    addOption(m_media, option);
 }
 
+void MediaObject::addOption(libvlc_media_t *media, const QString &option)
+{
+    Q_ASSERT(media);
+    qDebug() << Q_FUNC_INFO << option;
+    libvlc_media_add_option_flag(media, qPrintable(option), libvlc_media_option_trusted);
+}
+
+void MediaObject::addOption(const QString &option, void *functionPtr)
+{
+    addOption(m_media, option, functionPtr);
+}
+
+void MediaObject::addOption(libvlc_media_t *media, const QString &option,
+                            void *functionPtr)
+{
+    Q_ASSERT(media);
+    qDebug() << Q_FUNC_INFO << option;
+    QString optionWithPtr = option;
+    optionWithPtr.append(QString::number(static_cast<qint64>(reinterpret_cast<intptr_t>(functionPtr))));
+    libvlc_media_add_option_flag(media, qPrintable(optionWithPtr), libvlc_media_option_trusted);
+}
 
 }
 } // Namespace Phonon::VLC
