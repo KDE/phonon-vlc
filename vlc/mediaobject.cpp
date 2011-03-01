@@ -704,12 +704,13 @@ void MediaObject::eventCallback(const libvlc_event_t *event, void *data)
     }
     if (event->type == libvlc_MediaPlayerTimeChanged) {
 
-        i_first_time_media_player_time_changed++;
+        ++i_first_time_media_player_time_changed;
 
 #ifdef __GNUC__
 #warning FIXME 4.5 - This is ugly. It should be solved by some events in libvlc
 #endif
-        if (i_first_time_media_player_time_changed == 1) {
+        if (!that->m_hasVideo && i_first_time_media_player_time_changed < 15) {
+            debug() << "Looking for Video";
             // Update metadata
             that->updateMetaData();
 
@@ -751,10 +752,10 @@ void MediaObject::eventCallback(const libvlc_event_t *event, void *data)
                     }
 
                     // Give info about chapters for actual title 0
-                    if (b_media_player_title_changed)
+                    if (b_media_player_title_changed) {
                         that->refreshChapters(libvlc_media_player_get_title(
                                                                that->m_player));
-                    else {
+                    } else {
                         that->refreshChapters(0);
                     }
                 }
