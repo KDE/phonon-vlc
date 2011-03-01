@@ -32,10 +32,6 @@
 
 #include <phonon/audiodataoutput.h>
 
-//Allow PRId64 to be defined:
-#define __STDC_FORMAT_MACROS
-#include <inttypes.h>
-
 QT_BEGIN_HEADER
 QT_BEGIN_NAMESPACE
 
