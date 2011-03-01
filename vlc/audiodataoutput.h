@@ -161,8 +161,8 @@ private:
      * \see sendData()
      */
     static void unlock(AudioDataOutput *cw, quint8 *pcm_buffer,
-                       quint32 channels, quint32 rate,
-                       quint32 nb_samples, quint32 bits_per_sample,
+                       quint32 channelCount, quint32 rate,
+                       quint32 sampleCount, quint32 bits_per_sample,
                        quint32 size, qint64 pts);
 
     int m_dataSize;
@@ -170,9 +170,8 @@ private:
     Phonon::AudioDataOutput *m_frontend;
 
     QMutex m_locker;
-    int m_channel_count;
-    unsigned char *m_buffer;
-    QVector<qint16> m_channel_samples[6];
+    int m_channelCount;
+    QVector<qint16> m_channelSamples[6];
     QList<Phonon::AudioDataOutput::Channel> m_channels;
 };
 }

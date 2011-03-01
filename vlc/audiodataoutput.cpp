@@ -107,47 +107,45 @@ void AudioDataOutput::lock(AudioDataOutput *cw, quint8 **pcm_buffer , quint32 si
 {
     cw->m_locker.lock();
 
-    cw->m_buffer = new uchar[size];
-    *pcm_buffer = cw->m_buffer;
+    *pcm_buffer = new quint8[size];
 }
 
 void AudioDataOutput::unlock(AudioDataOutput *cw, quint8 *pcm_buffer,
-                             quint32 channels, quint32 rate,
-                             quint32 nb_samples, quint32 bits_per_sample,
+                             quint32 channelCount, quint32 rate,
+                             quint32 sampleCount, quint32 bits_per_sample,
                              quint32 size, qint64 pts)
 {
     Q_UNUSED(size);
     Q_UNUSED(pts);
-    Q_UNUSED(pcm_buffer);
 
     // (bytesPerChannelPerSample * channels * read_samples) + (bytesPerChannelPerSample * read_channels)
     int bytesPerChannelPerSample = bits_per_sample / 8;
     cw->m_sampleRate = rate;
-    cw->m_channel_count = channels;
+    cw->m_channelCount = channelCount;
 
-    for (quint32 read_samples = 0; nb_samples > read_samples; read_samples++) {
+    for (quint32 readSamples = 0; readSamples < sampleCount; ++readSamples) {
         // Prepare a sample buffer, and initialise it
-        quint16 sample_buffer[6];
-        for (int initialised = 0; initialised < 6; initialised++) {
-            sample_buffer[initialised] = 0;
+        quint16 sampleBuffer[6];
+        for (int initialised = 0; initialised < 6; ++initialised) {
+            sampleBuffer[initialised] = 0;
         }
 
-        int buffer_pos = (bytesPerChannelPerSample * channels * read_samples);
+        int bufferPosition = (bytesPerChannelPerSample * channelCount * readSamples);
 
-        for (quint32 channels_read = 0; channels_read < channels; channels_read++) {
-            for (int bytes_read = 0; bytes_read < bytesPerChannelPerSample; bytes_read++) {
+        for (quint32 readChannels = 0; readChannels < channelCount; ++readChannels) {
+            for (int readBytes = 0; readBytes < bytesPerChannelPerSample; ++readBytes) {
                 // Read from the pcm_buffer into the per channel internal buffer
-                sample_buffer[channels_read] += cw->m_buffer[buffer_pos];
-                buffer_pos++;
+                sampleBuffer[readChannels] += pcm_buffer[bufferPosition];
+                ++bufferPosition;
             }
         }
 
-        if (channels == 1) {
-            cw->m_channel_samples[1].append(sample_buffer[0]);
+        if (channelCount == 1) {
+            cw->m_channelSamples[1].append(sampleBuffer[0]);
         }
 
-        for (quint32 channels_read = 0; channels > channels_read; channels_read++) {
-            cw->m_channel_samples[channels_read].append(sample_buffer[channels_read]);
+        for (quint32 readChannels = 0; readChannels < channelCount; ++readChannels) {
+            cw->m_channelSamples[readChannels].append(sampleBuffer[readChannels]);
         }
         // Finished reading one sample
     }
@@ -162,17 +160,17 @@ void AudioDataOutput::sendData()
 {
     m_locker.lock();
 
-    int chan_count = m_channel_count;
-    if (m_channel_count == 1) {
+    int chan_count = m_channelCount;
+    if (m_channelCount == 1) {
         chan_count = 2;
     }
 
-    while (m_channel_samples[0].count() > m_dataSize) {
+    while (m_channelSamples[0].count() > m_dataSize) {
         QMap<Phonon::AudioDataOutput::Channel, QVector<qint16> > m_data;
         for (int position = 0; position < chan_count; position++) {
             Phonon::AudioDataOutput::Channel chan = m_channels.value(position);
-            QVector<qint16> data = m_channel_samples[position].mid(0, m_dataSize);
-            m_channel_samples[position].remove(0, data.count());
+            QVector<qint16> data = m_channelSamples[position].mid(0, m_dataSize);
+            m_channelSamples[position].remove(0, data.count());
             m_data.insert(chan, data);
         }
         emit dataReady(m_data);
