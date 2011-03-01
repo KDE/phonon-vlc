@@ -690,59 +690,61 @@ void MediaObject::eventCallback(const libvlc_event_t *event, void *data)
     static int i_first_time_media_player_time_changed = 0;
     static bool b_media_player_title_changed = false;
 
-    MediaObject *const p_vlc_mediaObject = static_cast<MediaObject *>(data);
+    MediaObject *const that = static_cast<MediaObject *>(data);
 
 //    qDebug() << (int)p_vlc_mediaObject << "event:" << libvlc_event_type_name(p_event->type);
 
     // Media player events
     if (event->type == libvlc_MediaPlayerSeekableChanged) {
-        const bool b_seekable = libvlc_media_player_is_seekable(p_vlc_mediaObject->m_player);
-        if (b_seekable != p_vlc_mediaObject->m_seekable) {
-            p_vlc_mediaObject->m_seekable = b_seekable;
-            emit p_vlc_mediaObject->seekableChanged(p_vlc_mediaObject->m_seekable);
+        const bool b_seekable = libvlc_media_player_is_seekable(that->m_player);
+        if (b_seekable != that->m_seekable) {
+            that->m_seekable = b_seekable;
+            emit that->seekableChanged(that->m_seekable);
         }
     }
     if (event->type == libvlc_MediaPlayerTimeChanged) {
 
         i_first_time_media_player_time_changed++;
 
-        // FIXME It is ugly. It should be solved by some events in libvlc
-        if (i_first_time_media_player_time_changed == 15) {
+#ifdef __GNUC__
+#warning FIXME 4.5 - This is ugly. It should be solved by some events in libvlc
+#endif
+        if (i_first_time_media_player_time_changed == 1) {
             // Update metadata
-            p_vlc_mediaObject->updateMetaData();
+            that->updateMetaData();
 
             // Get current video width and height
             uint width = 0;
             uint height = 0;
-            libvlc_video_get_size(p_vlc_mediaObject->m_player, 0, &width, &height);
-            emit p_vlc_mediaObject->videoWidgetSizeChanged(width, height);
+            libvlc_video_get_size(that->m_player, 0, &width, &height);
+            emit that->videoWidgetSizeChanged(width, height);
 
             // Does this media player have a video output
-            const bool b_has_video = libvlc_media_player_has_vout(p_vlc_mediaObject->m_player);
-            if (b_has_video != p_vlc_mediaObject->m_hasVideo) {
-                p_vlc_mediaObject->m_hasVideo = b_has_video;
-                emit p_vlc_mediaObject->hasVideoChanged(p_vlc_mediaObject->m_hasVideo);
+            const bool b_has_video = libvlc_media_player_has_vout(that->m_player);
+            if (b_has_video != that->m_hasVideo) {
+                that->m_hasVideo = b_has_video;
+                emit that->hasVideoChanged(that->m_hasVideo);
             }
 
             if (b_has_video) {
                 qDebug() << Q_FUNC_INFO << "hasVideo!";
 
                 // Give info about audio tracks
-                p_vlc_mediaObject->refreshAudioChannels();
+                that->refreshAudioChannels();
                 // Give info about subtitle tracks
-                p_vlc_mediaObject->refreshSubtitles();
+                that->refreshSubtitles();
 
                 // Get movie chapter count
                 // It is not a title/chapter media if there is no chapter
                 if (libvlc_media_player_get_chapter_count(
-                            p_vlc_mediaObject->m_player) > 0) {
+                            that->m_player) > 0) {
                     // Give info about title
                     // only first time, no when title changed
                     if (!b_media_player_title_changed) {
                         libvlc_track_description_t *p_info = libvlc_video_get_title_description(
-                                p_vlc_mediaObject->m_player);
+                                    that->m_player);
                         while (p_info) {
-                            p_vlc_mediaObject->titleAdded(p_info->i_id, p_info->psz_name);
+                            that->titleAdded(p_info->i_id, p_info->psz_name);
                             p_info = p_info->p_next;
                         }
                         libvlc_track_description_release(p_info);
@@ -750,10 +752,10 @@ void MediaObject::eventCallback(const libvlc_event_t *event, void *data)
 
                     // Give info about chapters for actual title 0
                     if (b_media_player_title_changed)
-                        p_vlc_mediaObject->refreshChapters(libvlc_media_player_get_title(
-                                                               p_vlc_mediaObject->m_player));
+                        that->refreshChapters(libvlc_media_player_get_title(
+                                                               that->m_player));
                     else {
-                        p_vlc_mediaObject->refreshChapters(0);
+                        that->refreshChapters(0);
                     }
                 }
                 if (b_media_player_title_changed) {
@@ -763,50 +765,50 @@ void MediaObject::eventCallback(const libvlc_event_t *event, void *data)
 
             // Bugfix with Qt mediaplayer example
             // Now we are in playing state
-            emit p_vlc_mediaObject->stateChanged(Phonon::PlayingState);
+            emit that->stateChanged(Phonon::PlayingState);
         }
 
-        emit p_vlc_mediaObject->tickInternal(p_vlc_mediaObject->currentTime());
+        emit that->tickInternal(that->currentTime());
     }
 
     if (event->type == libvlc_MediaPlayerBuffering) {
-        emit p_vlc_mediaObject->stateChanged(Phonon::BufferingState);
+        emit that->stateChanged(Phonon::BufferingState);
     }
 
     if (event->type == libvlc_MediaPlayerPlaying) {
-        if (p_vlc_mediaObject->state() != Phonon::BufferingState) {
+        if (that->state() != Phonon::BufferingState) {
             // Bugfix with Qt mediaplayer example
-            emit p_vlc_mediaObject->stateChanged(Phonon::PlayingState);
+            emit that->stateChanged(Phonon::PlayingState);
         }
     }
 
     if (event->type == libvlc_MediaPlayerPaused) {
-        emit p_vlc_mediaObject->stateChanged(Phonon::PausedState);
+        emit that->stateChanged(Phonon::PausedState);
     }
 
-    if (event->type == libvlc_MediaPlayerEndReached && !p_vlc_mediaObject->checkGaplessWaiting()) {
+    if (event->type == libvlc_MediaPlayerEndReached && !that->checkGaplessWaiting()) {
         i_first_time_media_player_time_changed = 0;
-        p_vlc_mediaObject->resetMediaController();
-        p_vlc_mediaObject->emitAboutToFinish();
-        emit p_vlc_mediaObject->finished();
-        emit p_vlc_mediaObject->stateChanged(Phonon::StoppedState);
+        that->resetMediaController();
+        that->emitAboutToFinish();
+        emit that->finished();
+        emit that->stateChanged(Phonon::StoppedState);
     } else if (event->type == libvlc_MediaPlayerEndReached) {
-        emit p_vlc_mediaObject->moveToNext();
+        emit that->moveToNext();
     }
 
-    if (event->type == libvlc_MediaPlayerEncounteredError && !p_vlc_mediaObject->checkGaplessWaiting()) {
+    if (event->type == libvlc_MediaPlayerEncounteredError && !that->checkGaplessWaiting()) {
         i_first_time_media_player_time_changed = 0;
-        p_vlc_mediaObject->resetMediaController();
-        emit p_vlc_mediaObject->finished();
-        emit p_vlc_mediaObject->stateChanged(Phonon::ErrorState);
+        that->resetMediaController();
+        emit that->finished();
+        emit that->stateChanged(Phonon::ErrorState);
     } else if (event->type == libvlc_MediaPlayerEncounteredError) {
-        emit p_vlc_mediaObject->moveToNext();
+        emit that->moveToNext();
     }
 
-    if (event->type == libvlc_MediaPlayerStopped && !p_vlc_mediaObject->checkGaplessWaiting()) {
+    if (event->type == libvlc_MediaPlayerStopped && !that->checkGaplessWaiting()) {
         i_first_time_media_player_time_changed = 0;
-        p_vlc_mediaObject->resetMediaController();
-        emit p_vlc_mediaObject->stateChanged(Phonon::StoppedState);
+        that->resetMediaController();
+        emit that->stateChanged(Phonon::StoppedState);
     }
 
     if (event->type == libvlc_MediaPlayerTitleChanged) {
@@ -817,11 +819,11 @@ void MediaObject::eventCallback(const libvlc_event_t *event, void *data)
     // Media events
 
     if (event->type == libvlc_MediaDurationChanged) {
-        emit p_vlc_mediaObject->durationChanged(event->u.media_duration_changed.new_duration);
+        emit that->durationChanged(event->u.media_duration_changed.new_duration);
     }
 
     if (event->type == libvlc_MediaMetaChanged) {
-        emit p_vlc_mediaObject->metaDataNeedsRefresh();
+        emit that->metaDataNeedsRefresh();
     }
 }
 
