@@ -359,7 +359,8 @@ void MediaObject::loadStream()
 
 void MediaObject::setNextSource(const MediaSource &source)
 {
-    qDebug() << __FUNCTION__;
+    DEBUG_BLOCK;
+    debug() << source.url();
     m_nextSource = source;
 }
 
@@ -651,7 +652,7 @@ void MediaObject::connectToPlayerVLCEvents()
     int i_nbEvents = sizeof(eventsMediaPlayer) / sizeof(*eventsMediaPlayer);
     for (int i = 0; i < i_nbEvents; i++) {
         libvlc_event_attach(m_eventManager, eventsMediaPlayer[i],
-                            libvlc_callback, this);
+                            eventCallback, this);
     }
 }
 
@@ -668,7 +669,7 @@ void MediaObject::connectToMediaVLCEvents()
     };
     int i_nbEvents = sizeof(eventsMedia) / sizeof(*eventsMedia);
     for (int i = 0; i < i_nbEvents; i++) {
-        libvlc_event_attach(m_mediaEventManager, eventsMedia[i], libvlc_callback, this);
+        libvlc_event_attach(m_mediaEventManager, eventsMedia[i], eventCallback, this);
     }
 
     // Get event manager from media service discoverer object
@@ -684,24 +685,24 @@ void MediaObject::connectToMediaVLCEvents()
 //    }
 }
 
-void MediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user_data)
+void MediaObject::eventCallback(const libvlc_event_t *event, void *data)
 {
     static int i_first_time_media_player_time_changed = 0;
     static bool b_media_player_title_changed = false;
 
-    MediaObject *const p_vlc_mediaObject = (MediaObject *) p_user_data;
+    MediaObject *const p_vlc_mediaObject = static_cast<MediaObject *>(data);
 
 //    qDebug() << (int)p_vlc_mediaObject << "event:" << libvlc_event_type_name(p_event->type);
 
     // Media player events
-    if (p_event->type == libvlc_MediaPlayerSeekableChanged) {
+    if (event->type == libvlc_MediaPlayerSeekableChanged) {
         const bool b_seekable = libvlc_media_player_is_seekable(p_vlc_mediaObject->m_player);
         if (b_seekable != p_vlc_mediaObject->m_seekable) {
             p_vlc_mediaObject->m_seekable = b_seekable;
             emit p_vlc_mediaObject->seekableChanged(p_vlc_mediaObject->m_seekable);
         }
     }
-    if (p_event->type == libvlc_MediaPlayerTimeChanged) {
+    if (event->type == libvlc_MediaPlayerTimeChanged) {
 
         i_first_time_media_player_time_changed++;
 
@@ -768,58 +769,58 @@ void MediaObject::libvlc_callback(const libvlc_event_t *p_event, void *p_user_da
         emit p_vlc_mediaObject->tickInternal(p_vlc_mediaObject->currentTime());
     }
 
-    if (p_event->type == libvlc_MediaPlayerBuffering) {
+    if (event->type == libvlc_MediaPlayerBuffering) {
         emit p_vlc_mediaObject->stateChanged(Phonon::BufferingState);
     }
 
-    if (p_event->type == libvlc_MediaPlayerPlaying) {
+    if (event->type == libvlc_MediaPlayerPlaying) {
         if (p_vlc_mediaObject->state() != Phonon::BufferingState) {
             // Bugfix with Qt mediaplayer example
             emit p_vlc_mediaObject->stateChanged(Phonon::PlayingState);
         }
     }
 
-    if (p_event->type == libvlc_MediaPlayerPaused) {
+    if (event->type == libvlc_MediaPlayerPaused) {
         emit p_vlc_mediaObject->stateChanged(Phonon::PausedState);
     }
 
-    if (p_event->type == libvlc_MediaPlayerEndReached && !p_vlc_mediaObject->checkGaplessWaiting()) {
+    if (event->type == libvlc_MediaPlayerEndReached && !p_vlc_mediaObject->checkGaplessWaiting()) {
         i_first_time_media_player_time_changed = 0;
         p_vlc_mediaObject->resetMediaController();
         p_vlc_mediaObject->emitAboutToFinish();
         emit p_vlc_mediaObject->finished();
         emit p_vlc_mediaObject->stateChanged(Phonon::StoppedState);
-    } else if (p_event->type == libvlc_MediaPlayerEndReached) {
+    } else if (event->type == libvlc_MediaPlayerEndReached) {
         emit p_vlc_mediaObject->moveToNext();
     }
 
-    if (p_event->type == libvlc_MediaPlayerEncounteredError && !p_vlc_mediaObject->checkGaplessWaiting()) {
+    if (event->type == libvlc_MediaPlayerEncounteredError && !p_vlc_mediaObject->checkGaplessWaiting()) {
         i_first_time_media_player_time_changed = 0;
         p_vlc_mediaObject->resetMediaController();
         emit p_vlc_mediaObject->finished();
         emit p_vlc_mediaObject->stateChanged(Phonon::ErrorState);
-    } else if (p_event->type == libvlc_MediaPlayerEncounteredError) {
+    } else if (event->type == libvlc_MediaPlayerEncounteredError) {
         emit p_vlc_mediaObject->moveToNext();
     }
 
-    if (p_event->type == libvlc_MediaPlayerStopped && !p_vlc_mediaObject->checkGaplessWaiting()) {
+    if (event->type == libvlc_MediaPlayerStopped && !p_vlc_mediaObject->checkGaplessWaiting()) {
         i_first_time_media_player_time_changed = 0;
         p_vlc_mediaObject->resetMediaController();
         emit p_vlc_mediaObject->stateChanged(Phonon::StoppedState);
     }
 
-    if (p_event->type == libvlc_MediaPlayerTitleChanged) {
+    if (event->type == libvlc_MediaPlayerTitleChanged) {
         i_first_time_media_player_time_changed = 0;
         b_media_player_title_changed = true;
     }
 
     // Media events
 
-    if (p_event->type == libvlc_MediaDurationChanged) {
-        emit p_vlc_mediaObject->durationChanged(p_event->u.media_duration_changed.new_duration);
+    if (event->type == libvlc_MediaDurationChanged) {
+        emit p_vlc_mediaObject->durationChanged(event->u.media_duration_changed.new_duration);
     }
 
-    if (p_event->type == libvlc_MediaMetaChanged) {
+    if (event->type == libvlc_MediaMetaChanged) {
         emit p_vlc_mediaObject->metaDataNeedsRefresh();
     }
 }

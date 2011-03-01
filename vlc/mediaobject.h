@@ -360,7 +360,7 @@ private:
      * \see connectToPlayerVLCEvents()
      * \see libvlc_event_attach()
      */
-    static void libvlc_callback(const libvlc_event_t *p_event, void *p_user_data);
+    static void eventCallback(const libvlc_event_t *event, void *data);
 
     /**
      * Changes the current state to buffering and sets the new current file.
