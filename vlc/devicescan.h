@@ -22,13 +22,19 @@
 /** \file
  * \brief Provides functions to detect available devices
  *
- * This file contains functions that scan for available devices on the system,
+ * This file contains functions that detect available devices on the system,
  * and will provide a list of DeviceInfo for the backend. Various classes of
- * devices can be supported. A number of libraries may be used to provide a list
- * for each class of devices.
+ * devices can be supported.
  *
+ * Only libVLC should be used to detect the devices, because this is
+ * Phonon-VLC.
+ *
+ * This complements device management done by Phonon platform plugins.
+ *
+ * \todo remove V4L detection after moving to the KDE Platform Plugin.
  * Currently supported: Video4Linux2 devices.
- * TODO ALSA devices, DirectShow devices.
+ *
+ * \todo use libVLC to discover devices
  */
 
 #ifndef Phonon_VLC_DEVICESCAN_H
