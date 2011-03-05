@@ -40,7 +40,7 @@ namespace Phonon
 namespace VLC
 {
 
-DeviceInfo::DeviceInfo( const QByteArray& name, const QString& description)
+DeviceInfo::DeviceInfo( const QByteArray& name, const QString& description, bool isAdvanced)
 {
     // Get an id
     static int counter = 0;
@@ -49,6 +49,7 @@ DeviceInfo::DeviceInfo( const QByteArray& name, const QString& description)
     // Get name and description for the device
     this->name = name;
     this->description = description;
+    this->isAdvanced = isAdvanced;
     capabilities = None;
 }
 
@@ -190,18 +191,15 @@ void DeviceManager::updateDeviceList()
 #endif
     bool haspulse = false;
     while (p_ao_list) {
-        if (checkpulse && 0 == strcmp(p_ao_list->psz_name, "pulse")) {
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
+        if (checkpulse && strcmp(p_ao_list->psz_name, "pulse") == 0) {
+            aos.last().isAdvanced = false;
             aos.last().accessList.append(DeviceAccess("pulse", "default"));
-#endif // PHONON_VLC_NO_EXPERIMENTAL
             haspulse = true;
             break;
         }
 
-        aos.append(DeviceInfo(p_ao_list->psz_name));
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-        aos.last().accessList.append(DeviceAccess("?", p_ao_list->psz_name));
-#endif // PHONON_VLC_NO_EXPERIMENTAL
+        aos.append(DeviceInfo(p_ao_list->psz_name, p_ao_list->psz_description, true));
+        aos.last().accessList.append(DeviceAccess(p_ao_list->psz_name, QString()));
         aos.last().capabilities = DeviceInfo::AudioOutput;
 
         p_ao_list = p_ao_list->p_next;

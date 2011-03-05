@@ -53,14 +53,13 @@ public:
     /**
      * Constructs a device info object and sets it's device identifiers.
      */
-    DeviceInfo(const QByteArray& name, const QString& description = "");
+    DeviceInfo(const QByteArray& name, const QString& description = "", bool isAdvanced = true);
 
     int id;
     QByteArray name;
     QString description;
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
+    bool isAdvanced;
     DeviceAccessList accessList;
-#endif // PHONON_VLC_NO_EXPERIMENTAL
     quint16 capabilities;
 };
 

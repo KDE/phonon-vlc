@@ -31,6 +31,7 @@ bool scanDevices(QList<DeviceInfo> & devices)
     bool ret = true;
 
     // TODO everything
+    Q_UNUSED(devices);
 
     return ret;
 }
