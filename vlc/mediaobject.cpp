@@ -322,12 +322,20 @@ void MediaObject::setSource(const MediaSource &source)
             loadMedia("v4l2://" + deviceName);
         } else if (driverName == "alsa") {
             /*
-             * Replace "default" with "hw" for capture device names, because
+             * Replace "default" and "plughw" and "x-phonon" with "hw" for capture device names, because
              * VLC does not want to open them when using default instead of hw.
              * plughw also does not work.
+             *
+             * TODO investigate what happens
              */
             if (deviceName.startsWith("default")) {
                 deviceName.replace(0, 7, "hw");
+            }
+            if (deviceName.startsWith("plughw")) {
+                deviceName.replace(0, 6, "hw");
+            }
+            if (deviceName.startsWith("x-phonon")) {
+                deviceName.replace(0, 8, "hw");
             }
 
             loadMedia("alsa://" + deviceName);
