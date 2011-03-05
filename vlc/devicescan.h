@@ -31,9 +31,6 @@
  *
  * This complements device management done by Phonon platform plugins.
  *
- * \todo remove V4L detection after moving to the KDE Platform Plugin.
- * Currently supported: Video4Linux2 devices.
- *
  * \todo use libVLC to discover devices
  */
 
@@ -41,10 +38,6 @@
 #define Phonon_VLC_DEVICESCAN_H
 
 #include "devicemanager.h"
-
-#include <phonon/ObjectDescription>
-#include <QtCore/QByteArray>
-#include <QtCore/QList>
 
 QT_BEGIN_NAMESPACE
 
@@ -58,21 +51,6 @@ namespace VLC {
  * \param devices List of capture devices
  */
 bool scanDevices(QList<DeviceInfo> & devices);
-
-#ifdef HAVE_LIBV4L2
-/**
- * Probes for V4L capture devices and appends them to the list.
- *
- * \param devices List of capture devices
- */
-bool scanDevicesV4L2(QList<DeviceInfo> & devices);
-#endif // HAVE_LIBV4L2
-
-#ifdef HAVE_LIBKAUDIODEVICELIST
-#endif // HAVE_LIBKAUDIODEVICELIST
-
-#ifdef HAVE_DIRECTSHOW
-#endif // HAVE_DIRECTSHOW
 
 } // namespace VLC
 } // namespace Phonon

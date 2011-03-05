@@ -18,16 +18,6 @@ if (MSVC)
         endif (KDEWIN_FOUND)
 endif (MSVC)
 
-# Try and find libv4l2
-if (CMAKE_SYSTEM_NAME MATCHES Linux)
-    macro_optional_find_package(V4L2)
-    macro_log_feature(V4L2_FOUND "V4L2" "VideoForLinux 2 is required to enable listing v4l2 devices" "" FALSE)
-    if (V4L2_FOUND)
-        add_definitions(-DHAVE_LIBV4L2)
-        include_directories(${LIBV4L2_INCLUDE_DIR})
-    endif (V4L2_FOUND)
-endif (CMAKE_SYSTEM_NAME MATCHES Linux)
-
 add_definitions(-D_PHONON_BACKEND_VERSION_4_2)
 
 option(PHONON_VLC_NO_EXPERIMENTAL "Do not build anything experimental" true)
@@ -74,10 +64,6 @@ target_link_libraries(phonon_vlc ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${PHON
 if(QT_QTDBUS_FOUND)
     target_link_libraries(phonon_vlc ${QT_QTDBUS_LIBRARY})
 endif(QT_QTDBUS_FOUND)
-
-if (V4L2_FOUND)
-    target_link_libraries(phonon_vlc ${V4L2_LIBRARY})
-endif (V4L2_FOUND)
 
 if(WIN32)
     install(TARGETS phonon_vlc DESTINATION bin/phonon_backend)
