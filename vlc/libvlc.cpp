@@ -49,57 +49,57 @@ bool LibVLC::init(int debugLevel)
 
     QString path = self->vlcPath();
     if (!path.isEmpty()) {
+        QList<QByteArray> args;
+
+        args << QFile::encodeName(path);
+
         QString pluginsPath = QLatin1Literal("--plugin-path=") %
                 QDir::toNativeSeparators(QFileInfo(self->vlcPath()).dir().path());
-
-        // Ends up as something like $HOME/.config/Phonon/vlc.conf
-        const QString configFileName = QSettings("Phonon", "vlc").fileName();
-        QByteArray config;
-        if (QFile::exists(configFileName)) {
-            config = QByteArray("--config=").append(QFile::encodeName(configFileName));
-        }
-
 #if defined(Q_OS_UNIX)
         pluginsPath.append("/vlc");
 #elif defined(Q_OS_WIN)
         pluginsPath.append("\\plugins");
 #endif
-        QByteArray p = QFile::encodeName(path);
-        QByteArray pp = QFile::encodeName(pluginsPath);
+        args << QFile::encodeName(pluginsPath);
 
-        QByteArray log;
-        QByteArray logFile;
-        QByteArray verboseLevl;
+        // Ends up as something like $HOME/.config/Phonon/vlc.conf
+        const QString configFileName = QSettings("Phonon", "vlc").fileName();
+        if (QFile::exists(configFileName)) {
+            args << QByteArray("--config=").append(QFile::encodeName(configFileName));
+        }
+
         if (debugLevel > 0) {
-            verboseLevl = QString("--verbose=").append(QString::number(debugLevel)).toLatin1();
-            log = "--extraintf=logger";
-            logFile = "--logfile=";
+            args << QByteArray("--verbose=").append(QString::number(debugLevel));
+            args << QByteArray("--extraintf=logger");
 #ifdef Q_WS_WIN
             QDir logFilePath(QString(qgetenv("APPDATA")).append("/vlc"));
 #else
             QDir logFilePath(QDir::homePath().append("/.vlc"));
 #endif //Q_WS_WIN
             logFilePath.mkdir("log");
-            logFile.append(QFile::encodeName(QDir::toNativeSeparators(logFilePath.path().append("/log/vlc-log-").append(QString::number(qApp->applicationPid())).append(".txt"))));
+            const QString logFile = logFilePath.path()
+                    .append("/log/vlc-log-")
+                    .append(QString::number(qApp->applicationPid()))
+                    .append(".txt");
+            args << QByteArray("--logfile=").append(QFile::encodeName(QDir::toNativeSeparators(logFile)));
         }
-        // VLC command line options. See vlc --full-help
-        const char *vlcArgs[] = {
-            config.constData(),
-            p.constData(),
-            pp.constData(),
-            log.constData(),
-            logFile.constData(),
-            verboseLevl.constData(),
-            "--reset-plugins-cache",
-            "--no-media-library",
+
+        args << "--reset-plugins-cache";
+        args << "--no-media-library";
+        args << "--no-osd";
+        args << "--no-stats";
+        args << "--no-video-title-show";
+        args << "--album-art=0";
+
 #ifndef Q_OS_MAC
-            "--no-one-instance",
+        args << "--no-one-instance";
 #endif
-            "--no-osd",
-            "--no-stats",
-            "--no-video-title-show",
-            "--album-art=0"
-        };
+
+        // Build const char* array
+        const char *vlcArgs[args.size()-1];
+        for (int i = 0; i < args.size(); ++i) {
+            vlcArgs[i] = arguments.at(i).constData();
+        }
 
         // Create and initialize a libvlc instance (it should be done only once)
         self->m_vlcInstance = libvlc_new(sizeof(vlcArgs) / sizeof(*vlcArgs), vlcArgs);
@@ -252,4 +252,3 @@ void LibVLC::vlcUnload()
     delete m_vlcLibrary;
     m_vlcLibrary = 0;
 }
-
