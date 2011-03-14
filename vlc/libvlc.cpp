@@ -98,7 +98,7 @@ bool LibVLC::init(int debugLevel)
         // Build const char* array
         const char *vlcArgs[args.size()-1];
         for (int i = 0; i < args.size(); ++i) {
-            vlcArgs[i] = arguments.at(i).constData();
+            vlcArgs[i] = args.at(i).constData();
         }
 
         // Create and initialize a libvlc instance (it should be done only once)
