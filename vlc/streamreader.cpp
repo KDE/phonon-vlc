@@ -146,9 +146,6 @@ bool StreamReader::read(quint64 pos, int *length, char *buffer)
     // trim the buffer by the amount read
     m_buffer = m_buffer.mid(*length);
 
-
-    debug() << "ret:" << ret;
-    debug() << "length:" << *length;
     return ret;
 }
 
@@ -160,7 +157,7 @@ void StreamReader::endOfData()
 
 void StreamReader::writeData(const QByteArray &data)
 {
-//    DEBUG_BLOCK;
+    DEBUG_BLOCK;
     QMutexLocker lock(&m_mutex);
     m_buffer.append(data);
     m_waitingForData.wakeAll();
