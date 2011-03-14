@@ -52,6 +52,13 @@ bool LibVLC::init(int debugLevel)
         QString pluginsPath = QLatin1Literal("--plugin-path=") %
                 QDir::toNativeSeparators(QFileInfo(self->vlcPath()).dir().path());
 
+        // Ends up as something like $HOME/.config/Phonon/vlc.conf
+        const QString configFileName = QSettings("Phonon", "vlc").fileName();
+        QByteArray config;
+        if (QFile::exists(configFileName)) {
+            config = QByteArray("--config=").append(QFile::encodeName(configFileName));
+        }
+
 #if defined(Q_OS_UNIX)
         pluginsPath.append("/vlc");
 #elif defined(Q_OS_WIN)
@@ -77,6 +84,7 @@ bool LibVLC::init(int debugLevel)
         }
         // VLC command line options. See vlc --full-help
         const char *vlcArgs[] = {
+            config.constData(),
             p.constData(),
             pp.constData(),
             log.constData(),
