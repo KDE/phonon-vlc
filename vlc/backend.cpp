@@ -288,14 +288,12 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const
             list.append(deviceList[dev].id);
     }
     break;
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
     case Phonon::VideoCaptureDeviceType: {
         deviceList = deviceManager()->videoCaptureDevices();
         for (dev = 0 ; dev < deviceList.size() ; ++dev)
             list.append(deviceList[dev].id);
     }
     break;
-#endif // PHONON_VLC_NO_EXPERIMENTAL
     case Phonon::EffectType: {
         QList<EffectInfo *> effectList = effectManager()->effects();
         for (int eff = 0; eff < effectList.size(); ++eff) {
@@ -329,6 +327,7 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
             ret.insert("name", deviceList[index].name);
             ret.insert("description", deviceList[index].description);
             ret.insert("icon", QLatin1String("audio-card"));
+            ret.insert("isAdvanced", deviceList[index].isAdvanced);
         }
     }
     break;
@@ -338,27 +337,25 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
             ret.insert("name", deviceList[index].name);
             ret.insert("description", deviceList[index].description);
             ret.insert("icon", QLatin1String("audio-input-microphone"));
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
+            ret.insert("isAdvanced", deviceList[index].isAdvanced);
             ret.insert("deviceAccessList", QVariant::fromValue<Phonon::DeviceAccessList>(deviceList[index].accessList));
-#endif // PHONON_VLC_NO_EXPERIMENTAL
             if (deviceList[index].capabilities & DeviceInfo::VideoCapture)
                 ret.insert("hasvideo", true);
         }
     }
     break;
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
     case Phonon::VideoCaptureDeviceType: {
         deviceList = deviceManager()->videoCaptureDevices();
         if (index >= 0 && index < deviceList.size()) {
             ret.insert("name", deviceList[index].name);
             ret.insert("description", deviceList[index].description);
             ret.insert("icon", QLatin1String("camera-web"));
+            ret.insert("isAdvanced", deviceList[index].isAdvanced);
             ret.insert("deviceAccessList", QVariant::fromValue<Phonon::DeviceAccessList>(deviceList[index].accessList));
             if (deviceList[index].capabilities & DeviceInfo::AudioCapture)
                 ret.insert("hasaudio", true);
         }
     }
-#endif // PHONON_VLC_NO_EXPERIMENTAL
     break;
     case Phonon::EffectType: {
         QList<EffectInfo *> effectList = effectManager()->effects();

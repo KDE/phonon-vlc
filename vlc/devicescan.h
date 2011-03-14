@@ -22,23 +22,22 @@
 /** \file
  * \brief Provides functions to detect available devices
  *
- * This file contains functions that scan for available devices on the system,
+ * This file contains functions that detect available devices on the system,
  * and will provide a list of DeviceInfo for the backend. Various classes of
- * devices can be supported. A number of libraries may be used to provide a list
- * for each class of devices.
+ * devices can be supported.
  *
- * Currently supported: Video4Linux2 devices.
- * TODO ALSA devices, DirectShow devices.
+ * Only libVLC should be used to detect the devices, because this is
+ * Phonon-VLC.
+ *
+ * This complements device management done by Phonon platform plugins.
+ *
+ * \todo use libVLC to discover devices
  */
 
 #ifndef Phonon_VLC_DEVICESCAN_H
 #define Phonon_VLC_DEVICESCAN_H
 
 #include "devicemanager.h"
-
-#include <phonon/ObjectDescription>
-#include <QtCore/QByteArray>
-#include <QtCore/QList>
 
 QT_BEGIN_NAMESPACE
 
@@ -52,21 +51,6 @@ namespace VLC {
  * \param devices List of capture devices
  */
 bool scanDevices(QList<DeviceInfo> & devices);
-
-#ifdef HAVE_LIBV4L2
-/**
- * Probes for V4L capture devices and appends them to the list.
- *
- * \param devices List of capture devices
- */
-bool scanDevicesV4L2(QList<DeviceInfo> & devices);
-#endif // HAVE_LIBV4L2
-
-#ifdef HAVE_LIBKAUDIODEVICELIST
-#endif // HAVE_LIBKAUDIODEVICELIST
-
-#ifdef HAVE_DIRECTSHOW
-#endif // HAVE_DIRECTSHOW
 
 } // namespace VLC
 } // namespace Phonon
