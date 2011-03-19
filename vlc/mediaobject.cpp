@@ -49,6 +49,7 @@ MediaObject::MediaObject(QObject *p_parent)
     : QObject(p_parent)
     , m_videoWidget(0)
     , m_nextSource(MediaSource(QUrl()))
+    , m_streamReader(0)
     , m_currentState(Phonon::StoppedState)
     , m_prefinishEmitted(false)
     , m_aboutToFinishEmitted(false)
@@ -260,6 +261,12 @@ void MediaObject::setSource(const MediaSource &source)
 {
     qDebug() << __FUNCTION__;
 
+    // Reset previous streameraders
+    if (m_streamReader) {
+        m_streamReader->unlock();
+        m_streamReader = 0;
+    }
+
     m_mediaSource = source;
 
     QByteArray driverName;
@@ -405,8 +412,10 @@ void MediaObject::emitAboutToFinish()
 
 void MediaObject::stateChangedInternal(Phonon::State newState)
 {
-    qDebug() << __FUNCTION__ << "newState:" << phononStateToString(newState)
-             << "previousState:" << phononStateToString(m_currentState) ;
+    DEBUG_BLOCK;
+    debug() << phononStateToString(m_currentState)
+            << "-->"
+            << phononStateToString(newState);
 
     if (newState == m_currentState) {
         // State not changed
@@ -498,11 +507,11 @@ void MediaObject::setVLCVideoWidget()
 
 void MediaObject::playInternal()
 {
+    DEBUG_BLOCK;
     if (m_media) {  // We are changing media, discard the old one
         libvlc_media_release(m_media);
         m_media = 0;
     }
-
 
     m_totalTime = -1;
 
@@ -512,21 +521,23 @@ void MediaObject::playInternal()
         qDebug() << "libvlc exception:" << libvlc_errmsg();
     }
 
-    if (m_currentFile == "imem://") { // Set callbacks for stream reading using imem
-            addOption(QString("imem-cat=4"));
-            addOption(QString("imem-data="), INTPTR_PTR(m_streamReader));
-            addOption(QString("imem-get="), INTPTR_FUNC(StreamReader::readCallback));
-            addOption(QString("imem-release="), INTPTR_FUNC(StreamReader::readDoneCallback));
-            addOption(QString("imem-seek="), INTPTR_FUNC(StreamReader::seekCallback));
+    if (m_streamReader) { // Set callbacks for stream reading using imem
+        m_streamReader->lock(); // Make sure we can lock in read().
 
-            // if stream has known size, we may pass it
-            // imem module will use it and pass it to demux
-            if (m_streamReader->streamSize() > 0) {
-                QString(QString("imem-size=%1").arg(m_streamReader->streamSize()));
-            }
+        addOption(QString("imem-cat=4"));
+        addOption(QString("imem-data="), INTPTR_PTR(m_streamReader));
+        addOption(QString("imem-get="), INTPTR_FUNC(StreamReader::readCallback));
+        addOption(QString("imem-release="), INTPTR_FUNC(StreamReader::readDoneCallback));
+        addOption(QString("imem-seek="), INTPTR_FUNC(StreamReader::seekCallback));
+
+        // if stream has known size, we may pass it
+        // imem module will use it and pass it to demux
+        if (m_streamReader->streamSize() > 0) {
+            QString(QString("imem-size=%1").arg(m_streamReader->streamSize()));
+        }
     }
 
-    foreach(SinkNode * sink, m_sinks) {
+    foreach (SinkNode * sink, m_sinks) {
         sink->addToMedia(m_media);
     }
 
@@ -588,6 +599,9 @@ void MediaObject::pause()
 
 void MediaObject::stop()
 {
+    DEBUG_BLOCK;
+    if (m_streamReader)
+        m_streamReader->unlock();
     m_nextSource = MediaSource(QUrl());
     libvlc_media_player_stop(m_player);
 //    unloadMedia();
