@@ -41,7 +41,6 @@ set(phonon_vlc_SRCS
     overlaywidget.cpp
     seekstack.cpp
     sinknode.cpp
-    streamhooks.cpp
     streamreader.cpp
     #    videodataoutput.cpp
     devicescan.cpp
