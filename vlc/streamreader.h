@@ -60,6 +60,9 @@ public:
     StreamReader(const Phonon::MediaSource &source, MediaObject *parent);
     ~StreamReader();
 
+    void lock();
+    void unlock();
+
     static int readCallback(void *data, const char *cookie,
                             int64_t *dts, int64_t *pts, unsigned *flags,
                             size_t *bufferSize, void **buffer);
@@ -97,6 +100,7 @@ protected:
     quint64 m_size;
     bool m_eos;
     bool m_seekable;
+    bool m_unlocked;
     QMutex m_mutex;
     QWaitCondition m_waitingForData;
     MediaObject *m_mediaObject;

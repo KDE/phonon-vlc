@@ -41,6 +41,7 @@ StreamReader::StreamReader(const Phonon::MediaSource &source, MediaObject *paren
     , m_size(0)
     , m_eos(false)
     , m_seekable(false)
+    , m_unlocked(false)
     , m_mediaObject(parent)
 {
     connectToSource(source);
@@ -48,6 +49,21 @@ StreamReader::StreamReader(const Phonon::MediaSource &source, MediaObject *paren
 
 StreamReader::~StreamReader()
 {
+}
+
+void StreamReader::lock()
+{
+    QMutexLocker lock(&m_mutex);
+    DEBUG_BLOCK;
+    m_unlocked = false;
+}
+
+void StreamReader::unlock()
+{
+    QMutexLocker lock(&m_mutex);
+    DEBUG_BLOCK;
+    m_unlocked = true;
+    m_waitingForData.wakeAll();
 }
 
 int StreamReader::readCallback(void *data, const char *cookie,
@@ -103,9 +119,13 @@ quint64 StreamReader::currentBufferSize() const
 
 bool StreamReader::read(quint64 pos, int *length, char *buffer)
 {
-    DEBUG_BLOCK;
     QMutexLocker lock(&m_mutex);
+    DEBUG_BLOCK;
     bool ret = true;
+
+    if (m_unlocked) {
+        return ret;
+    }
 
     if (currentPos() != pos) {
         if (!streamSeekable()) {
@@ -157,8 +177,8 @@ void StreamReader::endOfData()
 
 void StreamReader::writeData(const QByteArray &data)
 {
-    DEBUG_BLOCK;
     QMutexLocker lock(&m_mutex);
+    DEBUG_BLOCK;
     m_buffer.append(data);
     m_waitingForData.wakeAll();
 }
