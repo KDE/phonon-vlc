@@ -112,6 +112,11 @@ bool LibVLC::init(int debugLevel)
     return false;
 }
 
+const char *LibVLC::errorMessage()
+{
+    return libvlc_errmsg();
+}
+
 #if defined(Q_OS_UNIX)
 bool LibVLC::libGreaterThan(const QString &lhs, const QString &rhs)
 {

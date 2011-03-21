@@ -87,6 +87,11 @@ public:
     static bool init(int debugLevl);
 
     /**
+     * \returns the most recent error message of libvlc
+     */
+    static const char *errorMessage();
+
+    /**
      * Destruct the LibVLC singleton and release the contained libvlc instance.
      */
     ~LibVLC();
