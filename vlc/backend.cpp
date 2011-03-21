@@ -32,6 +32,7 @@
 #include <QtCore/QStringBuilder>
 #include <QtCore/QtPlugin>
 #include <QtCore/QVariant>
+#include <QtGui/QMessageBox>
 
 #ifdef PHONON_PULSESUPPORT
 #include <phonon/pulsesupport.h>
@@ -77,7 +78,7 @@ Backend::Backend(QObject *parent, const QVariantList &)
 {
     self = this;
 
-    /* Backend information properties */
+    // Backend information properties
     setProperty("identifier",     QLatin1String("phonon_vlc"));
     setProperty("backendName",    QLatin1String("VLC"));
     setProperty("backendComment", QLatin1String("VLC backend for Phonon"));
@@ -92,10 +93,23 @@ Backend::Backend(QObject *parent, const QVariantList &)
     }
     m_debugLevel = (DebugLevel)debugLevel;
 
-    /* Actual libVLC initialisation */
+    // Actual libVLC initialisation
     if (LibVLC::init(m_debugLevel)) {
         logMessage(QString("Using VLC version %0").arg(libvlc_get_version()));
     } else {
+#ifdef __GNUC__
+#warning TODO - this error message is about as useful as a cooling unit in the arctic
+#warning TODO - supposedly Phonon VLC should not make kabooom if libvlc fails to init, probably impossible though
+#endif
+        QMessageBox msg;
+        msg.setIcon(QMessageBox::Critical);
+        msg.setWindowTitle(tr("LibVLC failed to initialize"));
+        msg.setText(tr("Phonon's VLC backend failed to start."
+                       "\n\n"
+                       "This usually means a problem with you VLC installation,"
+                       " please report a bug with your distributor."));
+        msg.setDetailedText(LibVLC::errorMessage());
+        msg.exec();
         qCritical("Phonon::VLC::vlcInit: Failed to initialize VLC");
     }
 
