@@ -30,7 +30,6 @@
 #include <vlc/vlc.h>
 
 #include "backend.h"
-#include "devicescan.h"
 #include "libvlc.h"
 
 QT_BEGIN_NAMESPACE
@@ -152,8 +151,8 @@ void DeviceManager::updateDeviceList()
     QList<DeviceInfo> devices, vcs, acs;
     int i;
 
-    // Get the list of available capture devices
-    scanDevices(devices);
+    // Setup a list of available capture devices
+    // TODO
 
     // See the device capabilities and sort them accordingly
     for (i = 0; i < devices.count(); ++ i) {
