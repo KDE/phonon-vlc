@@ -74,12 +74,35 @@ public:
     static Backend *self;
 
     enum DebugLevel {NoDebug, Warning, Info, Debug};
+
+    /**
+     * Constructs the backend. Sets the backend properties, fetches the debug level from the
+     * environment, initializes libVLC, constructs the device and effect managers, initializes
+     * PulseAudio support.
+     *
+     * \param parent A parent object for the backend (passed to the QObject constructor)
+     */
     explicit Backend(QObject *parent = 0, const QVariantList & = QVariantList());
     virtual ~Backend();
 
+    /**
+     * \return The device manager that is associated with this backend object
+     */
     DeviceManager *deviceManager() const;
+
+    /**
+     * \return The effect manager that is associated with this backend object.
+     */
     EffectManager *effectManager() const;
 
+    /**
+     * Creates a backend object of the desired class and with the desired parent. Extra arguments can be provided.
+     *
+     * \param c The class of object that is to be created
+     * \param parent The object that will be the parent of the new object
+     * \param args Optional arguments for the object creation
+     * \return The desired object or NULL if the class is not implemented.
+     */
     QObject *createObject(BackendInterface::Class, QObject *parent, const QList<QVariant> &args);
 
     bool supportsVideo() const;
@@ -87,16 +110,76 @@ public:
     bool supportsSubtitles() const;
     QStringList availableMimeTypes() const;
 
+    /**
+     * Returns a list of indexes for the desired object types. It specifies a list of objects
+     * of a particular category that the backend knows about. These indexes can be used with
+     * objectDescriptionProperties() to get the properties of a particular object.
+     *
+     * \param type The type of objects for the list
+     */
     QList<int> objectDescriptionIndexes(ObjectDescriptionType type) const;
+
+    /**
+     * Returns a list of properties for a particular object of the desired category.
+     *
+     * \param type The type of object for the index
+     * \param index The index for the object of the desired type
+     * \return The property list. If the object is inexistent, an empty list is returned.
+     */
     QHash<QByteArray, QVariant> objectDescriptionProperties(ObjectDescriptionType type, int index) const;
 
+    /**
+     * Called when a connection between nodes is about to be changed
+     *
+     * \param objects A set of objects that will be involved in the change
+     */
     bool startConnectionChange(QSet<QObject *>);
+
+    /**
+     * Connects two media nodes. The sink is informed that it should connect itself to the source.
+     *
+     * \param source The source media node for the connection
+     * \param sink The sink media node for the connection
+     * \return True if the connection was successful
+     */
     bool connectNodes(QObject *, QObject *);
+
+    /**
+     * Disconnects two previously connected media nodes. It disconnects the sink node from the source node.
+     *
+     * \param source The source node for the disconnection
+     * \param sink The sink node for the disconnection
+     * \return True if the disconnection was successful
+     */
     bool disconnectNodes(QObject *, QObject *);
+
+    /**
+     * Called after a connection between nodes has been changed
+     *
+     * \param objects Nodes involved in the disconnection
+     */
     bool endConnectionChange(QSet<QObject *>);
 
+    /**
+     * Return a debuglevel that is determined by the
+     * PHONON_VLC_DEBUG environment variable.
+     *
+     * \li Warning - important warnings
+     * \li Info    - general info
+     * \li Debug   - gives extra info
+     *
+     * \return The debug level.
+     */
     DebugLevel debugLevel() const;
 
+    /**
+     * Print a conditional debug message based on the current debug level
+     * If obj is provided, classname and objectname will be printed as well
+     *
+     * \param message Debug message
+     * \param priority Priority of the debug message, see debugLevel()
+     * \param obj Who gives the message, or some object relevant for the message
+     */
     void logMessage(const QString &message, int priority = 2, QObject *obj = 0) const;
 
 Q_SIGNALS:
