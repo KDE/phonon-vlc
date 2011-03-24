@@ -84,11 +84,11 @@ Backend::Backend(QObject *parent, const QVariantList &)
     if (debugLevel > 3) { // 3 is maximum
         debugLevel = 3;
     }
-    m_debugLevel = (DebugLevel)debugLevel;
+    Debug::setMinimumDebugLevel((Debug::DebugLevel)((int) Debug::DEBUG_NONE - 1 - debugLevel));
 
     // Actual libVLC initialisation
-    if (LibVLC::init(m_debugLevel)) {
-        logMessage(QString("Using VLC version %0").arg(libvlc_get_version()));
+    if (LibVLC::init()) {
+        debug() << "Using VLC version %0" << libvlc_get_version();
     } else {
 #ifdef __GNUC__
 #warning TODO - this error message is about as useful as a cooling unit in the arctic
@@ -103,7 +103,7 @@ Backend::Backend(QObject *parent, const QVariantList &)
                        " please report a bug with your distributor."));
         msg.setDetailedText(LibVLC::errorMessage());
         msg.exec();
-        qCritical("Phonon::VLC::vlcInit: Failed to initialize VLC");
+        fatal() << "Phonon::VLC::vlcInit: Failed to initialize VLC";
     }
 
     m_deviceManager = new DeviceManager(this);
@@ -134,11 +134,11 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
 
     switch (cex) {
     case Phonon::Experimental::BackendInterface::AvCaptureClass:
-        logMessage("createObject() : AvCapture created - WARNING: Experimental!");
+        warning() << "createObject() : AvCapture created - WARNING: Experimental!";
         return new Experimental::AvCapture(parent);
     default:
         if ((quint32) cex >= (quint32) Phonon::Experimental::BackendInterface::VideoDataOutputClass)
-            logMessage("createObject() - experimental : Backend object not available");
+            warning() << "createObject() - experimental : Backend object not available";
     }
 #endif // PHONON_VLC_NO_EXPERIMENTAL
 
@@ -146,7 +146,7 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
     case MediaObjectClass:
         return new MediaObject(parent);
     case VolumeFaderEffectClass:
-        logMessage("createObject() : VolumeFaderEffect not implemented");
+        debug() << "createObject() : VolumeFaderEffect not implemented";
         break;
     case AudioOutputClass: {
         AudioOutput *ao = new AudioOutput(parent);
@@ -155,21 +155,21 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
     }
     case AudioDataOutputClass:
         return new AudioDataOutput(parent);
-        logMessage("createObject() : AudioDataOutput created - WARNING: POSSIBLY INCORRECTLY IMPLEMENTED");
+        warning() << "createObject() : AudioDataOutput created - WARNING: POSSIBLY INCORRECTLY IMPLEMENTED";
         break;
     case VisualizationClass:
-        logMessage("createObject() : Visualization not implemented");
+        error() << "createObject() : Visualization not implemented";
         break;
     case VideoDataOutputClass:
 //        return new Phonon::VLC::VideoDataOutput(this, parent);
-        logMessage("createObject() : VideoDataOutput not implemented");
+        error() << "createObject() : VideoDataOutput not implemented";
         break;
     case EffectClass:
         return new Effect(m_effectManager, args[0].toInt(), parent);
     case VideoWidgetClass:
         return new VideoWidget(qobject_cast<QWidget *>(parent));
     default:
-        logMessage("createObject() : Backend object not available");
+        error() << "createObject() : Backend object not available";
     }
     return 0;
 }
@@ -365,7 +365,7 @@ bool Backend::startConnectionChange(QSet<QObject *> objects)
 {
     //FIXME
     foreach(QObject * object, objects) {
-        logMessage(QString("Object: %0").arg(object->metaObject()->className()));
+        debug() << "Object:" << object->metaObject()->className();
     }
 
     // There is nothing we can do but hope the connection changes will not take too long
@@ -376,9 +376,7 @@ bool Backend::startConnectionChange(QSet<QObject *> objects)
 
 bool Backend::connectNodes(QObject *source, QObject *sink)
 {
-    logMessage(QString("Backend connected %0 to %1")
-               .arg(source->metaObject()->className())
-               .arg(sink->metaObject()->className()));
+    debug() << "Backend connected" << source->metaObject()->className() << "to" << sink->metaObject()->className();
 
     SinkNode *sinkNode = dynamic_cast<SinkNode *>(sink);
     if (sinkNode) {
@@ -407,10 +405,7 @@ bool Backend::connectNodes(QObject *source, QObject *sink)
         */
     }
 
-    logMessage(QString("Linking %0 to %1 failed")
-               .arg(source->metaObject()->className())
-               .arg(sink->metaObject()->className()),
-               Warning);
+    warning() << "Linking" << source->metaObject()->className() << "to" << sink->metaObject()->className() << "failed";
 
     return false;
 }
@@ -450,7 +445,7 @@ bool Backend::disconnectNodes(QObject *source, QObject *sink)
 bool Backend::endConnectionChange(QSet<QObject *> objects)
 {
     foreach(QObject * object, objects) {
-        logMessage(QString("Object: %0").arg(object->metaObject()->className()));
+        debug() << "Object:" << object->metaObject()->className();
     }
 
     return true;
@@ -466,30 +461,9 @@ EffectManager *Backend::effectManager() const
     return m_effectManager;
 }
 
-Backend::DebugLevel Backend::debugLevel() const
+Debug::DebugLevel Backend::debugLevel() const
 {
-    return m_debugLevel;
-}
-
-void Backend::logMessage(const QString &message, int priority, QObject *obj) const
-{
-    if (debugLevel() > 0) {
-        QString output;
-        if (obj) {
-            // Strip away namespace from className
-            QString className(obj->metaObject()->className());
-            const int nameLength = className.length() - className.lastIndexOf(':') - 1;
-            className = className.right(nameLength);
-            output.sprintf("%s %s (%s %p)", message.toLatin1().constData(),
-                           obj->objectName().toLatin1().constData(),
-                           className.toLatin1().constData(), static_cast<void *>(obj));
-        } else {
-            output = message;
-        }
-        if (priority <= (int)debugLevel()) {
-            qDebug() << QString("PVLC(%1): %2").arg(priority).arg(output);
-        }
-    }
+    return Debug::minimumDebugLevel();
 }
 
 }

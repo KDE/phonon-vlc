@@ -89,9 +89,9 @@ public:
      * Initializes the members, connects the private slots to their corresponding signals,
      * sets the next media source to an empty media source.
      *
-     * \param p_parent A parent for the QObject
+     * \param parent A parent for the QObject
      */
-    MediaObject(QObject *p_parent);
+    MediaObject(QObject *parent);
     ~MediaObject();
 
     /**

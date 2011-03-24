@@ -30,6 +30,7 @@
 
 #include <QMetaObject>
 
+#include "debug.h"
 #include "mediaobject.h"
 
 namespace Phonon
@@ -75,7 +76,7 @@ void VideoDataOutput::videoSizeChanged(int width, int height)
         }
         delete m_img;
     }
-    qDebug() << "changing video size to:" << size;
+    debug() << "changing video size to:" << size;
     m_img = new QImage(size, QImage::Format_RGB888);
     //libvlc_video_set_format(p_vlc_player, "RV24", width, height, width * 3);
 }

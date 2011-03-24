@@ -29,6 +29,7 @@
 #include <vlc/vlc.h>
 
 #include "debug.h"
+
 #ifndef PHONON_VLC_NO_EXPERIMENTAL
 #include "experimental/avcapture.h"
 #endif // PHONON_VLC_NO_EXPERIMENTAL
@@ -118,7 +119,7 @@ void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspect)
         libvlc_video_set_aspect_ratio(m_player, "16:9");
         break;
     default:
-        qCritical() << __FUNCTION__ << "error: unsupported AspectRatio:" << m_aspectRatio;
+        error() << Q_FUNC_INFO << "unsupported AspectRatio:" << m_aspectRatio;
     }
 }
 
@@ -139,7 +140,7 @@ void VideoWidget::setScaleMode(Phonon::VideoWidget::ScaleMode scale)
     case Phonon::VideoWidget::ScaleAndCrop: // The video is scaled
         break;
     default:
-        qWarning() << __FUNCTION__ << "unknow Phonon::VideoWidget::ScaleMode:" << m_scaleMode;
+        warning() << Q_FUNC_INFO << "unknow Phonon::VideoWidget::ScaleMode:" << m_scaleMode;
     }
 }
 
@@ -288,7 +289,7 @@ QWidget *VideoWidget::widget()
 
 void VideoWidget::resizeEvent(QResizeEvent *event)
 {
-    qDebug() << "resizeEvent" << event->size();
+    debug() << "resizeEvent" << event->size();
 }
 
 void VideoWidget::setVideoSize(const QSize &size)
@@ -309,7 +310,7 @@ QSize VideoWidget::sizeHint() const
 void VideoWidget::setVisible(bool visible)
 {
     if (window() && window()->testAttribute(Qt::WA_DontShowOnScreen)) {
-        qDebug() << "Widget rendering forced";
+        debug() << "Widget rendering forced";
         useCustomRender();
     }
     QWidget::setVisible(visible);
@@ -328,7 +329,7 @@ void VideoWidget::setNextFrame(const QByteArray &array, int width, int height)
 
 void VideoWidget::videoWidgetSizeChanged(int width, int height)
 {
-    qDebug() << __FUNCTION__ << "video width" << width << "height:" << height;
+    debug() << Q_FUNC_INFO << "video width" << width << "height:" << height;
 
     // It resizes dynamically the widget and the main window
     // Note: I didn't find another way

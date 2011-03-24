@@ -23,6 +23,8 @@
 
 #include "seekstack.h"
 
+#include "debug.h"
+
 #include <QtCore/QTimer>
 #include <QtCore/QDebug>
 
@@ -48,7 +50,7 @@ SeekStack::~SeekStack()
 
 void SeekStack::pushSeek(qint64 milliseconds)
 {
-    qDebug() << __FUNCTION__ << "seek:" << milliseconds;
+    debug() << Q_FUNC_INFO << "seek:" << milliseconds;
 
     disconnect(p_media_object, SIGNAL(tickInternal(qint64)),
                p_media_object, SLOT(tickInternalSlot(qint64)));
@@ -72,7 +74,7 @@ void SeekStack::popSeek()
     int i_milliseconds = stack.pop();
     stack.clear();
 
-    qDebug() << __FUNCTION__ << "real seek:" << i_milliseconds;
+    debug() << Q_FUNC_INFO << "real seek:" << i_milliseconds;
 
     p_media_object->seekInternal(i_milliseconds);
 

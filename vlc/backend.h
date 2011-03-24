@@ -24,8 +24,8 @@
 #ifndef Phonon_VLC_BACKEND_H
 #define Phonon_VLC_BACKEND_H
 
-#include "devicemanager.h"
 #include "audiooutput.h"
+#include "debug.h"
 
 #include <phonon/objectdescription.h>
 #include <phonon/backendinterface.h>
@@ -45,6 +45,7 @@ namespace Phonon
 namespace VLC
 {
 class AudioOutput;
+class DeviceManager;
 class EffectManager;
 
 /** \brief Backend class for Phonon-VLC.
@@ -72,8 +73,6 @@ public:
      * this class behaves likes a singleton.
      */
     static Backend *self;
-
-    enum DebugLevel {NoDebug, Warning, Info, Debug};
 
     /**
      * Constructs the backend. Sets the backend properties, fetches the debug level from the
@@ -161,26 +160,17 @@ public:
     bool endConnectionChange(QSet<QObject *>);
 
     /**
-     * Return a debuglevel that is determined by the
-     * PHONON_VLC_DEBUG environment variable.
+     * Return the current debug level.
      *
-     * \li Warning - important warnings
-     * \li Info    - general info
-     * \li Debug   - gives extra info
+     * The debug level can be set by the PHONON_VLC_DEBUG environment variable.
+     * \li 0 - Only fatal errors are shown
+     * \li 1 - Fatal and non-fatal errors
+     * \li 2 - All errors and warnings
+     * \li 3 - Everything
      *
      * \return The debug level.
      */
-    DebugLevel debugLevel() const;
-
-    /**
-     * Print a conditional debug message based on the current debug level
-     * If obj is provided, classname and objectname will be printed as well
-     *
-     * \param message Debug message
-     * \param priority Priority of the debug message, see debugLevel()
-     * \param obj Who gives the message, or some object relevant for the message
-     */
-    void logMessage(const QString &message, int priority = 2, QObject *obj = 0) const;
+    Debug::DebugLevel debugLevel() const;
 
 Q_SIGNALS:
     void objectDescriptionChanged(ObjectDescriptionType);
@@ -191,7 +181,6 @@ private:
 
     DeviceManager *m_deviceManager;
     EffectManager *m_effectManager;
-    DebugLevel m_debugLevel;
 };
 
 }

@@ -23,6 +23,7 @@
 
 #include "sinknode.h"
 
+#include "debug.h"
 #include "mediaobject.h"
 
 #ifndef PHONON_VLC_NO_EXPERIMENTAL
@@ -47,7 +48,7 @@ SinkNode::~SinkNode()
 void SinkNode::connectToMediaObject(MediaObject *mediaObject)
 {
     if (m_mediaObject) {
-        qCritical() << __FUNCTION__ << "m_mediaObject already connected";
+        error() << Q_FUNC_INFO << "m_mediaObject already connected";
     }
 
     m_mediaObject = mediaObject;
@@ -58,7 +59,7 @@ void SinkNode::connectToMediaObject(MediaObject *mediaObject)
 void SinkNode::disconnectFromMediaObject(MediaObject *mediaObject)
 {
     if (m_mediaObject != mediaObject) {
-        qCritical() << __FUNCTION__ << "SinkNode was not connected to mediaObject";
+        error() << Q_FUNC_INFO << "SinkNode was not connected to mediaObject";
     }
 
     if (m_mediaObject) {

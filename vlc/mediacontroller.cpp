@@ -25,6 +25,9 @@
 
 #include <vlc/vlc.h>
 
+#include "debug.h"
+#include "libvlc.h"
+
 namespace Phonon
 {
 namespace VLC
@@ -62,9 +65,7 @@ bool MediaController::hasInterface(Interface iface) const
         return true;
         break;
     default:
-        qCritical() << __FUNCTION__
-                    << "Error: unsupported AddonInterface::Interface"
-                    << iface;
+        error() << Q_FUNC_INFO << "unsupported AddonInterface::Interface" << iface;
     }
 
     return false;
@@ -85,22 +86,20 @@ QVariant MediaController::interfaceCall(Interface iface, int i_command, const QL
             return currentChapter();
 //        case AddonInterface::setCurrentChapter:
 //            if( arguments.isEmpty() || !arguments.first().canConvert<ChapterDescription>()) {
-//                    qCritical() << __FUNCTION__ << "Error: arguments invalid";
+//                    error() << Q_FUNC_INFO << "arguments invalid";
 //                    return false;
 //                }
 //            setCurrentChapter(arguments.first().value<ChapterDescription>());
 //            return true;
         case AddonInterface::setChapter:
             if (arguments.isEmpty() || !arguments.first().canConvert(QVariant::Int)) {
-                qCritical() << __FUNCTION__ << "Error: arguments invalid";
+                error() << Q_FUNC_INFO << "arguments invalid";
                 return false;
             }
             setCurrentChapter(arguments.first().toInt());
             return true;
         default:
-            qCritical() << __FUNCTION__
-                        << "Error: unsupported AddonInterface::ChapterInterface command:"
-                        << i_command;
+            error() << Q_FUNC_INFO << "unsupported AddonInterface::ChapterInterface command:" << i_command;
         }
         break;
     case AddonInterface::TitleInterface:
@@ -115,14 +114,14 @@ QVariant MediaController::interfaceCall(Interface iface, int i_command, const QL
             return currentTitle();
 //        case AddonInterface::setCurrentTitle:
 //            if( arguments.isEmpty() || !arguments.first().canConvert<TitleDescription>()) {
-//                    qCritical() << __FUNCTION__ << "Error: arguments invalid";
+//                    error() << Q_FUNC_INFO << " arguments invalid";
 //                    return false;
 //            }
 //            setCurrentTitle(arguments.first().value<TitleDescription>());
 //            return true;
         case AddonInterface::setTitle:
             if (arguments.isEmpty() || !arguments.first().canConvert(QVariant::Int)) {
-                qCritical() << __FUNCTION__ << "Error: arguments invalid";
+                error() << Q_FUNC_INFO << "arguments invalid";
                 return false;
             }
             setCurrentTitle(arguments.first().toInt());
@@ -131,15 +130,13 @@ QVariant MediaController::interfaceCall(Interface iface, int i_command, const QL
             return autoplayTitles();
         case AddonInterface::setAutoplayTitles:
             if (arguments.isEmpty() || !arguments.first().canConvert(QVariant::Bool)) {
-                qCritical() << __FUNCTION__ << "Error: arguments invalid";
+                error() << Q_FUNC_INFO << " arguments invalid";
                 return false;
             }
             setAutoplayTitles(arguments.first().toBool());
             return true;
         default:
-            qCritical() << __FUNCTION__
-                        << "Error: unsupported AddonInterface::TitleInterface command:"
-                        << i_command;
+            error() << Q_FUNC_INFO << "unsupported AddonInterface::TitleInterface command:" << i_command;
         }
         break;
     case AddonInterface::AngleInterface:
@@ -149,9 +146,7 @@ QVariant MediaController::interfaceCall(Interface iface, int i_command, const QL
         case AddonInterface::setAngle:
             break;
         default:
-            qCritical() << __FUNCTION__
-                        << "Error: unsupported AddonInterface::AngleInterface command:"
-                        << i_command;
+            error() << Q_FUNC_INFO << "unsupported AddonInterface::AngleInterface command:" << i_command;
         }
         break;
     case AddonInterface::SubtitleInterface:
@@ -162,15 +157,13 @@ QVariant MediaController::interfaceCall(Interface iface, int i_command, const QL
             return QVariant::fromValue(currentSubtitle());
         case AddonInterface::setCurrentSubtitle:
             if (arguments.isEmpty() || !arguments.first().canConvert<SubtitleDescription>()) {
-                qCritical() << __FUNCTION__ << "Error: arguments invalid";
+                error() << Q_FUNC_INFO << "arguments invalid";
                 return false;
             }
             setCurrentSubtitle(arguments.first().value<SubtitleDescription>());
             return true;
         default:
-            qCritical() << __FUNCTION__
-                        << "Error: unsupported AddonInterface::SubtitleInterface command:"
-                        << i_command;
+            error() << Q_FUNC_INFO << "unsupported AddonInterface::SubtitleInterface command:" << i_command;
         }
         break;
     case AddonInterface::AudioChannelInterface:
@@ -181,21 +174,17 @@ QVariant MediaController::interfaceCall(Interface iface, int i_command, const QL
             return QVariant::fromValue(currentAudioChannel());
         case AddonInterface::setCurrentAudioChannel:
             if (arguments.isEmpty() || !arguments.first().canConvert<AudioChannelDescription>()) {
-                qCritical() << __FUNCTION__ << "Error: arguments invalid";
+                error() << Q_FUNC_INFO << "arguments invalid";
                 return false;
             }
             setCurrentAudioChannel(arguments.first().value<AudioChannelDescription>());
             return true;
         default:
-            qCritical() << __FUNCTION__
-                        << "Error: unsupported AddonInterface::AudioChannelInterface command:"
-                        << i_command;
+            error() << Q_FUNC_INFO << "unsupported AddonInterface::AudioChannelInterface command:" << i_command;
         }
         break;
     default:
-        qCritical() << __FUNCTION__
-                    << "Error: unsupported AddonInterface::Interface:"
-                    << iface;
+        error() << Q_FUNC_INFO << "unsupported AddonInterface::Interface:" << iface;
     }
 
     return QVariant();
@@ -291,7 +280,7 @@ void MediaController::setCurrentAudioChannel(const Phonon::AudioChannelDescripti
 {
     current_audio_channel = audioChannel;
     if (libvlc_audio_set_track(m_player, audioChannel.index())) {
-        qDebug() << "libvlc exception:" << libvlc_errmsg();
+        error() << "libVLC:" << LibVLC::errorMessage();
     }
 }
 
@@ -331,7 +320,7 @@ void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &subt
         if (!filename.isEmpty()) {
             if (!libvlc_video_set_subtitle_file(m_player,
                                                 filename.toAscii().data())) {
-                qDebug() << "libvlc exception:" << libvlc_errmsg();
+                error() << "libVLC:" << LibVLC::errorMessage();
             }
 
             // There is no subtitle event inside libvlc so let's send our own event...
@@ -340,7 +329,7 @@ void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &subt
         }
     } else {
         if (libvlc_video_set_spu(m_player, subtitle.index())) {
-            qDebug() << "libvlc exception:" << libvlc_errmsg();
+            error() << "libVLC:" << LibVLC::errorMessage();
         }
     }
 }

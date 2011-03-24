@@ -28,6 +28,7 @@
 #include <vlc/vlc.h>
 
 #include "backend.h"
+#include "debug.h"
 #include "devicemanager.h"
 #include "mediaobject.h"
 
@@ -88,7 +89,7 @@ void AudioOutput::setVolume(qreal volume)
         const int previous_volume = libvlc_audio_get_volume(m_player);
         m_volume = volume;
         libvlc_audio_set_volume(m_player, (int)(m_volume * 50));
-        qDebug() << __FUNCTION__ << "Volume changed to - " << (int)(m_volume * 100) << " From " << previous_volume;
+        debug() << "Volume changed from" << previous_volume << "to" << (int)(m_volume * 100);
         emit volumeChanged(m_volume);
     }
 }
@@ -108,7 +109,7 @@ bool AudioOutput::setOutputDevice(int device)
     if (PulseSupport::getInstance()->isActive()) {
         m_deviceIndex = device;
         libvlc_audio_output_set(m_player, "pulse");
-        qDebug() << "set aout pulse";
+        debug() << "Setting aout to pulse";
         return true;
     }
 #endif
@@ -122,8 +123,8 @@ bool AudioOutput::setOutputDevice(int device)
         }
         m_deviceIndex = device;
         const QByteArray deviceName = deviceList.at(device).name;
-        libvlc_audio_output_set(m_player, (char *) deviceList.at(device).name.data());
-        qDebug() << "set aout " << deviceList.at(device).name.data();
+        libvlc_audio_output_set(m_player, deviceName.data());
+        debug() << "Setting aout to" << deviceName;
 //         if (deviceName == DEFAULT_ID) {
 //             libvlc_audio_device_set(p_vlc_instance, DEFAULT, vlc_exception);
 //             vlcExceptionRaised();
@@ -152,7 +153,7 @@ void AudioOutput::updateVolume()
     if (m_player) {
         const int previous_volume = libvlc_audio_get_volume(m_player);
         libvlc_audio_set_volume(m_player, (int)(m_volume * 50));
-        qDebug() << __FUNCTION__ << "Volume changed to - " << (int)(m_volume * 50) << " From " << previous_volume;
+        debug() << "Volume changed from" << previous_volume << "to" << (int)(m_volume * 100);
     }
 }
 

@@ -1,5 +1,6 @@
 /*
     Copyright (c) 2010 Kevin Funk <krf@electrostorm.net>
+    Copyright (c) 2011 Casian Andrei <skeletk13@gmail.com>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -33,5 +34,24 @@ public:
 
     QString m_string;
 };
+
+/*
+ * From kdelibs/kdecore/io
+ */
+class NoDebugStream: public QIODevice
+{
+    // Q_OBJECT
+public:
+    NoDebugStream() { open(WriteOnly); }
+    bool isSequential() const { return true; }
+    qint64 readData(char *, qint64) { return 0; /* eof */ }
+    qint64 readLineData(char *, qint64) { return 0; /* eof */ }
+    qint64 writeData(const char *, qint64 len) { return len; }
+} devnull;
+
+QDebug nullDebug()
+{
+    return QDebug(&devnull);
+}
 
 #endif // DEBUGPRIVATE_H

@@ -30,6 +30,7 @@
 #include <vlc/vlc.h>
 
 #include "backend.h"
+#include "debug.h"
 #include "libvlc.h"
 
 QT_BEGIN_NAMESPACE
@@ -56,6 +57,7 @@ DeviceManager::DeviceManager(Backend *parent)
     : QObject(parent)
     , m_backend(parent)
 {
+    Q_ASSERT(parent);
     updateDeviceList();
 }
 
@@ -118,11 +120,14 @@ void DeviceManager::updateDeviceSublist(const QList<DeviceInfo> &newDevices, QLi
     int odc = deviceList.count();
 
     for (int i = 0 ; i < ndc ; ++i) {
-        if (deviceId(newDevices[i].name) == -1) {
+        int id = deviceId(newDevices[i].name);
+        if (id == -1) {
             // This is a new device, add it
             deviceList.append(newDevices[i]);
-            emit deviceAdded(deviceId(newDevices[i].name));
-            qDebug() << "added device " << newDevices[i].name.data() << "id" << deviceId(newDevices[i].name);
+            id = deviceId(newDevices[i].name);
+            emit deviceAdded(id);
+
+            debug() << "Added backend device" << newDevices[i].name.data() << "with id" << id;
         }
     }
 
@@ -179,7 +184,7 @@ void DeviceManager::updateDeviceList()
     // Get the list of available audio outputs
     libvlc_audio_output_t *p_ao_list = libvlc_audio_output_list_get(libvlc);
     if (!p_ao_list) {
-        qDebug() << "libvlc exception:" << libvlc_errmsg();
+        error() << "libVLC:" << LibVLC::errorMessage();
     }
     libvlc_audio_output_t *p_start = p_ao_list;
 

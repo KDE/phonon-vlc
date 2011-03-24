@@ -31,6 +31,7 @@
 
 #include "vlc/vlc.h"
 
+#include "backend.h"
 #include "debug.h"
 #include "libvlc.h"
 #include "seekstack.h"
@@ -45,8 +46,8 @@ namespace Phonon
 namespace VLC
 {
 
-MediaObject::MediaObject(QObject *p_parent)
-    : QObject(p_parent)
+MediaObject::MediaObject(QObject *parent)
+    : QObject(parent)
     , m_videoWidget(0)
     , m_nextSource(MediaSource(QUrl()))
     , m_streamReader(0)
@@ -74,7 +75,7 @@ MediaObject::MediaObject(QObject *p_parent)
     // Create an empty Media Player object
     m_player = libvlc_media_player_new(libvlc);
     if (!m_player) {
-        qDebug() << "libvlc exception:" << libvlc_errmsg();
+        error() << "libVLC:" << LibVLC::errorMessage();
     }
     m_eventManager = 0;
     connectToPlayerVLCEvents();
@@ -118,7 +119,7 @@ void MediaObject::setVideoWidget(BaseWidget *widget)
 
 void MediaObject::play()
 {
-    qDebug() << __FUNCTION__;
+    debug() << Q_FUNC_INFO;
 
     if (m_currentState == Phonon::PausedState) {
         resume();
@@ -236,7 +237,7 @@ qint64 MediaObject::currentTime() const
         time = -1;
         break;
     default:
-        qCritical() << __FUNCTION__ << "Error: unsupported Phonon::State:" << state();
+        error() << Q_FUNC_INFO << "unsupported Phonon::State:" << state();
     }
 
     return time;
@@ -259,7 +260,7 @@ MediaSource MediaObject::source() const
 
 void MediaObject::setSource(const MediaSource &source)
 {
-    qDebug() << __FUNCTION__;
+    debug() << Q_FUNC_INFO;
 
     // Reset previous streameraders
     if (m_streamReader) {
@@ -274,14 +275,14 @@ void MediaObject::setSource(const MediaSource &source)
 
     switch (source.type()) {
     case MediaSource::Invalid:
-        qCritical() << __FUNCTION__ << "Error: MediaSource Type is Invalid:" << source.type();
+        error() << Q_FUNC_INFO << "MediaSource Type is Invalid:" << source.type();
         break;
     case MediaSource::Empty:
-        qCritical() << __FUNCTION__ << "Error: MediaSource is empty.";
+        error() << Q_FUNC_INFO << "MediaSource is empty.";
         break;
     case MediaSource::LocalFile:
     case MediaSource::Url: {
-        qCritical() << __FUNCTION__ << "yeap, 'tis a local file or url" << source.url().scheme();
+        debug() << Q_FUNC_INFO << "yeap, 'tis a local file or url" << source.url().scheme();
         QByteArray mrl;
         const QUrl &url = source.url();
         if (url.scheme() == QLatin1String("")) {
@@ -297,11 +298,10 @@ void MediaObject::setSource(const MediaSource &source)
     case MediaSource::Disc:
         switch (source.discType()) {
         case Phonon::NoDisc:
-            qCritical() << __FUNCTION__
-                        << "Error: the MediaSource::Disc doesn't specify which one (Phonon::NoDisc)";
+            error() << Q_FUNC_INFO << "the MediaSource::Disc doesn't specify which one (Phonon::NoDisc)";
             return;
         case Phonon::Cd:
-            qDebug() << m_mediaSource.deviceName();
+            debug() << m_mediaSource.deviceName();
             loadMedia("cdda://" + m_mediaSource.deviceName());
             break;
         case Phonon::Dvd:
@@ -311,13 +311,13 @@ void MediaObject::setSource(const MediaSource &source)
             loadMedia(m_mediaSource.deviceName());
             break;
         default:
-            qCritical() << __FUNCTION__ << "Error: unsupported MediaSource::Disc:" << source.discType();
+            error() << Q_FUNC_INFO << "unsupported MediaSource::Disc:" << source.discType();
             break;
         }
         break;
     case MediaSource::CaptureDevice:
         if (source.deviceAccessList().isEmpty()) {
-            qCritical() << __FUNCTION__ << "No device access list for this capture device";
+            error() << Q_FUNC_INFO << "No device access list for this capture device";
             break;
         }
 
@@ -347,7 +347,7 @@ void MediaObject::setSource(const MediaSource &source)
 
             loadMedia("alsa://" + deviceName);
         } else {
-            qCritical() << __FUNCTION__ << "Error: unsupported MediaSource::CaptureDevice:" << driverName;
+            error() << Q_FUNC_INFO << "unsupported MediaSource::CaptureDevice:" << driverName;
             break;
         }
 
@@ -356,7 +356,7 @@ void MediaObject::setSource(const MediaSource &source)
         loadStream();
         break;
     default:
-        qCritical() << __FUNCTION__ << "Error: Unsupported MediaSource Type:" << source.type();
+        error() << Q_FUNC_INFO << "Unsupported MediaSource Type:" << source.type();
         break;
     }
 
@@ -422,8 +422,7 @@ void MediaObject::stateChangedInternal(Phonon::State newState)
         return;
     } else if (checkGaplessWaiting()) {
         // This is a no-op, warn that we are....
-        qDebug() << __FUNCTION__ << "no-op gapless item awaiting in queue - "
-                 << m_nextSource.type() ;
+        debug() << Q_FUNC_INFO << "no-op gapless item awaiting in queue - " << m_nextSource.type() ;
         return;
     }
 
@@ -518,7 +517,7 @@ void MediaObject::playInternal()
     // Create a media with the given MRL
     m_media = libvlc_media_new_location(libvlc, m_currentFile);
     if (!m_media) {
-        qDebug() << "libvlc exception:" << libvlc_errmsg();
+        error() << "libVLC:" << LibVLC::errorMessage();
     }
 
     if (m_streamReader) { // Set callbacks for stream reading using imem
@@ -562,7 +561,7 @@ void MediaObject::playInternal()
 
     // Play
     if (libvlc_media_player_play(m_player)) {
-        qDebug() << "libvlc exception:" << libvlc_errmsg();
+        error() << "libVLC:" << LibVLC::errorMessage();
     }
 
     if (m_seekpoint != 0) {  // Workaround that seeking needs to work before the file is being played...
@@ -614,7 +613,7 @@ void MediaObject::seekInternal(qint64 milliseconds)
         m_seekpoint = milliseconds;
     }
 
-    qDebug() << __FUNCTION__ << milliseconds;
+    debug() << Q_FUNC_INFO << milliseconds;
     libvlc_media_player_set_time(m_player, milliseconds);
 }
 
@@ -692,7 +691,7 @@ void MediaObject::eventCallback(const libvlc_event_t *event, void *data)
 
     MediaObject *const that = static_cast<MediaObject *>(data);
 
-//    qDebug() << (int)p_vlc_mediaObject << "event:" << libvlc_event_type_name(p_event->type);
+//    debug() << (int)p_vlc_mediaObject << "event:" << libvlc_event_type_name(p_event->type);
 
     // Media player events
     if (event->type == libvlc_MediaPlayerSeekableChanged) {
@@ -728,7 +727,7 @@ void MediaObject::eventCallback(const libvlc_event_t *event, void *data)
             }
 
             if (b_has_video) {
-                qDebug() << Q_FUNC_INFO << "hasVideo!";
+                debug() << Q_FUNC_INFO << "hasVideo!";
 
                 // Give info about audio tracks
                 that->refreshAudioChannels();
@@ -886,7 +885,7 @@ void MediaObject::updateDuration(qint64 newDuration)
 {
     // If its within 5ms of the current total time, don't bother....
     if (newDuration - 5 > m_totalTime || newDuration + 5 < m_totalTime) {
-        qDebug() << __FUNCTION__ << "Length changing from " << m_totalTime
+        debug() << Q_FUNC_INFO << "Length changing from " << m_totalTime
                  << " to " << newDuration;
         m_totalTime = newDuration;
         emit totalTimeChanged(m_totalTime);
@@ -916,7 +915,7 @@ void MediaObject::addOption(const QString &option)
 void MediaObject::addOption(libvlc_media_t *media, const QString &option)
 {
     Q_ASSERT(media);
-    qDebug() << Q_FUNC_INFO << option;
+    debug() << Q_FUNC_INFO << option;
     libvlc_media_add_option_flag(media, qPrintable(option), libvlc_media_option_trusted);
 }
 
@@ -931,7 +930,7 @@ void MediaObject::addOption(libvlc_media_t *media, const QString &option,
     Q_ASSERT(media);
     QString optionWithPtr = option;
     optionWithPtr.append(QString::number(static_cast<qint64>(functionPtr)));
-    qDebug() << Q_FUNC_INFO << optionWithPtr;
+    debug() << Q_FUNC_INFO << optionWithPtr;
     libvlc_media_add_option_flag(media, qPrintable(optionWithPtr), libvlc_media_option_trusted);
 }
 

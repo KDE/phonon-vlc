@@ -84,7 +84,7 @@ public:
      *
      * \return VLC initialization result
      */
-    static bool init(int debugLevl);
+    static bool init();
 
     /**
      * \returns the most recent error message of libvlc

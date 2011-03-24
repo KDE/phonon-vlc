@@ -42,13 +42,6 @@
 #define __PRETTY_FUNCTION__ __FILE__
 #endif
 
-// Debug prefix, override if needed
-#ifndef DEBUG_PREFIX
-#define AMAROK_PREFIX ""
-#else
-#define AMAROK_PREFIX "[" DEBUG_PREFIX "]"
-#endif
-
 /**
  * @namespace Debug
  * @short kdebug with indentation functionality and convenience macros
@@ -82,33 +75,28 @@ namespace Debug
 {
     extern QMutex mutex;
 
-    // from kdebug.h
     enum DebugLevel {
-        KDEBUG_INFO  = 0,
-        KDEBUG_WARN  = 1,
-        KDEBUG_ERROR = 2,
-        KDEBUG_FATAL = 3
+        DEBUG_INFO  = 0,
+        DEBUG_WARN  = 1,
+        DEBUG_ERROR = 2,
+        DEBUG_FATAL = 3,
+        DEBUG_NONE = 4
     };
 
-    QDebug dbgstream( DebugLevel level = KDEBUG_INFO );
+    QDebug dbgstream( DebugLevel level = DEBUG_INFO );
     bool debugEnabled();
     bool debugColorEnabled();
-    void setDebugEnabled( bool enable );
+    DebugLevel minimumDebugLevel();
     void setColoredDebug( bool enable );
+    void setMinimumDebugLevel( DebugLevel level );
     QString indent();
 
-    static inline QDebug dbgstreamwrapper( DebugLevel level ) {
-#ifdef DEBUG_PREFIX
-        return dbgstream( level ) << AMAROK_PREFIX;
-#else
-        return dbgstream( level );
-#endif
-    }
+    static inline QDebug dbgstreamwrapper( DebugLevel level ) { return dbgstream( level ); }
 
-    static inline QDebug debug()   { return dbgstreamwrapper( KDEBUG_INFO ); }
-    static inline QDebug warning() { return dbgstreamwrapper( KDEBUG_WARN ); }
-    static inline QDebug error()   { return dbgstreamwrapper( KDEBUG_ERROR ); }
-    static inline QDebug fatal()   { return dbgstreamwrapper( KDEBUG_FATAL ); }
+    static inline QDebug debug()   { return dbgstreamwrapper( DEBUG_INFO ); }
+    static inline QDebug warning() { return dbgstreamwrapper( DEBUG_WARN ); }
+    static inline QDebug error()   { return dbgstreamwrapper( DEBUG_ERROR ); }
+    static inline QDebug fatal()   { return dbgstreamwrapper( DEBUG_FATAL ); }
 
     void perfLog( const QString &message, const QString &func );
 }

@@ -27,6 +27,7 @@
 
 #include <iostream>
 #include <unistd.h>
+#include <kdebug.h>
 
 // Define Application wide prefix
 #ifndef APP_PREFIX
@@ -39,8 +40,8 @@ QMutex Debug::mutex( QMutex::Recursive );
 
 using namespace Debug;
 
-static bool s_debugEnabled = true;
 static bool s_debugColorsEnabled = true;
+static DebugLevel s_debugLevel = DEBUG_NONE;
 
 IndentPrivate::IndentPrivate(QObject* parent)
     : QObject(parent)
@@ -71,11 +72,11 @@ static QString toString( DebugLevel level )
 {
     switch( level )
     {
-        case KDEBUG_WARN:
+        case DEBUG_WARN:
             return "[WARNING]";
-        case KDEBUG_ERROR:
+        case DEBUG_ERROR:
             return "[ERROR__]";
-        case KDEBUG_FATAL:
+        case DEBUG_FATAL:
             return "[FATAL__]";
         default:
             return QString();
@@ -85,10 +86,10 @@ static QString toString( DebugLevel level )
 static int toColor( DebugLevel level )
 {
     switch( level ) {
-        case KDEBUG_WARN:
+        case DEBUG_WARN:
             return 3; // red
-        case KDEBUG_ERROR:
-        case KDEBUG_FATAL:
+        case DEBUG_ERROR:
+        case DEBUG_FATAL:
             return 1; // yellow
         default:
             return 0; // default: black
@@ -118,7 +119,7 @@ QString Debug::indent()
 
 bool Debug::debugEnabled()
 {
-    return s_debugEnabled;
+    return s_debugLevel < DEBUG_NONE;
 }
 
 bool Debug::debugColorEnabled()
@@ -126,9 +127,9 @@ bool Debug::debugColorEnabled()
     return s_debugColorsEnabled;
 }
 
-void Debug::setDebugEnabled( bool enable )
+DebugLevel Debug::minimumDebugLevel()
 {
-    s_debugEnabled = enable;
+    return s_debugLevel;
 }
 
 void Debug::setColoredDebug( bool enable )
@@ -136,20 +137,22 @@ void Debug::setColoredDebug( bool enable )
     s_debugColorsEnabled = enable;
 }
 
+void Debug::setMinimumDebugLevel(DebugLevel level)
+{
+    s_debugLevel = level;
+}
+
 QDebug Debug::dbgstream( DebugLevel level )
 {
-#ifdef __GNUC__
-#warning FIXME
-#endif
-//    if( !debugEnabled() )
-//        return kDebugDevNull();
+    if ( level < s_debugLevel )
+        return nullDebug();
 
     mutex.lock();
     const QString currentIndent = indent();
     mutex.unlock();
 
     QString text = QString("%1%2").arg( APP_PREFIX ).arg( currentIndent );
-    if ( level > KDEBUG_INFO )
+    if ( level > DEBUG_INFO )
         text.append( ' ' + reverseColorize( toString(level), toColor( level ) ) );
 
     return QDebug( QtDebugMsg ) << qPrintable( text );
@@ -218,7 +221,7 @@ Block::~Block()
             << qPrintable( colorize( QString( "END__:" ), m_color ) )
             << m_label
             << qPrintable( reverseColorize( QString( "[DELAY Took (quite long) %3s]")
-                                            .arg( QString::number(duration, 'g', 2) ), toColor( KDEBUG_WARN ) ) );
+                                            .arg( QString::number(duration, 'g', 2) ), toColor( DEBUG_WARN ) ) );
     }
 }
 

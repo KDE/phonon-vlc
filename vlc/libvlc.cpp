@@ -28,6 +28,8 @@
 
 #include <vlc/libvlc.h>
 
+#include "debug.h"
+
 LibVLC *LibVLC::self;
 
 LibVLC::LibVLC() :
@@ -42,7 +44,7 @@ LibVLC::~LibVLC()
     self = 0;
 }
 
-bool LibVLC::init(int debugLevel)
+bool LibVLC::init()
 {
     Q_ASSERT_X(!self, "LibVLC", "there should be only one LibVLC object");
     LibVLC::self = new LibVLC;
@@ -68,6 +70,7 @@ bool LibVLC::init(int debugLevel)
             args << QByteArray("--config=").append(QFile::encodeName(configFileName));
         }
 
+        int debugLevel = 3 - (int) Debug::minimumDebugLevel();
         if (debugLevel > 0) {
             args << QByteArray("--verbose=").append(QString::number(debugLevel));
             args << QByteArray("--extraintf=logger");
@@ -104,7 +107,7 @@ bool LibVLC::init(int debugLevel)
         // Create and initialize a libvlc instance (it should be done only once)
         self->m_vlcInstance = libvlc_new(sizeof(vlcArgs) / sizeof(*vlcArgs), vlcArgs);
         if (!self->m_vlcInstance) {
-            qCritical() << "libvlc exception:" << libvlc_errmsg();
+            fatal() << "libVLC:" << LibVLC::errorMessage();
             return false;
         }
         return true;
@@ -241,9 +244,9 @@ QString LibVLC::vlcPath()
         if (!m_vlcLibrary->resolve("libvlc_exception_init")) { //"libvlc_exception_init" not contained in 1.1+
             return path;
         } else {
-            qDebug("Cannot resolve the symbol or load VLC library");
+            debug() << "Cannot resolve the symbol or load VLC library";
         }
-        qWarning() << m_vlcLibrary->errorString();
+        warning() << m_vlcLibrary->errorString();
     }
 
     vlcUnload();
