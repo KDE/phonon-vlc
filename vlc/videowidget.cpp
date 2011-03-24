@@ -292,6 +292,13 @@ void VideoWidget::resizeEvent(QResizeEvent *event)
     debug() << "resizeEvent" << event->size();
 }
 
+void VideoWidget::showEvent(QShowEvent* event)
+{
+    QWidget::showEvent(event);
+
+    emit readyForPlayback();
+}
+
 void VideoWidget::setVideoSize(const QSize &size)
 {
     m_videoSize = size;
