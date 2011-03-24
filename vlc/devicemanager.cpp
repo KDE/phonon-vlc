@@ -157,7 +157,10 @@ void DeviceManager::updateDeviceList()
     int i;
 
     // Setup a list of available capture devices
-    // TODO
+    DeviceInfo screenDevice("Screen", "Virtual device for screen capture", false);
+    screenDevice.capabilities = DeviceInfo::VideoCapture;
+    screenDevice.accessList.append(QPair<QByteArray, QString>("screen", ""));
+    vcs.append(screenDevice);
 
     // See the device capabilities and sort them accordingly
     for (i = 0; i < devices.count(); ++ i) {

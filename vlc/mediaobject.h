@@ -453,6 +453,7 @@ private:
     QList<SinkNode *> m_sinks;
 
     bool m_hasVideo;
+    bool m_isScreen;
 
     bool m_seekable;
     qint64 m_seekpoint;

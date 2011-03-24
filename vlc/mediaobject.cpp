@@ -262,11 +262,14 @@ void MediaObject::setSource(const MediaSource &source)
 {
     debug() << Q_FUNC_INFO;
 
-    // Reset previous streameraders
+    // Reset previous streamereaders
     if (m_streamReader) {
         m_streamReader->unlock();
         m_streamReader = 0;
     }
+
+    // Reset previous isScreen flag
+    m_isScreen = false;
 
     m_mediaSource = source;
 
@@ -346,6 +349,11 @@ void MediaObject::setSource(const MediaSource &source)
             }
 
             loadMedia("alsa://" + deviceName);
+        } else if (driverName == "screen") {
+            loadMedia("screen://" + deviceName);
+
+            // Set the isScreen flag needed to add extra options in playInternal
+            m_isScreen = true;
         } else {
             error() << Q_FUNC_INFO << "unsupported MediaSource::CaptureDevice:" << driverName;
             break;
@@ -534,6 +542,11 @@ void MediaObject::playInternal()
         if (m_streamReader->streamSize() > 0) {
             QString(QString("imem-size=%1").arg(m_streamReader->streamSize()));
         }
+    }
+
+    if (m_isScreen) {
+        addOption(m_media, QString("screen-fps=24.0"));
+        addOption(m_media, QString("screen-caching=300"));
     }
 
     foreach (SinkNode * sink, m_sinks) {
