@@ -25,6 +25,7 @@
 #include <QtCore/QSettings>
 #include <QtCore/QString>
 #include <QtCore/QStringBuilder>
+#include <QtCore/QVarLengthArray>
 
 #include <vlc/libvlc.h>
 
@@ -99,18 +100,13 @@ bool LibVLC::init()
 #endif
 
         // Build const char* array
-        // MSVC does not support dynamic arrays, so we assume a fixed size
-        // of 64 as sufficient.
-        Q_ASSERT_X(         64 > args.size(), "libvlc init",
-                                               "maximum amount of arguments exceeded, "
-                                               "increase size of char**");
-        const char *vlcArgs[64];
+        QVarLengthArray<const char*, 64> vlcArgs(args.size());
         for (int i = 0; i < args.size(); ++i) {
             vlcArgs[i] = args.at(i).constData();
         }
 
         // Create and initialize a libvlc instance (it should be done only once)
-        self->m_vlcInstance = libvlc_new(args.size()-1, vlcArgs);
+        self->m_vlcInstance = libvlc_new(vlcArgs.size(), vlcArgs.constData());
         if (!self->m_vlcInstance) {
             fatal() << "libVLC:" << LibVLC::errorMessage();
             return false;
