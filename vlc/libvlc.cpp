@@ -99,13 +99,18 @@ bool LibVLC::init()
 #endif
 
         // Build const char* array
-        const char *vlcArgs[args.size()-1];
+        // MSVC does not support dynamic arrays, so we assume a fixed size
+        // of 64 as sufficient.
+        Q_ASSERT_X(         64 > args.size(), "libvlc init",
+                                               "maximum amount of arguments exceeded, "
+                                               "increase size of char**");
+        const char *vlcArgs[64];
         for (int i = 0; i < args.size(); ++i) {
             vlcArgs[i] = args.at(i).constData();
         }
 
         // Create and initialize a libvlc instance (it should be done only once)
-        self->m_vlcInstance = libvlc_new(sizeof(vlcArgs) / sizeof(*vlcArgs), vlcArgs);
+        self->m_vlcInstance = libvlc_new(args.size()-1, vlcArgs);
         if (!self->m_vlcInstance) {
             fatal() << "libVLC:" << LibVLC::errorMessage();
             return false;
