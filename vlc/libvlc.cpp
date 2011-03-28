@@ -208,7 +208,7 @@ QStringList LibVLC::findAllLibVlcPaths()
     QSettings settings(QSettings::SystemScope, "VideoLAN", "VLC");
     QString vlcVersion = settings.value("Version").toString();
     QString vlcInstallDir = settings.value("InstallDir").toString();
-    if (vlcVersion.startsWith("1.1") && !vlcInstallDir.isEmpty()) {
+    if (vlcVersion.startsWith(QLatin1String("1.1")) && !vlcInstallDir.isEmpty()) {
         paths << vlcInstallDir % QLatin1Char('\\') % QLatin1Literal("libvlc.dll");
         return paths;
     } else {

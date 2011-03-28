@@ -317,7 +317,7 @@ void MediaObject::setSource(const MediaSource &source)
             mrl = url.toEncoded();
         }
         loadMedia(mrl);
-    } // Keep these braces and the follwing break as-is, some compilers fall over the var decl above.
+    } // Keep these braces and the following break as-is, some compilers fall over the var decl above.
         break;
     case MediaSource::Disc:
         switch (source.discType()) {
@@ -359,13 +359,13 @@ void MediaObject::setSource(const MediaSource &source)
              *
              * TODO investigate what happens
              */
-            if (deviceName.startsWith("default")) {
+            if (deviceName.startsWith(QLatin1String("default"))) {
                 deviceName.replace(0, 7, "hw");
             }
-            if (deviceName.startsWith("plughw")) {
+            if (deviceName.startsWith(QLatin1String("plughw"))) {
                 deviceName.replace(0, 6, "hw");
             }
-            if (deviceName.startsWith("x-phonon")) {
+            if (deviceName.startsWith(QLatin1String("x-phonon"))) {
                 deviceName.replace(0, 8, "hw");
             }
 

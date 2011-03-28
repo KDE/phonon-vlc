@@ -181,7 +181,7 @@ public:
      * This function is public so that the compiler does not fall over.
      *
      * \param data pointer to 'this'
-     * \param id TODO: dont know that off the top of my head
+     * \param id TODO: don't know that off the top of my head
      * \param pixels the pixel buffer of the current frame
      *
      * \see lock()
@@ -281,7 +281,7 @@ private:
     QImage *m_img;
 
     /**
-     * Pending video adjusts the appliction tried to set before we actually
+     * Pending video adjusts the application tried to set before we actually
      * had a video to set them on.
      */
     QHash<QByteArray, qreal> m_pendingAdjusts;

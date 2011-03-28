@@ -53,7 +53,8 @@ public:
     /**
      * Constructs a device info object and sets it's device identifiers.
      */
-    DeviceInfo(const QByteArray& name, const QString& description = "", bool isAdvanced = true);
+    explicit DeviceInfo(const QByteArray &name, const QString &description = "",
+                        bool isAdvanced = true);
 
     int id;
     QByteArray name;

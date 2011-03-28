@@ -109,7 +109,7 @@ public:
      * This function is public so that the compiler does not fall over.
      *
      * @param data pointer to 'this'
-     * @param id TODO: dont know that off the top of my head
+     * @param id TODO: don't know that off the top of my head
      * @param pixels the pixel buffer of the current frame
      *
      * @see lock()

@@ -21,8 +21,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA *
  *****************************************************************************/
 
-#ifndef PHONON_VLC_WIDGETNOPAINTEVENT_H
-#define PHONON_VLC_WIDGETNOPAINTEVENT_H
+#ifndef PHONON_VLC_OVERLAYWIDGET_H
+#define PHONON_VLC_OVERLAYWIDGET_H
 
 #include <QtGui/QWidget>
 
@@ -72,4 +72,4 @@ protected:
 }
 } // Namespace Phonon::VLC
 
-#endif // PHONON_VLC_WIDGETNOPAINTEVENT_H
+#endif // PHONON_VLC_OVERLAYWIDGET_H

@@ -2,7 +2,7 @@
 #import <Cocoa/Cocoa.h>
 #import "nsvideoview.h"
 
-#include <QtDebug>
+#include <QtCore/QtDebug>
 
 VlcMacWidget::VlcMacWidget(QWidget *parent) : QMacCocoaViewContainer(0, parent)
 {

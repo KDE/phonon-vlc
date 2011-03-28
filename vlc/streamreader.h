@@ -18,8 +18,8 @@
     License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PHONON_IODEVICEREADER_H
-#define PHONON_IODEVICEREADER_H
+#ifndef PHONON_STREAMREADER_H
+#define PHONON_STREAMREADER_H
 
 #include <phonon/mediasource.h>
 #include <phonon/streaminterface.h>
@@ -28,9 +28,6 @@
 
 #include <QtCore/QMutex>
 #include <QtCore/QWaitCondition>
-
-
-QT_BEGIN_NAMESPACE
 
 #ifndef QT_NO_PHONON_ABSTRACTMEDIASTREAM
 
@@ -111,6 +108,4 @@ protected:
 
 #endif //QT_NO_PHONON_ABSTRACTMEDIASTREAM
 
-QT_END_NAMESPACE
-
-#endif
+#endif // PHONON_STREAMREADER_H
