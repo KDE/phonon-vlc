@@ -26,7 +26,7 @@
 
 #include <QtCore/QFile>
 #include <QtCore/QMetaType>
-#include <QtCore/QTimerEvent>
+#include <QtCore/QTimer>
 #include <QtCore/QUrl>
 
 #include "vlc/vlc.h"
@@ -94,8 +94,6 @@ MediaObject::MediaObject(QObject *parent)
     m_seekable = false;
     m_seekpoint = 0;
 
-    m_isVideoWidgetReady = false;
-
     connect(this, SIGNAL(metaDataNeedsRefresh()), this, SLOT(updateMetaData()));
     connect(this, SIGNAL(durationChanged(qint64)), this, SLOT(updateDuration(qint64)));
 }
@@ -116,28 +114,7 @@ MediaObject::~MediaObject()
 
 void MediaObject::setVideoWidget(BaseWidget *widget)
 {
-    // Get rid of any old video widget
-    if (m_videoWidget) {
-        disconnect(m_videoWidget, SIGNAL(readyForPlayback()));
-        if (m_vwReadyTimer.isActive())
-            m_vwReadyTimer.stop();
-    }
-
-    debug() << Q_FUNC_INFO << widget;
-    m_videoWidget = widget;
-
-    if (widget) {
-        m_isVideoWidgetReady = widget->isVisible();
-        if (!m_isVideoWidgetReady) {
-            // Widget not visible yet, must call show and wait for the window system to actually show it
-            debug() << Q_FUNC_INFO << "video widget not visible";
-            widget->show();
-            connect(widget, SIGNAL(readyForPlayback()), this, SLOT(videoWidgetReady()));
-        } else {
-            // Don't forget to configure VLC to use this widget
-            videoWidgetReady();
-        }
-    }
+    this->m_videoWidget = widget;
 }
 
 void MediaObject::play()
@@ -152,6 +129,8 @@ void MediaObject::play()
         // Play the file
         playInternal();
     }
+
+    emit playbackCommenced();
 }
 
 void MediaObject::seek(qint64 milliseconds)
@@ -517,15 +496,11 @@ void MediaObject::unloadMedia()
     }
 }
 
-void MediaObject::videoWidgetReady()
+void MediaObject::setVLCVideoWidget()
 {
-    // Nothing to do if the video widget dissapeared from this media object's connections
-    if (!m_videoWidget) {
-        warning() << Q_FUNC_INFO << "No video widget to pass to vlc";
+    // Nothing to do if there is no video widget
+    if (!m_videoWidget)
         return;
-    }
-
-    m_isVideoWidgetReady = true;
 
     // Get our media player to use our window
 #if defined(Q_OS_MAC)
@@ -537,33 +512,9 @@ void MediaObject::videoWidgetReady()
 #endif
 }
 
-void MediaObject::timerEvent(QTimerEvent* event)
-{
-    if (event->timerId() == m_vwReadyTimer.timerId()) {
-        // If the video widget dissapears, stop the timer
-        if (!m_videoWidget)
-            m_vwReadyTimer.stop();
-
-        // Finally, the video widget is ready, can call playInternal() again
-        if (m_isVideoWidgetReady) {
-            m_vwReadyTimer.stop();
-
-            playInternal();
-        }
-    }
-}
-
 void MediaObject::playInternal()
 {
     DEBUG_BLOCK;
-
-    // If a video widget is involved, must wait until it is shown
-    if (m_videoWidget && !m_isVideoWidgetReady) {
-        m_vwReadyTimer.start(100, this);
-        warning() << "Cannot play yet, video widget not shown, will try later";
-        return;
-    }
-
     if (m_media) {  // We are changing media, discard the old one
         libvlc_media_release(m_media);
         m_media = 0;
@@ -618,6 +569,9 @@ void MediaObject::playInternal()
     // This will reset the GUI
     resetMediaController();
 
+    // Set up the widget id for libVLC if there is a video widget available
+    setVLCVideoWidget();
+
     // Play
     if (libvlc_media_player_play(m_player)) {
         error() << "libVLC:" << LibVLC::errorMessage();
@@ -629,7 +583,6 @@ void MediaObject::playInternal()
     }
 
     emit stateChanged(Phonon::PlayingState);
-    emit playbackCommenced();
 }
 
 void MediaObject::pause()
@@ -647,7 +600,6 @@ void MediaObject::pause()
             // Resume
             libvlc_media_player_set_pause(m_player, 0);
             emit stateChanged(Phonon::PlayingState);
-            emit playbackCommenced();
         }
     } else {
         // Pause
@@ -771,7 +723,6 @@ void MediaObject::eventCallback(const libvlc_event_t *event, void *data)
 #endif
         if (!that->m_hasVideo && i_first_time_media_player_time_changed < 15) {
             debug() << "Looking for Video";
-
             // Update metadata
             that->updateMetaData();
 

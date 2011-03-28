@@ -204,9 +204,6 @@ public:
 
     void setVisible(bool visible);
 
-signals:
-    void readyForPlayback();
-
 public slots:
     void setNextFrame(const QByteArray &array, int width, int height);
 
@@ -228,9 +225,6 @@ protected:
 
     /* Overloading QWidget */
     virtual void resizeEvent(QResizeEvent *event);
-
-    /* Overloading QWidget */
-    virtual void showEvent(QShowEvent *event);
 
 private:
     /**

@@ -25,11 +25,11 @@
 #define PHONON_VLC_MEDIAOBJECT_H
 
 #include <QtCore/QObject>
-#include <QtCore/QBasicTimer>
-
 #include <phonon/mediaobjectinterface.h>
 #include <phonon/addoninterface.h>
 #include "mediacontroller.h"
+
+#include <QtGui/QWidget>
 
 #include "streamreader.h"
 
@@ -273,9 +273,6 @@ signals:
 
     void tickInternal(qint64 time);
 
-protected:
-    void timerEvent(QTimerEvent *event);
-
 private slots:
     /**
      * Retrieve meta data of a file (i.e ARTIST, TITLE, ALBUM, etc...).
@@ -308,12 +305,6 @@ private slots:
      * \see setNextSource()
      */
     void moveToNextSource();
-
-    /**
-     * Configures the VLC Media Player to draw the video on the desired widget. The actual function
-     * call depends on the platform.
-     */
-    void videoWidgetReady();
 
 private:
 
@@ -415,6 +406,14 @@ private:
      */
     void loadStream();
 
+    /**
+     * Configures the VLC Media Player to draw the video on the desired widget. The actual function
+     * call depends on the platform.
+     *
+     * \see setVideoWidgetId()
+     */
+    void setVLCVideoWidget();
+
     void resume();
 
     /**
@@ -455,9 +454,6 @@ private:
 
     bool m_hasVideo;
     bool m_isScreen;
-    bool m_isVideoWidgetReady;
-
-    QBasicTimer m_vwReadyTimer;
 
     bool m_seekable;
     qint64 m_seekpoint;
