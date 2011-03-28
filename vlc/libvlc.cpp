@@ -94,6 +94,10 @@ bool LibVLC::init()
         args << "--no-stats";
         args << "--no-video-title-show";
         args << "--album-art=0";
+#ifdef __GNUC__
+#warning TODO: no-xlib is on
+#endif
+        args << "--no-xlib";
 
 #ifndef Q_OS_MAC
         args << "--no-one-instance";
