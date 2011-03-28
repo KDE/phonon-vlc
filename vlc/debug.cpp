@@ -25,10 +25,6 @@
 #include <QtCore/QObject>
 #include <QtGui/QApplication>
 
-#include <iostream>
-#include <unistd.h>
-#include <kdebug.h>
-
 // Define Application wide prefix
 #ifndef APP_PREFIX
 #define APP_PREFIX QLatin1String( "PHONON-VLC" )
