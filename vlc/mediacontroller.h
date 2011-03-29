@@ -129,11 +129,11 @@ protected:
      */
     void resetMembers();
 
-    Phonon::AudioChannelDescription current_audio_channel;
-    QList<Phonon::AudioChannelDescription> available_audio_channels;
+    Phonon::AudioChannelDescription m_currentAudioChannel;
+    QList<Phonon::AudioChannelDescription> m_availableAudioChannels;
 
-    Phonon::SubtitleDescription current_subtitle;
-    QList<Phonon::SubtitleDescription> available_subtitles;
+    Phonon::SubtitleDescription m_currentSubtitle;
+    QList<Phonon::SubtitleDescription> m_availableSubtitles;
 
 //    Phonon::ChapterDescription current_chapter;
 //    QList<Phonon::ChapterDescription> available_chapters;

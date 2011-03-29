@@ -190,10 +190,6 @@ QVariant MediaController::interfaceCall(Interface iface, int i_command, const QL
     return QVariant();
 }
 
-
-
-
-
 void MediaController::resetMediaController()
 {
     resetMembers();
@@ -205,11 +201,11 @@ void MediaController::resetMediaController()
 
 void MediaController::resetMembers()
 {
-    current_audio_channel = Phonon::AudioChannelDescription();
-    available_audio_channels.clear();
+    m_currentAudioChannel = Phonon::AudioChannelDescription();
+    m_availableAudioChannels.clear();
 
-    current_subtitle = Phonon::SubtitleDescription();
-    available_subtitles.clear();
+    m_currentSubtitle = Phonon::SubtitleDescription();
+    m_availableSubtitles.clear();
 
     m_currentAngle = 0;
     m_availableAngles = 0;
@@ -234,7 +230,7 @@ void MediaController::audioChannelAdded(int id, const QString &lang)
     properties.insert("name", lang);
     properties.insert("description", "");
 
-    available_audio_channels << Phonon::AudioChannelDescription(id, properties);
+    m_availableAudioChannels << Phonon::AudioChannelDescription(id, properties);
     emit availableAudioChannelsChanged();
 }
 
@@ -246,7 +242,7 @@ void MediaController::subtitleAdded(int id, const QString &lang, const QString &
     properties.insert("description", "");
     properties.insert("type", type);
 
-    available_subtitles << Phonon::SubtitleDescription(id, properties);
+    m_availableSubtitles << Phonon::SubtitleDescription(id, properties);
     emit availableSubtitlesChanged();
 }
 
@@ -278,7 +274,7 @@ void MediaController::chapterAdded(int titleId, const QString &name)
 
 void MediaController::setCurrentAudioChannel(const Phonon::AudioChannelDescription &audioChannel)
 {
-    current_audio_channel = audioChannel;
+    m_currentAudioChannel = audioChannel;
     if (libvlc_audio_set_track(m_player, audioChannel.index())) {
         error() << "libVLC:" << LibVLC::errorMessage();
     }
@@ -286,18 +282,18 @@ void MediaController::setCurrentAudioChannel(const Phonon::AudioChannelDescripti
 
 QList<Phonon::AudioChannelDescription> MediaController::availableAudioChannels() const
 {
-    return available_audio_channels;
+    return m_availableAudioChannels;
 }
 
 Phonon::AudioChannelDescription MediaController::currentAudioChannel() const
 {
-    return current_audio_channel;
+    return m_currentAudioChannel;
 }
 
 void MediaController::refreshAudioChannels()
 {
-    current_audio_channel = Phonon::AudioChannelDescription();
-    available_audio_channels.clear();
+    m_currentAudioChannel = Phonon::AudioChannelDescription();
+    m_availableAudioChannels.clear();
 
     libvlc_track_description_t *p_info = libvlc_audio_get_track_description(m_player);
     while (p_info) {
@@ -311,12 +307,12 @@ void MediaController::refreshAudioChannels()
 
 void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &subtitle)
 {
-    current_subtitle = subtitle;
+    m_currentSubtitle = subtitle;
 //    int id = current_subtitle.index();
-    QString type = current_subtitle.property("type").toString();
+    QString type = m_currentSubtitle.property("type").toString();
 
     if (type == "file") {
-        QString filename = current_subtitle.property("name").toString();
+        QString filename = m_currentSubtitle.property("name").toString();
         if (!filename.isEmpty()) {
             if (!libvlc_video_set_subtitle_file(m_player,
                                                 filename.toAscii().data())) {
@@ -324,7 +320,7 @@ void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &subt
             }
 
             // There is no subtitle event inside libvlc so let's send our own event...
-            available_subtitles << current_subtitle;
+            m_availableSubtitles << m_currentSubtitle;
             emit availableSubtitlesChanged();
         }
     } else {
@@ -336,21 +332,20 @@ void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &subt
 
 QList<Phonon::SubtitleDescription> MediaController::availableSubtitles() const
 {
-    return available_subtitles;
+    return m_availableSubtitles;
 }
 
 Phonon::SubtitleDescription MediaController::currentSubtitle() const
 {
-    return current_subtitle;
+    return m_currentSubtitle;
 }
 
 void MediaController::refreshSubtitles()
 {
-    current_subtitle = Phonon::SubtitleDescription();
-    available_subtitles.clear();
+    m_currentSubtitle = Phonon::SubtitleDescription();
+    m_availableSubtitles.clear();
 
-    libvlc_track_description_t *p_info = libvlc_video_get_spu_description(
-            m_player);
+    libvlc_track_description_t *p_info = libvlc_video_get_spu_description(m_player);
     while (p_info) {
         subtitleAdded(p_info->i_id, p_info->psz_name, "");
         p_info = p_info->p_next;
