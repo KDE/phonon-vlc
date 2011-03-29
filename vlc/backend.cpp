@@ -293,8 +293,6 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const
         }
     }
     break;
-    default:
-        break;
     }
 
     return list;
@@ -354,8 +352,6 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
         }
     }
     break;
-    default:
-        break;
     }
 
     return ret;
