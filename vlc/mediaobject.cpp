@@ -540,7 +540,7 @@ void MediaObject::playInternal()
         // if stream has known size, we may pass it
         // imem module will use it and pass it to demux
         if (m_streamReader->streamSize() > 0) {
-            QString(QString("imem-size=%1").arg(m_streamReader->streamSize()));
+            addOption(QString("imem-size=%1").arg(m_streamReader->streamSize()));
         }
     }
 
