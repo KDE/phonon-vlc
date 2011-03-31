@@ -145,9 +145,9 @@ bool StreamReader::read(quint64 pos, int *length, char *buffer)
         m_waitingForData.wait(&m_mutex);
 
         if (oldSize == currentBufferSize()) {
-            if (m_eos) {
+            if (m_eos && m_buffer.isEmpty()) {
                 return false;
-            }
+	    }
             // We didn't get any more data
             *length = static_cast<int>(oldSize);
             // If we have some data to return, why tell to reader that we failed?
