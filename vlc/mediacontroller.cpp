@@ -370,6 +370,7 @@ void MediaController::refreshSubtitles()
         p_info = p_info->p_next;
     }
     libvlc_track_description_release(p_info);
+    emit availableSubtitlesChanged();
 }
 
 // Title
