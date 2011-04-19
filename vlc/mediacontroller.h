@@ -208,7 +208,8 @@ public:
     {
         Q_ASSERT(mediaController);
         Q_ASSERT(m_localIds.find(mediaController) != m_localIds.end());
-        m_localIds[mediaController] = LocalIdMap();
+        m_localIds[mediaController].clear();
+        m_localIds.remove(mediaController);
     }
 
     /**
