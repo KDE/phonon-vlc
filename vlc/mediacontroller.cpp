@@ -299,32 +299,24 @@ void MediaController::refreshAudioChannels()
 
 void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &subtitle)
 {
-    DEBUG_BLOCK;
     m_currentSubtitle = subtitle;
-//    int id = current_subtitle.index();
     QString type = m_currentSubtitle.property("type").toString();
 
 #warning file stuff is untested and probably causes problems for globalsubtitles
     if (type == "file") {
-        debug() << "file";
         QString filename = m_currentSubtitle.property("name").toString();
         if (!filename.isEmpty()) {
-            if (!libvlc_video_set_subtitle_file(m_player,
-                                                filename.toAscii().data())) {
+            if (!libvlc_video_set_subtitle_file(m_player, filename.toAscii().data()))
                 error() << "libVLC:" << LibVLC::errorMessage();
-            }
 
             // There is no subtitle event inside libvlc so let's send our own event...
             GlobalSubtitles::instance()->add(this, m_currentSubtitle);
             emit availableSubtitlesChanged();
         }
     } else {
-        debug() << "no file";
         int localIndex = GlobalSubtitles::instance()->localIdFor(this, subtitle.index());
-        debug() << localIndex;
-        if (libvlc_video_set_spu(m_player, localIndex)) {
+        if (libvlc_video_set_spu(m_player, localIndex))
             error() << "libVLC:" << LibVLC::errorMessage();
-        }
     }
 }
 
@@ -351,16 +343,25 @@ void MediaController::refreshSubtitles()
 #ifdef __GNUC__
 #warning In the name of Kent Beck! libvlc is the broken...
 #endif
-        int id = -1;
-        if (p_info->i_id == -1)
+        int id = -1; // Our fixed ID, some versions of libvlc report bogus IDs.
+        const int vlcId = p_info->i_id;
+
+        // Fix broken VLC - set_spu only accepts uint.
+        // -1 is always 'Disable' subtitles, which really should be 0.
+        if (vlcId == -1)
             id = 0;
 
-        if (p_info->i_id > 0 && !idSet) {
+        // This will be true for the very first real subtitle (that is excluding 'Disable').
+        if (vlcId > 0 && !idSet) {
             idSet = true;
-            idOffset = p_info->i_id - 1;
-            debug() << idOffset;
+            // If the ID is *not* 1 we must assume that libvlc has a broken numbering
+            // scheme and calculate an ID offset accordingly.
+            if (vlcId != 1)
+                idOffset = p_info->i_id - 1;
         }
 
+        // The ID is always -1 except for the very first subtitle (that is 'Disable').
+        // Calculate a fixed ID in case we set an offset (see above).
         if (id == -1)
             id = p_info->i_id - idOffset;
 
