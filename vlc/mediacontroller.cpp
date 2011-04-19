@@ -26,15 +26,13 @@
 #include <vlc/vlc.h>
 
 #include "debug.h"
+#include "globaldescriptioncontainer.h"
 #include "libvlc.h"
 
 namespace Phonon
 {
 namespace VLC
 {
-
-template <typename D>
-GlobalDescriptionContainer<D>* GlobalDescriptionContainer<D>::self = 0;
 
 MediaController::MediaController()
     : m_player(0)
