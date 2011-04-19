@@ -293,6 +293,10 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const
         }
     }
     break;
+    case Phonon::SubtitleType: {
+        list << GlobalSubtitles::instance()->globalIndexes();
+    }
+    break;
     }
 
     return list;
@@ -350,6 +354,13 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
         } else {
             Q_ASSERT(1); // Since we use list position as ID, this should not happen
         }
+    }
+    break;
+    case Phonon::SubtitleType: {
+        const SubtitleDescription description = GlobalSubtitles::instance()->fromIndex(index);
+        ret.insert("name", description.name());
+        ret.insert("description", description.description());
+        ret.insert("type", description.property("type"));
     }
     break;
     }
