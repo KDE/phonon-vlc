@@ -72,6 +72,12 @@ public:
 
     // ----------- MediaController Specific ----------- //
 
+    /**
+     * Registers a new MediaController with the container.
+     * This essentially creates a new empty ID map.
+     *
+     * \param mediaController The MediaController
+     */
     void register_(MediaController *mediaController)
     {
         Q_ASSERT(mediaController);
@@ -79,8 +85,16 @@ public:
         m_localIds[mediaController] = LocalIdMap();
     }
 
+    /**
+     * Unregisters a MediaController from the container.
+     * This essentially clears the ID map and removes all traces of the
+     * MediaController.
+     *
+     * \param mediaController The MediaController
+     */
     void unregister_(MediaController *mediaController)
     {
+        // TODO: remove all descriptions that are *only* associated with this MC
         Q_ASSERT(mediaController);
         Q_ASSERT(m_localIds.find(mediaController) != m_localIds.end());
         m_localIds[mediaController].clear();
@@ -88,7 +102,9 @@ public:
     }
 
     /**
-     * Clear the internal mapping of global to local id
+     * Clear the internal mapping of global to local id for a given MediaController.
+     *
+     * \param mediaController The MediaController
      */
     void clearListFor(MediaController *mediaController)
     {
@@ -97,6 +113,19 @@ public:
         m_localIds[mediaController].clear();
     }
 
+    /**
+     * Adds a new description object for a specific MediaController.
+     * A description object *must* have a global unique id, which is ensured
+     * by using this function, which will either reuse an existing equal
+     * ObjectDescription or use the next free unique ID.
+     * Using the provided index the unique ID is then mapped to the one of the
+     * specific MediaController.
+     *
+     * \param mediaController The MediaController
+     * \param index local ID (i.e. within the MediaController)
+     * \param name Name of the description
+     * \param type Type of the description (e.g. file)
+     */
     void add(MediaController *mediaController,
              local_id_t index, const QString &name, const QString &type)
     {
@@ -141,6 +170,14 @@ public:
         m_localIds[mediaController].insert(id, index);
     }
 
+    /**
+     * Overload function.
+     * The index of the provided descriptor *must* be unique within the
+     * context of the container.
+     *
+     * \param mediaController The MediaController
+     * \param descriptor the DescriptionObject with unique index
+     */
     void add(MediaController *mediaController,
              D descriptor)
     {
@@ -152,6 +189,15 @@ public:
         m_localIds[mediaController].insert(descriptor.index(), descriptor.index());
     }
 
+    /**list of ObjectDescriptions for a given MediaController, the
+     * descriptions are limied by the scope of the type (obviously), so you only
+     * get subtitle descriptions from a subtitle container.
+     * \param mediaController The MediaController
+     *
+     * \returns the list of ObjectDescriptions for a given MediaController, the
+     * descriptions are limied by the scope of the type (obviously), so you only
+     * get subtitle descriptions from a subtitle container.
+     */
     QList<D> listFor(const MediaController *mediaController) const
     {
         Q_ASSERT(mediaController);
@@ -167,6 +213,12 @@ public:
         return list;
     }
 
+    /**
+     * \param mediaController The MediaController
+     * \param key the global ID (i.e. index of an ObjectDescription)
+     *
+     * \returns the local ID associated with the description object
+     */
     int localIdFor(MediaController * mediaController, global_id_t key) const
     {
         Q_ASSERT(mediaController);
@@ -180,6 +232,9 @@ public:
 protected:
     GlobalDescriptionContainer() : m_peak(0) {}
 
+    /**
+     * \returns next free unique index to be used as global ID for an ObjectDescription
+     */
     global_id_t nextFreeIndex()
     {
         return ++m_peak;
