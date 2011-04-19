@@ -120,9 +120,10 @@ Backend::Backend(QObject *parent, const QVariantList &)
 
 Backend::~Backend()
 {
-    if (LibVLC::self) {
+    if (LibVLC::self)
         delete LibVLC::self;
-    }
+    if (GlobalSubtitles::self)
+        delete GlobalSubtitles::self;
 #ifdef PHONON_PULSESUPPORT
     PulseSupport::shutdown();
 #endif
