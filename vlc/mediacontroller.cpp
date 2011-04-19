@@ -33,14 +33,19 @@ namespace Phonon
 namespace VLC
 {
 
+template <typename D>
+GlobalDescriptionContainer<D>* GlobalDescriptionContainer<D>::self = 0;
+
 MediaController::MediaController()
     : m_player(0)
 {
+    GlobalSubtitles::instance()->register_(this);
     resetMembers();
 }
 
 MediaController::~MediaController()
 {
+    GlobalSubtitles::instance()->unregister_(this);
 }
 
 bool MediaController::hasInterface(Interface iface) const
@@ -73,6 +78,7 @@ bool MediaController::hasInterface(Interface iface) const
 
 QVariant MediaController::interfaceCall(Interface iface, int i_command, const QList<QVariant> & arguments)
 {
+    DEBUG_BLOCK;
     switch (iface) {
     case AddonInterface::ChapterInterface:
         switch (static_cast<AddonInterface::ChapterCommand>(i_command)) {
@@ -205,7 +211,7 @@ void MediaController::resetMembers()
     m_availableAudioChannels.clear();
 
     m_currentSubtitle = Phonon::SubtitleDescription();
-    m_availableSubtitles.clear();
+    GlobalSubtitles::instance()->clearListFor(this);
 
     m_currentAngle = 0;
     m_availableAngles = 0;
@@ -232,18 +238,6 @@ void MediaController::audioChannelAdded(int id, const QString &lang)
 
     m_availableAudioChannels << Phonon::AudioChannelDescription(id, properties);
     emit availableAudioChannelsChanged();
-}
-
-// Add subtitle
-void MediaController::subtitleAdded(int id, const QString &lang, const QString &type)
-{
-    QHash<QByteArray, QVariant> properties;
-    properties.insert("name", lang);
-    properties.insert("description", "");
-    properties.insert("type", type);
-
-    m_availableSubtitles << Phonon::SubtitleDescription(id, properties);
-    emit availableSubtitlesChanged();
 }
 
 // Add title
@@ -307,11 +301,14 @@ void MediaController::refreshAudioChannels()
 
 void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &subtitle)
 {
+    DEBUG_BLOCK;
     m_currentSubtitle = subtitle;
 //    int id = current_subtitle.index();
     QString type = m_currentSubtitle.property("type").toString();
 
+#warning file stuff is untested and probably causes problems for globalsubtitles
     if (type == "file") {
+        debug() << "file";
         QString filename = m_currentSubtitle.property("name").toString();
         if (!filename.isEmpty()) {
             if (!libvlc_video_set_subtitle_file(m_player,
@@ -320,11 +317,14 @@ void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &subt
             }
 
             // There is no subtitle event inside libvlc so let's send our own event...
-            m_availableSubtitles << m_currentSubtitle;
+            GlobalSubtitles::instance()->add(this, m_currentSubtitle);
             emit availableSubtitlesChanged();
         }
     } else {
-        if (libvlc_video_set_spu(m_player, subtitle.index())) {
+        debug() << "no file";
+        int localIndex = GlobalSubtitles::instance()->localIdFor(this, subtitle.index());
+        debug() << localIndex;
+        if (libvlc_video_set_spu(m_player, localIndex)) {
             error() << "libVLC:" << LibVLC::errorMessage();
         }
     }
@@ -332,7 +332,7 @@ void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &subt
 
 QList<Phonon::SubtitleDescription> MediaController::availableSubtitles() const
 {
-    return m_availableSubtitles;
+    return GlobalSubtitles::instance()->listFor(this);
 }
 
 Phonon::SubtitleDescription MediaController::currentSubtitle() const
@@ -342,12 +342,31 @@ Phonon::SubtitleDescription MediaController::currentSubtitle() const
 
 void MediaController::refreshSubtitles()
 {
+    DEBUG_BLOCK;
     m_currentSubtitle = Phonon::SubtitleDescription();
-    m_availableSubtitles.clear();
+    GlobalSubtitles::instance()->clearListFor(this);
 
+    int idOffset = 0;
+    bool idSet = false;
     libvlc_track_description_t *p_info = libvlc_video_get_spu_description(m_player);
     while (p_info) {
-        subtitleAdded(p_info->i_id, p_info->psz_name, "");
+#ifdef __GNUC__
+#warning In the name of Kent Beck! libvlc is the broken...
+#endif
+        int id = -1;
+        if (p_info->i_id == -1)
+            id = 0;
+
+        if (p_info->i_id > 0 && !idSet) {
+            idSet = true;
+            idOffset = p_info->i_id - 1;
+            debug() << idOffset;
+        }
+
+        if (id == -1)
+            id = p_info->i_id - idOffset;
+
+        GlobalSubtitles::instance()->add(this, id, p_info->psz_name, "");
         p_info = p_info->p_next;
     }
     libvlc_track_description_release(p_info);
@@ -409,7 +428,7 @@ int MediaController::currentChapter() const
 }
 
 // We need to rebuild available chapters when title is changed
-void MediaController::refreshChapters(int i_title)
+void MediaController::refreshChapters(int title)
 {
 //    m_currentChapter = Phonon::ChapterDescription();
 //    m_availableChapters.clear();
@@ -417,8 +436,7 @@ void MediaController::refreshChapters(int i_title)
     m_availableChapters = 0;
 
     // Get the description of available chapters for specific title
-    libvlc_track_description_t *p_info = libvlc_video_get_chapter_description(
-            m_player, i_title);
+    libvlc_track_description_t *p_info = libvlc_video_get_chapter_description(m_player, title);
     while (p_info) {
         chapterAdded(p_info->i_id, p_info->psz_name);
         p_info = p_info->p_next;
