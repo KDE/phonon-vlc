@@ -121,7 +121,9 @@ public:
     void clearListFor(MediaController *mediaController)
     {
         Q_ASSERT(mediaController);
-        Q_ASSERT(m_localIds.find(mediaController) != m_localIds.end());
+        Q_ASSERT_X(m_localIds.find(mediaController) != m_localIds.end(),
+                   "clearing list",
+                   "the MediaController is not registered!");
         m_localIds[mediaController].clear();
     }
 
