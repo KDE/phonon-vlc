@@ -22,6 +22,8 @@
 
 #include <phonon/objectdescription.h>
 
+#include "debug.h"
+
 namespace Phonon
 {
 namespace VLC
@@ -52,22 +54,32 @@ public:
         return self;
     }
 
-    virtual ~GlobalDescriptionContainer() {}
+    virtual ~GlobalDescriptionContainer()
+    {
+    }
 
+    /**
+     * \returns a list of all global unique IDs of all stored ObjectDescriptions
+     */
     QList<int> globalIndexes()
     {
         QList<int> list;
         GlobalDescriptorMapIterator it(m_globalDescriptors);
-       while (it.hasNext()) {
-           it.next();
-           list << it.key();
+        while (it.hasNext()) {
+            it.next();
+            list << it.key();
         }
         return list;
     }
 
-    SubtitleDescription fromIndex(global_id_t key)
+    /**
+     * \param key the global ID of the ObjectDescription
+     *
+     * \returns ObjectDescriptions associated with a given ID
+     */
+    D fromIndex(global_id_t key)
     {
-        return m_globalDescriptors.value(key, SubtitleDescription());
+        return m_globalDescriptors.value(key, D());
     }
 
     // ----------- MediaController Specific ----------- //
@@ -146,9 +158,6 @@ public:
             GlobalDescriptorMapIterator it(m_globalDescriptors);
             while (it.hasNext()) {
                 it.next();
-#ifdef __GNUC__
-#warning make properties accessible
-#endif
                 if (it.value().property("name") == name &&
                         it.value().property("type") == type) {
                     id = it.value().index();
@@ -189,9 +198,11 @@ public:
         m_localIds[mediaController].insert(descriptor.index(), descriptor.index());
     }
 
-    /**list of ObjectDescriptions for a given MediaController, the
+    /**
+     * List of ObjectDescriptions for a given MediaController, the
      * descriptions are limied by the scope of the type (obviously), so you only
-     * get subtitle descriptions from a subtitle container.
+     * get ObjectDescription from the container.
+     *
      * \param mediaController The MediaController
      *
      * \returns the list of ObjectDescriptions for a given MediaController, the
@@ -219,18 +230,22 @@ public:
      *
      * \returns the local ID associated with the description object
      */
-    int localIdFor(MediaController * mediaController, global_id_t key) const
+    int localIdFor(const MediaController *mediaController, global_id_t key) const
     {
         Q_ASSERT(mediaController);
         Q_ASSERT(m_localIds.find(mediaController) != m_localIds.end());
-#ifdef __GNUC__
-#warning localid fail not handled
-#endif
+        if (m_localIds[mediaController].find(key) == m_localIds[mediaController].end())
+            warning() << __PRETTY_FUNCTION__
+                      << ": supplied global ID is unkown for the MediaController ("
+                      << mediaController << ")";
         return m_localIds[mediaController].value(key, 0);
     }
 
 protected:
-    GlobalDescriptionContainer() : m_peak(0) {}
+    GlobalDescriptionContainer() :
+        m_peak(0)
+    {
+    }
 
     /**
      * \returns next free unique index to be used as global ID for an ObjectDescription
