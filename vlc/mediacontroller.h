@@ -72,9 +72,6 @@ public:
     virtual void angleChanged(int i_angle_number) = 0;
     virtual void chapterChanged(int i_chapter_number) = 0;
 
-
-    void audioChannelAdded(int id, const QString &lang);
-    void subtitleAdded(int id, const QString &lang, const QString &type);
     void titleAdded(int id, const QString &name);
     void chapterAdded(int titleId, const QString &name);
 
@@ -132,7 +129,6 @@ protected:
     void resetMembers();
 
     Phonon::AudioChannelDescription m_currentAudioChannel;
-    QList<Phonon::AudioChannelDescription> m_availableAudioChannels;
 
     Phonon::SubtitleDescription m_currentSubtitle;
 
