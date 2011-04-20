@@ -38,12 +38,14 @@ MediaController::MediaController()
     : m_player(0)
 {
     GlobalSubtitles::instance()->register_(this);
+    GlobalAudioChannels::instance()->register_(this);
     resetMembers();
 }
 
 MediaController::~MediaController()
 {
     GlobalSubtitles::instance()->unregister_(this);
+    GlobalAudioChannels::instance()->unregister_(this);
 }
 
 bool MediaController::hasInterface(Interface iface) const
@@ -206,7 +208,7 @@ void MediaController::resetMediaController()
 void MediaController::resetMembers()
 {
     m_currentAudioChannel = Phonon::AudioChannelDescription();
-    m_availableAudioChannels.clear();
+    GlobalAudioChannels::self->clearListFor(this);
 
     m_currentSubtitle = Phonon::SubtitleDescription();
     GlobalSubtitles::instance()->clearListFor(this);
@@ -225,17 +227,6 @@ void MediaController::resetMembers()
     m_availableTitles = 0;
 
     m_autoPlayTitles = false;
-}
-
-// Add audio channel -> in libvlc it is track, it means audio in another language
-void MediaController::audioChannelAdded(int id, const QString &lang)
-{
-    QHash<QByteArray, QVariant> properties;
-    properties.insert("name", lang);
-    properties.insert("description", "");
-
-    m_availableAudioChannels << Phonon::AudioChannelDescription(id, properties);
-    emit availableAudioChannelsChanged();
 }
 
 // Add title
@@ -267,14 +258,15 @@ void MediaController::chapterAdded(int titleId, const QString &name)
 void MediaController::setCurrentAudioChannel(const Phonon::AudioChannelDescription &audioChannel)
 {
     m_currentAudioChannel = audioChannel;
-    if (libvlc_audio_set_track(m_player, audioChannel.index())) {
+    const int localIndex = GlobalAudioChannels::instance()->localIdFor(this, audioChannel.index());
+    if (libvlc_audio_set_track(m_player, localIndex)) {
         error() << "libVLC:" << LibVLC::errorMessage();
     }
 }
 
 QList<Phonon::AudioChannelDescription> MediaController::availableAudioChannels() const
 {
-    return m_availableAudioChannels;
+    return GlobalAudioChannels::instance()->listFor(this);
 }
 
 Phonon::AudioChannelDescription MediaController::currentAudioChannel() const
@@ -285,14 +277,15 @@ Phonon::AudioChannelDescription MediaController::currentAudioChannel() const
 void MediaController::refreshAudioChannels()
 {
     m_currentAudioChannel = Phonon::AudioChannelDescription();
-    m_availableAudioChannels.clear();
+    GlobalAudioChannels::instance()->clearListFor(this);
 
     libvlc_track_description_t *p_info = libvlc_audio_get_track_description(m_player);
     while (p_info) {
-        audioChannelAdded(p_info->i_id, p_info->psz_name);
+        GlobalAudioChannels::instance()->add(this, p_info->i_id, p_info->psz_name, "");
         p_info = p_info->p_next;
     }
     libvlc_track_description_release(p_info);
+    emit availableAudioChannelsChanged();
 }
 
 // Subtitle
@@ -314,7 +307,7 @@ void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &subt
             emit availableSubtitlesChanged();
         }
     } else {
-        int localIndex = GlobalSubtitles::instance()->localIdFor(this, subtitle.index());
+        const int localIndex = GlobalSubtitles::instance()->localIdFor(this, subtitle.index());
         if (libvlc_video_set_spu(m_player, localIndex))
             error() << "libVLC:" << LibVLC::errorMessage();
     }
