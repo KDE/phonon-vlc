@@ -264,6 +264,7 @@ protected:
 template <typename D>
 GlobalDescriptionContainer<D> *GlobalDescriptionContainer<D>::self = 0;
 
+typedef GlobalDescriptionContainer<AudioChannelDescription> GlobalAudioChannels;
 typedef GlobalDescriptionContainer<SubtitleDescription> GlobalSubtitles;
 
 } // Namespace VLC

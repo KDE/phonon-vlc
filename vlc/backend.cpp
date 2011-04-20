@@ -122,6 +122,8 @@ Backend::~Backend()
 {
     if (LibVLC::self)
         delete LibVLC::self;
+    if (GlobalAudioChannels::self)
+        delete GlobalAudioChannels::self;
     if (GlobalSubtitles::self)
         delete GlobalSubtitles::self;
 #ifdef PHONON_PULSESUPPORT
