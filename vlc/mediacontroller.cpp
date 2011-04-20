@@ -257,11 +257,11 @@ void MediaController::chapterAdded(int titleId, const QString &name)
 
 void MediaController::setCurrentAudioChannel(const Phonon::AudioChannelDescription &audioChannel)
 {
-    m_currentAudioChannel = audioChannel;
     const int localIndex = GlobalAudioChannels::instance()->localIdFor(this, audioChannel.index());
-    if (libvlc_audio_set_track(m_player, localIndex)) {
+    if (libvlc_audio_set_track(m_player, localIndex))
         error() << "libVLC:" << LibVLC::errorMessage();
-    }
+    else
+        m_currentAudioChannel = audioChannel;
 }
 
 QList<Phonon::AudioChannelDescription> MediaController::availableAudioChannels() const
@@ -292,7 +292,6 @@ void MediaController::refreshAudioChannels()
 
 void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &subtitle)
 {
-    m_currentSubtitle = subtitle;
     QString type = m_currentSubtitle.property("type").toString();
 
 #warning file stuff is untested and probably causes problems for globalsubtitles
@@ -301,6 +300,8 @@ void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &subt
         if (!filename.isEmpty()) {
             if (!libvlc_video_set_subtitle_file(m_player, filename.toAscii().data()))
                 error() << "libVLC:" << LibVLC::errorMessage();
+            else
+                m_currentSubtitle = subtitle;
 
             // There is no subtitle event inside libvlc so let's send our own event...
             GlobalSubtitles::instance()->add(this, m_currentSubtitle);
@@ -310,6 +311,8 @@ void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &subt
         const int localIndex = GlobalSubtitles::instance()->localIdFor(this, subtitle.index());
         if (libvlc_video_set_spu(m_player, localIndex))
             error() << "libVLC:" << LibVLC::errorMessage();
+        else
+            m_currentSubtitle = subtitle;
     }
 }
 
