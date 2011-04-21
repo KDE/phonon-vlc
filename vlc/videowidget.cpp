@@ -163,10 +163,9 @@ void VideoWidget::setBrightness(qreal brightness)
 
     // VLC operates within a 0.0 to 2.0 range for brightness.
     m_brightness = brightness;
-    debug() << "brightness: " << phononRangeToVlcRange(m_brightness);
     libvlc_video_set_adjust_float(m_player,
                                   libvlc_adjust_Brightness,
-                                  phononRangeToVlcRange(m_brightness));
+                                  phononRangeToVlcRange(m_brightness, 2.0));
 }
 
 qreal VideoWidget::contrast() const
@@ -190,7 +189,7 @@ void VideoWidget::setContrast(qreal contrast)
     m_contrast = contrast;
     libvlc_video_set_adjust_float(m_player,
                                   libvlc_adjust_Contrast,
-                                  phononRangeToVlcRange(m_contrast));
+                                  phononRangeToVlcRange(m_contrast, 2.0));
 }
 
 qreal VideoWidget::hue() const
@@ -402,50 +401,31 @@ bool VideoWidget::enableFilterAdjust(bool adjust)
 float VideoWidget::phononRangeToVlcRange(qreal phononValue, float upperBoundary,
                                          bool shift)
 {
-    DEBUG_BLOCK;
     // VLC operates on different ranges than Phonon. Phonon always uses a range of
     // -1:1 with 0 as the default value.
     // It is therefore necessary to convert between the two schemes using sophisticated magic.
-    // First an incoming range is locked between the valid range of Phonon, then
-    // everything is shifted into a positive value range.
-    // Finally this range gets mapped onto a target range between 0 and the
-    // provided upper boundary.
+    // First the incoming range is locked between -1..1, then depending on shift
+    // either normalized to 0..2 or 0..1 and finally a new value is calculated
+    // depending on the upperBoundary and the normalized range.
     float value = static_cast<float>(phononValue);
-    int max = 1.0;
+    float range = 2.0; // The default normalized range will be 0..2 = 2
 
     // Ensure valid range
-    if (value < -1.0) {
+    if (value < -1.0)
         value = -1.0;
-    } else if (value > 1.0) {
+    else if (value > 1.0)
         value = 1.0;
+
+    if (shift)
+        value += 1.0; // Shift into 0..2 range
+    else {
+        // Chop negative value; normalize to 0..1 = range 1
+        if (value < 0.0)
+            value = 0.0;
+        range = 1.0;
     }
 
-    if (shift) {
-        value += 1;
-        max += 1;
-    } else {
-        if (value < 0) {
-            value = 0;
-        }
-    }
-
-    debug() << "incoming: " << phononValue;
-    debug() << "shifted: " << value;
-    debug() << "upperBoundary: " << upperBoundary;
-
-    // value now holds a float between 0.0 and max.
-    // If our upper boundary was 2 then we are done. If not we will have to
-    // convert a range of 0-2 to 0-upperBoundary. This is achieved by calculating
-    // the percentual value of value within the 0-2 range and then map this
-    // to a value within the target range.
-
-    float percentValue = (100.0 * value) / max;
-    float ret = (upperBoundary * percentValue) / 100.0;
-
-    debug() << "precent: " << percentValue;
-    debug() << "ret: " << ret;
-
-    return ret;
+    return (value * (upperBoundary/range));
 }
 
 }

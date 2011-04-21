@@ -259,7 +259,7 @@ private:
      *
      * \returns float usable to VLC
      */
-    static float phononRangeToVlcRange(qreal phononValue, float upperBoundary = 2.0,
+    static float phononRangeToVlcRange(qreal phononValue, float upperBoundary,
                                        bool shift = true);
 
     /**
