@@ -232,11 +232,8 @@ void MediaController::resetMembers()
 // Add title
 void MediaController::titleAdded(int id, const QString &name)
 {
-//    QHash<QByteArray, QVariant> properties;
-//    properties.insert("name", name);
-//    properties.insert("description", "");
-
-//    m_availableTitles << Phonon::TitleDescription(id, properties);
+    Q_UNUSED(id);
+    Q_UNUSED(name);
     ++m_availableTitles;
     emit availableTitlesChanged(m_availableTitles);
 }
@@ -244,11 +241,8 @@ void MediaController::titleAdded(int id, const QString &name)
 // Add chapter
 void MediaController::chapterAdded(int titleId, const QString &name)
 {
-//    QHash<QByteArray, QVariant> properties;
-//    properties.insert("name", name);
-//    properties.insert("description", "");
-
-//    m_availableChapters << Phonon::ChapterDescription(titleId, properties);
+    Q_UNUSED(titleId);
+    Q_UNUSED(name);
     ++m_availableChapters;
     emit availableChaptersChanged(m_availableChapters);
 }
