@@ -26,6 +26,7 @@
 
 #include <QtCore/QFile>
 #include <QtCore/QMetaType>
+#include <QtCore/QStringBuilder>
 #include <QtCore/QTimer>
 #include <QtCore/QUrl>
 
@@ -260,7 +261,7 @@ MediaSource MediaObject::source() const
 
 void MediaObject::setSource(const MediaSource &source)
 {
-    debug() << Q_FUNC_INFO;
+    DEBUG_BLOCK;
 
     // Reset previous streamereaders
     if (m_streamReader) {
@@ -296,10 +297,10 @@ void MediaObject::setSource(const MediaSource &source)
             return;
         case Phonon::Cd:
             debug() << m_mediaSource.deviceName();
-            loadMedia("cdda://" + m_mediaSource.deviceName());
+            loadMedia(QLatin1Literal("cdda://") % m_mediaSource.deviceName());
             break;
         case Phonon::Dvd:
-            loadMedia("dvd://" + m_mediaSource.deviceName());
+            loadMedia(QLatin1Literal("dvd://") % m_mediaSource.deviceName());
             break;
         case Phonon::Vcd:
             loadMedia(m_mediaSource.deviceName());
@@ -319,9 +320,9 @@ void MediaObject::setSource(const MediaSource &source)
         driverName = source.deviceAccessList().first().first;
         deviceName = source.deviceAccessList().first().second;
 
-        if (driverName == "v4l2") {
-            loadMedia("v4l2://" + deviceName);
-        } else if (driverName == "alsa") {
+        if (driverName == QByteArray("v4l2")) {
+            loadMedia(QLatin1Literal("v4l2://") % deviceName);
+        } else if (driverName == QByteArray("alsa")) {
             /*
              * Replace "default" and "plughw" and "x-phonon" with "hw" for capture device names, because
              * VLC does not want to open them when using default instead of hw.
@@ -339,9 +340,9 @@ void MediaObject::setSource(const MediaSource &source)
                 deviceName.replace(0, 8, "hw");
             }
 
-            loadMedia("alsa://" + deviceName);
+            loadMedia(QLatin1Literal("alsa://") % deviceName);
         } else if (driverName == "screen") {
-            loadMedia("screen://" + deviceName);
+            loadMedia(QLatin1Literal("screen://") % deviceName);
 
             // Set the isScreen flag needed to add extra options in playInternal
             m_isScreen = true;
@@ -349,7 +350,6 @@ void MediaObject::setSource(const MediaSource &source)
             error() << Q_FUNC_INFO << "unsupported MediaSource::CaptureDevice:" << driverName;
             break;
         }
-
         break;
     case MediaSource::Stream:
         loadStream();
