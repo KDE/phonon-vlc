@@ -103,13 +103,10 @@ void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspect)
     m_aspectRatio = aspect;
 
     switch (m_aspectRatio) {
-    case Phonon::VideoWidget::AspectRatioAuto:
-        libvlc_video_set_aspect_ratio(m_player, 0);
-        break;
+    // FIXME: find a way to implement aspectratiowidget, or rather, find out what
+    // that is supposed to achieve to begin with.
     case Phonon::VideoWidget::AspectRatioWidget:
-#ifdef __GNUC__
-#warning might need work
-#endif
+    case Phonon::VideoWidget::AspectRatioAuto:
         libvlc_video_set_aspect_ratio(m_player, 0);
         break;
     case Phonon::VideoWidget::AspectRatio4_3:
