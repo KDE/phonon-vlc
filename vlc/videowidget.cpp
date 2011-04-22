@@ -76,6 +76,8 @@ void VideoWidget::connectToMediaObject(MediaObject *mediaObject)
 
     //  mediaObject->setVideoWidgetId(p_video_widget->winId());
     mediaObject->setVideoWidget(this);
+
+    clearPendingAdjusts();
 }
 
 #ifndef PHONON_VLC_NO_EXPERIMENTAL
@@ -372,7 +374,6 @@ void VideoWidget::clearPendingAdjusts()
 {
     m_pendingAdjusts.clear();
 }
-
 
 void VideoWidget::paintEvent(QPaintEvent *event)
 {
