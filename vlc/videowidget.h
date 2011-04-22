@@ -73,6 +73,11 @@ public:
      */
     void connectToMediaObject(MediaObject *mediaObject);
 
+    /**
+     * Overloads SinkNode.
+     */
+    void disconnectFromMediaObject(MediaObject *mediaObject);
+
 #ifndef PHONON_VLC_NO_EXPERIMENTAL
     /**
      * Connects the VideoWidget to an AvCapture. connectToMediaObject() is called

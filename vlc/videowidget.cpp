@@ -80,6 +80,14 @@ void VideoWidget::connectToMediaObject(MediaObject *mediaObject)
     clearPendingAdjusts();
 }
 
+void VideoWidget::disconnectFromMediaObject(MediaObject *mediaObject)
+{
+    SinkNode::disconnectFromMediaObject(mediaObject);
+    // Undo all connections or path creation->destruction->creation can cause
+    // duplicated connections or getting singals from two different MediaObjects.
+    disconnect(mediaObject, 0, this, 0);
+}
+
 #ifndef PHONON_VLC_NO_EXPERIMENTAL
 void VideoWidget::connectToAvCapture(Experimental::AvCapture *avCapture)
 {
