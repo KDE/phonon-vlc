@@ -285,17 +285,8 @@ void MediaObject::setSource(const MediaSource &source)
         break;
     case MediaSource::LocalFile:
     case MediaSource::Url: {
-        debug() << Q_FUNC_INFO << "yeap, 'tis a local file or url" << source.url().scheme();
-        QByteArray mrl;
-        const QUrl &url = source.url();
-        if (url.scheme() == QLatin1String("")) {
-            mrl = QFile::encodeName("file://" + url.toString()).toPercentEncoding(":/\\?=&,@");
-        } else if ((url.scheme() ==  QLatin1String("file://"))) {
-            mrl = QFile::encodeName(url.toString()).toPercentEncoding(":/\\?=&,@");
-        } else {
-            mrl = url.toEncoded();
-        }
-        loadMedia(mrl);
+        debug() << "MediaSource::Url:" << source.url();
+        loadMedia(source.mrl().toEncoded());
     } // Keep these braces and the following break as-is, some compilers fall over the var decl above.
         break;
     case MediaSource::Disc:
