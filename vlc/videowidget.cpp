@@ -70,7 +70,9 @@ void VideoWidget::connectToMediaObject(MediaObject *mediaObject)
     connect(mediaObject, SIGNAL(videoWidgetSizeChanged(int, int)),
             SLOT(videoWidgetSizeChanged(int, int)));
     connect(mediaObject, SIGNAL(hasVideoChanged(bool)),
-            SLOT(clearPendingAdjusts(bool)));
+            SLOT(processPendingAdjusts(bool)));
+    connect(mediaObject, SIGNAL(currentSourceChanged(MediaSource)),
+            SLOT(clearPendingAdjusts()));
 
     //  mediaObject->setVideoWidgetId(p_video_widget->winId());
     mediaObject->setVideoWidget(this);
@@ -352,7 +354,7 @@ void VideoWidget::videoWidgetSizeChanged(int width, int height)
     libvlc_video_set_format(m_player, "RV32", width, height, width * 4);
 }
 
-void VideoWidget::clearPendingAdjusts(bool videoAvailable)
+void VideoWidget::processPendingAdjusts(bool videoAvailable)
 {
     if (!videoAvailable || !m_mediaObject || !m_mediaObject->hasVideo()) {
         return;
@@ -365,6 +367,12 @@ void VideoWidget::clearPendingAdjusts(bool videoAvailable)
     }
     m_pendingAdjusts.clear();
 }
+
+void VideoWidget::clearPendingAdjusts()
+{
+    m_pendingAdjusts.clear();
+}
+
 
 void VideoWidget::paintEvent(QPaintEvent *event)
 {

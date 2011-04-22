@@ -216,8 +216,16 @@ private slots:
     /**
      * Sets all pending video adjusts (hue, brightness etc.) that the application
      * wanted to set before the vidoe became available.
+     *
+     * \param videoAvailable whether or not video is available at the time of calling
      */
-    void clearPendingAdjusts(bool videoAvailable);
+    void processPendingAdjusts(bool videoAvailable);
+
+    /**
+     * Clears all pending video adjusts (hue, brightness etc.).
+     */
+    void clearPendingAdjusts();
+
 
 protected:
     /* Overloading QWidget */
