@@ -27,7 +27,7 @@
 #include <QtGui/QWidget>
 
 #ifdef Q_OS_MAC
-#include "vlcmacwidget.h"
+#include "mac/vlcmacwidget.h"
 typedef VlcMacWidget BaseWidget;
 #else
 typedef QWidget BaseWidget;

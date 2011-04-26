@@ -48,9 +48,8 @@ set(phonon_vlc_SRCS
 
 if(APPLE)
     list(APPEND phonon_vlc_SRCS
-        nsvideoview.mm
-        vlcmacwidget.mm
-        vlcvideoview.mm)
+        mac/nsvideoview.mm
+        mac/vlcmacwidget.mm)
 endif(APPLE)
 
 automoc4_add_library(phonon_vlc MODULE ${phonon_vlc_SRCS})
