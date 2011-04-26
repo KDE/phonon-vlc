@@ -710,7 +710,7 @@ void MediaObject::eventCallback(const libvlc_event_t *event, void *data)
         ++i_first_time_media_player_time_changed;
 
 #ifdef __GNUC__
-#warning FIXME 4.5 - This is ugly. It should be solved by some events in libvlc
+#warning FIXME - This is ugly. It should be solved by some events in libvlc
 #endif
         if (!that->m_hasVideo && i_first_time_media_player_time_changed < 15) {
             debug() << "Looking for Video";
