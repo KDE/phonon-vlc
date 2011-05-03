@@ -32,10 +32,7 @@ namespace Phonon
 namespace VLC
 {
 
-namespace Experimental
-{
 class AvCapture;
-}
 
 /** \brief Implements the Phonon VideoWidget MediaNode, responsible for displaying video
  *
@@ -78,22 +75,20 @@ public:
      */
     void disconnectFromMediaObject(MediaObject *mediaObject);
 
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
     /**
      * Connects the VideoWidget to an AvCapture. connectToMediaObject() is called
      * only for the video media of the AvCapture.
      *
      * \see AvCapture
      */
-    void connectToAvCapture(Experimental::AvCapture *avCapture);
+    void connectToAvCapture(AvCapture *avCapture);
 
     /**
      * Disconnect the VideoWidget from the video media of the AvCapture.
      *
      * \see connectToAvCapture()
      */
-    void disconnectFromAvCapture(Experimental::AvCapture *avCapture);
-#endif // PHONON_VLC_NO_EXPERIMENTAL
+    void disconnectFromAvCapture(AvCapture *avCapture);
 
     /**
      * \return The aspect ratio previously set for the video widget

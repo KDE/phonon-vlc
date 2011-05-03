@@ -21,32 +21,28 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA *
 *****************************************************************************/
 
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
 #ifndef PHONON_VLC_AVCAPTURE_H
 #define PHONON_VLC_AVCAPTURE_H
 
 #include "mediaobject.h"
 
-#include <phonon/experimental/avcaptureinterface.h>
+#include <phonon/avcaptureinterface.h>
 
 namespace Phonon
 {
 namespace VLC
 {
 
-namespace Experimental
-{
-
-class AvCapture : public QObject, public Phonon::Experimental::AvCaptureInterface
+class AvCapture : public QObject, public Phonon::AvCaptureInterface
 {
     Q_OBJECT
-    Q_INTERFACES(Phonon::Experimental::AvCaptureInterface)
+    Q_INTERFACES(Phonon::AvCaptureInterface)
 
     public:
         AvCapture(QObject *parent);
         ~AvCapture();
 
-        Phonon::State state() const;
+        State state() const;
         void start();
         void pause();
         void stop();
@@ -60,7 +56,7 @@ class AvCapture : public QObject, public Phonon::Experimental::AvCaptureInterfac
         MediaObject* videoMediaObject();
 
     signals:
-        void stateChanged(Phonon::State newState, Phonon::State oldState);
+        void stateChanged(State newState, State oldState);
 
     private:
         void setupStateChangedSignal();
@@ -73,9 +69,7 @@ class AvCapture : public QObject, public Phonon::Experimental::AvCaptureInterfac
         MediaObject *m_connectedMO;
 };
 
-} // Experimental namespace
 } // VLC namespace
 } // Phonon namespace
 
 #endif // PHONON_VLC_AVCAPTURE_H
-#endif // PHONON_VLC_NO_EXPERIMENTAL

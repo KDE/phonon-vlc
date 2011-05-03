@@ -27,14 +27,11 @@
 
 #include <vlc/vlc.h>
 
+#include "avcapture.h"
 #include "backend.h"
 #include "debug.h"
 #include "devicemanager.h"
 #include "mediaobject.h"
-
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-#include <experimental/avcapture.h>
-#endif // PHONON_VLC_NO_EXPERIMENTAL
 
 namespace Phonon
 {
@@ -66,17 +63,15 @@ void AudioOutput::disconnectFromMediaObject(MediaObject *mediaObject)
     }
 }
 
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-void AudioOutput::connectToAvCapture(Experimental::AvCapture *avCapture)
+void AudioOutput::connectToAvCapture(AvCapture *avCapture)
 {
     connectToMediaObject(avCapture->audioMediaObject());
 }
 
-void AudioOutput::disconnectFromAvCapture(Experimental::AvCapture *avCapture)
+void AudioOutput::disconnectFromAvCapture(AvCapture *avCapture)
 {
     disconnectFromMediaObject(avCapture->audioMediaObject());
 }
-#endif // PHONON_VLC_NO_EXPERIMENTAL
 
 qreal AudioOutput::volume() const
 {

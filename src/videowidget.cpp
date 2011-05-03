@@ -30,9 +30,7 @@
 
 #include "debug.h"
 
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-#include "experimental/avcapture.h"
-#endif // PHONON_VLC_NO_EXPERIMENTAL
+#include "avcapture.h"
 #include "mediaobject.h"
 
 namespace Phonon
@@ -88,17 +86,15 @@ void VideoWidget::disconnectFromMediaObject(MediaObject *mediaObject)
     disconnect(mediaObject, 0, this, 0);
 }
 
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-void VideoWidget::connectToAvCapture(Experimental::AvCapture *avCapture)
+void VideoWidget::connectToAvCapture(AvCapture *avCapture)
 {
     connectToMediaObject(avCapture->videoMediaObject());
 }
 
-void VideoWidget::disconnectFromAvCapture(Experimental::AvCapture *avCapture)
+void VideoWidget::disconnectFromAvCapture(AvCapture *avCapture)
 {
     disconnectFromMediaObject(avCapture->videoMediaObject());
 }
-#endif // PHONON_VLC_NO_EXPERIMENTAL
 
 Phonon::VideoWidget::AspectRatio VideoWidget::aspectRatio() const
 {

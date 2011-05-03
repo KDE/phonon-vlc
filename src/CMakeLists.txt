@@ -20,16 +20,10 @@ endif (MSVC)
 
 add_definitions(-D_PHONON_BACKEND_VERSION_4_2)
 
-option(PHONON_VLC_NO_EXPERIMENTAL "Do not build anything experimental" true)
-if(PHONON_VLC_NO_EXPERIMENTAL)
-    add_definitions(-DPHONON_VLC_NO_EXPERIMENTAL)
-else(PHONON_VLC_NO_EXPERIMENTAL)
-    add_subdirectory(experimental)
-endif(PHONON_VLC_NO_EXPERIMENTAL)
-
 set(phonon_vlc_SRCS
     audiooutput.cpp
     audiodataoutput.cpp
+    avcapture.cpp
     backend.cpp
     debug.cpp
     devicemanager.cpp
@@ -44,7 +38,7 @@ set(phonon_vlc_SRCS
     streamreader.cpp
     #    videodataoutput.cpp
     videowidget.cpp
-    ${phonon_vlc_experimental_SRCS})
+)
 
 if(APPLE)
     list(APPEND phonon_vlc_SRCS

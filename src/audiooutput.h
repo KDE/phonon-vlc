@@ -33,6 +33,8 @@ namespace Phonon
 namespace VLC
 {
 
+class AvCapture;
+
 /** \brief AudioOutput implementation for Phonon-VLC
  *
  * This class is a SinkNode that implements the AudioOutputInterface from Phonon. It
@@ -65,22 +67,20 @@ public:
     /* Overload */
     virtual void disconnectFromMediaObject(MediaObject *mediaObject);
 
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
     /**
      * Connects the AudioOutput to an AvCapture. connectToMediaObject() is called
      * only for the video media of the AvCapture.
      *
      * \see AvCapture
      */
-    void connectToAvCapture(Experimental::AvCapture *avCapture);
+    void connectToAvCapture(AvCapture *avCapture);
 
     /**
      * Disconnect the AudioOutput from the audio media of the AvCapture.
      *
      * \see connectToAvCapture()
      */
-    void disconnectFromAvCapture(Experimental::AvCapture *avCapture);
-#endif // PHONON_VLC_NO_EXPERIMENTAL
+    void disconnectFromAvCapture(AvCapture *avCapture);
 
     /**
      * \return The current volume for this audio output.

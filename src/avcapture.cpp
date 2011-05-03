@@ -21,14 +21,11 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA *
 *****************************************************************************/
 
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
 #include "avcapture.h"
 
 namespace Phonon
 {
 namespace VLC
-{
-namespace Experimental
 {
 
 AvCapture::AvCapture(QObject* parent)
@@ -90,14 +87,14 @@ VideoCaptureDevice AvCapture::videoCaptureDevice() const
     return m_videoCaptureDevice;
 }
 
-void AvCapture::setAudioCaptureDevice(const Phonon::AudioCaptureDevice &device)
+void AvCapture::setAudioCaptureDevice(const AudioCaptureDevice &device)
 {
     m_audioMedia.setSource(device);
     m_audioCaptureDevice = device;
     setupStateChangedSignal();
 }
 
-void AvCapture::setVideoCaptureDevice(const Phonon::VideoCaptureDevice &device)
+void AvCapture::setVideoCaptureDevice(const VideoCaptureDevice &device)
 {
     m_videoMedia.setSource(device);
     m_videoCaptureDevice = device;
@@ -108,7 +105,7 @@ void AvCapture::setupStateChangedSignal()
 {
     // Disconnect the old media object state change signal
     if (m_connectedMO)
-        disconnect(m_connectedMO, SIGNAL(stateChanged(Phonon::State,Phonon::State)), this, SIGNAL(stateChanged(Phonon::State,Phonon::State)));
+        disconnect(m_connectedMO, SIGNAL(stateChanged(State,State)), this, SIGNAL(stateChanged(State,State)));
 
     // Determine the media object from which the state change signal will be connected
     m_connectedMO = NULL;
@@ -122,11 +119,9 @@ void AvCapture::setupStateChangedSignal()
 
     // Connect the state change signal
     if (m_connectedMO)
-        connect(m_connectedMO, SIGNAL(stateChanged(Phonon::State,Phonon::State)), this, SIGNAL(stateChanged(Phonon::State,Phonon::State)));
+        connect(m_connectedMO, SIGNAL(stateChanged(State,State)), this, SIGNAL(stateChanged(State,State)));
 }
 
-} // Experimental namespace
 } // VLC namespace
 } // Phonon namespace
 
-#endif // PHONON_VLC_NO_EXPERIMENTAL

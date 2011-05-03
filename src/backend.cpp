@@ -42,6 +42,7 @@
 
 #include "audiooutput.h"
 #include "audiodataoutput.h"
+#include "avcapture.h"
 #include "devicemanager.h"
 #include "effect.h"
 #include "effectmanager.h"
@@ -51,10 +52,6 @@
 #include "sinknode.h"
 //#include "videodataoutput.h"
 #include "videowidget.h"
-
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-#include "experimental/avcapture.h"
-#endif // PHONON_VLC_NO_EXPERIMENTAL
 
 Q_EXPORT_PLUGIN2(phonon_vlc, Phonon::VLC::Backend)
 
@@ -134,19 +131,6 @@ Backend::~Backend()
 
 QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const QList<QVariant> &args)
 {
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-    Phonon::Experimental::BackendInterface::Class cex = static_cast<Phonon::Experimental::BackendInterface::Class>(c);
-
-    switch (cex) {
-    case Phonon::Experimental::BackendInterface::AvCaptureClass:
-        warning() << "createObject() : AvCapture created - WARNING: Experimental!";
-        return new Experimental::AvCapture(parent);
-    default:
-        if ((quint32) cex >= (quint32) Phonon::Experimental::BackendInterface::VideoDataOutputClass)
-            warning() << "createObject() - experimental : Backend object not available";
-    }
-#endif // PHONON_VLC_NO_EXPERIMENTAL
-
     switch (c) {
     case MediaObjectClass:
         return new MediaObject(parent);
@@ -173,6 +157,8 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
         return new Effect(m_effectManager, args[0].toInt(), parent);
     case VideoWidgetClass:
         return new VideoWidget(qobject_cast<QWidget *>(parent));
+    case AvCaptureClass:
+        return new AvCapture(parent);
     default:
         error() << "createObject() : Backend object not available";
     }
@@ -412,14 +398,12 @@ bool Backend::connectNodes(QObject *source, QObject *sink)
             return true;
         }
 
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-        Experimental::AvCapture *avCapture = qobject_cast<Experimental::AvCapture *>(source);
+        AvCapture *avCapture = qobject_cast<AvCapture *>(source);
         if (avCapture) {
             // Connect the SinkNode to a AvCapture
             sinkNode->connectToAvCapture(avCapture);
             return true;
         }
-#endif // PHONON_VLC_NO_EXPERIMENTAL
 
         /*
         Effect *effect = qobject_cast<Effect *>(source);
@@ -446,14 +430,12 @@ bool Backend::disconnectNodes(QObject *source, QObject *sink)
             return true;
         }
 
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-        Experimental::AvCapture *avCapture = qobject_cast<Experimental::AvCapture *>(source);
+        AvCapture *avCapture = qobject_cast<AvCapture *>(source);
         if (avCapture) {
             // Disconnect the SinkNode from a AvCapture
             sinkNode->disconnectFromAvCapture(avCapture);
             return true;
         }
-#endif // PHONON_VLC_NO_EXPERIMENTAL
 
         /*
         Effect *effect = qobject_cast<Effect *>(source);

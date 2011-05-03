@@ -33,11 +33,8 @@ namespace Phonon
 namespace VLC
 {
 
-namespace Experimental
-{
-    class AvCapture;
-}
 
+class AvCapture;
 class MediaObject;
 
 /** \brief The sink node is essentialy an output for a media object
@@ -77,7 +74,6 @@ public:
      */
     virtual void addToMedia(libvlc_media_t *media);
 
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
     /**
      * Associates the sink node with the compatible media object owned by the specified AvCapture.
      * The sink node knows whether it is compatible with video media or audio media. Here, the
@@ -89,7 +85,7 @@ public:
      * \see connectToMediaObject()
      * \see disconnectFromAvCapture()
      */
-    virtual void connectToAvCapture(Experimental::AvCapture *avCapture);
+    virtual void connectToAvCapture(AvCapture *avCapture);
 
     /**
      * Removes this sink from any of the AvCapture's media objects. If connectToAvCapture() is
@@ -99,8 +95,7 @@ public:
      *
      * \see connectToAvCapture()
      */
-    virtual void disconnectFromAvCapture(Experimental::AvCapture *avCapture);
-#endif // PHONON_VLC_NO_EXPERIMENTAL
+    virtual void disconnectFromAvCapture(AvCapture *avCapture);
 
 protected:
     MediaObject *m_mediaObject;

@@ -31,11 +31,8 @@
 
 #include <vlc/vlc.h>
 
+#include "avcapture.h"
 #include "mediaobject.h"
-
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-#include <experimental/avcapture.h>
-#endif // PHONON_VLC_NO_EXPERIMENTAL
 
 namespace Phonon
 {
@@ -61,17 +58,15 @@ AudioDataOutput::~AudioDataOutput()
 {
 }
 
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-void AudioDataOutput::connectToAvCapture(Experimental::AvCapture *avCapture)
+void AudioDataOutput::connectToAvCapture(AvCapture *avCapture)
 {
     connectToMediaObject(avCapture->audioMediaObject());
 }
 
-void AudioDataOutput::disconnectFromAvCapture(Experimental::AvCapture *avCapture)
+void AudioDataOutput::disconnectFromAvCapture(AvCapture *avCapture)
 {
     disconnectFromMediaObject(avCapture->audioMediaObject());
 }
-#endif // PHONON_VLC_NO_EXPERIMENTAL
 
 int AudioDataOutput::dataSize() const
 {

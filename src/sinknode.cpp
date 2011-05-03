@@ -21,14 +21,10 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA *
  *****************************************************************************/
 
-#include "sinknode.h"
-
+#include "avcapture.h"
 #include "debug.h"
 #include "mediaobject.h"
-
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-#include "experimental/avcapture.h"
-#endif // PHONON_VLC_NO_EXPERIMENTAL
+#include "sinknode.h"
 
 namespace Phonon
 {
@@ -72,19 +68,17 @@ void SinkNode::addToMedia(libvlc_media_t *media)
     Q_UNUSED(media);
 }
 
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-void SinkNode::connectToAvCapture(Experimental::AvCapture *avCapture)
+void SinkNode::connectToAvCapture(AvCapture *avCapture)
 {
     connectToMediaObject(avCapture->audioMediaObject());
     connectToMediaObject(avCapture->videoMediaObject());
 }
 
-void SinkNode::disconnectFromAvCapture(Experimental::AvCapture *avCapture)
+void SinkNode::disconnectFromAvCapture(AvCapture *avCapture)
 {
     disconnectFromMediaObject(avCapture->audioMediaObject());
     disconnectFromMediaObject(avCapture->videoMediaObject());
 }
-#endif // PHONON_VLC_NO_EXPERIMENTAL
 
 }
 } // Namespace Phonon::VLC
