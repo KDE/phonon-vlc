@@ -116,10 +116,10 @@ QString DeviceManager::deviceDescription(int i_id) const
 void DeviceManager::updateDeviceSublist(const QList<DeviceInfo> &newDevices, QList<DeviceInfo> &deviceList)
 {
     // New and old device counts
-    int ndc = newDevices.count();
-    int odc = deviceList.count();
+    int newDeviceCount = newDevices.count();
+    int oldDeviceCount = deviceList.count();
 
-    for (int i = 0 ; i < ndc ; ++i) {
+    for (int i = 0; i < newDeviceCount; ++i) {
         int id = deviceId(newDevices[i].name);
         if (id == -1) {
             // This is a new device, add it
@@ -131,12 +131,12 @@ void DeviceManager::updateDeviceSublist(const QList<DeviceInfo> &newDevices, QLi
         }
     }
 
-    if (ndc < odc) {
+    if (newDeviceCount < oldDeviceCount) {
         // A device was removed
-        for (int i = odc - 1; i >= 0 ; --i) {
+        for (int i = oldDeviceCount - 1; i >= 0 ; --i) {
             QByteArray currId = deviceList[i].name;
             bool b_found = false;
-            for (int k = ndc - 1; k >= 0 ; --k) {
+            for (int k = newDeviceCount - 1; k >= 0 ; --k) {
                 if (currId == newDevices[k].name) {
                     b_found = true;
                     break;
@@ -153,33 +153,33 @@ void DeviceManager::updateDeviceSublist(const QList<DeviceInfo> &newDevices, QLi
 void DeviceManager::updateDeviceList()
 {
     // Lists for capture devices
-    QList<DeviceInfo> devices, vcs, acs;
+    QList<DeviceInfo> devices, videoCaptureDeviceList, audioCaptureDeviceList;
     int i;
 
     // Setup a list of available capture devices
     DeviceInfo screenDevice("Screen", "Virtual device for screen capture", false);
     screenDevice.capabilities = DeviceInfo::VideoCapture;
     screenDevice.accessList.append(QPair<QByteArray, QString>("screen", ""));
-    vcs.append(screenDevice);
+    videoCaptureDeviceList.append(screenDevice);
 
     // See the device capabilities and sort them accordingly
     for (i = 0; i < devices.count(); ++ i) {
         if (devices[i].capabilities & DeviceInfo::VideoCapture)
-            vcs << devices[i];
+            videoCaptureDeviceList << devices[i];
         if (devices[i].capabilities & DeviceInfo::AudioCapture)
-            acs << devices[i];
+            audioCaptureDeviceList << devices[i];
     }
 
     devices.clear();
 
     // Update the capture device lists
-    updateDeviceSublist(vcs, m_videoCaptureDeviceList);
-    updateDeviceSublist(acs, m_audioCaptureDeviceList);
+    updateDeviceSublist(videoCaptureDeviceList, m_videoCaptureDeviceList);
+    updateDeviceSublist(audioCaptureDeviceList, m_audioCaptureDeviceList);
 
     // Lists for audio output devices
-    QList<DeviceInfo> aos;
-    aos.append(DeviceInfo("default"));
-    aos.last().capabilities = DeviceInfo::AudioOutput;
+    QList<DeviceInfo> audioOutputDeviceList;
+    audioOutputDeviceList.append(DeviceInfo("default"));
+    audioOutputDeviceList.last().capabilities = DeviceInfo::AudioOutput;
 
     if (!LibVLC::self)
         return;
@@ -199,15 +199,15 @@ void DeviceManager::updateDeviceList()
     bool haspulse = false;
     while (p_ao_list) {
         if (checkpulse && strcmp(p_ao_list->psz_name, "pulse") == 0) {
-            aos.last().isAdvanced = false;
-            aos.last().accessList.append(DeviceAccess("pulse", "default"));
+            audioOutputDeviceList.last().isAdvanced = false;
+            audioOutputDeviceList.last().accessList.append(DeviceAccess("pulse", "default"));
             haspulse = true;
             break;
         }
 
-        aos.append(DeviceInfo(p_ao_list->psz_name, p_ao_list->psz_description, true));
-        aos.last().accessList.append(DeviceAccess(p_ao_list->psz_name, QString()));
-        aos.last().capabilities = DeviceInfo::AudioOutput;
+        audioOutputDeviceList.append(DeviceInfo(p_ao_list->psz_name, p_ao_list->psz_description, true));
+        audioOutputDeviceList.last().accessList.append(DeviceAccess(p_ao_list->psz_name, QString()));
+        audioOutputDeviceList.last().capabilities = DeviceInfo::AudioOutput;
 
         p_ao_list = p_ao_list->p_next;
     }
@@ -221,7 +221,7 @@ void DeviceManager::updateDeviceList()
     pulse->enable(false);
 #endif
 
-    updateDeviceSublist(aos, m_audioOutputDeviceList);
+    updateDeviceSublist(audioOutputDeviceList, m_audioOutputDeviceList);
 }
 
 const QList<DeviceInfo> DeviceManager::audioCaptureDevices() const
