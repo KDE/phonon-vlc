@@ -140,19 +140,14 @@ bool StreamReader::read(quint64 pos, int *length, char *buffer)
 
     while (currentBufferSize() < static_cast<unsigned int>(*length)) {
         quint64 oldSize = currentBufferSize();
-
-#if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 5, 55))
-        needData(*length);
-#else
         needData();
-#endif
 
         m_waitingForData.wait(&m_mutex);
 
         if (oldSize == currentBufferSize()) {
             if (m_eos && m_buffer.isEmpty()) {
                 return false;
-            }
+	    }
             // We didn't get any more data
             *length = static_cast<int>(oldSize);
             // If we have some data to return, why tell to reader that we failed?
@@ -162,7 +157,7 @@ bool StreamReader::read(quint64 pos, int *length, char *buffer)
     }
 
     if (m_mediaObject->state() != Phonon::BufferingState &&
-            m_mediaObject->state() != Phonon::LoadingState) {
+        m_mediaObject->state() != Phonon::LoadingState) {
         enoughData();
     }
 
