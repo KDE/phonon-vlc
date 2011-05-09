@@ -29,6 +29,7 @@ Name[sr@ijekavian]=ВЛЦ
 Name[sr@ijekavianlatin]=VLC
 Name[sr@latin]=VLC
 Name[sv]=VLC
+Name[ug]=VLC
 Name[uk]=VLC
 Name[x-test]=xxVLCxx
 Name[zh_TW]=VLC
