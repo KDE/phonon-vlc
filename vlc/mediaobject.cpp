@@ -202,7 +202,8 @@ void MediaObject::loadMedia(const QString &filename)
 
 void MediaObject::resume()
 {
-    pause();
+    libvlc_media_player_set_pause(m_player, 0);
+    emit stateChanged(Phonon::PlayingState);
 }
 
 qint32 MediaObject::tickInterval() const
@@ -587,10 +588,6 @@ void MediaObject::pause()
         if (media == 0) {
             // Nothing playing yet -> play
             playInternal();
-        } else {
-            // Resume
-            libvlc_media_player_set_pause(m_player, 0);
-            emit stateChanged(Phonon::PlayingState);
         }
     } else {
         // Pause
