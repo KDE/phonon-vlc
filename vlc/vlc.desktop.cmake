@@ -10,6 +10,7 @@ Icon=vlc
 InitialPreference=10
 
 Name=VLC
+Name[bs]=VLC
 Name[ca]=VLC
 Name[ca@valencia]=VLC
 Name[cs]=VLC
