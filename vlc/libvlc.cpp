@@ -54,8 +54,6 @@ bool LibVLC::init()
     if (!path.isEmpty()) {
         QList<QByteArray> args;
 
-        args << QFile::encodeName(path);
-
         QString pluginsPath = QLatin1Literal("--plugin-path=") %
                 QDir::toNativeSeparators(QFileInfo(self->vlcPath()).dir().path());
 #if defined(Q_OS_UNIX)
