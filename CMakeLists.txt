@@ -29,6 +29,6 @@ set(PHONON_VLC_PATCH_VERSION "55")
 set(PHONON_VLC_VERSION "${PHONON_VLC_MAJOR_VERSION}.${PHONON_VLC_MINOR_VERSION}.${PHONON_VLC_PATCH_VERSION}")
 add_definitions(-DPHONON_VLC_VERSION="${PHONON_VLC_VERSION}")
 
-add_subdirectory(vlc)
+add_subdirectory(src)
 
 macro_display_feature_log()
