@@ -267,6 +267,7 @@ void MediaObject::setSource(const MediaSource &source)
     // Reset previous streamereaders
     if (m_streamReader) {
         m_streamReader->unlock();
+        delete m_streamReader;
         m_streamReader = 0;
     }
 
