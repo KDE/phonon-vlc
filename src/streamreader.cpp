@@ -140,14 +140,14 @@ bool StreamReader::read(quint64 pos, int *length, char *buffer)
 
     while (currentBufferSize() < static_cast<unsigned int>(*length)) {
         quint64 oldSize = currentBufferSize();
-        needData();
+        needData(BLOCKSIZE);
 
         m_waitingForData.wait(&m_mutex);
 
         if (oldSize == currentBufferSize()) {
             if (m_eos && m_buffer.isEmpty()) {
                 return false;
-	    }
+            }
             // We didn't get any more data
             *length = static_cast<int>(oldSize);
             // If we have some data to return, why tell to reader that we failed?
@@ -218,6 +218,22 @@ void StreamReader::setStreamSeekable(bool s)
 bool StreamReader::streamSeekable() const
 {
     return m_seekable;
+}
+
+void StreamReader::needData(qint64 size)
+{
+//    Q_ASSERT(0);
+    StreamInterface::needData();
+}
+
+void StreamReader2::needData(qint64 size)
+{
+    StreamInterface2::needData(size);
+}
+
+void StreamReader2::resetDone()
+{
+    Q_ASSERT(0);
 }
 
 }// namespace VLC

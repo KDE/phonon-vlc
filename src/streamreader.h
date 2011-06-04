@@ -22,7 +22,7 @@
 #define PHONON_STREAMREADER_H
 
 #include <phonon/mediasource.h>
-#include <phonon/streaminterface.h>
+#include <phonon/streaminterface2.h>
 
 #include <stdint.h>
 
@@ -51,11 +51,11 @@ class MediaObject;
  *
  * There are callbacks implemented in streamhooks.cpp, for libVLC.
  */
-class StreamReader : public Phonon::StreamInterface
+class StreamReader : public virtual Phonon::StreamInterface
 {
 public:
     StreamReader(const Phonon::MediaSource &source, MediaObject *parent);
-    ~StreamReader();
+    virtual ~StreamReader();
 
     void lock();
     void unlock();
@@ -91,6 +91,8 @@ public:
     void setStreamSeekable(bool s);
     bool streamSeekable() const;
 
+    virtual void needData(qint64 size);
+
 protected:
     QByteArray m_buffer;
     quint64 m_pos;
@@ -101,6 +103,23 @@ protected:
     QMutex m_mutex;
     QWaitCondition m_waitingForData;
     MediaObject *m_mediaObject;
+};
+
+class StreamReader2 : public StreamReader, public StreamInterface2
+{
+public:
+    StreamReader2(const Phonon::MediaSource &source, MediaObject *parent) :
+        StreamReader(source, parent)
+    {
+    }
+
+    virtual ~StreamReader2()
+    {
+    }
+
+    void resetDone();
+
+    virtual void needData(qint64 size);
 };
 
 }
