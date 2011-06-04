@@ -366,8 +366,8 @@ void MediaObject::setSource(const MediaSource &source)
 
 void MediaObject::loadStream()
 {
-    m_streamReader = new StreamReader(m_mediaSource, this);
-
+#warning todo: streamreader should depend on the source really
+    m_streamReader = new StreamReader2(m_mediaSource, this);
     loadMedia(QByteArray("imem://"));
 }
 
