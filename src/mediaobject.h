@@ -425,7 +425,7 @@ private:
     MediaSource m_nextSource;
 
     MediaSource m_mediaSource;
-    StreamReader2 *m_streamReader;
+    StreamReader *m_streamReader;
     Phonon::State m_currentState;
 
     qint32 m_prefinishMark;

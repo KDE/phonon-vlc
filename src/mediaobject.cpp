@@ -32,6 +32,7 @@
 
 #include "vlc/vlc.h"
 
+#include "abstractmediastream2.h"
 #include "backend.h"
 #include "debug.h"
 #include "libvlc.h"
@@ -367,7 +368,11 @@ void MediaObject::setSource(const MediaSource &source)
 void MediaObject::loadStream()
 {
 #warning todo: streamreader should depend on the source really
-    m_streamReader = new StreamReader2(m_mediaSource, this);
+    if (m_mediaSource.stream()->metaObject()->superClass()->className() ==
+            QLatin1String("Phonon::AbstractMediaStream2"))
+        m_streamReader = new StreamReader2(m_mediaSource, this);
+    else
+        m_streamReader = new StreamReader(m_mediaSource, this);
     loadMedia(QByteArray("imem://"));
 }
 
