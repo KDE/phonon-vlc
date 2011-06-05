@@ -120,6 +120,9 @@ public:
     void resetDone();
 
     virtual void needData(qint64 size);
+
+    virtual void startDone() {}
+    virtual void stopDone() {}
 };
 
 }
