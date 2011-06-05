@@ -222,12 +222,13 @@ bool StreamReader::streamSeekable() const
 
 void StreamReader::needData(qint64 size)
 {
-//    Q_ASSERT(0);
+    DEBUG_BLOCK;
     StreamInterface::needData();
 }
 
 void StreamReader2::needData(qint64 size)
 {
+    DEBUG_BLOCK;
     StreamInterface2::needData(size);
 }
 
