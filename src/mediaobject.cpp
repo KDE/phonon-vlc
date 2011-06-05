@@ -267,6 +267,7 @@ void MediaObject::setSource(const MediaSource &source)
     // Reset previous streamereaders
     if (m_streamReader) {
         m_streamReader->unlock();
+        delete m_streamReader;
         m_streamReader = 0;
     }
 
@@ -348,7 +349,7 @@ void MediaObject::setSource(const MediaSource &source)
             // Set the isScreen flag needed to add extra options in playInternal
             m_isScreen = true;
         } else {
-            error() << Q_FUNC_INFO << "unsupported MediaSource::CaptureDevice:" << driverName;
+            error() << Q_FUNC_INFO << "Unsupported MediaSource::CaptureDevice:" << driverName;
             break;
         }
         break;
