@@ -30,5 +30,3 @@ set(PHONON_VLC_VERSION "${PHONON_VLC_MAJOR_VERSION}.${PHONON_VLC_MINOR_VERSION}.
 add_definitions(-DPHONON_VLC_VERSION="${PHONON_VLC_VERSION}")
 
 add_subdirectory(vlc)
-
-macro_display_feature_log()
