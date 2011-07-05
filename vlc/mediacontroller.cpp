@@ -286,12 +286,10 @@ void MediaController::refreshAudioChannels()
 
 void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &subtitle)
 {
-    QString type = m_currentSubtitle.property("type").toString();
-#ifdef __GNUC__
-#warning file stuff is untested and probably causes problems for globalsubtitles
-#endif
+    QString type = subtitle.property("type").toString();
+
     if (type == "file") {
-        QString filename = m_currentSubtitle.property("name").toString();
+        QString filename = subtitle.property("name").toString();
         if (!filename.isEmpty()) {
             if (!libvlc_video_set_subtitle_file(m_player, filename.toAscii().data()))
                 error() << "libVLC:" << LibVLC::errorMessage();
