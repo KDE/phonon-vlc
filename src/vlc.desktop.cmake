@@ -35,6 +35,7 @@ Name[sv]=VLC
 Name[ug]=VLC
 Name[uk]=VLC
 Name[x-test]=xxVLCxx
+Name[zh_CN]=VLC
 Name[zh_TW]=VLC
 
 Comment=Phonon VLC backend
@@ -62,4 +63,5 @@ Comment[sr@latin]=VLC kao pozadina Phonona
 Comment[sv]=Phonon VLC-gränssnitt
 Comment[uk]=Модуль VLC Phonon
 Comment[x-test]=xxPhonon VLC backendxx
+Comment[zh_CN]= Phonon VLC 后端
 Comment[zh_TW]=Phonon VLC 後端介面
