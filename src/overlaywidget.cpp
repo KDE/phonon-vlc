@@ -43,6 +43,9 @@ OverlayWidget::OverlayWidget(QWidget *parent) :
     setAttribute(Qt::WA_NoSystemBackground);
 
     // Required for dvdnav
+#ifdef __GNUC__
+#warning dragonplayer munches on our mouse events, so clicking in a DVD menu does not work - vlc 1.2 where are thu?
+#endif // __GNUC__
     setMouseTracking(true);
 }
 
