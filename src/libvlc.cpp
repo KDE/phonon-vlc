@@ -168,6 +168,7 @@ QStringList LibVLC::findAllLibVlcPaths()
     paths = QString::fromLatin1(qgetenv("LD_LIBRARY_PATH"))
             .split(QLatin1Char(':'), QString::SkipEmptyParts);
     paths << QLatin1String(PHONON_LIB_INSTALL_DIR) << QLatin1String("/usr/lib") << QLatin1String("/usr/local/lib");
+    paths << QLatin1String("/usr/lib64") << QLatin1String("/usr/local/lib64");
 
 #if defined(Q_WS_MAC)
     paths
