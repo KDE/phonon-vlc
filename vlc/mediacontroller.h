@@ -24,8 +24,9 @@
 #ifndef PHONON_VLC_MEDIACONTROLLER_H
 #define PHONON_VLC_MEDIACONTROLLER_H
 
-#include <phonon/addoninterface.h>
-#include <phonon/objectdescription.h>
+#include <phonon/AddonInterface>
+#include <phonon/MediaSource>
+#include <phonon/ObjectDescription>
 
 #include "debug.h"
 
@@ -60,6 +61,16 @@ public:
     bool hasInterface(Interface iface) const;
 
     QVariant interfaceCall(Interface iface, int i_command, const QList<QVariant> & arguments = QList<QVariant>());
+
+    /**
+     * Overloaded by MediaObject through MediaObjectInterface.
+     * Access to the media source is necessary to identify the type of the source
+     * and behave accordingly.
+     *
+     * For example setTitle calls need to work on both DVDs and CDs, however
+     * in libvlc titles and tracks are two different concepts.
+     */
+    virtual MediaSource source() const = 0;
 
     // MediaController signals
     virtual void availableSubtitlesChanged() = 0;
