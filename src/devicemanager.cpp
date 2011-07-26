@@ -58,14 +58,17 @@ DeviceManager::DeviceManager(Backend *parent)
     , m_backend(parent)
 {
     Q_ASSERT(parent);
+    m_deviceLists << &m_audioOutputDeviceList
+                  << &m_audioCaptureDeviceList
+                  << &m_videoCaptureDeviceList;
     updateDeviceList();
 }
 
 DeviceManager::~DeviceManager()
 {
-    m_audioCaptureDeviceList.clear();
-    m_videoCaptureDeviceList.clear();
-    m_audioOutputDeviceList.clear();
+    foreach (const QList<DeviceInfo> *list, m_deviceLists) {
+        const_cast<QList<DeviceInfo> *>(list)->clear();
+    }
 }
 
 bool DeviceManager::canOpenDevice() const
@@ -75,42 +78,26 @@ bool DeviceManager::canOpenDevice() const
 
 int DeviceManager::deviceId(const QByteArray &name) const
 {
-    for (int i = 0 ; i < m_audioCaptureDeviceList.size() ; ++i) {
-        if (m_audioCaptureDeviceList[i].name == name)
-            return m_audioCaptureDeviceList[i].id;
-    }
-
-    for (int i = 0 ; i < m_videoCaptureDeviceList.size() ; ++i) {
-        if (m_videoCaptureDeviceList[i].name == name)
-            return m_videoCaptureDeviceList[i].id;
-    }
-
-    for (int i = 0 ; i < m_audioOutputDeviceList.size() ; ++i) {
-        if (m_audioOutputDeviceList[i].name == name)
-            return m_audioOutputDeviceList[i].id;
+    foreach (const QList<DeviceInfo> *list, m_deviceLists) {
+        foreach (const DeviceInfo &device, *list) {
+            if (device.name == name)
+                return device.id;
+        }
     }
 
     return -1;
 }
 
-QString DeviceManager::deviceDescription(int i_id) const
+QString DeviceManager::deviceDescription(int id) const
 {
-    for (int i = 0 ; i < m_audioCaptureDeviceList.size() ; ++i) {
-        if (m_audioCaptureDeviceList[i].id == i_id)
-            return m_audioCaptureDeviceList[i].description;
+    foreach (const QList<DeviceInfo> *list, m_deviceLists) {
+        foreach (const DeviceInfo &device, *list) {
+            if (device.id == id)
+                return QString(device.name);
+        }
     }
 
-    for (int i = 0 ; i < m_videoCaptureDeviceList.size() ; ++i) {
-        if (m_videoCaptureDeviceList[i].id == i_id)
-            return m_videoCaptureDeviceList[i].description;
-    }
-
-    for (int i = 0 ; i < m_audioOutputDeviceList.size() ; ++i) {
-        if (m_audioOutputDeviceList[i].id == i_id)
-            return m_audioOutputDeviceList[i].description;
-    }
-
-    return QByteArray();
+    return QString();
 }
 
 void DeviceManager::updateDeviceSublist(const QList<DeviceInfo> &newDevices, QList<DeviceInfo> &deviceList)

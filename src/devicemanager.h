@@ -117,7 +117,7 @@ public:
      * Get a human-readable description from a device id.
      * \param i_id Device identifier
      */
-    QString deviceDescription( int i_id) const;
+    QString deviceDescription(int id) const;
 
 signals:
     void deviceAdded(int);
@@ -155,6 +155,7 @@ private:
     QList<DeviceInfo> m_audioCaptureDeviceList;
     QList<DeviceInfo> m_videoCaptureDeviceList;
     QList<DeviceInfo> m_audioOutputDeviceList;
+    QList<const QList<DeviceInfo> *> m_deviceLists;
 };
 }
 } // namespace Phonon::VLC
