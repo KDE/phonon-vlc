@@ -134,6 +134,8 @@ Backend::~Backend()
 
 QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const QList<QVariant> &args)
 {
+    if (!LibVLC::self || !libvlc)
+        return 0;
 #ifndef PHONON_VLC_NO_EXPERIMENTAL
     Phonon::Experimental::BackendInterface::Class cex = static_cast<Phonon::Experimental::BackendInterface::Class>(c);
 
