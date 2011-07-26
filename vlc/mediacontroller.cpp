@@ -371,7 +371,9 @@ void MediaController::setCurrentTitle(int title)
 
     switch (source().discType()) {
     case Cd:
+#ifdef __GUNC__
 #warning use media subitem to set track of audiocd
+#endif
         // Leave for MediaObject to handle.
         break;
     case Dvd:
