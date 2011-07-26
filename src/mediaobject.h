@@ -266,7 +266,6 @@ signals:
     void tick(qint64 time);
     void totalTimeChanged(qint64 newTotalTime);
 
-    // Signal from VLCMediaObject
     void stateChanged(Phonon::State newState);
     void moveToNext();
     void playbackCommenced();
@@ -339,8 +338,17 @@ private:
      * Adds an option to the libVLC media and appends a function point address to it.
      *
      * \param option What option to add
+     * \param functionPtr the function pointer
      */
     void addOption(const QString &option, intptr_t functionPtr);
+
+    /**
+     * Adds an option to the libVLC media and appends a QVariant argument to it.
+     *
+     * \param option What option to add
+     * \param argument the value to use as argument
+     */
+    void addOption(const QString &option, const QVariant &argument);
 
     bool checkGaplessWaiting();
 
