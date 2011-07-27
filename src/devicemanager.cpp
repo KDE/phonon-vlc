@@ -60,6 +60,9 @@ DeviceManager::DeviceManager(Backend *parent)
     , m_backend(parent)
 {
     Q_ASSERT(parent);
+#ifdef __GNUC__
+#warning capture code needs rewrite, was removed due to brokeneness
+#endif
     m_deviceLists << &m_audioOutputDeviceList
                   << &m_audioCaptureDeviceList
                   << &m_videoCaptureDeviceList;
@@ -141,30 +144,6 @@ void DeviceManager::updateDeviceSublist(const QList<DeviceInfo> &newDevices, QLi
 
 void DeviceManager::updateDeviceList()
 {
-    // Lists for capture devices
-    QList<DeviceInfo> devices, videoCaptureDeviceList, audioCaptureDeviceList;
-    int i;
-
-    // Setup a list of available capture devices
-    DeviceInfo screenDevice("Screen", "Virtual device for screen capture", false);
-    screenDevice.capabilities = DeviceInfo::VideoCapture;
-    screenDevice.accessList.append(QPair<QByteArray, QString>("screen", ""));
-    videoCaptureDeviceList.append(screenDevice);
-
-    // See the device capabilities and sort them accordingly
-    for (i = 0; i < devices.count(); ++ i) {
-        if (devices[i].capabilities & DeviceInfo::VideoCapture)
-            videoCaptureDeviceList << devices[i];
-        if (devices[i].capabilities & DeviceInfo::AudioCapture)
-            audioCaptureDeviceList << devices[i];
-    }
-
-    devices.clear();
-
-    // Update the capture device lists
-    updateDeviceSublist(videoCaptureDeviceList, m_videoCaptureDeviceList);
-    updateDeviceSublist(audioCaptureDeviceList, m_audioCaptureDeviceList);
-
     // Lists for audio output devices
     QList<DeviceInfo> audioOutputDeviceList;
     audioOutputDeviceList.append(DeviceInfo("default"));
