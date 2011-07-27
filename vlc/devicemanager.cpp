@@ -181,7 +181,7 @@ void DeviceManager::updateDeviceList()
     aos.append(DeviceInfo("default"));
     aos.last().capabilities = DeviceInfo::AudioOutput;
 
-    if (!LibVLC::self)
+    if (!LibVLC::self || !libvlc)
         return;
 
     // Get the list of available audio outputs
