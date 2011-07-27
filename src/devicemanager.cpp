@@ -173,9 +173,12 @@ void DeviceManager::updateDeviceList()
             break;
         }
 
-        audioOutputDeviceList.append(DeviceInfo(p_ao_list->psz_name, p_ao_list->psz_description, true));
-        audioOutputDeviceList.last().accessList.append(DeviceAccess(p_ao_list->psz_name, QString()));
-        audioOutputDeviceList.last().capabilities = DeviceInfo::AudioOutput;
+        DeviceInfo device(audioOutput->psz_name,
+                          audioOutput->psz_description,
+                          true);
+        device.accessList.append(DeviceAccess(audioOutput->psz_name, QString()));
+        device.capabilities = DeviceInfo::AudioOutput;
+        audioOutputDeviceList.append(device);
 
         p_ao_list = p_ao_list->p_next;
     }
