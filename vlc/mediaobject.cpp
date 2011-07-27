@@ -288,7 +288,7 @@ void MediaObject::setSource(const MediaSource &source)
         break;
     case MediaSource::LocalFile:
     case MediaSource::Url: {
-        debug() << "MediaSource::Url:" << source.url();
+        debug() << "MediaSource::Mrl:" << source.mrl();
         loadMedia(source.mrl().toEncoded());
     } // Keep these braces and the following break as-is, some compilers fall over the var decl above.
         break;
