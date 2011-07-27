@@ -152,21 +152,20 @@ void DeviceManager::updateDeviceList()
     if (!LibVLC::self || !libvlc)
         return;
 
-    // Get the list of available audio outputs
-    libvlc_audio_output_t *p_ao_list = libvlc_audio_output_list_get(libvlc);
-    if (!p_ao_list) {
-        error() << "libVLC:" << LibVLC::errorMessage();
-    }
-    libvlc_audio_output_t *p_start = p_ao_list;
-
     bool checkpulse = false;
 #ifdef PHONON_PULSESUPPORT
     PulseSupport *pulse = PulseSupport::getInstance();
     checkpulse = pulse->isActive();
 #endif
     bool haspulse = false;
-    while (p_ao_list) {
-        if (checkpulse && strcmp(p_ao_list->psz_name, "pulse") == 0) {
+
+    // Get the list of available audio outputs
+    libvlc_audio_output_t *audioOutput = libvlc_audio_output_list_get(libvlc);
+    if (!audioOutput)
+        error() << "libVLC:" << LibVLC::errorMessage();
+
+    libvlc_audio_output_t *start = audioOutput;
+    while (audioOutput) {
         if (checkpulse && qstrcmp(audioOutput->psz_name, "pulse") == 0) {
             audioOutputDeviceList.last().isAdvanced = false;
             audioOutputDeviceList.last().accessList.append(DeviceAccess("pulse", "default"));
@@ -181,10 +180,9 @@ void DeviceManager::updateDeviceList()
         device.capabilities = DeviceInfo::AudioOutput;
         audioOutputDeviceList.append(device);
 
-        p_ao_list = p_ao_list->p_next;
+        audioOutput = audioOutput->p_next;
     }
-    libvlc_audio_output_list_release(p_start);
-
+    libvlc_audio_output_list_release(start);
 
 #ifdef PHONON_PULSESUPPORT
     if (haspulse) {
