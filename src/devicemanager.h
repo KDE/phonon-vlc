@@ -112,7 +112,7 @@ public:
 
     /**
      * Get a human-readable description from a device id.
-     * \param i_id Device identifier
+     * \param id Device identifier
      */
     QString deviceDescription(int id) const;
 
