@@ -167,6 +167,7 @@ void DeviceManager::updateDeviceList()
     bool haspulse = false;
     while (p_ao_list) {
         if (checkpulse && strcmp(p_ao_list->psz_name, "pulse") == 0) {
+        if (checkpulse && qstrcmp(audioOutput->psz_name, "pulse") == 0) {
             audioOutputDeviceList.last().isAdvanced = false;
             audioOutputDeviceList.last().accessList.append(DeviceAccess("pulse", "default"));
             haspulse = true;
