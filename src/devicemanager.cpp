@@ -40,7 +40,9 @@ namespace Phonon
 namespace VLC
 {
 
-DeviceInfo::DeviceInfo( const QByteArray& name, const QString& description, bool isAdvanced)
+DeviceInfo::DeviceInfo(const QByteArray &name,
+                       const QString &description,
+                       bool isAdvanced)
 {
     // Get an id
     static int counter = 0;
@@ -120,10 +122,10 @@ void DeviceManager::updateDeviceSublist(const QList<DeviceInfo> &newDevices, QLi
 
     if (newDeviceCount < oldDeviceCount) {
         // A device was removed
-        for (int i = oldDeviceCount - 1; i >= 0 ; --i) {
+        for (int i = oldDeviceCount - 1; i >= 0; --i) {
             QByteArray currId = deviceList[i].name;
             bool b_found = false;
-            for (int k = newDeviceCount - 1; k >= 0 ; --k) {
+            for (int k = newDeviceCount - 1; k >= 0; --k) {
                 if (currId == newDevices[k].name) {
                     b_found = true;
                     break;
