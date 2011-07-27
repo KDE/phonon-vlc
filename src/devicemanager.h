@@ -145,7 +145,8 @@ private:
      * \see deviceAdded
      * \see deviceRemoved
      */
-    void updateDeviceSublist(const QList<DeviceInfo> &newDevices, QList<Phonon::VLC::DeviceInfo> &deviceList);
+    void updateDeviceSublist(const QList<DeviceInfo> &newDevices,
+                             QList<Phonon::VLC::DeviceInfo> &deviceList);
 
 private:
     Backend *m_backend;
