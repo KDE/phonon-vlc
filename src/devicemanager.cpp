@@ -166,6 +166,9 @@ void DeviceManager::updateDeviceList()
 
     libvlc_audio_output_t *start = audioOutput;
     while (audioOutput) {
+#ifdef __GNUC__
+#warning this only iters on aouts, not actual devices
+#endif
         if (checkpulse && qstrcmp(audioOutput->psz_name, "pulse") == 0) {
             audioOutputDeviceList.last().isAdvanced = false;
             audioOutputDeviceList.last().accessList.append(DeviceAccess("pulse", "default"));
