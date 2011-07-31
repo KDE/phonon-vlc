@@ -140,57 +140,68 @@ void DeviceManager::updateDeviceSublist(const QList<DeviceInfo> &newDevices, QLi
     }
 }
 
+static QList<QByteArray> vlcAudioOutBackends()
+{
+    QList<QByteArray> ret;
+
+    libvlc_audio_output_t *firstAudioOut = libvlc_audio_output_list_get(libvlc);
+    if (!firstAudioOut) {
+        error() << "libVLC:" << LibVLC::errorMessage();
+        return ret;
+    }
+    for (libvlc_audio_output_t *audioOut = firstAudioOut; audioOut; audioOut = audioOut->p_next) {
+        ret.append(QByteArray(audioOut->psz_name));
+    }
+    libvlc_audio_output_list_release(firstAudioOut);
+
+    return ret;
+}
+
 void DeviceManager::updateDeviceList()
 {
     // Lists for audio output devices
     QList<DeviceInfo> audioOutputDeviceList;
+
     audioOutputDeviceList.append(DeviceInfo("default"));
-    audioOutputDeviceList.last().capabilities = DeviceInfo::AudioOutput;
+    DeviceInfo &defaultAudioOutputDevice = audioOutputDeviceList.first();
+    defaultAudioOutputDevice.capabilities = DeviceInfo::AudioOutput;
 
     if (!LibVLC::self || !libvlc)
         return;
 
-    bool checkpulse = false;
+    QList<QByteArray> audioOutBackends = vlcAudioOutBackends();
+
 #ifdef PHONON_PULSESUPPORT
     PulseSupport *pulse = PulseSupport::getInstance();
-    checkpulse = pulse->isActive();
+    if (pulse && pulse->isActive()) {
+        if (audioOutBackends.contains("pulse")) {
+            defaultAudioOutputDevice.isAdvanced = false;
+            defaultAudioOutputDevice.accessList.append(DeviceAccess("pulse", "default"));
+            return;
+        } else {
+            pulse->enable(false);
+        }
+    }
 #endif
-    bool haspulse = false;
 
-    // Get the list of available audio outputs
-    libvlc_audio_output_t *audioOutput = libvlc_audio_output_list_get(libvlc);
-    if (!audioOutput)
-        error() << "libVLC:" << LibVLC::errorMessage();
+    QList<QByteArray> knownSoundSystems;
+    knownSoundSystems << "alsa" << "oss";
+    foreach (const QByteArray &soundSystem, knownSoundSystems) {
+        if (audioOutBackends.contains(soundSystem)) {
+            const int deviceCount = libvlc_audio_output_device_count(libvlc, soundSystem);
 
-    libvlc_audio_output_t *start = audioOutput;
-    while (audioOutput) {
-#ifdef __GNUC__
-#warning this only iters on aouts, not actual devices
-#endif
-        if (checkpulse && qstrcmp(audioOutput->psz_name, "pulse") == 0) {
-            audioOutputDeviceList.last().isAdvanced = false;
-            audioOutputDeviceList.last().accessList.append(DeviceAccess("pulse", "default"));
-            haspulse = true;
+            for (int i = 0; i < deviceCount; i++) {
+                const char *idName = libvlc_audio_output_device_id(libvlc, soundSystem, i);
+                const char *longName = libvlc_audio_output_device_longname(libvlc, soundSystem, i);
+
+                DeviceInfo device(idName, longName, false);
+                device.accessList.append(DeviceAccess(idName, QString()));
+                device.capabilities = DeviceInfo::AudioOutput;
+                audioOutputDeviceList.append(device);
+            }
             break;
         }
-
-        DeviceInfo device(audioOutput->psz_name,
-                          audioOutput->psz_description,
-                          true);
-        device.accessList.append(DeviceAccess(audioOutput->psz_name, QString()));
-        device.capabilities = DeviceInfo::AudioOutput;
-        audioOutputDeviceList.append(device);
-
-        audioOutput = audioOutput->p_next;
     }
-    libvlc_audio_output_list_release(start);
-
-#ifdef PHONON_PULSESUPPORT
-    if (haspulse) {
-        return;
-    }
-    pulse->enable(false);
-#endif
 
     updateDeviceSublist(audioOutputDeviceList, m_audioOutputDeviceList);
 }
