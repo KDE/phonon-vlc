@@ -53,6 +53,11 @@ void SinkNode::connectToMediaObject(MediaObject *mediaObject)
 
     m_mediaObject = mediaObject;
     m_player = mediaObject->m_player;
+    Q_ASSERT(m_player);
+    // the audio output device has to be set shortly after creating the player
+    // HACK because SinkNode is mostly useless and should be merged into its subclasses
+    QMetaObject::invokeMethod(dynamic_cast<QObject *>(this),
+                              "setAudioOutputDeviceImplementation", Qt::DirectConnection);
     m_mediaObject->addSink(this);
 }
 
