@@ -477,11 +477,6 @@ bool MediaObject::checkGaplessWaiting()
 
 void MediaObject::unloadMedia()
 {
-//    if( m_player ) {
-//        libvlc_media_player_release(m_player);
-//        m_player = 0;
-//    }
-
     if (m_media) {
         libvlc_media_release(m_media);
         m_media = 0;
