@@ -55,6 +55,7 @@ AudioOutput::~AudioOutput()
 void AudioOutput::connectToMediaObject(MediaObject *mediaObject)
 {
     SinkNode::connectToMediaObject(mediaObject);
+    setAudioOutputDeviceImplementation();
     connect(m_mediaObject, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
 }
 
