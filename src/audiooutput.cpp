@@ -55,7 +55,7 @@ AudioOutput::~AudioOutput()
 void AudioOutput::connectToMediaObject(MediaObject *mediaObject)
 {
     SinkNode::connectToMediaObject(mediaObject);
-    setAudioOutputDeviceImplementation();
+    setOutputDeviceImplementation();
     connect(m_mediaObject, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
 }
 
@@ -109,13 +109,13 @@ bool AudioOutput::setOutputDevice(int deviceIndex)
     if (m_deviceIndex != deviceIndex) {
         m_deviceIndex = deviceIndex;
         if (m_player) {
-            setAudioOutputDeviceImplementation();
+            setOutputDeviceImplementation();
         }
     }
     return true;
 }
 
-void AudioOutput::setAudioOutputDeviceImplementation()
+void AudioOutput::setOutputDeviceImplementation()
 {
     Q_ASSERT(m_player);
 #ifdef PHONON_PULSESUPPORT
