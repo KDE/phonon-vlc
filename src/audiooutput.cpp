@@ -55,6 +55,7 @@ AudioOutput::~AudioOutput()
 void AudioOutput::connectToMediaObject(MediaObject *mediaObject)
 {
     SinkNode::connectToMediaObject(mediaObject);
+    setAudioOutputDeviceImplementation();
     connect(m_mediaObject, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
 }
 
@@ -99,46 +100,45 @@ int AudioOutput::outputDevice() const
     return m_deviceIndex;
 }
 
-bool AudioOutput::setOutputDevice(int device)
+bool AudioOutput::setOutputDevice(int deviceIndex)
 {
-    if (m_deviceIndex == device) {
-        return true;
+    const QList<DeviceInfo> deviceList = Backend::self->deviceManager()->audioOutputDevices();
+    if (deviceIndex < 0 || deviceIndex >= deviceList.size()) {
+        return false;
     }
+    if (m_deviceIndex != deviceIndex) {
+        m_deviceIndex = deviceIndex;
+        if (m_player) {
+            setAudioOutputDeviceImplementation();
+        }
+    }
+    return true;
+}
 
+void AudioOutput::setAudioOutputDeviceImplementation()
+{
+    Q_ASSERT(m_player);
 #ifdef PHONON_PULSESUPPORT
     if (PulseSupport::getInstance()->isActive()) {
-        m_deviceIndex = device;
         libvlc_audio_output_set(m_player, "pulse");
         debug() << "Setting aout to pulse";
-        return true;
+        return;
     }
 #endif
-
-    // TODO: turn DeviceManager into a singleton?
     const QList<DeviceInfo> deviceList = Backend::self->deviceManager()->audioOutputDevices();
-    if (device >= 0 && device < deviceList.size()) {
 
-        if (!m_player) {
-            return false;
-        }
-        m_deviceIndex = device;
-        const QByteArray deviceName = deviceList.at(device).name;
-        libvlc_audio_output_set(m_player, deviceName.data());
-        debug() << "Setting aout to" << deviceName;
-//         if (deviceName == DEFAULT_ID) {
-//             libvlc_audio_device_set(p_vlc_instance, DEFAULT, vlc_exception);
-//             vlcExceptionRaised();
-//         } else if (deviceName.startsWith(ALSA_ID)) {
-//             qDebug() << "setting ALSA " << deviceList.at(device).hwId.data();
-//             libvlc_audio_device_set(p_vlc_instance, ALSA, vlc_exception);
-//             vlcExceptionRaised();
-//             libvlc_audio_alsa_device_set(p_vlc_instance,
-//                                          deviceList.at(device).hwId,
-//                                          vlc_exception);
-//             vlcExceptionRaised();
-    }
+    Q_ASSERT(m_deviceIndex >= 0 && m_deviceIndex < deviceList.size());
+    const DeviceInfo &device = deviceList.at(m_deviceIndex);
 
-    return true;
+    // ### we're not trying the whole access list (could mean same device on different soundsystems)
+    QByteArray soundSystem = device.accessList.first().first;
+    debug() << "Setting output soundsystem to" << soundSystem;
+    libvlc_audio_output_set(m_player, soundSystem);
+
+    QByteArray deviceName = device.accessList.first().second.toLatin1();
+    // print the name as possibly messed up by toLatin1() to see conversion problems
+    debug() << "Setting output device to" << deviceName << '(' << device.name << ')';
+    libvlc_audio_output_device_set(m_player, soundSystem, deviceName);
 }
 
 #if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 2, 0))

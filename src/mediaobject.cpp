@@ -288,7 +288,7 @@ void MediaObject::setSource(const MediaSource &source)
         break;
     case MediaSource::LocalFile:
     case MediaSource::Url: {
-        debug() << "MediaSource::Url:" << source.url();
+        debug() << "MediaSource::Mrl:" << source.mrl();
         loadMedia(source.mrl().toEncoded());
     } // Keep these braces and the following break as-is, some compilers fall over the var decl above.
         break;
@@ -298,7 +298,6 @@ void MediaObject::setSource(const MediaSource &source)
             error() << Q_FUNC_INFO << "the MediaSource::Disc doesn't specify which one (Phonon::NoDisc)";
             return;
         case Phonon::Cd:
-            debug() << m_mediaSource.deviceName();
             loadMedia(QLatin1Literal("cdda://") % m_mediaSource.deviceName());
             break;
         case Phonon::Dvd:
@@ -478,11 +477,6 @@ bool MediaObject::checkGaplessWaiting()
 
 void MediaObject::unloadMedia()
 {
-//    if( m_player ) {
-//        libvlc_media_player_release(m_player);
-//        m_player = 0;
-//    }
-
     if (m_media) {
         libvlc_media_release(m_media);
         m_media = 0;
@@ -524,11 +518,11 @@ void MediaObject::playInternal()
     if (m_streamReader) { // Set callbacks for stream reading using imem
         m_streamReader->lock(); // Make sure we can lock in read().
 
-        addOption(QString("imem-cat=4"));
-        addOption(QString("imem-data="), INTPTR_PTR(m_streamReader));
-        addOption(QString("imem-get="), INTPTR_FUNC(StreamReader::readCallback));
-        addOption(QString("imem-release="), INTPTR_FUNC(StreamReader::readDoneCallback));
-        addOption(QString("imem-seek="), INTPTR_FUNC(StreamReader::seekCallback));
+        addOption(QLatin1String("imem-cat=4"));
+        addOption(QLatin1String("imem-data="), INTPTR_PTR(m_streamReader));
+        addOption(QLatin1String("imem-get="), INTPTR_FUNC(StreamReader::readCallback));
+        addOption(QLatin1String("imem-release="), INTPTR_FUNC(StreamReader::readDoneCallback));
+        addOption(QLatin1String("imem-seek="), INTPTR_FUNC(StreamReader::seekCallback));
 
         // if stream has known size, we may pass it
         // imem module will use it and pass it to demux
@@ -538,8 +532,13 @@ void MediaObject::playInternal()
     }
 
     if (m_isScreen) {
-        addOption(m_media, QString("screen-fps=24.0"));
-        addOption(m_media, QString("screen-caching=300"));
+        addOption(QLatin1String("screen-fps=24.0"));
+        addOption(QLatin1String("screen-caching=300"));
+    }
+
+    if (source().discType() == Cd && m_currentTitle > 0) {
+        debug() << "setting CDDA track";
+        addOption(QLatin1String("cdda-track="), QVariant(m_currentTitle));
     }
 
     foreach (SinkNode * sink, m_sinks) {
@@ -924,6 +923,11 @@ void MediaObject::addOption(libvlc_media_t *media, const QString &option)
 void MediaObject::addOption(const QString &option, intptr_t functionPtr)
 {
     addOption(m_media, option, functionPtr);
+}
+
+void MediaObject::addOption(const QString &option, const QVariant &argument)
+{
+    addOption(m_media, option % argument.toString());
 }
 
 void MediaObject::addOption(libvlc_media_t *media, const QString &option,

@@ -40,7 +40,8 @@ LibVLC::LibVLC() :
 
 LibVLC::~LibVLC()
 {
-    libvlc_release(m_vlcInstance);
+    if (m_vlcInstance)
+        libvlc_release(m_vlcInstance);
     vlcUnload();
     self = 0;
 }

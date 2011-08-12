@@ -366,10 +366,24 @@ void MediaController::refreshSubtitles()
 //void MediaController::setCurrentTitle( const Phonon::TitleDescription & title )
 void MediaController::setCurrentTitle(int title)
 {
+    DEBUG_BLOCK;
     m_currentTitle = title;
 
-//    libvlc_media_player_set_title(m_player, title.index(), vlc_exception);
-    libvlc_media_player_set_title(m_player, title);
+    switch (source().discType()) {
+    case Cd:
+#ifdef __GUNC__
+#warning use media subitem to set track of audiocd
+#endif
+        // Leave for MediaObject to handle.
+        break;
+    case Dvd:
+    case Vcd:
+         //    libvlc_media_player_set_title(m_player, title.index(), vlc_exception);
+        libvlc_media_player_set_title(m_player, title);
+        break;
+    default:
+        warning() << "Current media source is not a CD, DVD or VCD!";
+    }
 }
 
 //QList<Phonon::TitleDescription> MediaController::availableTitles() const
