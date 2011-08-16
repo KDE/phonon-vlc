@@ -50,6 +50,7 @@
 #include "mediaobject.h"
 #include "sinknode.h"
 //#include "videodataoutput.h"
+#include "videographicsobject.h"
 #include "videowidget.h"
 
 #ifndef PHONON_VLC_NO_EXPERIMENTAL
@@ -173,6 +174,8 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
         break;
     case EffectClass:
         return new Effect(m_effectManager, args[0].toInt(), parent);
+    case VideoGraphicsObjectClass:
+        return new VideoGraphicsObject(parent);
     case VideoWidgetClass:
         return new VideoWidget(qobject_cast<QWidget *>(parent));
     default:

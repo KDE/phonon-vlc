@@ -43,6 +43,7 @@ set(phonon_vlc_SRCS
     sinknode.cpp
     streamreader.cpp
     #    videodataoutput.cpp
+    videographicsobject.cpp
     videowidget.cpp
     ${phonon_vlc_experimental_SRCS})
 
