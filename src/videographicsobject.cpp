@@ -48,7 +48,6 @@ VideoGraphicsObject1point1::~VideoGraphicsObject1point1()
     DEBUG_BLOCK;
     if (m_mediaObject)
         m_mediaObject->stop();
-
 }
 
 void VideoGraphicsObject1point1::connectToMediaObject(MediaObject *mediaObject)
