@@ -94,6 +94,8 @@ bool LibVLC::init()
         args << "--no-video-title-show";
         args << "--album-art=0";
         args << "--no-xlib";
+        args << "--vout=vdummy";
+        args << "--aout=adummy";
 
 #ifndef Q_OS_MAC
         args << "--no-one-instance";

@@ -56,6 +56,13 @@ void AudioOutput::connectToMediaObject(MediaObject *mediaObject)
 {
     SinkNode::connectToMediaObject(mediaObject);
     connect(m_mediaObject, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
+
+#ifdef PHONON_PULSESUPPORT
+    if (PulseSupport::getInstance()->isActive())
+        debug() << libvlc_audio_output_set(m_player, "pulse");
+    else
+#endif
+        debug() << libvlc_audio_output_set(m_player, "alsa");
 }
 
 void AudioOutput::disconnectFromMediaObject(MediaObject *mediaObject)
