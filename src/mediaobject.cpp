@@ -546,7 +546,7 @@ void MediaObject::playInternal()
         addOption(QLatin1String("cdda-track="), QVariant(m_currentTitle));
     }
 
-    foreach (SinkNode * sink, m_sinks) {
+    foreach (SinkNode *sink, m_sinks) {
         sink->addToMedia(m_media);
     }
 
