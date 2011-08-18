@@ -506,6 +506,9 @@ void MediaObject::setVLCVideoWidget()
 
 void MediaObject::playInternal()
 {
+    if (m_currentState == Phonon::PlayingState)
+        return;
+
     DEBUG_BLOCK;
     if (m_media) {  // We are changing media, discard the old one
         libvlc_media_release(m_media);
