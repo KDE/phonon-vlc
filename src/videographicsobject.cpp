@@ -26,6 +26,7 @@
 #include <vlc/plugins/vlc_fourcc.h>
 
 #include "debug.h"
+#include "mediaobject.h"
 
 namespace Phonon {
 namespace VLC {
@@ -38,12 +39,22 @@ VideoGraphicsObject1point1::VideoGraphicsObject1point1(QObject *parent) :
     QObject(parent),
     m_videoGraphicsObject(0)
 {
+    DEBUG_BLOCK;
     m_frame.format = VideoFrame::Format_Invalid;
 }
 
-void VideoGraphicsObject1point1::addToMedia(libvlc_media_t *media)
+VideoGraphicsObject1point1::~VideoGraphicsObject1point1()
 {
     DEBUG_BLOCK;
+    if (m_mediaObject)
+        m_mediaObject->stop();
+
+}
+
+void VideoGraphicsObject1point1::connectToMediaObject(MediaObject *mediaObject)
+{
+    DEBUG_BLOCK;
+    SinkNode::connectToMediaObject(mediaObject);
 
     m_frame.width = 640;
     m_frame.height = 360;
@@ -74,6 +85,8 @@ void VideoGraphicsObject1point1::unlock()
 
 void *VideoGraphicsObject1point1::lock_cb(void *opaque, void **planes)
 {
+    DEBUG_BLOCK;
+    debug() << opaque;
     P_THAT1point1;
     that->lock();
 
@@ -87,6 +100,8 @@ void *VideoGraphicsObject1point1::lock_cb(void *opaque, void **planes)
 void VideoGraphicsObject1point1::unlock_cb(void *opaque, void *picture,
                                     void *const*planes)
 {
+    DEBUG_BLOCK;
+    debug() << opaque;
     P_THAT1point1;
     that->unlock();
 //    QMetaObject::invokeMethod(that, "frameReady");
@@ -104,11 +119,23 @@ VideoGraphicsObject::VideoGraphicsObject(QObject *parent) :
     VideoGraphicsObject1point1(parent)
 {}
 
-void VideoGraphicsObject::addToMedia(libvlc_media_t *media)
+VideoGraphicsObject::~VideoGraphicsObject()
 {
     DEBUG_BLOCK;
+    debug() << this;
+}
+
+void VideoGraphicsObject::connectToMediaObject(MediaObject *mediaObject)
+{
+    DEBUG_BLOCK;
+    SinkNode::connectToMediaObject(mediaObject);
     libvlc_video_set_callbacks(m_player, lock_cb, unlock_cb, display_cb, this);
     libvlc_video_set_format_callbacks(m_player, format_cb, cleanup_cb);
+}
+
+void VideoGraphicsObject::disconnectFromMediaObject(MediaObject *mediaObject)
+{
+    SinkNode::disconnectFromMediaObject(mediaObject);
 }
 
 unsigned int VideoGraphicsObject::format_cb(void **opaque, char *chroma,
@@ -143,11 +170,13 @@ unsigned int VideoGraphicsObject::format_cb(void **opaque, char *chroma,
     } else if (qstrcmp(chroma, "YV12") != 0) {
         // Ensure we use a valid format, so choose YV12 as last resort fallback.
         qstrcpy(chroma, "YV12");
-    } else if (qstrcmp(chroma, "YV12") == 0) {
+    }
+    if (qstrcmp(chroma, "YV12") == 0) {
         that->m_frame.format = VideoFrame::Format_YV12;
         chromaDesc = vlc_fourcc_GetChromaDescription(VLC_CODEC_YV12);
     }
 
+    Q_ASSERT(chromaDesc);
     that->m_frame.planeCount = chromaDesc->plane_count;
 
     unsigned int bufferSize = 0;

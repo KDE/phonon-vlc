@@ -41,7 +41,8 @@ class VideoGraphicsObject1point1 : public QObject,
     Q_INTERFACES(Phonon::VideoGraphicsObjectInterface)
 public:
     VideoGraphicsObject1point1(QObject *parent = 0);
-    virtual void addToMedia(libvlc_media_t *media);
+    virtual ~VideoGraphicsObject1point1();
+    virtual void connectToMediaObject(MediaObject *mediaObject);
 
     Phonon::VideoGraphicsObject *videoGraphicsObject() { return m_videoGraphicsObject; }
     void setVideoGraphicsObject(Phonon::VideoGraphicsObject *object) { m_videoGraphicsObject = object; }
@@ -73,7 +74,9 @@ class VideoGraphicsObject : public VideoGraphicsObject1point1
     Q_OBJECT
 public:
     VideoGraphicsObject(QObject *parent = 0);
-    virtual void addToMedia(libvlc_media_t *media);
+    virtual ~VideoGraphicsObject();
+    virtual void connectToMediaObject(MediaObject *mediaObject);
+    virtual void disconnectFromMediaObject(MediaObject *mediaObject);
 
     static unsigned int format_cb(void **opaque, char *chroma,
                                   unsigned int *width, unsigned int *height,
