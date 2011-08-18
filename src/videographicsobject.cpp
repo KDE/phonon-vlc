@@ -1,3 +1,20 @@
+/*
+    Copyright (C) 2011 Harald Sitter <sitter@kde.org>
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "videographicsobject.h"
 
 #include <QtCore/qmath.h>
@@ -6,72 +23,92 @@
 #include <vlc/libvlc_media.h>
 #include <vlc/libvlc_media_player.h>
 
+#include <vlc/plugins/vlc_fourcc.h>
+
 #include "debug.h"
 
 namespace Phonon {
 namespace VLC {
 
+#define P_THAT1point1 VideoGraphicsObject1point1 *that = static_cast<VideoGraphicsObject1point1 *>(opaque)
 #define P_THAT VideoGraphicsObject *that = static_cast<VideoGraphicsObject *>(opaque)
 #define P_THAT2 VideoGraphicsObject *that = static_cast<VideoGraphicsObject *>(*opaque)
 
-VideoGraphicsObject::VideoGraphicsObject(QObject *parent) :
+VideoGraphicsObject1point1::VideoGraphicsObject1point1(QObject *parent) :
     QObject(parent),
     m_videoGraphicsObject(0)
 {
     m_frame.format = VideoFrame::Format_Invalid;
 }
 
-void VideoGraphicsObject::addToMedia(libvlc_media_t *media)
+void VideoGraphicsObject1point1::addToMedia(libvlc_media_t *media)
 {
     DEBUG_BLOCK;
+
+    m_frame.width = 640;
+    m_frame.height = 360;
+
+    libvlc_video_set_format(m_player, "RV32", m_frame.width, m_frame.height, m_frame.width * 4);
     libvlc_video_set_callbacks(m_player, lock_cb, unlock_cb, display_cb, this);
-    libvlc_video_set_format_callbacks(m_player, format_cb, cleanup_cb);
+
+    m_frame.format = VideoFrame::Format_RGB32;
+    m_frame.planeCount = 1;
+    // RGB32 is packed with a pixel size of 4.
+    m_frame.plane[0].resize(m_frame.width * m_frame.height * 4);
 }
 
-void VideoGraphicsObject::lock()
+void VideoGraphicsObject1point1::lock()
 {
     m_mutex.lock();
 }
 
-bool VideoGraphicsObject::tryLock()
+bool VideoGraphicsObject1point1::tryLock()
 {
     return m_mutex.tryLock();
 }
 
-void VideoGraphicsObject::unlock()
+void VideoGraphicsObject1point1::unlock()
 {
     m_mutex.unlock();
 }
 
-void *VideoGraphicsObject::lock_cb(void *opaque, void **planes)
+void *VideoGraphicsObject1point1::lock_cb(void *opaque, void **planes)
 {
-    DEBUG_BLOCK;
-    P_THAT;
+    P_THAT1point1;
     that->lock();
 
     for (int i = 0; i < that->m_frame.planeCount; ++i) {
-        planes[i] = static_cast<void *>(that->m_frame.plane[i].data());
+        planes[i] = reinterpret_cast<void *>(that->m_frame.plane[i].data());
     }
 
     return 0; // There is only one buffer, so no need to identify it.
 }
 
-void VideoGraphicsObject::unlock_cb(void *opaque, void *picture,
+void VideoGraphicsObject1point1::unlock_cb(void *opaque, void *picture,
                                     void *const*planes)
 {
-    DEBUG_BLOCK;
-    P_THAT;
+    P_THAT1point1;
     that->unlock();
 //    QMetaObject::invokeMethod(that, "frameReady");
     emit that->frameReady();
 }
 
-void VideoGraphicsObject::display_cb(void *opaque, void *picture)
+void VideoGraphicsObject1point1::display_cb(void *opaque, void *picture)
+{
+    Q_UNUSED(opaque);
+    Q_UNUSED(picture); // There is only one buffer.
+}
+
+#ifdef P_LIBVLC12
+VideoGraphicsObject::VideoGraphicsObject(QObject *parent) :
+    VideoGraphicsObject1point1(parent)
+{}
+
+void VideoGraphicsObject::addToMedia(libvlc_media_t *media)
 {
     DEBUG_BLOCK;
-    Q_UNUSED(picture); // There is only one buffer.
-    P_THAT;
-//    emit that->frameReady();
+    libvlc_video_set_callbacks(m_player, lock_cb, unlock_cb, display_cb, this);
+    libvlc_video_set_format_callbacks(m_player, format_cb, cleanup_cb);
 }
 
 unsigned int VideoGraphicsObject::format_cb(void **opaque, char *chroma,
@@ -81,7 +118,6 @@ unsigned int VideoGraphicsObject::format_cb(void **opaque, char *chroma,
                                             unsigned int *lines)
 {
     DEBUG_BLOCK;
-
     debug() << "Format:"
             << "chroma:" << chroma
             << "width:" << *width
@@ -100,39 +136,40 @@ unsigned int VideoGraphicsObject::format_cb(void **opaque, char *chroma,
     else if (paintEnv == "yuv")
         qstrcpy(chroma, "YV12");
 
+    const vlc_chroma_description_t *chromaDesc = 0;
     if (qstrcmp(chroma, "RV32") == 0) {
         that->m_frame.format = VideoFrame::Format_RGB32;
-        that->m_frame.planeCount = 1;
-        // RGB32 is packed with a pixel size of 4.
-        that->m_frame.plane[0].resize(that->m_frame.width * that->m_frame.height * 4);
+        chromaDesc = vlc_fourcc_GetChromaDescription(VLC_CODEC_RGB32);
     } else if (qstrcmp(chroma, "YV12") != 0) {
         // Ensure we use a valid format, so choose YV12 as last resort fallback.
         qstrcpy(chroma, "YV12");
     } else if (qstrcmp(chroma, "YV12") == 0) {
         that->m_frame.format = VideoFrame::Format_YV12;
-        that->m_frame.planeCount = 3; // Y, U, V
-        unsigned int halfWidth = that->m_frame.width/2;
-        that->m_frame.plane[0].resize(that->m_frame.width);
-        that->m_frame.plane[1].resize(halfWidth);
-        that->m_frame.plane[2].resize(halfWidth);
+        chromaDesc = vlc_fourcc_GetChromaDescription(VLC_CODEC_YV12);
     }
+
+    that->m_frame.planeCount = chromaDesc->plane_count;
 
     unsigned int bufferSize = 0;
     for (int i = 0; i < that->m_frame.planeCount; ++i) {
+        pitches[i] = *width * chromaDesc->p[i].w.num / chromaDesc->p[i].w.den * chromaDesc->pixel_size;
+        lines[i] = *height * chromaDesc->p[i].h.num / chromaDesc->p[i].h.den;
+        that->m_frame.plane[i].resize(pitches[i] * lines[i]);
+
+        // Add to overall buffer size.
         bufferSize += that->m_frame.plane[i].size();
     }
 
     debug() << chroma;
-
     return bufferSize;
 }
 
 void VideoGraphicsObject::cleanup_cb(void *opaque)
 {
-    DEBUG_BLOCK;
     P_THAT;
     QMetaObject::invokeMethod(that, "reset");
 }
+#endif // P_LIBVLC12
 
 } // namespace VLC
 } // namespace Phonon

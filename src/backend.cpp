@@ -175,7 +175,7 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
     case EffectClass:
         return new Effect(m_effectManager, args[0].toInt(), parent);
     case VideoGraphicsObjectClass:
-        return new VideoGraphicsObject(parent);
+        return createVideoGraphicsObject(parent);
     case VideoWidgetClass:
         return new VideoWidget(qobject_cast<QWidget *>(parent));
     default:
