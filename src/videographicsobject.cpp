@@ -103,8 +103,9 @@ void VideoGraphicsObject1point1::unlock_cb(void *opaque, void *picture,
     debug() << opaque;
     P_THAT1point1;
     that->unlock();
-//    QMetaObject::invokeMethod(that, "frameReady");
-    emit that->frameReady();
+    // To avoid thread polution do not call frameReady directly, but via the
+    // event loop.
+    QMetaObject::invokeMethod(that, "frameReady", Qt::QueuedConnection);
 }
 
 void VideoGraphicsObject1point1::display_cb(void *opaque, void *picture)
@@ -195,7 +196,8 @@ unsigned int VideoGraphicsObject::format_cb(void **opaque, char *chroma,
 void VideoGraphicsObject::cleanup_cb(void *opaque)
 {
     P_THAT;
-    QMetaObject::invokeMethod(that, "reset");
+    // To avoid thread polution do not call reset directly but via the event loop.
+    QMetaObject::invokeMethod(that, "reset", Qt::QueuedConnection);
 }
 #endif // P_LIBVLC12
 
