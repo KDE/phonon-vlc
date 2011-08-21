@@ -126,6 +126,12 @@ private slots:
     void updateVolume();
 
 private:
+    /**
+     * We can only really set the output device once we have a libvlc_media_player, which comes
+     * from our SinkNode.
+     */
+    void setOutputDeviceImplementation();
+
     qreal m_volume;
     int m_deviceIndex;
 };

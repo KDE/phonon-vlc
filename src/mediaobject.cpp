@@ -35,7 +35,6 @@
 #include "backend.h"
 #include "debug.h"
 #include "libvlc.h"
-#include "seekstack.h"
 #include "sinknode.h"
 
 //Time in milliseconds before sending aboutToFinish() signal
@@ -107,12 +106,6 @@ MediaObject::~MediaObject()
     libvlc_media_player_release(m_player);
 }
 
-//void MediaObject::setVideoWidgetId(WId i_widget_id)
-//{
-//    i_video_widget_id = i_widget_id;
-//}
-//
-
 void MediaObject::setVideoWidget(BaseWidget *widget)
 {
     this->m_videoWidget = widget;
@@ -136,9 +129,7 @@ void MediaObject::play()
 
 void MediaObject::seek(qint64 milliseconds)
 {
-    static SeekStack *p_stack = new SeekStack(this);
-
-    p_stack->pushSeek(milliseconds);
+    seekInternal(milliseconds);
 
     qint64 currentTime = this->currentTime();
     qint64 totalTime = this->totalTime();
@@ -477,11 +468,6 @@ bool MediaObject::checkGaplessWaiting()
 
 void MediaObject::unloadMedia()
 {
-//    if( m_player ) {
-//        libvlc_media_player_release(m_player);
-//        m_player = 0;
-//    }
-
     if (m_media) {
         libvlc_media_release(m_media);
         m_media = 0;

@@ -144,13 +144,8 @@ void VideoWidget::setScaleMode(Phonon::VideoWidget::ScaleMode scale)
 #endif
     m_scaleMode = scale;
     switch (m_scaleMode) {
-    case Phonon::VideoWidget::FitInView: // The video will be fitted to fill the view keeping aspect ratio
-        break;
-    case Phonon::VideoWidget::ScaleAndCrop: // The video is scaled
-        break;
-    default:
-        warning() << Q_FUNC_INFO << "unknow Phonon::VideoWidget::ScaleMode:" << m_scaleMode;
     }
+    warning() << Q_FUNC_INFO << "unknow Phonon::VideoWidget::ScaleMode:" << m_scaleMode;
 }
 
 qreal VideoWidget::brightness() const
@@ -347,15 +342,7 @@ void VideoWidget::videoWidgetSizeChanged(int width, int height)
 
     hide();
     setVideoSize(videoSize);
-#ifdef Q_OS_WIN
-    QWidget *p_parent = qobject_cast<QWidget *>(this->parent());
-    QSize previousSize = p_parent->minimumSize();
-    p_parent->setMinimumSize(videoSize);
-#endif
     show();
-#ifdef Q_OS_WIN
-    setMinimumSize(previousSize);
-#endif
 
     if (m_img) {
         delete m_img;
