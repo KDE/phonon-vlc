@@ -35,7 +35,6 @@
 #include "backend.h"
 #include "debug.h"
 #include "libvlc.h"
-#include "seekstack.h"
 #include "sinknode.h"
 
 //Time in milliseconds before sending aboutToFinish() signal
@@ -136,9 +135,7 @@ void MediaObject::play()
 
 void MediaObject::seek(qint64 milliseconds)
 {
-    static SeekStack *p_stack = new SeekStack(this);
-
-    p_stack->pushSeek(milliseconds);
+    seekInternal(milliseconds);
 
     qint64 currentTime = this->currentTime();
     qint64 totalTime = this->totalTime();
