@@ -347,15 +347,7 @@ void VideoWidget::videoWidgetSizeChanged(int width, int height)
 
     hide();
     setVideoSize(videoSize);
-#ifdef Q_OS_WIN
-    QWidget *p_parent = qobject_cast<QWidget *>(this->parent());
-    QSize previousSize = p_parent->minimumSize();
-    p_parent->setMinimumSize(videoSize);
-#endif
     show();
-#ifdef Q_OS_WIN
-    setMinimumSize(previousSize);
-#endif
 
     if (m_img) {
         delete m_img;
