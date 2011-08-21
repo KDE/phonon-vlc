@@ -106,12 +106,6 @@ MediaObject::~MediaObject()
     libvlc_media_player_release(m_player);
 }
 
-//void MediaObject::setVideoWidgetId(WId i_widget_id)
-//{
-//    i_video_widget_id = i_widget_id;
-//}
-//
-
 void MediaObject::setVideoWidget(BaseWidget *widget)
 {
     this->m_videoWidget = widget;
