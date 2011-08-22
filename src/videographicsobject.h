@@ -23,6 +23,7 @@
 
 #include <phonon/videoframe.h>
 #include <phonon/videographicsobject.h>
+#include <phonon/videographicsobjectinterface.h>
 
 #include <vlc/libvlc_version.h>
 
