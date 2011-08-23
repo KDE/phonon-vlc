@@ -344,9 +344,6 @@ void MediaObject::setSource(const MediaSource &source)
     case MediaSource::Stream:
         loadStream();
         break;
-    default:
-        error() << Q_FUNC_INFO << "Unsupported MediaSource Type:" << source.type();
-        break;
     }
 
     emit currentSourceChanged(m_mediaSource);
