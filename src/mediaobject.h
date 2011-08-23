@@ -251,7 +251,7 @@ signals:
     void hasVideoChanged(bool b_has_video);
     void metaDataChanged(const QMultiMap<QString, QString> & metaData);
     void prefinishMarkReached(qint32 msecToEnd);
-    void seekableChanged(bool b_is_seekable);
+    void seekableChanged(bool seekable);
     void stateChanged(Phonon::State newState, Phonon::State oldState);
     void tick(qint64 time);
     void totalTimeChanged(qint64 newTotalTime);
@@ -294,7 +294,6 @@ private slots:
      * Retrieve meta data of a file (i.e ARTIST, TITLE, ALBUM, etc...).
      */
     void updateMetaData();
-    void updateSeekable(bool seekable);
     void updateState(MediaPlayer::State state);
     void updateTime(qint64 time);
 
@@ -411,7 +410,6 @@ private:
     bool m_hasVideo;
     bool m_isScreen;
 
-    bool m_seekable;
     qint64 m_seekpoint;
 };
 

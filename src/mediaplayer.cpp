@@ -112,6 +112,11 @@ void MediaPlayer::setTime(qint64 newTime)
     libvlc_media_player_set_time(m_player, newTime);
 }
 
+bool MediaPlayer::isSeekable() const
+{
+    return libvlc_media_player_is_seekable(m_player);
+}
+
 bool MediaPlayer::hasVideoOutput() const
 {
     return libvlc_media_player_has_vout(m_player) > 0;

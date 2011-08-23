@@ -62,6 +62,8 @@ public:
     qint64 time() const;
     void setTime(qint64 newTime);
 
+    bool isSeekable() const;
+
     // Video
     bool hasVideoOutput() const;
 

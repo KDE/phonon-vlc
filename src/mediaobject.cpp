@@ -65,7 +65,7 @@ MediaObject::MediaObject(QObject *parent)
         error() << "libVLC:" << LibVLC::errorMessage();
 
     // Player signals.
-    connect(m_player, SIGNAL(seekableChanged(bool)), this, SLOT(updateSeekable(bool)));
+    connect(m_player, SIGNAL(seekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
     connect(m_player, SIGNAL(timeChanged(qint64)), this, SLOT(updateTime(qint64)));
     connect(m_player, SIGNAL(stateChanged(MediaPlayer::State)), this, SLOT(updateState(MediaPlayer::State)));
 
@@ -87,7 +87,6 @@ inline void MediaObject::resetMembers()
     // default to -1, so that streams won't break and to comply with the docs (-1 if unknown)
     m_totalTime = -1;
     m_hasVideo = false;
-    m_seekable = false;
     m_seekpoint = 0;
 
     m_prefinishEmitted = false;
@@ -562,12 +561,12 @@ QString MediaObject::errorString() const
 
 bool MediaObject::hasVideo() const
 {
-    return m_hasVideo;
+    return m_player->hasVideoOutput();
 }
 
 bool MediaObject::isSeekable() const
 {
-    return m_seekable;
+    return m_player->isSeekable();
 }
 
 void MediaObject::connectToMediaVLCEvents()
@@ -620,13 +619,6 @@ void MediaObject::updateMetaData()
     m_vlcMetaData = metaDataMap;
 
     emit metaDataChanged(metaDataMap);
-}
-
-void MediaObject::updateSeekable(bool seekable)
-{
-#warning seekable signal can just be forwarded, we have no gain from caching this
-    m_seekable = seekable;
-    emit seekableChanged(m_seekable);
 }
 
 void MediaObject::updateState(MediaPlayer::State state)
