@@ -36,8 +36,10 @@ set(phonon_vlc_SRCS
     effect.cpp
     effectmanager.cpp
     libvlc.cpp
+    media.cpp
     mediacontroller.cpp
     mediaobject.cpp
+    mediaplayer.cpp
     overlaywidget.cpp
     sinknode.cpp
     streamreader.cpp

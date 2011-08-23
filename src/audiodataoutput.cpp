@@ -90,17 +90,18 @@ void AudioDataOutput::setDataSize(int size)
 
 void AudioDataOutput::addToMedia(libvlc_media_t *media)
 {
-    MediaObject::addOption(media, ":sout=#duplicate{dst=display,dst='transcode{}'}:smem");
-    MediaObject::addOption(media, ":sout-transcode-acodec=f32l");
-    MediaObject::addOption(media, ":sout-transcode-vcodec=none");
-    MediaObject::addOption(media, ":sout-smem-time-sync");
+#warning
+//    MediaObject::addOption(media, ":sout=#duplicate{dst=display,dst='transcode{}'}:smem");
+//    MediaObject::addOption(media, ":sout-transcode-acodec=f32l");
+//    MediaObject::addOption(media, ":sout-transcode-vcodec=none");
+//    MediaObject::addOption(media, ":sout-smem-time-sync");
 
-    // Add audio lock callback
-    MediaObject::addOption(media, ":sout-smem-audio-prerender-callback=", INTPTR_FUNC(AudioDataOutput::lock));
-    // Add audio unlock callback
-    MediaObject::addOption(media, ":sout-smem-audio-postrender-callback=", INTPTR_FUNC(AudioDataOutput::unlock));
-    // Add pointer to ourselves...
-    MediaObject::addOption(media, ":sout-smem-audio-data=", INTPTR_PTR(this));
+//    // Add audio lock callback
+//    MediaObject::addOption(media, ":sout-smem-audio-prerender-callback=", INTPTR_FUNC(AudioDataOutput::lock));
+//    // Add audio unlock callback
+//    MediaObject::addOption(media, ":sout-smem-audio-postrender-callback=", INTPTR_FUNC(AudioDataOutput::unlock));
+//    // Add pointer to ourselves...
+//    MediaObject::addOption(media, ":sout-smem-audio-data=", INTPTR_PTR(this));
 }
 
 void AudioDataOutput::lock(AudioDataOutput *cw, quint8 **pcm_buffer , quint32 size)

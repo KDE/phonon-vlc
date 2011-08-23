@@ -28,6 +28,7 @@
 #include "debug.h"
 #include "globaldescriptioncontainer.h"
 #include "libvlc.h"
+#include "mediaplayer.h"
 
 namespace Phonon
 {
@@ -252,7 +253,7 @@ void MediaController::chapterAdded(int titleId, const QString &name)
 void MediaController::setCurrentAudioChannel(const Phonon::AudioChannelDescription &audioChannel)
 {
     const int localIndex = GlobalAudioChannels::instance()->localIdFor(this, audioChannel.index());
-    if (libvlc_audio_set_track(m_player, localIndex))
+    if (m_player->setAudioTrack(localIndex))
         error() << "libVLC:" << LibVLC::errorMessage();
     else
         m_currentAudioChannel = audioChannel;
@@ -270,16 +271,17 @@ Phonon::AudioChannelDescription MediaController::currentAudioChannel() const
 
 void MediaController::refreshAudioChannels()
 {
-    m_currentAudioChannel = Phonon::AudioChannelDescription();
-    GlobalAudioChannels::instance()->clearListFor(this);
+#warning
+//    m_currentAudioChannel = Phonon::AudioChannelDescription();
+//    GlobalAudioChannels::instance()->clearListFor(this);
 
-    libvlc_track_description_t *p_info = libvlc_audio_get_track_description(m_player);
-    while (p_info) {
-        GlobalAudioChannels::instance()->add(this, p_info->i_id, p_info->psz_name, "");
-        p_info = p_info->p_next;
-    }
-    libvlc_track_description_release(p_info);
-    emit availableAudioChannelsChanged();
+//    libvlc_track_description_t *p_info = libvlc_audio_get_track_description(m_player);
+//    while (p_info) {
+//        GlobalAudioChannels::instance()->add(this, p_info->i_id, p_info->psz_name, "");
+//        p_info = p_info->p_next;
+//    }
+//    libvlc_track_description_release(p_info);
+//    emit availableAudioChannelsChanged();
 }
 
 // Subtitle
@@ -291,7 +293,7 @@ void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &subt
     if (type == "file") {
         QString filename = subtitle.property("name").toString();
         if (!filename.isEmpty()) {
-            if (!libvlc_video_set_subtitle_file(m_player, filename.toAscii().data()))
+            if (!m_player->setSubtitle(filename))
                 error() << "libVLC:" << LibVLC::errorMessage();
             else
                 m_currentSubtitle = subtitle;
@@ -302,7 +304,7 @@ void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &subt
         }
     } else {
         const int localIndex = GlobalSubtitles::instance()->localIdFor(this, subtitle.index());
-        if (libvlc_video_set_spu(m_player, localIndex))
+        if (m_player->setSubtitle(localIndex))
             error() << "libVLC:" << LibVLC::errorMessage();
         else
             m_currentSubtitle = subtitle;
@@ -321,44 +323,45 @@ Phonon::SubtitleDescription MediaController::currentSubtitle() const
 
 void MediaController::refreshSubtitles()
 {
-    DEBUG_BLOCK;
-    m_currentSubtitle = Phonon::SubtitleDescription();
-    GlobalSubtitles::instance()->clearListFor(this);
+#warning
+//    DEBUG_BLOCK;
+//    m_currentSubtitle = Phonon::SubtitleDescription();
+//    GlobalSubtitles::instance()->clearListFor(this);
 
-    int idOffset = 0;
-    bool idSet = false;
-    libvlc_track_description_t *p_info = libvlc_video_get_spu_description(m_player);
-    while (p_info) {
-#ifdef __GNUC__
-#warning In the name of Kent Beck! libvlc is the broken...
-#endif
-        int id = -1; // Our fixed ID, some versions of libvlc report bogus IDs.
-        const int vlcId = p_info->i_id;
+//    int idOffset = 0;
+//    bool idSet = false;
+//    libvlc_track_description_t *p_info = libvlc_video_get_spu_description(m_player);
+//    while (p_info) {
+//#ifdef __GNUC__
+//#warning In the name of Kent Beck! libvlc is the broken...
+//#endif
+//        int id = -1; // Our fixed ID, some versions of libvlc report bogus IDs.
+//        const int vlcId = p_info->i_id;
 
-        // Fix broken VLC - set_spu only accepts uint.
-        // -1 is always 'Disable' subtitles, which really should be 0.
-        if (vlcId == -1)
-            id = 0;
+//        // Fix broken VLC - set_spu only accepts uint.
+//        // -1 is always 'Disable' subtitles, which really should be 0.
+//        if (vlcId == -1)
+//            id = 0;
 
-        // This will be true for the very first real subtitle (that is excluding 'Disable').
-        if (vlcId > 0 && !idSet) {
-            idSet = true;
-            // If the ID is *not* 1 we must assume that libvlc has a broken numbering
-            // scheme and calculate an ID offset accordingly.
-            if (vlcId != 1)
-                idOffset = p_info->i_id - 1;
-        }
+//        // This will be true for the very first real subtitle (that is excluding 'Disable').
+//        if (vlcId > 0 && !idSet) {
+//            idSet = true;
+//            // If the ID is *not* 1 we must assume that libvlc has a broken numbering
+//            // scheme and calculate an ID offset accordingly.
+//            if (vlcId != 1)
+//                idOffset = p_info->i_id - 1;
+//        }
 
-        // The ID is always -1 except for the very first subtitle (that is 'Disable').
-        // Calculate a fixed ID in case we set an offset (see above).
-        if (id == -1)
-            id = p_info->i_id - idOffset;
+//        // The ID is always -1 except for the very first subtitle (that is 'Disable').
+//        // Calculate a fixed ID in case we set an offset (see above).
+//        if (id == -1)
+//            id = p_info->i_id - idOffset;
 
-        GlobalSubtitles::instance()->add(this, id, p_info->psz_name, "");
-        p_info = p_info->p_next;
-    }
-    libvlc_track_description_release(p_info);
-    emit availableSubtitlesChanged();
+//        GlobalSubtitles::instance()->add(this, id, p_info->psz_name, "");
+//        p_info = p_info->p_next;
+//    }
+//    libvlc_track_description_release(p_info);
+//    emit availableSubtitlesChanged();
 }
 
 // Title
@@ -379,7 +382,7 @@ void MediaController::setCurrentTitle(int title)
     case Dvd:
     case Vcd:
          //    libvlc_media_player_set_title(m_player, title.index(), vlc_exception);
-        libvlc_media_player_set_title(m_player, title);
+        m_player->setTitle(title);
         break;
     default:
         warning() << "Current media source is not a CD, DVD or VCD!";
@@ -415,7 +418,7 @@ void MediaController::setCurrentChapter(int chapter)
 {
     m_currentChapter = chapter;
 //    libvlc_media_player_set_chapter(m_player, chapter.index(), vlc_exception);
-    libvlc_media_player_set_chapter(m_player, chapter);
+    m_player->setChapter(chapter);
 }
 
 //QList<Phonon::ChapterDescription> MediaController::availableChapters() const
@@ -433,18 +436,19 @@ int MediaController::currentChapter() const
 // We need to rebuild available chapters when title is changed
 void MediaController::refreshChapters(int title)
 {
-//    m_currentChapter = Phonon::ChapterDescription();
-//    m_availableChapters.clear();
-    m_currentChapter = 0;
-    m_availableChapters = 0;
+#warning
+////    m_currentChapter = Phonon::ChapterDescription();
+////    m_availableChapters.clear();
+//    m_currentChapter = 0;
+//    m_availableChapters = 0;
 
-    // Get the description of available chapters for specific title
-    libvlc_track_description_t *p_info = libvlc_video_get_chapter_description(m_player, title);
-    while (p_info) {
-        chapterAdded(p_info->i_id, p_info->psz_name);
-        p_info = p_info->p_next;
-    }
-    libvlc_track_description_release(p_info);
+//    // Get the description of available chapters for specific title
+//    libvlc_track_description_t *p_info = libvlc_video_get_chapter_description(m_player, title);
+//    while (p_info) {
+//        chapterAdded(p_info->i_id, p_info->psz_name);
+//        p_info = p_info->p_next;
+//    }
+//    libvlc_track_description_release(p_info);
 }
 
 // Angle

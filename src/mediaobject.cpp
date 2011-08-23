@@ -1,26 +1,24 @@
-/*****************************************************************************
- * libVLC backend for the Phonon library                                     *
- *                                                                           *
- * Copyright (C) 2007-2008 Tanguy Krotoff <tkrotoff@gmail.com>               *
- * Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>                *
- * Copyright (C) 2009 Fathi Boudra <fabo@kde.org>                            *
- * Copyright (C) 2010 Ben Cooksley <sourtooth@gmail.com>                     *
- * Copyright (C) 2009-2010 vlc-phonon AUTHORS                                *
- *                                                                           *
- * This program is free software; you can redistribute it and/or             *
- * modify it under the terms of the GNU Lesser General Public                *
- * License as published by the Free Software Foundation; either              *
- * version 2.1 of the License, or (at your option) any later version.        *
- *                                                                           *
- * This program is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of            *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU         *
- * Lesser General Public License for more details.                           *
- *                                                                           *
- * You should have received a copy of the GNU Lesser General Public          *
- * License along with this package; if not, write to the Free Software       *
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA *
- *****************************************************************************/
+/*
+    Copyright (C) 2007-2008 Tanguy Krotoff <tkrotoff@gmail.com>
+    Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>
+    Copyright (C) 2009 Fathi Boudra <fabo@kde.org>
+    Copyright (C) 2010 Ben Cooksley <sourtooth@gmail.com>
+    Copyright (C) 2009-2011 vlc-phonon AUTHORS
+    Copyright (C) 2010-2011 Harald Sitter <sitter@kde.org>
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "mediaobject.h"
 
@@ -35,6 +33,8 @@
 #include "backend.h"
 #include "debug.h"
 #include "libvlc.h"
+#include "media.h"
+#include "mediaplayer.h"
 #include "sinknode.h"
 
 //Time in milliseconds before sending aboutToFinish() signal
@@ -58,52 +58,28 @@ MediaObject::MediaObject(QObject *parent)
     // FIXME: Not implemented yet
     , m_tickInterval(0)
     , m_transitionTime(0)
+    , m_media(0)
 {
     qRegisterMetaType<QMultiMap<QString, QString> >("QMultiMap<QString, QString>");
 
-    connect(this, SIGNAL(stateChanged(Phonon::State)),
-            SLOT(stateChangedInternal(Phonon::State)));
-
-    connect(this, SIGNAL(tickInternal(qint64)),
-            SLOT(tickInternalSlot(qint64)));
-
-    connect(this, SIGNAL(moveToNext()),
-            SLOT(moveToNextSource()));
-
-//    m_nextSource = MediaSource(QUrl());
+    connect(this, SIGNAL(stateChanged(Phonon::State)), SLOT(stateChangedInternal(Phonon::State)));
+    connect(this, SIGNAL(tickInternal(qint64)), SLOT(tickInternalSlot(qint64)));
+    connect(this, SIGNAL(moveToNext()), SLOT(moveToNextSource()));
 
     // Create an empty Media Player object
-    m_player = libvlc_media_player_new(libvlc);
-    if (!m_player) {
+    m_player = new MediaPlayer(this);
+    if (!m_player->libvlc_media_player()) {
         error() << "libVLC:" << LibVLC::errorMessage();
     }
-    m_eventManager = 0;
     connectToPlayerVLCEvents();
 
-    // Media
-    m_media = 0;
-    m_mediaEventManager = 0;
-
-    // Media Discoverer
-    m_mediaDiscoverer = 0;
-    m_mediaDiscovererEventManager = 0;
-
     // default to -1, so that streams won't break and to comply with the docs (-1 if unknown)
-    m_totalTime = -1;
-    m_hasVideo = false;
-    m_seekable = false;
-    m_seekpoint = 0;
-
-    connect(this, SIGNAL(metaDataNeedsRefresh()), this, SLOT(updateMetaData()));
-    connect(this, SIGNAL(durationChanged(qint64)), this, SLOT(updateDuration(qint64)));
+    resetMembers();
 }
 
 MediaObject::~MediaObject()
 {
     unloadMedia();
-
-    libvlc_media_player_stop(m_player); // ensure that we are stopped
-    libvlc_media_player_release(m_player);
 }
 
 void MediaObject::setVideoWidget(BaseWidget *widget)
@@ -116,7 +92,7 @@ void MediaObject::play()
     debug() << Q_FUNC_INFO;
 
     if (m_currentState == Phonon::PausedState) {
-        resume();
+        m_player->resume();
     } else {
         m_prefinishEmitted = false;
         m_aboutToFinishEmitted = false;
@@ -191,12 +167,6 @@ void MediaObject::loadMedia(const QString &filename)
     loadMedia(filename.toUtf8());
 }
 
-void MediaObject::resume()
-{
-    libvlc_media_player_set_pause(m_player, 0);
-    emit stateChanged(Phonon::PlayingState);
-}
-
 void MediaObject::resetMembers()
 {
     m_totalTime = -1;
@@ -230,7 +200,7 @@ qint64 MediaObject::currentTime() const
     case Phonon::PausedState:
     case Phonon::BufferingState:
     case Phonon::PlayingState:
-        time = libvlc_media_player_get_time(m_player);
+        time = m_player->time();
         break;
     case Phonon::StoppedState:
     case Phonon::LoadingState:
@@ -239,8 +209,6 @@ qint64 MediaObject::currentTime() const
     case Phonon::ErrorState:
         time = -1;
         break;
-    default:
-        error() << Q_FUNC_INFO << "unsupported Phonon::State:" << state();
     }
 
     return time;
@@ -414,9 +382,7 @@ void MediaObject::emitAboutToFinish()
 void MediaObject::stateChangedInternal(Phonon::State newState)
 {
     DEBUG_BLOCK;
-    debug() << phononStateToString(m_currentState)
-            << "-->"
-            << phononStateToString(newState);
+    debug() << m_currentState << "-->" << newState;
 
     if (newState == m_currentState) {
         // State not changed
@@ -431,32 +397,6 @@ void MediaObject::stateChangedInternal(Phonon::State newState)
     Phonon::State previousState = m_currentState;
     m_currentState = newState;
     emit stateChanged(m_currentState, previousState);
-}
-
-QString MediaObject::phononStateToString(Phonon::State state)
-{
-    QString string;
-    switch (state) {
-    case Phonon::ErrorState:
-        string = QLatin1String("ErrorState");
-        break;
-    case Phonon::LoadingState:
-        string = QLatin1String("LoadingState");
-        break;
-    case Phonon::StoppedState:
-        string = QLatin1String("StoppedState");
-        break;
-    case Phonon::PlayingState:
-        string = QLatin1String("PlayingState");
-        break;
-    case Phonon::BufferingState:
-        string = QLatin1String("BufferingState");
-        break;
-    case Phonon::PausedState:
-        string = QLatin1String("PausedState");
-        break;
-    }
-    return string;
 }
 
 void MediaObject::moveToNextSource()
@@ -476,10 +416,11 @@ bool MediaObject::checkGaplessWaiting()
     return m_nextSource.type() != MediaSource::Invalid && m_nextSource.type() != MediaSource::Empty;
 }
 
-void MediaObject::unloadMedia()
+inline void MediaObject::unloadMedia()
 {
     if (m_media) {
-        libvlc_media_release(m_media);
+        m_media->disconnect(this);
+        m_media->deleteLater();
         m_media = 0;
     }
 }
@@ -491,27 +432,25 @@ void MediaObject::setVLCVideoWidget()
         return;
 
     // Get our media player to use our window
+#warning
 #if defined(Q_OS_MAC)
-    libvlc_media_player_set_nsobject(m_player, m_videoWidget->cocoaView());
+    libvlc_media_player_set_nsobject(m_player->libvlc_media_player(), m_videoWidget->cocoaView());
 #elif defined(Q_OS_UNIX)
-    libvlc_media_player_set_xwindow(m_player, m_videoWidget->winId());
+    libvlc_media_player_set_xwindow(m_player->libvlc_media_player(), m_videoWidget->winId());
 #elif defined(Q_OS_WIN)
-    libvlc_media_player_set_hwnd(m_player, m_videoWidget->winId());
+    libvlc_media_player_set_hwnd(m_player->libvlc_media_player(), m_videoWidget->winId());
 #endif
 }
 
 void MediaObject::playInternal()
 {
     DEBUG_BLOCK;
-    if (m_media) {  // We are changing media, discard the old one
-        libvlc_media_release(m_media);
-        m_media = 0;
-    }
+    unloadMedia();
 
     m_totalTime = -1;
 
     // Create a media with the given MRL
-    m_media = libvlc_media_new_location(libvlc, m_currentFile);
+    m_media = new Media(m_currentFile, this);
     if (!m_media) {
         error() << "libVLC:" << LibVLC::errorMessage();
     }
@@ -519,41 +458,39 @@ void MediaObject::playInternal()
     if (m_streamReader) { // Set callbacks for stream reading using imem
         m_streamReader->lock(); // Make sure we can lock in read().
 
-        addOption(QLatin1String("imem-cat=4"));
-        addOption(QLatin1String("imem-data="), INTPTR_PTR(m_streamReader));
-        addOption(QLatin1String("imem-get="), INTPTR_FUNC(StreamReader::readCallback));
-        addOption(QLatin1String("imem-release="), INTPTR_FUNC(StreamReader::readDoneCallback));
-        addOption(QLatin1String("imem-seek="), INTPTR_FUNC(StreamReader::seekCallback));
+        m_media->addOption(QLatin1String("imem-cat=4"));
+        m_media->addOption(QLatin1String("imem-data="), INTPTR_PTR(m_streamReader));
+        m_media->addOption(QLatin1String("imem-get="), INTPTR_FUNC(StreamReader::readCallback));
+        m_media->addOption(QLatin1String("imem-release="), INTPTR_FUNC(StreamReader::readDoneCallback));
+        m_media->addOption(QLatin1String("imem-seek="), INTPTR_FUNC(StreamReader::seekCallback));
 
         // if stream has known size, we may pass it
         // imem module will use it and pass it to demux
         if (m_streamReader->streamSize() > 0) {
-            addOption(QString("imem-size=%1").arg(m_streamReader->streamSize()));
+            m_media->addOption(QString("imem-size=%1").arg(m_streamReader->streamSize()));
         }
     }
 
     if (m_isScreen) {
-        addOption(QLatin1String("screen-fps=24.0"));
-        addOption(QLatin1String("screen-caching=300"));
+        m_media->addOption(QLatin1String("screen-fps=24.0"));
+        m_media->addOption(QLatin1String("screen-caching=300"));
     }
 
     if (source().discType() == Cd && m_currentTitle > 0) {
         debug() << "setting CDDA track";
-        addOption(QLatin1String("cdda-track="), QVariant(m_currentTitle));
+        m_media->addOption(QLatin1String("cdda-track="), QVariant(m_currentTitle));
     }
 
     foreach (SinkNode * sink, m_sinks) {
-        sink->addToMedia(m_media);
+#warning
+        sink->addToMedia(m_media->libvlc_media());
     }
 
     // Set the media that will be used by the media player
-    libvlc_media_player_set_media(m_player, m_media);
+    m_player->setMedia(m_media);
 
     // connectToMediaVLCEvents() at the end since it needs to be done for each new libvlc_media_t instance
     connectToMediaVLCEvents();
-
-    // Get meta data (artist, title, etc...)
-    updateMetaData();
 
     // Update available audio channels/subtitles/angles/chapters/etc...
     // i.e everything from MediaController
@@ -566,7 +503,7 @@ void MediaObject::playInternal()
     setVLCVideoWidget();
 
     // Play
-    if (libvlc_media_player_play(m_player)) {
+    if (m_player->play()) {
         error() << "libVLC:" << LibVLC::errorMessage();
     }
 
@@ -574,28 +511,22 @@ void MediaObject::playInternal()
         seekInternal(m_seekpoint);
         m_seekpoint = 0;
     }
-
-    emit stateChanged(Phonon::PlayingState);
 }
 
 void MediaObject::pause()
 {
-    libvlc_media_t *media = libvlc_media_player_get_media(m_player);
-
     if (state() == Phonon::PausedState) {
 #ifdef __GNUC__
 #warning HACK!!!! -> after loading we are in pause, even though no media is loaded
 #endif
-        if (media == 0) {
+        if (m_media == 0) {
             // Nothing playing yet -> play
             playInternal();
         }
     } else {
         // Pause
-        libvlc_media_player_set_pause(m_player, 1);
-        emit stateChanged(Phonon::PausedState);
+        m_player->pause();
     }
-
 }
 
 void MediaObject::stop()
@@ -604,19 +535,18 @@ void MediaObject::stop()
     if (m_streamReader)
         m_streamReader->unlock();
     m_nextSource = MediaSource(QUrl());
-    libvlc_media_player_stop(m_player);
-//    unloadMedia();
-    emit stateChanged(Phonon::StoppedState);
+    m_player->stop();
 }
 
 void MediaObject::seekInternal(qint64 milliseconds)
 {
+    DEBUG_BLOCK;
     if (state() != Phonon::PlayingState) {  // Is we aren't playing, seeking is invalid...
         m_seekpoint = milliseconds;
     }
 
     debug() << Q_FUNC_INFO << milliseconds;
-    libvlc_media_player_set_time(m_player, milliseconds);
+    m_player->setTime(milliseconds);
 }
 
 QString MediaObject::errorString() const
@@ -636,246 +566,182 @@ bool MediaObject::isSeekable() const
 
 void MediaObject::connectToPlayerVLCEvents()
 {
-    // Get the event manager from which the media player send event
-    m_eventManager = libvlc_media_player_event_manager(m_player);
-    libvlc_event_type_t eventsMediaPlayer[] = {
-        libvlc_MediaPlayerPlaying,
-        libvlc_MediaPlayerPaused,
-        libvlc_MediaPlayerEndReached,
-        libvlc_MediaPlayerStopped,
-        libvlc_MediaPlayerEncounteredError,
-        libvlc_MediaPlayerTimeChanged,
-        libvlc_MediaPlayerTitleChanged,
-        //libvlc_MediaPlayerPositionChanged, // What does this event do???
-        libvlc_MediaPlayerSeekableChanged,
-        //libvlc_MediaPlayerPausableChanged, // Phonon has no use for this
-    };
-    int i_nbEvents = sizeof(eventsMediaPlayer) / sizeof(*eventsMediaPlayer);
-    for (int i = 0; i < i_nbEvents; i++) {
-        libvlc_event_attach(m_eventManager, eventsMediaPlayer[i],
-                            eventCallback, this);
-    }
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    connect(m_player, SIGNAL(seekableChanged(bool)),
+            this, SLOT(updateSeekable(bool)));
+    connect(m_player, SIGNAL(timeChanged(qint64)),
+            this, SLOT(updateTime(qint64)));
+    connect(m_player, SIGNAL(stateChanged(MediaPlayer::State)),
+            this, SLOT(updateState(MediaPlayer::State)));
 }
 
 void MediaObject::connectToMediaVLCEvents()
 {
-    // Get event manager from media descriptor object
-    m_mediaEventManager = libvlc_media_event_manager(m_media);
-    libvlc_event_type_t eventsMedia[] = {
-        libvlc_MediaMetaChanged,
-        //libvlc_MediaSubItemAdded, // Could this be used for Audio Channels / Subtitles / Chapter info??
-        libvlc_MediaDurationChanged,
-        //libvlc_MediaFreed, // Not needed is this?
-        //libvlc_MediaStateChanged, // We don't use this? Could we??
-    };
-    int i_nbEvents = sizeof(eventsMedia) / sizeof(*eventsMedia);
-    for (int i = 0; i < i_nbEvents; i++) {
-        libvlc_event_attach(m_mediaEventManager, eventsMedia[i], eventCallback, this);
-    }
-
-    // Get event manager from media service discoverer object
-    // FIXME why libvlc_media_discoverer_event_manager() does not take a libvlc_exception_t ?
-//    p_vlc_media_discoverer_event_manager = libvlc_media_discoverer_event_manager(p_vlc_media_discoverer);
-//    libvlc_event_type_t eventsMediaDiscoverer[] = {
-//        libvlc_MediaDiscovererStarted,
-//        libvlc_MediaDiscovererEnded
-//    };
-//    nbEvents = sizeof(eventsMediaDiscoverer) / sizeof(*eventsMediaDiscoverer);
-//    for (int i = 0; i < nbEvents; i++) {
-//        libvlc_event_attach(p_vlc_media_discoverer_event_manager, eventsMediaDiscoverer[i], libvlc_callback, this, vlc_exception);
-//    }
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    connect(m_media, SIGNAL(durationChanged(qint64)),
+            this, SLOT(updateDuration(qint64)));
+    connect(m_media, SIGNAL(metaDataChanged()),
+            this, SLOT(updateMetaData()));
 }
 
-void MediaObject::eventCallback(const libvlc_event_t *event, void *data)
+void MediaObject::updateDuration(qint64 newDuration)
 {
-    static int i_first_time_media_player_time_changed = 0;
-    static bool b_media_player_title_changed = false;
-
-    MediaObject *const that = static_cast<MediaObject *>(data);
-
-//    debug() << (int)p_vlc_mediaObject << "event:" << libvlc_event_type_name(p_event->type);
-
-    // Media player events
-    if (event->type == libvlc_MediaPlayerSeekableChanged) {
-        const bool b_seekable = libvlc_media_player_is_seekable(that->m_player);
-        if (b_seekable != that->m_seekable) {
-            that->m_seekable = b_seekable;
-            emit that->seekableChanged(that->m_seekable);
-        }
-    }
-    if (event->type == libvlc_MediaPlayerTimeChanged) {
-
-        ++i_first_time_media_player_time_changed;
-
-#ifdef __GNUC__
-#warning FIXME - This is ugly. It should be solved by some events in libvlc
-#endif
-        if (!that->m_hasVideo && i_first_time_media_player_time_changed < 15) {
-            debug() << "Looking for Video";
-            // Update metadata
-            that->updateMetaData();
-
-            // Get current video width and height
-            uint width = 0;
-            uint height = 0;
-            libvlc_video_get_size(that->m_player, 0, &width, &height);
-            emit that->videoWidgetSizeChanged(width, height);
-
-            // Does this media player have a video output
-            const bool b_has_video = libvlc_media_player_has_vout(that->m_player);
-            if (b_has_video != that->m_hasVideo) {
-                that->m_hasVideo = b_has_video;
-                emit that->hasVideoChanged(that->m_hasVideo);
-            }
-
-            if (b_has_video) {
-                debug() << Q_FUNC_INFO << "hasVideo!";
-
-                // Give info about audio tracks
-                that->refreshAudioChannels();
-                // Give info about subtitle tracks
-                that->refreshSubtitles();
-
-                // Get movie chapter count
-                // It is not a title/chapter media if there is no chapter
-                if (libvlc_media_player_get_chapter_count(
-                            that->m_player) > 0) {
-                    // Give info about title
-                    // only first time, no when title changed
-                    if (!b_media_player_title_changed) {
-                        libvlc_track_description_t *p_info = libvlc_video_get_title_description(
-                                    that->m_player);
-                        while (p_info) {
-                            that->titleAdded(p_info->i_id, p_info->psz_name);
-                            p_info = p_info->p_next;
-                        }
-                        libvlc_track_description_release(p_info);
-                    }
-
-                    // Give info about chapters for actual title 0
-                    if (b_media_player_title_changed) {
-                        that->refreshChapters(libvlc_media_player_get_title(
-                                                               that->m_player));
-                    } else {
-                        that->refreshChapters(0);
-                    }
-                }
-                if (b_media_player_title_changed) {
-                    b_media_player_title_changed = false;
-                }
-            }
-
-            // Bugfix with Qt mediaplayer example
-            // Now we are in playing state
-            emit that->stateChanged(Phonon::PlayingState);
-        }
-
-        emit that->tickInternal(that->currentTime());
-    }
-
-    if (event->type == libvlc_MediaPlayerBuffering) {
-        emit that->stateChanged(Phonon::BufferingState);
-    }
-
-    if (event->type == libvlc_MediaPlayerPlaying) {
-        if (that->state() != Phonon::BufferingState) {
-            // Bugfix with Qt mediaplayer example
-            emit that->stateChanged(Phonon::PlayingState);
-        }
-    }
-
-    if (event->type == libvlc_MediaPlayerPaused) {
-        emit that->stateChanged(Phonon::PausedState);
-    }
-
-    if (event->type == libvlc_MediaPlayerEndReached && !that->checkGaplessWaiting()) {
-        i_first_time_media_player_time_changed = 0;
-        that->resetMembers();
-        that->emitAboutToFinish();
-        emit that->finished();
-        emit that->stateChanged(Phonon::StoppedState);
-    } else if (event->type == libvlc_MediaPlayerEndReached) {
-        emit that->moveToNext();
-    }
-
-    if (event->type == libvlc_MediaPlayerEncounteredError && !that->checkGaplessWaiting()) {
-        i_first_time_media_player_time_changed = 0;
-        that->resetMembers();
-        emit that->finished();
-        emit that->stateChanged(Phonon::ErrorState);
-    } else if (event->type == libvlc_MediaPlayerEncounteredError) {
-        emit that->moveToNext();
-    }
-
-    if (event->type == libvlc_MediaPlayerStopped && !that->checkGaplessWaiting()) {
-        i_first_time_media_player_time_changed = 0;
-        that->resetMembers();
-        emit that->stateChanged(Phonon::StoppedState);
-    }
-
-    if (event->type == libvlc_MediaPlayerTitleChanged) {
-        i_first_time_media_player_time_changed = 0;
-        b_media_player_title_changed = true;
-    }
-
-    // Media events
-
-    if (event->type == libvlc_MediaDurationChanged) {
-        emit that->durationChanged(event->u.media_duration_changed.new_duration);
-    }
-
-    if (event->type == libvlc_MediaMetaChanged) {
-        emit that->metaDataNeedsRefresh();
-    }
+#warning duration signal can just be forwarded, we have no gain from caching this
+    m_totalTime = newDuration;
+    emit totalTimeChanged(m_totalTime);
 }
 
 void MediaObject::updateMetaData()
 {
     QMultiMap<QString, QString> metaDataMap;
 
-    const char *artist = libvlc_media_get_meta(m_media, libvlc_meta_Artist);
-    const char *title = libvlc_media_get_meta(m_media, libvlc_meta_Title);
-    const char *nowplaying = libvlc_media_get_meta(m_media, libvlc_meta_NowPlaying);
+    const QString artist = m_media->meta(libvlc_meta_Artist);
+    const QString title = m_media->meta(libvlc_meta_Title);
+    const QString nowPlaying = m_media->meta(libvlc_meta_NowPlaying);
 
     // Streams sometimes have the artist and title munged in nowplaying.
     // With ALBUM = Title and TITLE = NowPlaying it will still show up nicely in Amarok.
-    if (qstrlen(artist) == 0 && qstrlen(nowplaying) > 0) {
-        metaDataMap.insert(QLatin1String("ALBUM"),
-                        QString::fromUtf8(title));
-        metaDataMap.insert(QLatin1String("TITLE"),
-                        QString::fromUtf8(nowplaying));
+    if (artist.isEmpty() && !nowPlaying.isEmpty()) {
+        metaDataMap.insert(QLatin1String("ALBUM"), title);
+        metaDataMap.insert(QLatin1String("TITLE"), nowPlaying);
     } else {
-        metaDataMap.insert(QLatin1String("ALBUM"),
-                        QString::fromUtf8(libvlc_media_get_meta(m_media, libvlc_meta_Album)));
-        metaDataMap.insert(QLatin1String("TITLE"),
-                        QString::fromUtf8(title));
+        metaDataMap.insert(QLatin1String("ALBUM"), m_media->meta(libvlc_meta_Album));
+        metaDataMap.insert(QLatin1String("TITLE"), title);
     }
 
-    metaDataMap.insert(QLatin1String("ARTIST"),
-                       QString::fromUtf8(artist));
-    metaDataMap.insert(QLatin1String("DATE"),
-                       QString::fromUtf8(libvlc_media_get_meta(m_media, libvlc_meta_Date)));
-    metaDataMap.insert(QLatin1String("GENRE"),
-                       QString::fromUtf8(libvlc_media_get_meta(m_media, libvlc_meta_Genre)));
-    metaDataMap.insert(QLatin1String("TRACKNUMBER"),
-                       QString::fromUtf8(libvlc_media_get_meta(m_media, libvlc_meta_TrackNumber)));
-    metaDataMap.insert(QLatin1String("DESCRIPTION"),
-                       QString::fromUtf8(libvlc_media_get_meta(m_media, libvlc_meta_Description)));
-    metaDataMap.insert(QLatin1String("COPYRIGHT"),
-                       QString::fromUtf8(libvlc_media_get_meta(m_media, libvlc_meta_Copyright)));
-    metaDataMap.insert(QLatin1String("URL"),
-                       QString::fromUtf8(libvlc_media_get_meta(m_media, libvlc_meta_URL)));
-    metaDataMap.insert(QLatin1String("ENCODEDBY"),
-                       QString::fromUtf8(libvlc_media_get_meta(m_media, libvlc_meta_EncodedBy)));
+    metaDataMap.insert(QLatin1String("ARTIST"), artist);
+    metaDataMap.insert(QLatin1String("DATE"), m_media->meta(libvlc_meta_Date));
+    metaDataMap.insert(QLatin1String("GENRE"), m_media->meta(libvlc_meta_Genre));
+    metaDataMap.insert(QLatin1String("TRACKNUMBER"), m_media->meta(libvlc_meta_TrackNumber));
+    metaDataMap.insert(QLatin1String("DESCRIPTION"), m_media->meta(libvlc_meta_Description));
+    metaDataMap.insert(QLatin1String("COPYRIGHT"), m_media->meta(libvlc_meta_Copyright));
+    metaDataMap.insert(QLatin1String("URL"), m_media->meta(libvlc_meta_URL));
+    metaDataMap.insert(QLatin1String("ENCODEDBY"), m_media->meta(libvlc_meta_EncodedBy));
 
     if (metaDataMap == m_vlcMetaData) {
         // No need to issue any change, the data is the same
         return;
     }
-
     m_vlcMetaData = metaDataMap;
 
     emit metaDataChanged(metaDataMap);
+}
+
+void MediaObject::updateSeekable(bool seekable)
+{
+#warning seekable signal can just be forwarded, we have no gain from caching this
+    m_seekable = seekable;
+    emit seekableChanged(m_seekable);
+}
+
+void MediaObject::updateState(MediaPlayer::State state)
+{
+    DEBUG_BLOCK;
+    debug() << state;
+    switch (state) {
+    case MediaPlayer::NoState:
+        emit stateChanged(LoadingState);
+        break;
+    case MediaPlayer::OpeningState:
+        emit stateChanged(LoadingState);
+        break;
+    case MediaPlayer::BufferingState:
+        emit stateChanged(BufferingState);
+        break;
+    case MediaPlayer::PlayingState: {
+        // A vout would earliest be available when switching to playing.
+        // Due to lack of an explicit event we'll have to check for vouts every
+        // time a playing event is sent, that way we can be sure to not miss
+        // anything.
+        const bool hasVideo = m_player->hasVideoOutput();
+        if (m_hasVideo != hasVideo) {
+            m_hasVideo = hasVideo;
+            emit hasVideoChanged(m_hasVideo);
+        }
+        emit stateChanged(PlayingState);
+        break;
+    }
+    case MediaPlayer::PausedState:
+        emit stateChanged(PausedState);
+        break;
+    case MediaPlayer::StoppedState:
+        resetMembers();
+        emit stateChanged(StoppedState);
+        break;
+    case MediaPlayer::EndedState:
+        resetMembers();
+        emitAboutToFinish();
+        emit finished();
+        emit stateChanged(StoppedState);
+        break;
+    case MediaPlayer::ErrorState:
+        resetMembers();
+        emitAboutToFinish();
+        emit finished();
+        emit stateChanged(ErrorState);
+        break;
+    }
+}
+
+void MediaObject::updateTime(qint64 time)
+{
+    DEBUG_BLOCK;
+#ifdef __GNUC__
+#warning FIXME - This is ugly. It should be solved by some events in libvlc
+#endif
+#warning time can remain < 15 (not seekable etc)
+    debug() << time;
+    if (!m_hasVideo && time < 1500) {
+        debug() << "Looking for Video";
+
+//        // Does this media player have a video output
+        const bool hasVideo = m_player->hasVideoOutput();
+//        if (m_hasVideo != hasVideo) {
+//            m_hasVideo = hasVideo;
+//            emit hasVideoChanged(m_hasVideo);
+//        }
+
+        if (hasVideo) {
+            debug() << "HASVIDEO";
+#warning
+//            debug() << Q_FUNC_INFO << "hasVideo!";
+
+//            // Give info about audio tracks
+//            refreshAudioChannels();
+//            // Give info about subtitle tracks
+//            refreshSubtitles();
+
+//            // Get movie chapter count
+//            // It is not a title/chapter media if there is no chapter
+//            if (libvlc_media_player_get_chapter_count(
+//                        m_player) > 0) {
+//                // Give info about title
+//                // only first time, no when title changed
+//                if (!b_media_player_title_changed) {
+//                    libvlc_track_description_t *p_info = libvlc_video_get_title_description(
+//                                m_player);
+//                    while (p_info) {
+//                        titleAdded(p_info->i_id, p_info->psz_name);
+//                        p_info = p_info->p_next;
+//                    }
+//                    libvlc_track_description_release(p_info);
+//                }
+
+//                // Give info about chapters for actual title 0
+//                if (b_media_player_title_changed) {
+//                    refreshChapters(libvlc_media_player_get_title(
+//                                                           m_player));
+//                } else {
+//                    refreshChapters(0);
+//                }
+//            }
+//            if (b_media_player_title_changed) {
+//                b_media_player_title_changed = false;
+//            }
+        }
+    }
+
+    emit tickInternal(time);
 }
 
 qint64 MediaObject::totalTime() const
@@ -883,62 +749,16 @@ qint64 MediaObject::totalTime() const
     return m_totalTime;
 }
 
-void MediaObject::updateDuration(qint64 newDuration)
-{
-    // If its within 5ms of the current total time, don't bother....
-    if (newDuration - 5 > m_totalTime || newDuration + 5 < m_totalTime) {
-        debug() << Q_FUNC_INFO << "Length changing from " << m_totalTime
-                 << " to " << newDuration;
-        m_totalTime = newDuration;
-        emit totalTimeChanged(m_totalTime);
-    }
-}
-
 void MediaObject::addSink(SinkNode *node)
 {
-    if (m_sinks.contains(node)) {
-        // This shouldn't happen....
-        return;
-    }
+    Q_ASSERT(!m_sinks.contains(node));
     m_sinks.append(node);
 }
 
 void MediaObject::removeSink(SinkNode *node)
 {
-    if( node != NULL )
-        m_sinks.removeAll(node);
-}
-
-void MediaObject::addOption(const QString &option)
-{
-    addOption(m_media, option);
-}
-
-void MediaObject::addOption(libvlc_media_t *media, const QString &option)
-{
-    Q_ASSERT(media);
-    debug() << Q_FUNC_INFO << option;
-    libvlc_media_add_option_flag(media, qPrintable(option), libvlc_media_option_trusted);
-}
-
-void MediaObject::addOption(const QString &option, intptr_t functionPtr)
-{
-    addOption(m_media, option, functionPtr);
-}
-
-void MediaObject::addOption(const QString &option, const QVariant &argument)
-{
-    addOption(m_media, option % argument.toString());
-}
-
-void MediaObject::addOption(libvlc_media_t *media, const QString &option,
-                            intptr_t functionPtr)
-{
-    Q_ASSERT(media);
-    QString optionWithPtr = option;
-    optionWithPtr.append(QString::number(static_cast<qint64>(functionPtr)));
-    debug() << Q_FUNC_INFO << optionWithPtr;
-    libvlc_media_add_option_flag(media, qPrintable(optionWithPtr), libvlc_media_option_trusted);
+    Q_ASSERT(node);
+    m_sinks.removeAll(node);
 }
 
 }

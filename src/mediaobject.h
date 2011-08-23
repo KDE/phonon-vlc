@@ -1,54 +1,49 @@
-/*****************************************************************************
- * libVLC backend for the Phonon library                                     *
- *                                                                           *
- * Copyright (C) 2007-2008 Tanguy Krotoff <tkrotoff@gmail.com>               *
- * Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>                *
- * Copyright (C) 2009 Fathi Boudra <fabo@kde.org>                            *
- * Copyright (C) 2009-2010 vlc-phonon AUTHORS                                *
- *                                                                           *
- * This program is free software; you can redistribute it and/or             *
- * modify it under the terms of the GNU Lesser General Public                *
- * License as published by the Free Software Foundation; either              *
- * version 2.1 of the License, or (at your option) any later version.        *
- *                                                                           *
- * This program is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of            *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU         *
- * Lesser General Public License for more details.                           *
- *                                                                           *
- * You should have received a copy of the GNU Lesser General Public          *
- * License along with this package; if not, write to the Free Software       *
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA *
- *****************************************************************************/
+/*
+    Copyright (C) 2007-2008 Tanguy Krotoff <tkrotoff@gmail.com>
+    Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>
+    Copyright (C) 2009 Fathi Boudra <fabo@kde.org>
+    Copyright (C) 2009-2011 vlc-phonon AUTHORS
+    Copyright (C) 2010-2011 Harald Sitter <sitter@kde.org>
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #ifndef PHONON_VLC_MEDIAOBJECT_H
 #define PHONON_VLC_MEDIAOBJECT_H
 
 #include <QtCore/QObject>
-#include <phonon/mediaobjectinterface.h>
-#include <phonon/addoninterface.h>
-#include "mediacontroller.h"
-
 #include <QtGui/QWidget>
 
-#include "streamreader.h"
+#include <phonon/mediaobjectinterface.h>
+#include <phonon/addoninterface.h>
 
-// for BaseWidget
-#include "overlaywidget.h"
+#include "mediacontroller.h"
+#include "mediaplayer.h"
+#include "overlaywidget.h" // for BaseWidget
+#include "streamreader.h"
 
 struct libvlc_event_t;
 struct libvlc_event_manager_t;
 struct libvlc_media_t;
 struct libvlc_media_discoverer_t;
 
-#define INTPTR_PTR(x) reinterpret_cast<intptr_t>(x)
-#define INTPTR_FUNC(x) reinterpret_cast<intptr_t>(&x)
-
 namespace Phonon
 {
 namespace VLC
 {
 
+class Media;
 class SeekStack;
 class SinkNode;
 
@@ -127,16 +122,6 @@ public:
      * Removes a sink from this media object.
      */
     void removeSink(SinkNode *node);
-
-//    /**
-//     * Remembers the widget id (window system identifier) that will be
-//     * later passed to libVLC to draw the video on it, if this media object
-//     * will have video.
-//     *
-//     * \param i_widget_id The widget id to be remembered for video
-//     * \see MediaObject::setVLCWidgetId()
-//     */
-//    void setVideoWidgetId(WId i_widget_id);
 
     /**
      * Remembers the widget id (window system identifier) that will be
@@ -244,7 +229,6 @@ signals:
     void angleChanged(int angleNumber);
     void chapterChanged(int chapterNumber);
     void titleChanged(int titleNumber);
-    void metaDataNeedsRefresh();
     void durationChanged(qint64 newDuration);
 
     /**
@@ -274,16 +258,6 @@ signals:
 
 private slots:
     /**
-     * Retrieve meta data of a file (i.e ARTIST, TITLE, ALBUM, etc...).
-     */
-    void updateMetaData();
-
-    /**
-     * Update media duration time
-     */
-    void updateDuration(qint64 newDuration);
-
-    /**
      * If the new state is different from the current state, the current state is
      * changed and the corresponding signal is emitted.
      */
@@ -304,6 +278,20 @@ private slots:
      * \see setNextSource()
      */
     void moveToNextSource();
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    /**
+     * Update media duration time
+     */
+    void updateDuration(qint64 newDuration);
+    /**
+     * Retrieve meta data of a file (i.e ARTIST, TITLE, ALBUM, etc...).
+     */
+    void updateMetaData();
+    void updateSeekable(bool seekable);
+    void updateState(MediaPlayer::State state);
+    void updateTime(qint64 time);
+
 
 private:
 
@@ -326,29 +314,6 @@ private:
      * Seeks to the required position. If the state is not playing, the seek position is remembered.
      */
     void seekInternal(qint64 milliseconds);
-
-    /**
-     * Adds an option to the libVLC media.
-     *
-     * \param option What option to add
-     */
-    void addOption(const QString &option);
-
-    /**
-     * Adds an option to the libVLC media and appends a function point address to it.
-     *
-     * \param option What option to add
-     * \param functionPtr the function pointer
-     */
-    void addOption(const QString &option, intptr_t functionPtr);
-
-    /**
-     * Adds an option to the libVLC media and appends a QVariant argument to it.
-     *
-     * \param option What option to add
-     * \param argument the value to use as argument
-     */
-    void addOption(const QString &option, const QVariant &argument);
 
     bool checkGaplessWaiting();
 
@@ -422,17 +387,10 @@ private:
      */
     void setVLCVideoWidget();
 
-    void resume();
-
     /**
      * reset critical media members
      */
     void resetMembers();
-
-    /**
-     * \return A string representation of a Phonon state.
-     */
-    static QString phononStateToString(Phonon::State newState);
 
     BaseWidget *m_videoWidget;
     MediaSource m_nextSource;
@@ -449,16 +407,8 @@ private:
     qint32 m_tickInterval;
     qint32 m_transitionTime;
 
-    // EventManager
-    libvlc_event_manager_t *m_eventManager;
-
     // Media
-    libvlc_media_t *m_media;
-    libvlc_event_manager_t *m_mediaEventManager;
-
-    // MediaDiscoverer
-    libvlc_media_discoverer_t *m_mediaDiscoverer;
-    libvlc_event_manager_t *m_mediaDiscovererEventManager;
+    Media *m_media;
 
     qint64 m_totalTime;
     QByteArray m_currentFile;

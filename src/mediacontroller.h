@@ -37,6 +37,8 @@ namespace Phonon
 namespace VLC
 {
 
+class MediaPlayer;
+
 /**
  * \brief Interface for AddonInterface.
  *
@@ -159,7 +161,7 @@ protected:
     bool m_autoPlayTitles;
 
     // MediaPlayer
-    libvlc_media_player_t *m_player;
+    MediaPlayer *m_player;
 };
 
 }

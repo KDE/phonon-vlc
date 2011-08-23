@@ -25,6 +25,7 @@
 
 #include "debug.h"
 #include "mediaobject.h"
+#include "mediaplayer.h"
 
 #ifndef PHONON_VLC_NO_EXPERIMENTAL
 #include "experimental/avcapture.h"
@@ -52,7 +53,7 @@ void SinkNode::connectToMediaObject(MediaObject *mediaObject)
     }
 
     m_mediaObject = mediaObject;
-    m_player = mediaObject->m_player;
+    m_player = mediaObject->m_player->libvlc_media_player();
     m_mediaObject->addSink(this);
 }
 
