@@ -82,6 +82,17 @@ MediaObject::~MediaObject()
     unloadMedia();
 }
 
+inline void MediaObject::resetMembers()
+{
+    // default to -1, so that streams won't break and to comply with the docs (-1 if unknown)
+    m_totalTime = -1;
+    m_hasVideo = false;
+    m_seekable = false;
+    m_seekpoint = 0;
+
+    resetMediaController();
+}
+
 void MediaObject::setVideoWidget(BaseWidget *widget)
 {
     this->m_videoWidget = widget;
@@ -165,17 +176,6 @@ void MediaObject::loadMedia(const QByteArray &filename)
 void MediaObject::loadMedia(const QString &filename)
 {
     loadMedia(filename.toUtf8());
-}
-
-void MediaObject::resetMembers()
-{
-    // default to -1, so that streams won't break and to comply with the docs (-1 if unknown)
-    m_totalTime = -1;
-    m_hasVideo = false;
-    m_seekable = false;
-    m_seekpoint = 0;
-
-    resetMediaController();
 }
 
 qint32 MediaObject::tickInterval() const

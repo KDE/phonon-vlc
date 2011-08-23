@@ -90,6 +90,12 @@ public:
     ~MediaObject();
 
     /**
+     * Reset members (those that need resetting anyway).
+     * Should always be called before going to a new source.
+     */
+    void resetMembers();
+
+    /**
      * Pauses the playback for the media player.
      */
     void pause();
@@ -378,11 +384,6 @@ private:
      * \see setVideoWidgetId()
      */
     void setVLCVideoWidget();
-
-    /**
-     * reset critical media members
-     */
-    void resetMembers();
 
     BaseWidget *m_videoWidget;
     MediaSource m_nextSource;
