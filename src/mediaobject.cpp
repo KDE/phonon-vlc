@@ -90,6 +90,9 @@ inline void MediaObject::resetMembers()
     m_seekable = false;
     m_seekpoint = 0;
 
+    m_prefinishEmitted = false;
+    m_aboutToFinishEmitted = false;
+
     resetMediaController();
 }
 
@@ -109,8 +112,6 @@ void MediaObject::play()
     if (m_currentState == Phonon::PausedState) {
         m_player->resume();
     } else {
-        m_prefinishEmitted = false;
-        m_aboutToFinishEmitted = false;
         // Play the file
         playInternal();
     }
