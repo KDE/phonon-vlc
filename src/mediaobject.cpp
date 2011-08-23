@@ -197,6 +197,16 @@ void MediaObject::resume()
     emit stateChanged(Phonon::PlayingState);
 }
 
+void MediaObject::resetMembers()
+{
+    m_totalTime = -1;
+    m_hasVideo = false;
+    m_seekable = false;
+    m_seekpoint = 0;
+
+    resetMediaController();
+}
+
 qint32 MediaObject::tickInterval() const
 {
     return m_tickInterval;
@@ -780,7 +790,7 @@ void MediaObject::eventCallback(const libvlc_event_t *event, void *data)
 
     if (event->type == libvlc_MediaPlayerEndReached && !that->checkGaplessWaiting()) {
         i_first_time_media_player_time_changed = 0;
-        that->resetMediaController();
+        that->resetMembers();
         that->emitAboutToFinish();
         emit that->finished();
         emit that->stateChanged(Phonon::StoppedState);
@@ -790,7 +800,7 @@ void MediaObject::eventCallback(const libvlc_event_t *event, void *data)
 
     if (event->type == libvlc_MediaPlayerEncounteredError && !that->checkGaplessWaiting()) {
         i_first_time_media_player_time_changed = 0;
-        that->resetMediaController();
+        that->resetMembers();
         emit that->finished();
         emit that->stateChanged(Phonon::ErrorState);
     } else if (event->type == libvlc_MediaPlayerEncounteredError) {
@@ -799,7 +809,7 @@ void MediaObject::eventCallback(const libvlc_event_t *event, void *data)
 
     if (event->type == libvlc_MediaPlayerStopped && !that->checkGaplessWaiting()) {
         i_first_time_media_player_time_changed = 0;
-        that->resetMediaController();
+        that->resetMembers();
         emit that->stateChanged(Phonon::StoppedState);
     }
 

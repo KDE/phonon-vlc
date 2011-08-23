@@ -425,6 +425,11 @@ private:
     void resume();
 
     /**
+     * reset critical media members
+     */
+    void resetMembers();
+
+    /**
      * \return A string representation of a Phonon state.
      */
     static QString phononStateToString(Phonon::State newState);
