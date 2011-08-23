@@ -18,8 +18,6 @@
 #include "media.h"
 
 #include <QtCore/QDebug>
-#include <QtCore/QStringBuilder>
-#include <QtCore/QVariant>
 
 #include <vlc/vlc.h>
 
@@ -55,28 +53,16 @@ Media::~Media()
         libvlc_media_release(m_media);
 }
 
-QString Media::meta(libvlc_meta_t meta)
-{
-    return QString::fromUtf8(libvlc_media_get_meta(m_media, meta));
-}
-
-void Media::addOption(const QString &option, const QVariant &argument)
-{
-    addOption(option % argument.toString());
-}
-
-void Media::addOption(const QString &option, intptr_t functionPtr)
-{
-    QString optionWithPtr = option;
-    optionWithPtr.append(QString::number(static_cast<qint64>(functionPtr)));
-    addOption(optionWithPtr);
-}
-
 void Media::addOption(const QString &option)
 {
     libvlc_media_add_option_flag(m_media,
                                  qPrintable(option),
                                  libvlc_media_option_trusted);
+}
+
+QString Media::meta(libvlc_meta_t meta)
+{
+    return QString::fromUtf8(libvlc_media_get_meta(m_media, meta));
 }
 
 void Media::event_cb(const libvlc_event_t *event, void *opaque)

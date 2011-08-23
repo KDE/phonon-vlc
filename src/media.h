@@ -19,6 +19,8 @@
 #define PHONON_VLC_MEDIA_H
 
 #include <QtCore/QObject>
+#include <QtCore/QStringBuilder>
+#include <QtCore/QVariant>
 
 #include <vlc/libvlc.h>
 #include <vlc/libvlc_media.h>
@@ -39,11 +41,21 @@ public:
     inline libvlc_media_t *libvlc_media() const { return m_media; }
     inline operator libvlc_media_t *() const { return m_media; }
 
-    QString meta(libvlc_meta_t meta);
+    inline void addOption(const QString &option, const QVariant &argument)
+    {
+        addOption(option % argument.toString());
+    }
 
-    void addOption(const QString &option, const QVariant &argument);
-    void addOption(const QString &option, intptr_t functionPtr);
+    inline void addOption(const QString &option, intptr_t functionPtr)
+    {
+        QString optionWithPtr = option;
+        optionWithPtr.append(QString::number(static_cast<qint64>(functionPtr)));
+        addOption(optionWithPtr);
+    }
+
     void addOption(const QString &option);
+
+    QString meta(libvlc_meta_t meta);
 
 signals:
     void durationChanged(qint64 duration);
