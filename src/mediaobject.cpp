@@ -98,7 +98,7 @@ inline void MediaObject::resetMembers()
 
 void MediaObject::setVideoWidget(BaseWidget *widget)
 {
-    this->m_videoWidget = widget;
+    m_videoWidget = widget;
 }
 
 void MediaObject::play()
