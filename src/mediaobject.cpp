@@ -105,15 +105,17 @@ void MediaObject::play()
 {
     DEBUG_BLOCK;
 
-    // Do not do anything if we are already playing (as per documentation).
-    if (m_currentState == Phonon::PlayingState)
+    switch (m_currentState) {
+    case PlayingState:
+        // Do not do anything if we are already playing (as per documentation).
         return;
-
-    if (m_currentState == Phonon::PausedState) {
+    case PausedState:
         m_player->resume();
-    } else {
-        // Play the file
+        break;
+    default:
+#warning if we got rid of playinternal, we coulde simply call play and it would resume/play
         playInternal();
+        break;
     }
 
     emit playbackCommenced();
@@ -126,12 +128,10 @@ void MediaObject::seek(qint64 milliseconds)
     qint64 currentTime = this->currentTime();
     qint64 totalTime = this->totalTime();
 
-    if (currentTime < totalTime - m_prefinishMark) {
+    if (currentTime < totalTime - m_prefinishMark)
         m_prefinishEmitted = false;
-    }
-    if (currentTime < totalTime - ABOUT_TO_FINISH_TIME) {
+    if (currentTime < totalTime - ABOUT_TO_FINISH_TIME)
         m_aboutToFinishEmitted = false;
-    }
 }
 
 void MediaObject::tickInternalSlot(qint64 currentTime)
