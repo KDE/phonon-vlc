@@ -100,7 +100,11 @@ void MediaObject::setVideoWidget(BaseWidget *widget)
 
 void MediaObject::play()
 {
-    debug() << Q_FUNC_INFO;
+    DEBUG_BLOCK;
+
+    // Do not do anything if we are already playing (as per documentation).
+    if (m_currentState == Phonon::PlayingState)
+        return;
 
     if (m_currentState == Phonon::PausedState) {
         m_player->resume();
