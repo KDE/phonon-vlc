@@ -120,6 +120,21 @@ void MediaObject::play()
     emit playbackCommenced();
 }
 
+void MediaObject::pause()
+{
+    if (state() != Phonon::PausedState)
+        m_player->pause();
+}
+
+void MediaObject::stop()
+{
+    DEBUG_BLOCK;
+    if (m_streamReader)
+        m_streamReader->unlock();
+    m_nextSource = MediaSource(QUrl());
+    m_player->stop();
+}
+
 void MediaObject::seek(qint64 milliseconds)
 {
     seekInternal(milliseconds);
@@ -486,7 +501,7 @@ void MediaObject::playInternal()
         m_media->addOption(QLatin1String("cdda-track="), QVariant(m_currentTitle));
     }
 
-    foreach (SinkNode * sink, m_sinks) {
+    foreach (SinkNode *sink, m_sinks) {
 #warning
         sink->addToMedia(m_media->libvlc_media());
     }
@@ -516,31 +531,6 @@ void MediaObject::playInternal()
         seekInternal(m_seekpoint);
         m_seekpoint = 0;
     }
-}
-
-void MediaObject::pause()
-{
-    if (state() == Phonon::PausedState) {
-#ifdef __GNUC__
-#warning HACK!!!! -> after loading we are in pause, even though no media is loaded
-#endif
-        if (m_media == 0) {
-            // Nothing playing yet -> play
-            playInternal();
-        }
-    } else {
-        // Pause
-        m_player->pause();
-    }
-}
-
-void MediaObject::stop()
-{
-    DEBUG_BLOCK;
-    if (m_streamReader)
-        m_streamReader->unlock();
-    m_nextSource = MediaSource(QUrl());
-    m_player->stop();
 }
 
 void MediaObject::seekInternal(qint64 milliseconds)

@@ -96,23 +96,27 @@ public:
     void resetMembers();
 
     /**
-     * Pauses the playback for the media player.
+     * If the current state is paused, it resumes playing. Else, the playback
+     * is commenced. The corresponding playbackCommenced() signal is emitted.
      */
+    void play();
+
+    /// Pauses the playback for the media player.
     void pause();
 
-    /**
-     * Sets the next media source to an empty one and stops playback.
-     */
+    /// Sets the next media source to an empty one and stops playback.
     void stop();
 
+    /// \returns \c true when there is a video available, \c false otherwise
     bool hasVideo() const;
+
+    /// \returns \c true when the MediaObject is seekable, \c false otherwise
     bool isSeekable() const;
 
+    /// \returns total time (length, duration) of the current MediaSource (-1 if unknown)
     qint64 totalTime() const;
 
-    /**
-     * \return An error message with the last libVLC error.
-     */
+    /// \returns An error message with the last libVLC error.
     QString errorString() const;
 
     /**
@@ -124,9 +128,7 @@ public:
      */
     void addSink(SinkNode *node);
 
-    /**
-     * Removes a sink from this media object.
-     */
+    /// Removes a sink from this media object.
     void removeSink(SinkNode *node);
 
     /**
@@ -138,12 +140,6 @@ public:
      * \see MediaObject::setVLCWidgetId()
      */
     void setVideoWidget(BaseWidget *widget);
-
-    /**
-     * If the current state is paused, it resumes playing. Else, the playback
-     * is commenced. The corresponding playbackCommenced() signal is emitted.
-     */
-    void play();
 
     /**
      * Pushes a seek command to the SeekStack for this media object. The SeekStack then
