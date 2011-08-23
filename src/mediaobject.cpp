@@ -41,10 +41,8 @@
 //2 seconds
 static const int ABOUT_TO_FINISH_TIME = 2000;
 
-namespace Phonon
-{
-namespace VLC
-{
+namespace Phonon {
+namespace VLC {
 
 MediaObject::MediaObject(QObject *parent)
     : QObject(parent)
@@ -62,18 +60,20 @@ MediaObject::MediaObject(QObject *parent)
 {
     qRegisterMetaType<QMultiMap<QString, QString> >("QMultiMap<QString, QString>");
 
+    m_player = new MediaPlayer(this);
+    if (!m_player->libvlc_media_player())
+        error() << "libVLC:" << LibVLC::errorMessage();
+
+    // Player signals.
+    connect(m_player, SIGNAL(seekableChanged(bool)), this, SLOT(updateSeekable(bool)));
+    connect(m_player, SIGNAL(timeChanged(qint64)), this, SLOT(updateTime(qint64)));
+    connect(m_player, SIGNAL(stateChanged(MediaPlayer::State)), this, SLOT(updateState(MediaPlayer::State)));
+
+    // Internal Signals.
     connect(this, SIGNAL(stateChanged(Phonon::State)), SLOT(stateChangedInternal(Phonon::State)));
     connect(this, SIGNAL(tickInternal(qint64)), SLOT(tickInternalSlot(qint64)));
     connect(this, SIGNAL(moveToNext()), SLOT(moveToNextSource()));
 
-    // Create an empty Media Player object
-    m_player = new MediaPlayer(this);
-    if (!m_player->libvlc_media_player()) {
-        error() << "libVLC:" << LibVLC::errorMessage();
-    }
-    connectToPlayerVLCEvents();
-
-    // default to -1, so that streams won't break and to comply with the docs (-1 if unknown)
     resetMembers();
 }
 
@@ -169,6 +169,7 @@ void MediaObject::loadMedia(const QString &filename)
 
 void MediaObject::resetMembers()
 {
+    // default to -1, so that streams won't break and to comply with the docs (-1 if unknown)
     m_totalTime = -1;
     m_hasVideo = false;
     m_seekable = false;
@@ -564,17 +565,6 @@ bool MediaObject::isSeekable() const
     return m_seekable;
 }
 
-void MediaObject::connectToPlayerVLCEvents()
-{
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    connect(m_player, SIGNAL(seekableChanged(bool)),
-            this, SLOT(updateSeekable(bool)));
-    connect(m_player, SIGNAL(timeChanged(qint64)),
-            this, SLOT(updateTime(qint64)));
-    connect(m_player, SIGNAL(stateChanged(MediaPlayer::State)),
-            this, SLOT(updateState(MediaPlayer::State)));
-}
-
 void MediaObject::connectToMediaVLCEvents()
 {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -761,5 +751,5 @@ void MediaObject::removeSink(SinkNode *node)
     m_sinks.removeAll(node);
 }
 
-}
-} // Namespace Phonon::VLC
+} // namespace VLC
+} // namespace Phonon

@@ -326,14 +326,6 @@ private:
     void connectToMediaVLCEvents();
 
     /**
-     * Connect libvlc_callback() to all VLC media player events.
-     *
-     * \see libvlc_callback()
-     * \see connectToMediaVLCEvents()
-     */
-    void connectToPlayerVLCEvents();
-
-    /**
      * Libvlc callback.
      *
      * Receive all vlc events.
