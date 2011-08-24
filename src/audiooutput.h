@@ -59,28 +59,11 @@ public:
     AudioOutput(QObject *parent);
     ~AudioOutput();
 
-    /* Overload */
+    /// \reimp
     virtual void connectToMediaObject(MediaObject *mediaObject);
 
-    /* Overload */
+    /// \reimp
     virtual void disconnectFromMediaObject(MediaObject *mediaObject);
-
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-    /**
-     * Connects the AudioOutput to an AvCapture. connectToMediaObject() is called
-     * only for the video media of the AvCapture.
-     *
-     * \see AvCapture
-     */
-    void connectToAvCapture(Experimental::AvCapture *avCapture);
-
-    /**
-     * Disconnect the AudioOutput from the audio media of the AvCapture.
-     *
-     * \see connectToAvCapture()
-     */
-    void disconnectFromAvCapture(Experimental::AvCapture *avCapture);
-#endif // PHONON_VLC_NO_EXPERIMENTAL
 
     /**
      * \return The current volume for this audio output.

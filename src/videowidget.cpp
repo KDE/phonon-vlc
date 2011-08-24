@@ -82,18 +82,6 @@ void VideoWidget::disconnectFromMediaObject(MediaObject *mediaObject)
     disconnect(mediaObject, 0, this, 0);
 }
 
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-void VideoWidget::connectToAvCapture(Experimental::AvCapture *avCapture)
-{
-    connectToMediaObject(avCapture->videoMediaObject());
-}
-
-void VideoWidget::disconnectFromAvCapture(Experimental::AvCapture *avCapture)
-{
-    disconnectFromMediaObject(avCapture->videoMediaObject());
-}
-#endif // PHONON_VLC_NO_EXPERIMENTAL
-
 Phonon::VideoWidget::AspectRatio VideoWidget::aspectRatio() const
 {
     return m_aspectRatio;

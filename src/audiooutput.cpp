@@ -67,18 +67,6 @@ void AudioOutput::disconnectFromMediaObject(MediaObject *mediaObject)
     }
 }
 
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-void AudioOutput::connectToAvCapture(Experimental::AvCapture *avCapture)
-{
-    connectToMediaObject(avCapture->audioMediaObject());
-}
-
-void AudioOutput::disconnectFromAvCapture(Experimental::AvCapture *avCapture)
-{
-    disconnectFromMediaObject(avCapture->audioMediaObject());
-}
-#endif // PHONON_VLC_NO_EXPERIMENTAL
-
 qreal AudioOutput::volume() const
 {
     return m_volume;
