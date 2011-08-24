@@ -46,7 +46,6 @@ namespace VLC {
 
 MediaObject::MediaObject(QObject *parent)
     : QObject(parent)
-    , m_videoWidget(0)
     , m_nextSource(MediaSource(QUrl()))
     , m_streamReader(0)
     , m_currentState(Phonon::StoppedState)
@@ -95,11 +94,6 @@ inline void MediaObject::resetMembers()
     m_timesVideoChecked = 0;
 
     resetMediaController();
-}
-
-void MediaObject::setVideoWidget(BaseWidget *widget)
-{
-    m_videoWidget = widget;
 }
 
 void MediaObject::play()
@@ -282,7 +276,7 @@ void MediaObject::setSource(const MediaSource &source)
         debug() << "MediaSource::Mrl:" << source.mrl();
         loadMedia(source.mrl().toEncoded());
     } // Keep these braces and the following break as-is, some compilers fall over the var decl above.
-        break;
+    break;
     case MediaSource::Disc:
         switch (source.discType()) {
         case Phonon::NoDisc:
@@ -296,9 +290,6 @@ void MediaObject::setSource(const MediaSource &source)
             break;
         case Phonon::Vcd:
             loadMedia(m_mediaSource.deviceName());
-            break;
-        default:
-            error() << Q_FUNC_INFO << "unsupported MediaSource::Disc:" << source.discType();
             break;
         }
         break;
@@ -444,23 +435,6 @@ inline void MediaObject::unloadMedia()
     }
 }
 
-void MediaObject::setVLCVideoWidget()
-{
-    // Nothing to do if there is no video widget
-    if (!m_videoWidget)
-        return;
-
-    // Get our media player to use our window
-#warning
-#if defined(Q_OS_MAC)
-    libvlc_media_player_set_nsobject(m_player->libvlc_media_player(), m_videoWidget->cocoaView());
-#elif defined(Q_OS_UNIX)
-    libvlc_media_player_set_xwindow(m_player->libvlc_media_player(), m_videoWidget->winId());
-#elif defined(Q_OS_WIN)
-    libvlc_media_player_set_hwnd(m_player->libvlc_media_player(), m_videoWidget->winId());
-#endif
-}
-
 void MediaObject::playInternal()
 {
     DEBUG_BLOCK;
@@ -470,9 +444,8 @@ void MediaObject::playInternal()
 
     // Create a media with the given MRL
     m_media = new Media(m_currentFile, this);
-    if (!m_media) {
+    if (!m_media)
         error() << "libVLC:" << LibVLC::errorMessage();
-    }
 
     if (m_streamReader) { // Set callbacks for stream reading using imem
         m_streamReader->lock(); // Make sure we can lock in read().
@@ -517,13 +490,9 @@ void MediaObject::playInternal()
     // This will reset the GUI
     resetMediaController();
 
-    // Set up the widget id for libVLC if there is a video widget available
-    setVLCVideoWidget();
-
     // Play
-    if (m_player->play()) {
+    if (m_player->play())
         error() << "libVLC:" << LibVLC::errorMessage();
-    }
 
     if (m_seekpoint != 0) {  // Workaround that seeking needs to work before the file is being played...
         seekInternal(m_seekpoint);

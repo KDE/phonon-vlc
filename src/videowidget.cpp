@@ -69,8 +69,6 @@ void VideoWidget::connectToMediaObject(MediaObject *mediaObject)
     connect(mediaObject, SIGNAL(currentSourceChanged(MediaSource)),
             SLOT(clearPendingAdjusts()));
 
-    mediaObject->setVideoWidget(this);
-
     clearPendingAdjusts();
 }
 
@@ -80,6 +78,20 @@ void VideoWidget::disconnectFromMediaObject(MediaObject *mediaObject)
     // Undo all connections or path creation->destruction->creation can cause
     // duplicated connections or getting singals from two different MediaObjects.
     disconnect(mediaObject, 0, this, 0);
+}
+
+void VideoWidget::addToMedia(Media *media)
+{
+    SinkNode::addToMedia(media);
+
+#warning this seems an awful solution
+#if defined(Q_OS_MAC)
+    libvlc_media_player_set_nsobject(m_player->libvlc_media_player(), cocoaView());
+#elif defined(Q_OS_UNIX)
+    libvlc_media_player_set_xwindow(m_player->libvlc_media_player(), winId());
+#elif defined(Q_OS_WIN)
+    libvlc_media_player_set_hwnd(m_player->libvlc_media_player(), winId());
+#endif
 }
 
 Phonon::VideoWidget::AspectRatio VideoWidget::aspectRatio() const

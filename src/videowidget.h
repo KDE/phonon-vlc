@@ -76,6 +76,9 @@ public:
     /// \reimp
     void disconnectFromMediaObject(MediaObject *mediaObject);
 
+    /// \reimp
+    void addToMedia(Media *media);
+
     /**
      * \return The aspect ratio previously set for the video widget
      */
@@ -222,7 +225,6 @@ private:
     QSize m_videoSize;
 
     Phonon::VideoWidget::AspectRatio m_aspectRatio;
-
     Phonon::VideoWidget::ScaleMode m_scaleMode;
 
     bool  m_filterAdjustActivated;

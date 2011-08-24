@@ -132,16 +132,6 @@ public:
     void removeSink(SinkNode *node);
 
     /**
-     * Remembers the widget id (window system identifier) that will be
-     * later passed to libVLC to draw the video on it, if this media object
-     * will have video.
-     * note : I prefer to have a full access to the widget
-     * \param widget the widget to pass to vlc
-     * \see MediaObject::setVLCWidgetId()
-     */
-    void setVideoWidget(BaseWidget *widget);
-
-    /**
      * Pushes a seek command to the SeekStack for this media object. The SeekStack then
      * calls seekInternal() when it's popped.
      */
@@ -372,15 +362,6 @@ private:
      */
     void loadStream();
 
-    /**
-     * Configures the VLC Media Player to draw the video on the desired widget. The actual function
-     * call depends on the platform.
-     *
-     * \see setVideoWidgetId()
-     */
-    void setVLCVideoWidget();
-
-    BaseWidget *m_videoWidget;
     MediaSource m_nextSource;
 
     MediaSource m_mediaSource;
