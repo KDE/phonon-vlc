@@ -37,6 +37,7 @@
 #ifdef PHONON_PULSESUPPORT
 #include <phonon/pulsesupport.h>
 #endif
+#include <phonon/globaldescriptioncontainer.h>
 
 #include <vlc/vlc.h>
 
@@ -45,7 +46,6 @@
 #include "devicemanager.h"
 #include "effect.h"
 #include "effectmanager.h"
-#include "globaldescriptioncontainer.h"
 #include "libvlc.h"
 #include "mediaobject.h"
 #include "sinknode.h"

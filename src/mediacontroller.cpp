@@ -24,9 +24,9 @@
 #include "mediacontroller.h"
 
 #include <vlc/vlc.h>
+#include <phonon/globaldescriptioncontainer.h>
 
 #include "debug.h"
-#include "globaldescriptioncontainer.h"
 #include "libvlc.h"
 
 namespace Phonon
