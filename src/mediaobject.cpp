@@ -92,6 +92,8 @@ inline void MediaObject::resetMembers()
     m_prefinishEmitted = false;
     m_aboutToFinishEmitted = false;
 
+    m_timesVideoChecked = 0;
+
     resetMediaController();
 }
 
@@ -621,19 +623,9 @@ void MediaObject::updateState(MediaPlayer::State state)
     case MediaPlayer::BufferingState:
         emit stateChanged(BufferingState);
         break;
-    case MediaPlayer::PlayingState: {
-        // A vout would earliest be available when switching to playing.
-        // Due to lack of an explicit event we'll have to check for vouts every
-        // time a playing event is sent, that way we can be sure to not miss
-        // anything.
-        const bool hasVideo = m_player->hasVideoOutput();
-        if (m_hasVideo != hasVideo) {
-            m_hasVideo = hasVideo;
-            emit hasVideoChanged(m_hasVideo);
-        }
+    case MediaPlayer::PlayingState:
         emit stateChanged(PlayingState);
         break;
-    }
     case MediaPlayer::PausedState:
         emit stateChanged(PausedState);
         break;
@@ -659,20 +651,21 @@ void MediaObject::updateState(MediaPlayer::State state)
 void MediaObject::updateTime(qint64 time)
 {
     DEBUG_BLOCK;
+    debug() << time;
+
 #ifdef __GNUC__
 #warning FIXME - This is ugly. It should be solved by some events in libvlc
 #endif
-#warning time can remain < 15 (not seekable etc)
-    debug() << time;
-    if (!m_hasVideo && time < 1500) {
+    // Check 10 times for a video, then give up.
+    if (!m_hasVideo && ++m_timesVideoChecked < 11) {
         debug() << "Looking for Video";
 
 //        // Does this media player have a video output
         const bool hasVideo = m_player->hasVideoOutput();
-//        if (m_hasVideo != hasVideo) {
-//            m_hasVideo = hasVideo;
-//            emit hasVideoChanged(m_hasVideo);
-//        }
+        if (m_hasVideo != hasVideo) {
+            m_hasVideo = hasVideo;
+            emit hasVideoChanged(m_hasVideo);
+        }
 
         if (hasVideo) {
             debug() << "HASVIDEO";

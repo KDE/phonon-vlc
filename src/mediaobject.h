@@ -407,6 +407,8 @@ private:
     bool m_isScreen;
 
     qint64 m_seekpoint;
+
+    int m_timesVideoChecked;
 };
 
 }
