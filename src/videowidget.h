@@ -160,39 +160,6 @@ public:
      */
     Q_INVOKABLE void setSaturation(qreal saturation);
 
-    void useCustomRender();
-
-    /**
-    * Call back function for libVLC.
-    *
-    * This function is public so that the compiler does not fall over.
-    *
-    * This function gets called by libVLC to lock the context, i.e. this
-    * interface.
-    *
-    * \param data pointer to 'this'
-    * \param buffer when this function returns this pointer should contain the
-    *        address of a buffer to use for libVLC
-    *
-    * \return picture identifier - NOT USED -> ALWAYS NULL
-    *
-    * \see unlock()
-    */
-    static void *lock(void *data, void **bufRet);
-
-    /**
-     * Call back function for libVLC.
-     *
-     * This function is public so that the compiler does not fall over.
-     *
-     * \param data pointer to 'this'
-     * \param id TODO: don't know that off the top of my head
-     * \param pixels the pixel buffer of the current frame
-     *
-     * \see lock()
-     */
-    static void unlock(void *data, void *id, void *const *pixels);
-
     /**
      * \return The owned widget that is used for the actual draw.
      */
@@ -204,13 +171,8 @@ public:
      */
     void setVideoSize(const QSize &videoSize);
 
-    /* Overloading QWidget */
+    /// \reimp
     QSize sizeHint() const;
-
-    void setVisible(bool visible);
-
-public slots:
-    void setNextFrame(const QByteArray &array, int width, int height);
 
 private slots:
     /**
@@ -230,14 +192,6 @@ private slots:
      * Clears all pending video adjusts (hue, brightness etc.).
      */
     void clearPendingAdjusts();
-
-
-protected:
-    /* Overloading QWidget */
-    virtual void paintEvent(QPaintEvent *event);
-
-    /* Overloading QWidget */
-    virtual void resizeEvent(QResizeEvent *event);
 
 private:
     /**
@@ -276,27 +230,10 @@ private:
                                        bool shift = true);
 
     /**
-     * Whether custom rendering is used.
-     */
-    bool m_customRender;
-
-    /**
-     * Next drawable frame (if any).
-     */
-    mutable QImage m_frame;
-
-    QImage *m_img;
-
-    /**
      * Pending video adjusts the application tried to set before we actually
      * had a video to set them on.
      */
     QHash<QByteArray, qreal> m_pendingAdjusts;
-
-    /**
-     * Mutex for surface paintaing callbacks (i.e. when frames arrive)
-     */
-    QMutex m_mutex;
 
     /**
      * Original size of the video, needed for sizeHint().

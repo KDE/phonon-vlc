@@ -499,8 +499,7 @@ void MediaObject::playInternal()
     }
 
     foreach (SinkNode *sink, m_sinks) {
-#warning
-        sink->addToMedia(m_media->libvlc_media());
+        sink->addToMedia(m_media);
     }
 
     // Set the media that will be used by the media player

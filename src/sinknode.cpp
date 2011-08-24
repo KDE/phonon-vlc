@@ -53,7 +53,7 @@ void SinkNode::connectToMediaObject(MediaObject *mediaObject)
     }
 
     m_mediaObject = mediaObject;
-    m_player = mediaObject->m_player->libvlc_media_player();
+    m_player = mediaObject->m_player;
     m_mediaObject->addSink(this);
 }
 
@@ -66,9 +66,11 @@ void SinkNode::disconnectFromMediaObject(MediaObject *mediaObject)
     if (m_mediaObject) {
         m_mediaObject->removeSink(this);
     }
+
+    m_player = 0;
 }
 
-void SinkNode::addToMedia(libvlc_media_t *media)
+void SinkNode::addToMedia(Media *media)
 {
     Q_UNUSED(media);
 }

@@ -87,10 +87,8 @@ qreal AudioOutput::volume() const
 void AudioOutput::setVolume(qreal volume)
 {
     if (m_player) {
-        const int previous_volume = libvlc_audio_get_volume(m_player);
         m_volume = volume;
-        libvlc_audio_set_volume(m_player, (int)(m_volume * 50));
-        debug() << "Volume changed from" << previous_volume << "to" << (int)(m_volume * 100);
+        updateVolume();
         emit volumeChanged(m_volume);
     }
 }
@@ -120,7 +118,7 @@ void AudioOutput::setOutputDeviceImplementation()
     Q_ASSERT(m_player);
 #ifdef PHONON_PULSESUPPORT
     if (PulseSupport::getInstance()->isActive()) {
-        libvlc_audio_output_set(m_player, "pulse");
+        m_player->setAudioOutput("pulse");
         debug() << "Setting aout to pulse";
         return;
     }
@@ -133,12 +131,12 @@ void AudioOutput::setOutputDeviceImplementation()
     // ### we're not trying the whole access list (could mean same device on different soundsystems)
     QByteArray soundSystem = device.accessList.first().first;
     debug() << "Setting output soundsystem to" << soundSystem;
-    libvlc_audio_output_set(m_player, soundSystem);
+    m_player->setAudioOutput(soundSystem);
 
     QByteArray deviceName = device.accessList.first().second.toLatin1();
     // print the name as possibly messed up by toLatin1() to see conversion problems
     debug() << "Setting output device to" << deviceName << '(' << device.name << ')';
-    libvlc_audio_output_device_set(m_player, soundSystem, deviceName);
+    m_player->setAudioOutputDevice(soundSystem, deviceName);
 }
 
 #if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 2, 0))
@@ -151,9 +149,12 @@ bool AudioOutput::setOutputDevice(const Phonon::AudioOutputDevice &device)
 void AudioOutput::updateVolume()
 {
     if (m_player) {
-        const int previous_volume = libvlc_audio_get_volume(m_player);
-        libvlc_audio_set_volume(m_player, (int)(m_volume * 50));
-        debug() << "Volume changed from" << previous_volume << "to" << (int)(m_volume * 100);
+#warning or 100?
+        const int preVolume = m_player->audioVolume();
+        const int newVolume = m_volume * 50;
+        m_player->setAudioVolume(newVolume);
+
+        debug() << "Volume changed from" << preVolume << "to" << newVolume;
     }
 }
 

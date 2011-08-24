@@ -88,7 +88,7 @@ void AudioDataOutput::setDataSize(int size)
     m_dataSize = size;
 }
 
-void AudioDataOutput::addToMedia(libvlc_media_t *media)
+void AudioDataOutput::addToMedia(Media *media)
 {
 #warning
 //    MediaObject::addOption(media, ":sout=#duplicate{dst=display,dst='transcode{}'}:smem");

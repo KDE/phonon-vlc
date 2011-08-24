@@ -119,7 +119,7 @@ public Q_SLOTS:
      * \see unlock()
      * \see SinkNode::connectToMediaObject()
      */
-    void addToMedia( libvlc_media_t *media);
+    void addToMedia(Media *media);
 
 signals:
     void dataReady(const QMap<Phonon::AudioDataOutput::Channel, QVector<qint16> > &data);

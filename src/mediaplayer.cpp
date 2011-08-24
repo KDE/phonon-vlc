@@ -21,8 +21,6 @@
 #include <QtCore/QMetaType>
 #include <QtCore/QString>
 
-#include <vlc/vlc.h>
-
 #include "libvlc.h"
 #include "media.h"
 

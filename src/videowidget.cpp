@@ -43,8 +43,6 @@ namespace VLC
 VideoWidget::VideoWidget(QWidget *parent) :
     OverlayWidget(parent),
     SinkNode(),
-    m_customRender(false),
-    m_img(0),
     m_aspectRatio(Phonon::VideoWidget::AspectRatioAuto),
     m_scaleMode(Phonon::VideoWidget::FitInView),
     m_filterAdjustActivated(false),
@@ -58,9 +56,6 @@ VideoWidget::VideoWidget(QWidget *parent) :
 
 VideoWidget::~VideoWidget()
 {
-    if (m_img) {
-        delete m_img;
-    }
 }
 
 void VideoWidget::connectToMediaObject(MediaObject *mediaObject)
@@ -74,7 +69,6 @@ void VideoWidget::connectToMediaObject(MediaObject *mediaObject)
     connect(mediaObject, SIGNAL(currentSourceChanged(MediaSource)),
             SLOT(clearPendingAdjusts()));
 
-    //  mediaObject->setVideoWidgetId(p_video_widget->winId());
     mediaObject->setVideoWidget(this);
 
     clearPendingAdjusts();
@@ -108,9 +102,8 @@ Phonon::VideoWidget::AspectRatio VideoWidget::aspectRatio() const
 void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspect)
 {
     DEBUG_BLOCK;
-    if (!m_player) {
+    if (!m_player)
         return;
-    }
 
     m_aspectRatio = aspect;
 
@@ -119,16 +112,14 @@ void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspect)
     // that is supposed to achieve to begin with.
     case Phonon::VideoWidget::AspectRatioWidget:
     case Phonon::VideoWidget::AspectRatioAuto:
-        libvlc_video_set_aspect_ratio(m_player, 0);
+        m_player->setVideoAspectRatio(QByteArray());
         break;
     case Phonon::VideoWidget::AspectRatio4_3:
-        libvlc_video_set_aspect_ratio(m_player, "4:3");
+        m_player->setVideoAspectRatio("4:3");
         break;
     case Phonon::VideoWidget::AspectRatio16_9:
-        libvlc_video_set_aspect_ratio(m_player, "16:9");
+        m_player->setVideoAspectRatio("16:9");
         break;
-    default:
-        error() << Q_FUNC_INFO << "unsupported AspectRatio:" << m_aspectRatio;
     }
 }
 
@@ -167,9 +158,8 @@ void VideoWidget::setBrightness(qreal brightness)
 
     // VLC operates within a 0.0 to 2.0 range for brightness.
     m_brightness = brightness;
-    libvlc_video_set_adjust_float(m_player,
-                                  libvlc_adjust_Brightness,
-                                  phononRangeToVlcRange(m_brightness, 2.0));
+    m_player->setVideoAdjust(libvlc_adjust_Brightness,
+                             phononRangeToVlcRange(m_brightness, 2.0));
 }
 
 qreal VideoWidget::contrast() const
@@ -191,9 +181,7 @@ void VideoWidget::setContrast(qreal contrast)
 
     // VLC operates within a 0.0 to 2.0 range for contrast.
     m_contrast = contrast;
-    libvlc_video_set_adjust_float(m_player,
-                                  libvlc_adjust_Contrast,
-                                  phononRangeToVlcRange(m_contrast, 2.0));
+    m_player->setVideoAdjust(libvlc_adjust_Contrast, phononRangeToVlcRange(m_contrast, 2.0));
 }
 
 qreal VideoWidget::hue() const
@@ -215,9 +203,8 @@ void VideoWidget::setHue(qreal hue)
 
     // VLC operates within a 0 to 360 range for hue.
     m_hue = hue;
-    libvlc_video_set_adjust_int(m_player,
-                                libvlc_adjust_Hue,
-                                static_cast<int>(phononRangeToVlcRange(m_hue, 360.0, false)));
+    m_player->setVideoAdjust(libvlc_adjust_Hue,
+                             static_cast<int>(phononRangeToVlcRange(m_hue, 360.0, false)));
 }
 
 qreal VideoWidget::saturation() const
@@ -239,60 +226,13 @@ void VideoWidget::setSaturation(qreal saturation)
 
     // VLC operates within a 0.0 to 3.0 range for saturation.
     m_saturation = saturation;
-    libvlc_video_set_adjust_float(m_player,
-                                  libvlc_adjust_Saturation,
-                                  phononRangeToVlcRange(m_saturation, 3.0));
+    m_player->setVideoAdjust(libvlc_adjust_Saturation,
+                              phononRangeToVlcRange(m_saturation, 3.0));
 }
-
-void VideoWidget::useCustomRender()
-{
-    m_customRender = true;
-    QSize size = sizeHint();
-    int width = size.width();
-    int height = size.height();
-
-    if (m_img) {
-        delete m_img;
-    }
-    m_img = new QImage(size, QImage::Format_RGB32);
-    libvlc_video_set_format(m_player, "RV32", width, height, width * 4);
-    libvlc_video_set_callbacks(m_player, lock, unlock, 0, this);
-}
-
-void *VideoWidget::lock(void *data, void **bufRet)
-{
-    VideoWidget *cw = (VideoWidget *)data;
-    cw->m_mutex.lock();
-    *bufRet = cw->m_img->bits();
-    return NULL; // Picture identifier, not needed here.
-}
-
-void VideoWidget::unlock(void *data, void *id, void *const *pixels)
-{
-    Q_UNUSED(id);
-    Q_UNUSED(pixels);
-
-    VideoWidget *cw = (VideoWidget *)data;
-
-    // Might be a good idea to cache these, but this should be insignificant overhead compared to the image conversion
-//    const char *aspect = libvlc_video_get_aspect_ratio(cw->m_vlcPlayer);
-//    delete aspect;
-
-    cw->setNextFrame(QByteArray::fromRawData((const char *)cw->m_img->bits(),
-                                     cw->m_img->byteCount()),
-                                     cw->m_img->width(), cw->m_img->height());
-    cw->m_mutex.unlock();
-}
-
 
 QWidget *VideoWidget::widget()
 {
     return this;
-}
-
-void VideoWidget::resizeEvent(QResizeEvent *event)
-{
-    debug() << "resizeEvent" << event->size();
 }
 
 void VideoWidget::setVideoSize(const QSize &size)
@@ -310,26 +250,6 @@ QSize VideoWidget::sizeHint() const
     return QSize(640, 480);
 }
 
-void VideoWidget::setVisible(bool visible)
-{
-    if (window() && window()->testAttribute(Qt::WA_DontShowOnScreen)) {
-        debug() << "Widget rendering forced";
-        useCustomRender();
-    }
-    QWidget::setVisible(visible);
-}
-
-void VideoWidget::setNextFrame(const QByteArray &array, int width, int height)
-{
-    // TODO: Should preloading ever become available ... what do to here?
-
-    m_frame = QImage();
-    {
-        m_frame = QImage((uchar *)array.constData(), width, height, QImage::Format_RGB32);
-    }
-    update();
-}
-
 void VideoWidget::videoWidgetSizeChanged(int width, int height)
 {
     debug() << Q_FUNC_INFO << "video width" << width << "height:" << height;
@@ -343,12 +263,6 @@ void VideoWidget::videoWidgetSizeChanged(int width, int height)
     hide();
     setVideoSize(videoSize);
     show();
-
-    if (m_img) {
-        delete m_img;
-    }
-    m_img = new QImage(videoSize, QImage::Format_RGB32);
-    libvlc_video_set_format(m_player, "RV32", width, height, width * 4);
 }
 
 void VideoWidget::processPendingAdjusts(bool videoAvailable)
@@ -370,17 +284,6 @@ void VideoWidget::clearPendingAdjusts()
     m_pendingAdjusts.clear();
 }
 
-void VideoWidget::paintEvent(QPaintEvent *event)
-{
-    if (m_customRender) {
-        QPainter painter(this);
-        // TODO: more sensible rect calculation.
-        painter.drawImage(rect(), m_frame);
-    } else {
-        OverlayWidget::paintEvent(event);
-    }
-}
-
 bool VideoWidget::enableFilterAdjust(bool adjust)
 {
     DEBUG_BLOCK;
@@ -393,7 +296,7 @@ bool VideoWidget::enableFilterAdjust(bool adjust)
     if ((!m_filterAdjustActivated && adjust) ||
             (m_filterAdjustActivated && !adjust)) {
         debug() << "adjust: " << adjust;
-        libvlc_video_set_adjust_int(m_player, libvlc_adjust_Enable, adjust);
+        m_player->setVideoAdjust(libvlc_adjust_Enable, static_cast<int>(adjust));
         m_filterAdjustActivated = adjust;
     }
     return true;

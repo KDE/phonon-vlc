@@ -20,10 +20,9 @@
 
 #include <QtCore/QObject>
 
-class QString;
+#include <vlc/vlc.h>
 
-struct libvlc_event_t;
-struct libvlc_media_player_t;
+class QString;
 
 namespace Phonon {
 namespace VLC {
@@ -67,6 +66,17 @@ public:
     // Video
     bool hasVideoOutput() const;
 
+    /// Set new video aspect ratio.
+    /// \param aspect new video aspect-ratio or empty to reset to default
+    void setVideoAspectRatio(const QByteArray &aspect)
+    { libvlc_video_set_aspect_ratio(m_player, aspect.isEmpty() ? 0 : aspect.data()); }
+
+    void setVideoAdjust(libvlc_video_adjust_option_t adjust, int value)
+    { libvlc_video_set_adjust_int(m_player, adjust, value); }
+
+    void setVideoAdjust(libvlc_video_adjust_option_t adjust, float value)
+    { libvlc_video_set_adjust_float(m_player, adjust, value); }
+
     bool setSubtitle(int subtitle);
     bool setSubtitle(const QString &file);
 
@@ -75,6 +85,27 @@ public:
     void setChapter(int chapter);
 
     // Audio
+    /// Get current audio volume.
+    /// \return the software volume in percents (0 = mute, 100 = nominal / 0dB)
+    int audioVolume() const { return libvlc_audio_get_volume(m_player); }
+
+    /// Set new audio volume.
+    /// \param volume new volume
+    void setAudioVolume(int volume) { libvlc_audio_set_volume(m_player, volume); }
+
+    /// \param name name of the output to set
+    /// \returns \c true when setting was successful, \c false otherwise
+    bool setAudioOutput(const QByteArray &name)
+    { return libvlc_audio_output_set(m_player, name.data()) == 0; }
+
+    /**
+     * Set audio output device by name.
+     * \param outputName the aout name (pulse, alsa, oss, etc.)
+     * \param deviceName the output name (aout dependent)
+     */
+    void setAudioOutputDevice(const QByteArray &outputName, const QByteArray &deviceName)
+    { libvlc_audio_output_device_set(m_player, outputName.data(), deviceName.data()); }
+
     bool setAudioTrack(int track);
 
 signals:
