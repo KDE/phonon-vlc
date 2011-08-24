@@ -86,11 +86,11 @@ void VideoWidget::addToMedia(Media *media)
 
 #warning this seems an awful solution
 #if defined(Q_OS_MAC)
-    libvlc_media_player_set_nsobject(m_player->libvlc_media_player(), cocoaView());
+    m_player->setNsObject(cocoaView());
 #elif defined(Q_OS_UNIX)
-    libvlc_media_player_set_xwindow(m_player->libvlc_media_player(), winId());
+    m_player->setXWindow(winId());
 #elif defined(Q_OS_WIN)
-    libvlc_media_player_set_hwnd(m_player->libvlc_media_player(), winId());
+    m_player->setHwnd(winId());
 #endif
 }
 

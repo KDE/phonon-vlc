@@ -51,6 +51,10 @@ public:
 
     void setMedia(Media *media);
 
+    void setNsObject(void *drawable) { libvlc_media_player_set_nsobject(m_player, drawable); }
+    void setXWindow(quint32 drawable) { libvlc_media_player_set_xwindow(m_player, drawable); }
+    void setHwnd(void *drawable) { libvlc_media_player_set_hwnd(m_player, drawable); }
+
     // Playback
     bool play();
     void pause();
