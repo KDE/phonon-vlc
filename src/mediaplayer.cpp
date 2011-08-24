@@ -21,6 +21,8 @@
 #include <QtCore/QMetaType>
 #include <QtCore/QString>
 
+#include <vlc/libvlc_version.h>
+
 #include "libvlc.h"
 #include "media.h"
 
@@ -182,6 +184,12 @@ void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
         P_EMIT_STATE(OpeningState);
         break;
     case libvlc_MediaPlayerBuffering:
+#warning buffer level should be accessible from MO to be emitted
+        // We need to only process the buffering event in >= 1.2 as the fact
+        // that no explicit switch to Playing is sent would lock us into
+        // buffering with no chance of ever getting back to playing (well, unless
+        // there is a playing event obviously).
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(1, 2, 0, 0))
         // LibVLC <= 1.2 (possibly greater) does not explicitly switch to playing
         // once 100 % cache was reached. So we need to work around this by fake
         // emitting a playingstate event whereas really it was buffering :S
@@ -189,6 +197,7 @@ void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
             P_EMIT_STATE(BufferingState);
         else
             P_EMIT_STATE(PlayingState);
+#endif // VLC >= 1.2
         break;
     case libvlc_MediaPlayerPlaying:
         P_EMIT_STATE(PlayingState);
