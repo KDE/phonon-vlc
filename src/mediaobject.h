@@ -309,29 +309,6 @@ private:
     bool checkGaplessWaiting();
 
     /**
-     * Connect libvlc_callback() to all VLC media events.
-     *
-     * \see libvlc_callback()
-     * \see connectToPlayerVLCEvents()
-     */
-    void connectToMediaVLCEvents();
-
-    /**
-     * Libvlc callback.
-     *
-     * Receive all vlc events.
-     *
-     * Most of the events trigger the emission of one or more signals from the media object.
-     *
-     * \warning This code will be owned by the libVLC thread.
-     *
-     * \see connectToMediaVLCEvents()
-     * \see connectToPlayerVLCEvents()
-     * \see libvlc_event_attach()
-     */
-    static void eventCallback(const libvlc_event_t *event, void *data);
-
-    /**
      * Changes the current state to buffering and sets the new current file.
      *
      * \param filename The MRL of the media source

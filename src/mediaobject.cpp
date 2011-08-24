@@ -447,10 +447,6 @@ void MediaObject::playInternal()
     if (!m_media)
         error() << "libVLC:" << LibVLC::errorMessage();
 
-    if (m_streamReader) { // Set callbacks for stream reading using imem
-        m_streamReader->addToMedia(m_media);
-    }
-
     if (m_isScreen) {
         m_media->addOption(QLatin1String("screen-fps=24.0"));
         m_media->addOption(QLatin1String("screen-caching=300"));
@@ -461,15 +457,21 @@ void MediaObject::playInternal()
         m_media->addOption(QLatin1String("cdda-track="), QVariant(m_currentTitle));
     }
 
+    if (m_streamReader)
+        // StreamReader is no sink but a source, for this we have no concept right now
+        // also we do not need one since the reader is the only source we have.
+        // Consequently we need to manually tell the StreamReader to attach to the Media.
+        m_streamReader->addToMedia(m_media);
+
     foreach (SinkNode *sink, m_sinks) {
         sink->addToMedia(m_media);
     }
 
-    // Set the media that will be used by the media player
-    m_player->setMedia(m_media);
-
-    // connectToMediaVLCEvents() at the end since it needs to be done for each new libvlc_media_t instance
-    connectToMediaVLCEvents();
+    // Connect to Media signals. Disconnection is done at unloading.
+    connect(m_media, SIGNAL(durationChanged(qint64)),
+            this, SLOT(updateDuration(qint64)));
+    connect(m_media, SIGNAL(metaDataChanged()),
+            this, SLOT(updateMetaData()));
 
     // Update available audio channels/subtitles/angles/chapters/etc...
     // i.e everything from MediaController
@@ -479,6 +481,7 @@ void MediaObject::playInternal()
     resetMediaController();
 
     // Play
+    m_player->setMedia(m_media);
     if (m_player->play())
         error() << "libVLC:" << LibVLC::errorMessage();
 
@@ -512,15 +515,6 @@ bool MediaObject::hasVideo() const
 bool MediaObject::isSeekable() const
 {
     return m_player->isSeekable();
-}
-
-void MediaObject::connectToMediaVLCEvents()
-{
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    connect(m_media, SIGNAL(durationChanged(qint64)),
-            this, SLOT(updateDuration(qint64)));
-    connect(m_media, SIGNAL(metaDataChanged()),
-            this, SLOT(updateMetaData()));
 }
 
 void MediaObject::updateDuration(qint64 newDuration)
