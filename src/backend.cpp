@@ -179,21 +179,6 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
     return 0;
 }
 
-bool Backend::supportsVideo() const
-{
-    return true;
-}
-
-bool Backend::supportsOSD() const
-{
-    return true;
-}
-
-bool Backend::supportsSubtitles() const
-{
-    return true;
-}
-
 QStringList Backend::availableMimeTypes() const
 {
     if (m_supportedMimeTypes.isEmpty()) {

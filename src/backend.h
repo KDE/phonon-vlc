@@ -104,9 +104,6 @@ public:
      */
     QObject *createObject(BackendInterface::Class, QObject *parent, const QList<QVariant> &args);
 
-    bool supportsVideo() const;
-    bool supportsOSD() const;
-    bool supportsSubtitles() const;
     QStringList availableMimeTypes() const;
 
     /**
