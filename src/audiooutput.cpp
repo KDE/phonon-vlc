@@ -32,10 +32,6 @@
 #include "devicemanager.h"
 #include "mediaobject.h"
 
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-#include <experimental/avcapture.h>
-#endif // PHONON_VLC_NO_EXPERIMENTAL
-
 namespace Phonon
 {
 namespace VLC

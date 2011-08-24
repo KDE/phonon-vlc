@@ -175,8 +175,6 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
         return new Effect(m_effectManager, args[0].toInt(), parent);
     case VideoWidgetClass:
         return new VideoWidget(qobject_cast<QWidget *>(parent));
-    default:
-        error() << "createObject() : Backend object not available";
     }
     return 0;
 }
@@ -491,10 +489,9 @@ bool Backend::disconnectNodes(QObject *source, QObject *sink)
 
 bool Backend::endConnectionChange(QSet<QObject *> objects)
 {
-    foreach(QObject * object, objects) {
+    foreach(QObject *object, objects) {
         debug() << "Object:" << object->metaObject()->className();
     }
-
     return true;
 }
 

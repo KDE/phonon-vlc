@@ -69,22 +69,6 @@ public:
     AudioDataOutput(QObject *parent);
     ~AudioDataOutput();
 
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-    /**
-     * Connect this AudioDataOutput only to the audio media part of the AvCapture.
-     *
-     * \see AvCapture
-     */
-    void connectToAvCapture(Experimental::AvCapture *avCapture);
-
-    /**
-     * Disconnect the AudioDataOutput from the video media of the AvCapture.
-     *
-     * \see connectToAvCapture()
-     */
-    void disconnectFromAvCapture(Experimental::AvCapture *avCapture);
-#endif//PHONON_VLC_NO_EXPERIMENTAL
-
     Phonon::AudioDataOutput *frontendObject() const
     {
         return m_frontend;

@@ -61,18 +61,6 @@ AudioDataOutput::~AudioDataOutput()
 {
 }
 
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-void AudioDataOutput::connectToAvCapture(Experimental::AvCapture *avCapture)
-{
-    connectToMediaObject(avCapture->audioMediaObject());
-}
-
-void AudioDataOutput::disconnectFromAvCapture(Experimental::AvCapture *avCapture)
-{
-    disconnectFromMediaObject(avCapture->audioMediaObject());
-}
-#endif // PHONON_VLC_NO_EXPERIMENTAL
-
 int AudioDataOutput::dataSize() const
 {
     return m_dataSize;

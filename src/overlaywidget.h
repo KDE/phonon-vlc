@@ -63,9 +63,7 @@ public:
     void setBackgroundColor(const QColor &color);
 
 protected:
-    /*
-     * Overloaded from BaseWidget (QWidget)
-     */
+    /// \reimp
     void paintEvent(QPaintEvent *event);
 };
 

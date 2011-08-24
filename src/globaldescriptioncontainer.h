@@ -238,7 +238,7 @@ public:
         Q_ASSERT(m_localIds.find(mediaController) != m_localIds.end());
         if (m_localIds[mediaController].find(key) == m_localIds[mediaController].end())
             warning() << __PRETTY_FUNCTION__
-                      << ": supplied global ID is unkown for the MediaController ("
+                      << ": supplied global ID is unknown for the MediaController ("
                       << mediaController << ")";
         return m_localIds[mediaController].value(key, 0);
     }
