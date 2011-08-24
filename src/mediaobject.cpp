@@ -448,19 +448,7 @@ void MediaObject::playInternal()
         error() << "libVLC:" << LibVLC::errorMessage();
 
     if (m_streamReader) { // Set callbacks for stream reading using imem
-        m_streamReader->lock(); // Make sure we can lock in read().
-
-        m_media->addOption(QLatin1String("imem-cat=4"));
-        m_media->addOption(QLatin1String("imem-data="), INTPTR_PTR(m_streamReader));
-        m_media->addOption(QLatin1String("imem-get="), INTPTR_FUNC(StreamReader::readCallback));
-        m_media->addOption(QLatin1String("imem-release="), INTPTR_FUNC(StreamReader::readDoneCallback));
-        m_media->addOption(QLatin1String("imem-seek="), INTPTR_FUNC(StreamReader::seekCallback));
-
-        // if stream has known size, we may pass it
-        // imem module will use it and pass it to demux
-        if (m_streamReader->streamSize() > 0) {
-            m_media->addOption(QString("imem-size=%1").arg(m_streamReader->streamSize()));
-        }
+        m_streamReader->addToMedia(m_media);
     }
 
     if (m_isScreen) {

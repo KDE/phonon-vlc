@@ -33,10 +33,13 @@
 
 namespace Phonon
 {
+
 class MediaSource;
+
 namespace VLC
 {
 
+class Media;
 class MediaObject;
 
 /** \brief Class for supporting custom data streams to the backend
@@ -56,6 +59,8 @@ class StreamReader : public Phonon::StreamInterface
 public:
     StreamReader(const Phonon::MediaSource &source, MediaObject *parent);
     ~StreamReader();
+
+    void addToMedia(Media *media);
 
     void lock();
     void unlock();
