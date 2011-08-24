@@ -73,9 +73,7 @@ public:
      */
     void connectToMediaObject(MediaObject *mediaObject);
 
-    /**
-     * Overloads SinkNode.
-     */
+    /// \reimp
     void disconnectFromMediaObject(MediaObject *mediaObject);
 
     /**
