@@ -2,6 +2,7 @@
     Copyright (C) 2006 Matthias Kretz <kretz@kde.org>
     Copyright (C) 2009 Martin Sandsmark <sandsmark@samfundet.no>
     Copyright (C) 2010 Ben Cooksley <sourtooth@gmail.com>
+    Copyright (C) 2011 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -23,24 +24,10 @@
 
 #include "audiodataoutput.h"
 
-#include <QtCore/QVector>
-#include <QtCore/QMap>
+#include "media.h"
 
-#include <phonon/medianode.h>
-#include <phonon/audiooutput.h>
-
-#include <vlc/vlc.h>
-
-#include "mediaobject.h"
-
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-#include <experimental/avcapture.h>
-#endif // PHONON_VLC_NO_EXPERIMENTAL
-
-namespace Phonon
-{
-namespace VLC
-{
+namespace Phonon {
+namespace VLC {
 
 AudioDataOutput::AudioDataOutput(QObject *parent)
     : QObject(parent)
@@ -78,18 +65,20 @@ void AudioDataOutput::setDataSize(int size)
 
 void AudioDataOutput::addToMedia(Media *media)
 {
-#warning
-//    MediaObject::addOption(media, ":sout=#duplicate{dst=display,dst='transcode{}'}:smem");
-//    MediaObject::addOption(media, ":sout-transcode-acodec=f32l");
-//    MediaObject::addOption(media, ":sout-transcode-vcodec=none");
-//    MediaObject::addOption(media, ":sout-smem-time-sync");
+#warning broken with vlc 1.2 -> cant transcode && crashes
+    media->addOption(QLatin1String(":sout=#duplicate{dst=display,dst='transcode{}'}:smem"));
+    media->addOption(QLatin1String(":sout-transcode-acodec=f32l"));
+    media->addOption(QLatin1String(":sout-transcode-vcodec=none"));
+    media->addOption(QLatin1String(":sout-smem-time-sync"));
 
-//    // Add audio lock callback
-//    MediaObject::addOption(media, ":sout-smem-audio-prerender-callback=", INTPTR_FUNC(AudioDataOutput::lock));
-//    // Add audio unlock callback
-//    MediaObject::addOption(media, ":sout-smem-audio-postrender-callback=", INTPTR_FUNC(AudioDataOutput::unlock));
-//    // Add pointer to ourselves...
-//    MediaObject::addOption(media, ":sout-smem-audio-data=", INTPTR_PTR(this));
+    // Add audio lock callback
+    media->addOption(QLatin1String(":sout-smem-audio-prerender-callback="),
+                     INTPTR_FUNC(AudioDataOutput::lock));
+    // Add audio unlock callback
+    media->addOption(QLatin1String(":sout-smem-audio-postrender-callback="),
+                     INTPTR_FUNC(AudioDataOutput::unlock));
+    // Add pointer to ourselves...
+    media->addOption(QLatin1String(":sout-smem-audio-data="), INTPTR_PTR(this));
 }
 
 void AudioDataOutput::lock(AudioDataOutput *cw, quint8 **pcm_buffer , quint32 size)
@@ -167,9 +156,7 @@ void AudioDataOutput::sendData()
     m_locker.unlock();
 }
 
-}
-} //namespace Phonon::VLC
+} // namespace VLC
+} // namespace Phonon
 
 #include "moc_audiodataoutput.cpp"
-// vim: sw=4 ts=4
-

@@ -2,6 +2,7 @@
     Copyright (C) 2006 Matthias Kretz <kretz@kde.org>
     Copyright (C) 2009 Martin Sandsmark <sandsmark@samfundet.no>
     Copyright (C) 2010 Ben Cooksley <sourtooth@gmail.com>
+    Copyright (C) 2011 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -24,21 +25,20 @@
 #ifndef Phonon_VLC_AUDIODATAOUTPUT_H
 #define Phonon_VLC_AUDIODATAOUTPUT_H
 
-#include <QtCore/QObject>
-#include <phonon/audiodataoutputinterface.h>
-#include "sinknode.h"
-
 #include <QtCore/QMutex>
+#include <QtCore/QObject>
 
 #include <phonon/audiodataoutput.h>
+#include <phonon/audiodataoutputinterface.h>
+
+#include "sinknode.h"
 
 QT_BEGIN_HEADER
 QT_BEGIN_NAMESPACE
 
-namespace Phonon
-{
-namespace VLC
-{
+namespace Phonon {
+namespace VLC {
+
 /** \brief Implementation for AudioDataOutput using libVLC
  *
  * This class makes the capture of raw audio data possible. It sets special options
@@ -158,11 +158,11 @@ private:
     QVector<qint16> m_channelSamples[6];
     QList<Phonon::AudioDataOutput::Channel> m_channels;
 };
-}
-} //namespace Phonon::VLC
+
+} // namespace VLC
+} // namespace Phonon
 
 QT_END_NAMESPACE
 QT_END_HEADER
 
-// vim: sw=4 ts=4 tw=80
 #endif // Phonon_VLC_AUDIODATAOUTPUT_H
