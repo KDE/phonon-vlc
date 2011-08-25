@@ -37,7 +37,7 @@
 #ifdef PHONON_PULSESUPPORT
 #include <phonon/pulsesupport.h>
 #endif
-#include <phonon/globaldescriptioncontainer.h>
+#include <phonon/GlobalDescriptionContainer>
 
 #include <vlc/vlc.h>
 

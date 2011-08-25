@@ -24,7 +24,7 @@
 #include "mediacontroller.h"
 
 #include <vlc/vlc.h>
-#include <phonon/globaldescriptioncontainer.h>
+#include <phonon/GlobalDescriptionContainer>
 
 #include "debug.h"
 #include "libvlc.h"
