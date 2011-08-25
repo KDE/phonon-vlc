@@ -34,8 +34,8 @@
 #include "debug.h"
 #include "libvlc.h"
 #include "media.h"
-#include "mediaplayer.h"
 #include "sinknode.h"
+#include "streamreader.h"
 
 //Time in milliseconds before sending aboutToFinish() signal
 //2 seconds

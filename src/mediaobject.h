@@ -23,19 +23,12 @@
 #define PHONON_VLC_MEDIAOBJECT_H
 
 #include <QtCore/QObject>
-#include <QtGui/QWidget>
 
 #include <phonon/mediaobjectinterface.h>
 #include <phonon/addoninterface.h>
 
 #include "mediacontroller.h"
 #include "mediaplayer.h"
-#include "streamreader.h"
-
-struct libvlc_event_t;
-struct libvlc_event_manager_t;
-struct libvlc_media_t;
-struct libvlc_media_discoverer_t;
 
 namespace Phonon
 {
@@ -43,8 +36,8 @@ namespace VLC
 {
 
 class Media;
-class SeekStack;
 class SinkNode;
+class StreamReader;
 
 /** \brief Implementation for the most important class in Phonon
  *
@@ -76,7 +69,6 @@ class MediaObject : public QObject, public MediaObjectInterface, public MediaCon
     Q_OBJECT
     Q_INTERFACES(Phonon::MediaObjectInterface Phonon::AddonInterface)
     friend class SinkNode;
-    friend class SeekStack;
 
 public:
     /**
@@ -155,19 +147,13 @@ public:
      */
     qint64 currentTime() const;
 
-    /**
-     * \return The current state for this media object.
-     */
+    /// \return The current state for this media object.
     Phonon::State state() const;
 
-    /**
-     * All errors are categorized as normal errors.
-     */
+    /// All errors are categorized as normal errors.
     Phonon::ErrorType errorType() const;
 
-    /**
-     * \return The current media source for this media object.
-     */
+    /// \return The current media source for this media object.
     MediaSource source() const;
 
     /**
@@ -190,9 +176,7 @@ public:
      */
     void setSource(const MediaSource &source);
 
-    /**
-     * Sets the media source that will replace the current one, after the playback for it finishes.
-     */
+    /// Sets the media source that will replace the current one, after the playback for it finishes.
     void setNextSource(const MediaSource &source);
 
     qint32 prefinishMark() const;
@@ -202,9 +186,6 @@ public:
     void setTransitionTime(qint32);
 
     void emitAboutToFinish();
-
-    static void addOption(libvlc_media_t *media, const QString &option);
-    static void addOption(libvlc_media_t *media, const QString &option, intptr_t functionPtr);
 
 signals:
     // MediaController signals
@@ -282,9 +263,7 @@ private slots:
     void updateState(MediaPlayer::State state);
     void updateTime(qint64 time);
 
-
 private:
-
     /**
      * This method actually calls the functions needed to begin playing the media.
      * If another media is already playing, it is discarded. The new media filename is set
@@ -368,7 +347,7 @@ private:
     int m_timesVideoChecked;
 };
 
-}
-} // Namespace Phonon::VLC
+} // namespace VLC
+} // namespace Phonon
 
 #endif // PHONON_VLC_MEDIAOBJECT_H
