@@ -59,12 +59,7 @@ target_link_libraries(phonon_vlc
     ${QT_QTCORE_LIBRARY}
     ${QT_QTGUI_LIBRARY}
     ${PHONON_LIBRARY}
-    ${LIBVLC_LIBRARY}
-    ${LIBVLCCORE_LIBRARY})
-
-if(QT_QTDBUS_FOUND)
-    target_link_libraries(phonon_vlc ${QT_QTDBUS_LIBRARY})
-endif(QT_QTDBUS_FOUND)
+    ${LIBVLC_LIBRARY})
 
 if(WIN32)
     install(TARGETS phonon_vlc DESTINATION bin/phonon_backend)
