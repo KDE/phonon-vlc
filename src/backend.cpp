@@ -33,10 +33,10 @@
 #include <QtCore/QVariant>
 #include <QtGui/QMessageBox>
 
+#include <phonon/globaldescriptioncontainer.h>
 #ifdef PHONON_PULSESUPPORT
 #include <phonon/pulsesupport.h>
 #endif
-#include <phonon/globaldescriptioncontainer.h>
 
 #include <vlc/vlc.h>
 
