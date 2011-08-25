@@ -241,7 +241,7 @@ void MediaController::refreshAudioChannels()
     m_currentAudioChannel = Phonon::AudioChannelDescription();
     GlobalAudioChannels::instance()->clearListFor(this);
 
-    VLC_TRACK_FOREACH(it, m_player->getAudioTrackDescription()) {
+    VLC_TRACK_FOREACH(it, m_player->audioTrackDescription()) {
         GlobalAudioChannels::instance()->add(this, it->i_id, it->psz_name, "");
     }
 
@@ -292,7 +292,7 @@ void MediaController::refreshSubtitles()
     GlobalSubtitles::instance()->clearListFor(this);
 
     int idCount = 0;
-    VLC_TRACK_FOREACH(it, m_player->getVideoSubtitleDescription()) {
+    VLC_TRACK_FOREACH(it, m_player->videoSubtitleDescription()) {
         // LibVLC's internal ID is broken, so we simply count up as internally
         // the setter will simply go by position in list anyway.
         GlobalSubtitles::instance()->add(this, idCount, it->psz_name, "");
@@ -349,7 +349,7 @@ void MediaController::refreshTitles()
 {
     m_availableTitles = 0;
 
-    VLC_TRACK_FOREACH(it, m_player->getVideoTitleDescription()) {
+    VLC_TRACK_FOREACH(it, m_player->videoTitleDescription()) {
         ++m_availableTitles;
         emit availableTitlesChanged(m_availableTitles);
     }
@@ -382,7 +382,7 @@ void MediaController::refreshChapters(int title)
     m_availableChapters = 0;
 
     // Get the description of available chapters for specific title
-    VLC_TRACK_FOREACH(it, m_player->getVideoChapterDescription(title)) {
+    VLC_TRACK_FOREACH(it, m_player->videoChapterDescription(title)) {
         ++m_availableChapters;
         emit availableChaptersChanged(m_availableChapters);
     }

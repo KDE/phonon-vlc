@@ -628,9 +628,9 @@ void MediaObject::updateTime(qint64 time)
 
             // Get movie chapter count
             // It is not a title/chapter media if there is no chapter
-            if (m_player->getVideoChapterCount() > 0) {
+            if (m_player->videoChapterCount() > 0) {
                 refreshTitles();
-                refreshChapters(m_player->getTitle());
+                refreshChapters(m_player->title());
             }
         }
     }

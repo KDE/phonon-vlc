@@ -81,24 +81,24 @@ public:
     void setVideoAdjust(libvlc_video_adjust_option_t adjust, float value)
     { libvlc_video_set_adjust_float(m_player, adjust, value); }
 
-    libvlc_track_description_t *getVideoSubtitleDescription() const
+    libvlc_track_description_t *videoSubtitleDescription() const
     { return libvlc_video_get_spu_description(m_player); }
 
     bool setSubtitle(int subtitle);
     bool setSubtitle(const QString &file);
 
-    int getTitle() const
+    int title() const
     { return libvlc_media_player_get_title(m_player); }
 
-    libvlc_track_description_t *getVideoTitleDescription() const
+    libvlc_track_description_t *videoTitleDescription() const
     { return libvlc_video_get_title_description(m_player); }
 
     void setTitle(int title);
 
-    int getVideoChapterCount() const
+    int videoChapterCount() const
     { return libvlc_media_player_get_chapter_count(m_player); }
 
-    libvlc_track_description_t *getVideoChapterDescription(int title) const
+    libvlc_track_description_t *videoChapterDescription(int title) const
     { return libvlc_video_get_chapter_description(m_player, title); }
 
     void setChapter(int chapter);
@@ -125,7 +125,7 @@ public:
     void setAudioOutputDevice(const QByteArray &outputName, const QByteArray &deviceName)
     { libvlc_audio_output_device_set(m_player, outputName.data(), deviceName.data()); }
 
-    libvlc_track_description_t * getAudioTrackDescription() const
+    libvlc_track_description_t * audioTrackDescription() const
     { return libvlc_audio_get_track_description(m_player); }
 
     bool setAudioTrack(int track);
