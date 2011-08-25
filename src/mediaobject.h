@@ -159,7 +159,7 @@ public:
     /**
      * Sets the current media source for this media object. Depending on the source type,
      * the media object loads the specified media. The MRL is passed to loadMedia(), if the media
-     * is not a stream. If it is a stream, loadStream() is used. The currentSourceChanged() signal
+     * is not a stream. The currentSourceChanged() signal
      * is emitted.
      *
      * Supported media source types:
@@ -172,7 +172,6 @@ public:
      * \param source The media source that will become the current source.
      *
      * \see loadMedia()
-     * \see loadStream()
      */
     void setSource(const MediaSource &source);
 
@@ -192,13 +191,9 @@ signals:
     void availableSubtitlesChanged();
     void availableAudioChannelsChanged();
 
-//    void availableChaptersChanged();
-//    void availableTitlesChanged();
     void availableChaptersChanged(int);
     void availableTitlesChanged(int);
 
-    void availableAnglesChanged(int availableAngles);
-    void angleChanged(int angleNumber);
     void chapterChanged(int chapterNumber);
     void titleChanged(int titleNumber);
     void durationChanged(qint64 newDuration);
@@ -305,16 +300,6 @@ private:
      * Uninitializes the media
      */
     void unloadMedia();
-
-    /**
-     * Loads a stream specified by the current media source. It creates a stream reader
-     * for the media source. Then, loadMedia() is called. The stream callbacks are set up
-     * using special options. These callbacks are implemented in streamhooks.cpp, and
-     * are basically part of StreamReader.
-     *
-     * \see StreamReader
-     */
-    void loadStream();
 
     MediaSource m_nextSource;
 

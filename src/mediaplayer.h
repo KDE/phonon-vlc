@@ -22,6 +22,32 @@
 
 #include <vlc/vlc.h>
 
+/**
+ * Foreach loop macro for VLC descriptions.
+ * Mind that you will have to release the descriptions after the foreach.
+ *
+ * For this macro to work the type name must be of the form:
+ * \verbatim libvlc_FOO_t \endverbatim
+ * There also must be a release function of the form:
+ * \verbatim libvlc_FOO_release(void*) \endverbatim
+ *
+ * \code
+ * VLC_FOREACH(track_description, it, m_player->getAudioTrackDescription()) {
+       qDebug() << it->psz_name;
+ * }
+ * libvlc_track_description_release(it);
+ * \endcode
+ *
+ * \param type the type identifier of VLC (without libvlc and _t)
+ * \param variable the variable name you want to use
+ * \param getter the getter from which to get the iterator
+ */
+#define VLC_FOREACH(type, variable, getter) \
+    for (libvlc_##type##_t *variable = getter; variable; \
+         variable = variable->p_next, !variable ? libvlc_##type##_release(variable) : (void)0)
+
+#define VLC_TRACK_FOREACH(variable, getter) VLC_FOREACH(track_description, variable, getter)
+
 class QString;
 
 namespace Phonon {
@@ -81,10 +107,25 @@ public:
     void setVideoAdjust(libvlc_video_adjust_option_t adjust, float value)
     { libvlc_video_set_adjust_float(m_player, adjust, value); }
 
+    libvlc_track_description_t *getVideoSubtitleDescription() const
+    { return libvlc_video_get_spu_description(m_player); }
+
     bool setSubtitle(int subtitle);
     bool setSubtitle(const QString &file);
 
+    int getTitle() const
+    { return libvlc_media_player_get_title(m_player); }
+
+    libvlc_track_description_t *getVideoTitleDescription() const
+    { return libvlc_video_get_title_description(m_player); }
+
     void setTitle(int title);
+
+    int getVideoChapterCount() const
+    { return libvlc_media_player_get_chapter_count(m_player); }
+
+    libvlc_track_description_t *getVideoChapterDescription(int title) const
+    { return libvlc_video_get_chapter_description(m_player, title); }
 
     void setChapter(int chapter);
 
@@ -110,7 +151,11 @@ public:
     void setAudioOutputDevice(const QByteArray &outputName, const QByteArray &deviceName)
     { libvlc_audio_output_device_set(m_player, outputName.data(), deviceName.data()); }
 
+    libvlc_track_description_t * getAudioTrackDescription() const
+    { return libvlc_audio_get_track_description(m_player); }
+
     bool setAudioTrack(int track);
+
 
 signals:
     void lengthChanged(qint64 length);

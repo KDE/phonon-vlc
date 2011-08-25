@@ -273,9 +273,6 @@ void MediaObject::setSource(const MediaSource &source)
 
     m_mediaSource = source;
 
-    QByteArray driverName;
-    QString deviceName;
-
     switch (source.type()) {
     case MediaSource::Invalid:
         error() << Q_FUNC_INFO << "MediaSource Type is Invalid:" << source.type();
@@ -305,7 +302,10 @@ void MediaObject::setSource(const MediaSource &source)
             break;
         }
         break;
-    case MediaSource::CaptureDevice:
+    case MediaSource::CaptureDevice: {
+        QByteArray driverName;
+        QString deviceName;
+
         if (source.deviceAccessList().isEmpty()) {
             error() << Q_FUNC_INFO << "No device access list for this capture device";
             break;
@@ -346,19 +346,14 @@ void MediaObject::setSource(const MediaSource &source)
             break;
         }
         break;
+    }
     case MediaSource::Stream:
-        loadStream();
+        m_streamReader = new StreamReader(m_mediaSource, this);
+        loadMedia(QByteArray("imem://"));
         break;
     }
 
     emit currentSourceChanged(m_mediaSource);
-}
-
-void MediaObject::loadStream()
-{
-    m_streamReader = new StreamReader(m_mediaSource, this);
-
-    loadMedia(QByteArray("imem://"));
 }
 
 void MediaObject::setNextSource(const MediaSource &source)
@@ -627,41 +622,16 @@ void MediaObject::updateTime(qint64 time)
 
         if (hasVideo) {
             debug() << "HASVIDEO";
-#warning
-//            debug() << Q_FUNC_INFO << "hasVideo!";
+#warning a bit inperformant and stuff
+            refreshAudioChannels();
+            refreshSubtitles();
 
-//            // Give info about audio tracks
-//            refreshAudioChannels();
-//            // Give info about subtitle tracks
-//            refreshSubtitles();
-
-//            // Get movie chapter count
-//            // It is not a title/chapter media if there is no chapter
-//            if (libvlc_media_player_get_chapter_count(
-//                        m_player) > 0) {
-//                // Give info about title
-//                // only first time, no when title changed
-//                if (!b_media_player_title_changed) {
-//                    libvlc_track_description_t *p_info = libvlc_video_get_title_description(
-//                                m_player);
-//                    while (p_info) {
-//                        titleAdded(p_info->i_id, p_info->psz_name);
-//                        p_info = p_info->p_next;
-//                    }
-//                    libvlc_track_description_release(p_info);
-//                }
-
-//                // Give info about chapters for actual title 0
-//                if (b_media_player_title_changed) {
-//                    refreshChapters(libvlc_media_player_get_title(
-//                                                           m_player));
-//                } else {
-//                    refreshChapters(0);
-//                }
-//            }
-//            if (b_media_player_title_changed) {
-//                b_media_player_title_changed = false;
-//            }
+            // Get movie chapter count
+            // It is not a title/chapter media if there is no chapter
+            if (m_player->getVideoChapterCount() > 0) {
+                refreshTitles();
+                refreshChapters(m_player->getTitle());
+            }
         }
     }
 

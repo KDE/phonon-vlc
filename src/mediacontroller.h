@@ -81,10 +81,6 @@ public:
     virtual void availableChaptersChanged(int) = 0;
     virtual void availableTitlesChanged(int) = 0;
 
-    virtual void availableAnglesChanged(int i_available_angles) = 0;
-    virtual void angleChanged(int i_angle_number) = 0;
-    virtual void chapterChanged(int i_chapter_number) = 0;
-
     void titleAdded(int id, const QString &name);
     void chapterAdded(int titleId, const QString &name);
 
@@ -100,11 +96,6 @@ protected:
     QList<Phonon::SubtitleDescription> availableSubtitles() const;
     Phonon::SubtitleDescription currentSubtitle() const;
     void refreshSubtitles();
-
-    // Angle
-    void setCurrentAngle(int angleNumber);
-    int availableAngles() const;
-    int currentAngle() const;
 
     // Chapter
 //    void setCurrentChapter( const Phonon::ChapterDescription & chapter );
@@ -122,9 +113,9 @@ protected:
     void setCurrentTitle(int titleNumber);
     int availableTitles() const;
     int currentTitle() const;
-
     void setAutoplayTitles(bool autoplay);
     bool autoplayTitles() const;
+    void refreshTitles();
 
     /**
      * Clear all member variables and emit appropriate signals.
@@ -154,9 +145,6 @@ protected:
 //    QList<Phonon::TitleDescription> available_titles;
     int m_currentTitle;
     int m_availableTitles;
-
-    int m_currentAngle;
-    int m_availableAngles;
 
     bool m_autoPlayTitles;
 
