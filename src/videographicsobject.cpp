@@ -58,8 +58,9 @@ void VideoGraphicsObject1point1::connectToMediaObject(MediaObject *mediaObject)
     m_frame.width = 640;
     m_frame.height = 360;
 
-    libvlc_video_set_format(m_player, "RV32", m_frame.width, m_frame.height, m_frame.width * 4);
-    libvlc_video_set_callbacks(m_player, lock_cb, unlock_cb, display_cb, this);
+#warning todo
+    libvlc_video_set_format(*m_player, "RV32", m_frame.width, m_frame.height, m_frame.width * 4);
+    libvlc_video_set_callbacks(*m_player, lock_cb, unlock_cb, display_cb, this);
 
     m_frame.format = VideoFrame::Format_RGB32;
     m_frame.planeCount = 1;
@@ -129,8 +130,9 @@ void VideoGraphicsObject::connectToMediaObject(MediaObject *mediaObject)
 {
     DEBUG_BLOCK;
     SinkNode::connectToMediaObject(mediaObject);
-    libvlc_video_set_callbacks(m_player, lock_cb, unlock_cb, display_cb, this);
-    libvlc_video_set_format_callbacks(m_player, format_cb, cleanup_cb);
+#warning todo
+    libvlc_video_set_callbacks(*m_player, lock_cb, unlock_cb, display_cb, this);
+    libvlc_video_set_format_callbacks(*m_player, format_cb, cleanup_cb);
 }
 
 void VideoGraphicsObject::disconnectFromMediaObject(MediaObject *mediaObject)

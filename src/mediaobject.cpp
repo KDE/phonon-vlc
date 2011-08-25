@@ -455,9 +455,6 @@ inline void MediaObject::unloadMedia()
 
 void MediaObject::playInternal()
 {
-    if (m_currentState == Phonon::PlayingState)
-        return;
-
     DEBUG_BLOCK;
     unloadMedia();
 
