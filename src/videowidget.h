@@ -158,20 +158,13 @@ public:
      */
     QWidget *widget();
 
-    /**
-     * Sets an approximate video size to provide a size hint. It will be set
-     * to the original size of the video.
-     */
-    void setVideoSize(const QSize &videoSize);
-
     /// \reimp
     QSize sizeHint() const;
 
 private slots:
-    /**
-     * Handles the change in the size of the video
-     */
-    void videoWidgetSizeChanged(int width, int height);
+    /// Updates the sizeHint to match the native size of the video.
+    /// \param hasVideo \c true when there is a video, \c false otherwise
+    void updateVideoSize(bool hasVideo);
 
     /**
      * Sets all pending video adjusts (hue, brightness etc.) that the application

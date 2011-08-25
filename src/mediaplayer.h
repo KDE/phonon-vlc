@@ -19,6 +19,7 @@
 #define PHONON_VLC_MEDIAPLAYER_H
 
 #include <QtCore/QObject>
+#include <QtCore/QSize>
 
 #include <vlc/vlc.h>
 
@@ -68,6 +69,14 @@ public:
     bool isSeekable() const;
 
     // Video
+    QSize videoSize() const
+    {
+        unsigned int width;
+        unsigned int height;
+        libvlc_video_get_size(m_player, 0, &width, &height);
+        return QSize(width, height);
+    }
+
     bool hasVideoOutput() const;
 
     /// Set new video aspect ratio.

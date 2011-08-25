@@ -21,25 +21,19 @@
 
 #include "videowidget.h"
 
-#include <QtCore/QtDebug>
-#include <QtGui/QApplication>
-#include <QtGui/QDesktopWidget>
 #include <QtGui/QPainter>
-#include <QtGui/QResizeEvent>
 
 #include <vlc/vlc.h>
 
 #include "debug.h"
-
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-#include "experimental/avcapture.h"
-#endif // PHONON_VLC_NO_EXPERIMENTAL
 #include "mediaobject.h"
 
 namespace Phonon
 {
 namespace VLC
 {
+
+#define DEFAULT_QSIZE QSize(320, 240)
 
 VideoWidget::VideoWidget(QWidget *parent) :
     BaseWidget(parent),
@@ -50,7 +44,8 @@ VideoWidget::VideoWidget(QWidget *parent) :
     m_brightness(0.0),
     m_contrast(0.0),
     m_hue(0.0),
-    m_saturation(0.0)
+    m_saturation(0.0),
+    m_videoSize(DEFAULT_QSIZE)
 {
     // When resizing fill with black (backgroundRole color) the rest is done by paintEvent
     setAttribute(Qt::WA_OpaquePaintEvent);
@@ -82,8 +77,8 @@ void VideoWidget::connectToMediaObject(MediaObject *mediaObject)
 {
     SinkNode::connectToMediaObject(mediaObject);
 
-    connect(mediaObject, SIGNAL(videoWidgetSizeChanged(int, int)),
-            SLOT(videoWidgetSizeChanged(int, int)));
+    connect(mediaObject, SIGNAL(hasVideoChanged(bool)),
+            SLOT(updateVideoSize(bool)));
     connect(mediaObject, SIGNAL(hasVideoChanged(bool)),
             SLOT(processPendingAdjusts(bool)));
     connect(mediaObject, SIGNAL(currentSourceChanged(MediaSource)),
@@ -128,19 +123,20 @@ void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspect)
     m_aspectRatio = aspect;
 
     switch (m_aspectRatio) {
-    // FIXME: find a way to implement aspectratiowidget, or rather, find out what
-    // that is supposed to achieve to begin with.
-    case Phonon::VideoWidget::AspectRatioWidget:
+#warning TODO
+    // FIXME: find a way to implement aspectratiowidget, it is meant to scale
+    // and stretch (i.e. scale to window without retaining aspect ratio).
     case Phonon::VideoWidget::AspectRatioAuto:
         m_player->setVideoAspectRatio(QByteArray());
-        break;
+        return;
     case Phonon::VideoWidget::AspectRatio4_3:
         m_player->setVideoAspectRatio("4:3");
-        break;
+        return;
     case Phonon::VideoWidget::AspectRatio16_9:
         m_player->setVideoAspectRatio("16:9");
-        break;
+        return;
     }
+    warning() << "The aspect ratio" << aspect << "is not supported by Phonon VLC.";
 }
 
 Phonon::VideoWidget::ScaleMode VideoWidget::scaleMode() const
@@ -156,7 +152,7 @@ void VideoWidget::setScaleMode(Phonon::VideoWidget::ScaleMode scale)
     m_scaleMode = scale;
     switch (m_scaleMode) {
     }
-    warning() << Q_FUNC_INFO << "unknow Phonon::VideoWidget::ScaleMode:" << m_scaleMode;
+    warning() << "The scale mode" << scale << "is not supported by Phonon VLC.";
 }
 
 qreal VideoWidget::brightness() const
@@ -255,34 +251,19 @@ QWidget *VideoWidget::widget()
     return this;
 }
 
-void VideoWidget::setVideoSize(const QSize &size)
-{
-    m_videoSize = size;
-    updateGeometry();
-    update();
-}
-
 QSize VideoWidget::sizeHint() const
 {
-    if (!m_videoSize.isEmpty()) {
-        return m_videoSize;
-    }
-    return QSize(640, 480);
+    return m_videoSize;
 }
 
-void VideoWidget::videoWidgetSizeChanged(int width, int height)
+void VideoWidget::updateVideoSize(bool hasVideo)
 {
-    debug() << Q_FUNC_INFO << "video width" << width << "height:" << height;
-
-    // It resizes dynamically the widget and the main window
-    // Note: I didn't find another way
-
-    QSize videoSize(width, height);
-    videoSize.boundedTo(QApplication::desktop()->availableGeometry().size());
-
-    hide();
-    setVideoSize(videoSize);
-    show();
+    if (hasVideo) {
+        m_videoSize = m_player->videoSize();
+        updateGeometry();
+        update();
+    } else
+        m_videoSize = DEFAULT_QSIZE;
 }
 
 void VideoWidget::processPendingAdjusts(bool videoAvailable)
@@ -361,5 +342,5 @@ float VideoWidget::phononRangeToVlcRange(qreal phononValue, float upperBoundary,
     return (value * (upperBoundary/range));
 }
 
-}
-} // Namespace Phonon::VLC
+} // namespace VLC
+} // namespace Phonon
