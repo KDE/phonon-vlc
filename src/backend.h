@@ -1,31 +1,28 @@
-/*****************************************************************************
- * libVLC backend for the Phonon library                                     *
- *                                                                           *
- * Copyright (C) 2007-2008 Tanguy Krotoff <tkrotoff@gmail.com>               *
- * Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>                *
- * Copyright (C) 2009 Fathi Boudra <fabo@kde.org>                            *
- * Copyright (C) 2009-2010 vlc-phonon AUTHORS                                *
- *                                                                           *
- * This program is free software; you can redistribute it and/or             *
- * modify it under the terms of the GNU Lesser General Public                *
- * License as published by the Free Software Foundation; either              *
- * version 2.1 of the License, or (at your option) any later version.        *
- *                                                                           *
- * This program is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of            *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU         *
- * Lesser General Public License for more details.                           *
- *                                                                           *
- * You should have received a copy of the GNU Lesser General Public          *
- * License along with this package; if not, write to the Free Software       *
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA *
- *****************************************************************************/
+/*
+    Copyright (C) 2007-2008 Tanguy Krotoff <tkrotoff@gmail.com>
+    Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>
+    Copyright (C) 2009 Fathi Boudra <fabo@kde.org>
+    Copyright (C) 2009-2011 vlc-phonon AUTHORS
+    Copyright (C) 2011 Harald Sitter <sitter@kde.org>
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #ifndef Phonon_VLC_BACKEND_H
 #define Phonon_VLC_BACKEND_H
 
-#include "audiooutput.h"
-#include "debug.h"
+#include <QtCore/QStringList>
 
 #include <phonon/objectdescription.h>
 #include <phonon/backendinterface.h>
@@ -34,17 +31,12 @@
 #include "phonon/experimental/backendinterface.h"
 #endif // PHONON_VLC_NO_EXPERIMENTAL
 
-#include <QtCore/QList>
-#include <QtCore/QPointer>
-#include <QtCore/QStringList>
-
 class LibVLC;
 
 namespace Phonon
 {
 namespace VLC
 {
-class AudioOutput;
 class DeviceManager;
 class EffectManager;
 
@@ -84,14 +76,10 @@ public:
     explicit Backend(QObject *parent = 0, const QVariantList & = QVariantList());
     virtual ~Backend();
 
-    /**
-     * \return The device manager that is associated with this backend object
-     */
+    /// \return The device manager that is associated with this backend object
     DeviceManager *deviceManager() const;
 
-    /**
-     * \return The effect manager that is associated with this backend object.
-     */
+    /// \return The effect manager that is associated with this backend object.
     EffectManager *effectManager() const;
 
     /**
@@ -104,9 +92,7 @@ public:
      */
     QObject *createObject(BackendInterface::Class, QObject *parent, const QList<QVariant> &args);
 
-    bool supportsVideo() const;
-    bool supportsOSD() const;
-    bool supportsSubtitles() const;
+    /// \returns a list of all available mimetypes (hardcoded)
     QStringList availableMimeTypes() const;
 
     /**
@@ -159,31 +145,17 @@ public:
      */
     bool endConnectionChange(QSet<QObject *>);
 
-    /**
-     * Return the current debug level.
-     *
-     * The debug level can be set by the PHONON_VLC_DEBUG environment variable.
-     * \li 0 - Only fatal errors are shown
-     * \li 1 - Fatal and non-fatal errors
-     * \li 2 - All errors and warnings
-     * \li 3 - Everything
-     *
-     * \return The debug level.
-     */
-    Debug::DebugLevel debugLevel() const;
-
 Q_SIGNALS:
     void objectDescriptionChanged(ObjectDescriptionType);
 
 private:
     mutable QStringList m_supportedMimeTypes;
-    QList<QPointer<AudioOutput> > m_audioOutputs;
 
     DeviceManager *m_deviceManager;
     EffectManager *m_effectManager;
 };
 
-}
-} // namespace Phonon::VLC
+} // namespace VLC
+} // namespace Phonon
 
 #endif // Phonon_VLC_BACKEND_H

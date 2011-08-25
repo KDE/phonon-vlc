@@ -20,19 +20,19 @@
 
 #include "streamreader.h"
 
-#include <phonon/streaminterface.h>
-
 #include <QtCore/QMutexLocker>
 
+#include <phonon/streaminterface.h>
+
 #include "debug.h"
+#include "media.h"
 #include "mediaobject.h"
 
 QT_BEGIN_NAMESPACE
 #ifndef QT_NO_PHONON_ABSTRACTMEDIASTREAM
-namespace Phonon
-{
-namespace VLC
-{
+
+namespace Phonon {
+namespace VLC {
 
 #define BLOCKSIZE 32768
 
@@ -49,6 +49,23 @@ StreamReader::StreamReader(const Phonon::MediaSource &source, MediaObject *paren
 
 StreamReader::~StreamReader()
 {
+}
+
+void StreamReader::addToMedia(Media *media)
+{
+    lock(); // Make sure we can lock in read().
+
+    media->addOption(QLatin1String("imem-cat=4"));
+    media->addOption(QLatin1String("imem-data="), INTPTR_PTR(this));
+    media->addOption(QLatin1String("imem-get="), INTPTR_FUNC(readCallback));
+    media->addOption(QLatin1String("imem-release="), INTPTR_FUNC(readDoneCallback));
+    media->addOption(QLatin1String("imem-seek="), INTPTR_FUNC(seekCallback));
+
+    // if stream has known size, we may pass it
+    // imem module will use it and pass it to demux
+    if (streamSize() > 0) {
+        media->addOption(QString("imem-size=%1").arg(streamSize()));
+    }
 }
 
 void StreamReader::lock()
@@ -147,7 +164,7 @@ bool StreamReader::read(quint64 pos, int *length, char *buffer)
         if (oldSize == currentBufferSize()) {
             if (m_eos && m_buffer.isEmpty()) {
                 return false;
-	    }
+            }
             // We didn't get any more data
             *length = static_cast<int>(oldSize);
             // If we have some data to return, why tell to reader that we failed?
@@ -220,8 +237,9 @@ bool StreamReader::streamSeekable() const
     return m_seekable;
 }
 
-}// namespace VLC
-}// namespace Phonon
+} // namespace VLC
+} // namespace Phonon
+
 #endif //QT_NO_PHONON_ABSTRACTMEDIASTREAM
 
 QT_END_NAMESPACE

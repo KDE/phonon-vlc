@@ -34,6 +34,32 @@ struct libvlc_instance_t;
 #define libvlc LibVLC::self->vlc()
 
 /**
+ * Foreach loop macro for VLC descriptions.
+ * Mind that you will have to release the descriptions after the foreach.
+ *
+ * For this macro to work the type name must be of the form:
+ * \verbatim libvlc_FOO_t \endverbatim
+ *
+ * \code
+ * VLC_FOREACH(track_description, it, m_player->getAudioTrackDescription()) {
+       qDebug() << it->psz_name;
+ * }
+ * libvlc_track_description_release(it);
+ * \endcode
+ *
+ * \param type the type identifier of VLC (without libvlc and _t)
+ * \param variable the variable name you want to use
+ * \param getter the getter from which to get the iterator
+ * \param releaseSuffix, function name to release the list
+ */
+#define VLC_FOREACH(type, variable, getter, releaseSuffix) \
+    for (libvlc_##type##_t *variable = getter; variable; \
+        variable = variable->p_next, !variable ? releaseSuffix(variable) : (void)0)
+
+#define VLC_TRACK_FOREACH(variable, getter) VLC_FOREACH(track_description, variable, getter, libvlc_track_description_release)
+#define VLC_MODULE_FOREACH(variable, getter) VLC_FOREACH(module_description, variable, getter, libvlc_module_description_list_release)
+
+/**
  * \brief Singleton class containing a libvlc instance.
  *
  * This class is a convenience class implementing the singleton pattern to hold

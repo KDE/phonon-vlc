@@ -23,16 +23,16 @@
 
 #include "mediacontroller.h"
 
-#include <vlc/vlc.h>
+#include <phonon/GlobalDescriptionContainer>
 
 #include "debug.h"
-#include "globaldescriptioncontainer.h"
 #include "libvlc.h"
+#include "mediaplayer.h"
 
-namespace Phonon
-{
-namespace VLC
-{
+namespace Phonon {
+namespace VLC {
+
+#warning titles and chapters not covered by globaldescriptioncontainer!!
 
 MediaController::MediaController()
     : m_player(0)
@@ -58,7 +58,7 @@ bool MediaController::hasInterface(Interface iface) const
         return true;
         break;
     case AddonInterface::AngleInterface:
-        return true;
+        return false;
         break;
     case AddonInterface::TitleInterface:
         return true;
@@ -69,10 +69,9 @@ bool MediaController::hasInterface(Interface iface) const
     case AddonInterface::AudioChannelInterface:
         return true;
         break;
-    default:
-        error() << Q_FUNC_INFO << "unsupported AddonInterface::Interface" << iface;
     }
 
+    warning() << "Interface" << iface << "is not supported by Phonon VLC :(";
     return false;
 }
 
@@ -82,21 +81,10 @@ QVariant MediaController::interfaceCall(Interface iface, int i_command, const QL
     switch (iface) {
     case AddonInterface::ChapterInterface:
         switch (static_cast<AddonInterface::ChapterCommand>(i_command)) {
-//        case AddonInterface::availableChapters:
-//            return QVariant::fromValue(availableChapters());
         case AddonInterface::availableChapters:
             return availableChapters();
-//        case AddonInterface::currentChapter:
-//            return QVariant::fromValue(currentChapter());
         case AddonInterface::chapter:
             return currentChapter();
-//        case AddonInterface::setCurrentChapter:
-//            if( arguments.isEmpty() || !arguments.first().canConvert<ChapterDescription>()) {
-//                    error() << Q_FUNC_INFO << "arguments invalid";
-//                    return false;
-//                }
-//            setCurrentChapter(arguments.first().value<ChapterDescription>());
-//            return true;
         case AddonInterface::setChapter:
             if (arguments.isEmpty() || !arguments.first().canConvert(QVariant::Int)) {
                 error() << Q_FUNC_INFO << "arguments invalid";
@@ -110,21 +98,10 @@ QVariant MediaController::interfaceCall(Interface iface, int i_command, const QL
         break;
     case AddonInterface::TitleInterface:
         switch (static_cast<AddonInterface::TitleCommand>(i_command)) {
-//        case AddonInterface::availableTitles:
-//            return QVariant::fromValue(availableTitles());
         case AddonInterface::availableTitles:
             return availableTitles();
-//        case AddonInterface::currentTitle:
-//            return QVariant::fromValue(currentTitle());
         case AddonInterface::title:
             return currentTitle();
-//        case AddonInterface::setCurrentTitle:
-//            if( arguments.isEmpty() || !arguments.first().canConvert<TitleDescription>()) {
-//                    error() << Q_FUNC_INFO << " arguments invalid";
-//                    return false;
-//            }
-//            setCurrentTitle(arguments.first().value<TitleDescription>());
-//            return true;
         case AddonInterface::setTitle:
             if (arguments.isEmpty() || !arguments.first().canConvert(QVariant::Int)) {
                 error() << Q_FUNC_INFO << "arguments invalid";
@@ -146,14 +123,7 @@ QVariant MediaController::interfaceCall(Interface iface, int i_command, const QL
         }
         break;
     case AddonInterface::AngleInterface:
-        switch (static_cast<AddonInterface::AngleCommand>(i_command)) {
-        case AddonInterface::availableAngles:
-        case AddonInterface::angle:
-        case AddonInterface::setAngle:
-            break;
-        default:
-            error() << Q_FUNC_INFO << "unsupported AddonInterface::AngleInterface command:" << i_command;
-        }
+        warning() << "AddonInterface::AngleInterface not supported!";
         break;
     case AddonInterface::SubtitleInterface:
         switch (static_cast<AddonInterface::SubtitleCommand>(i_command)) {
@@ -213,46 +183,20 @@ void MediaController::resetMembers()
     m_currentSubtitle = Phonon::SubtitleDescription();
     GlobalSubtitles::instance()->clearListFor(this);
 
-    m_currentAngle = 0;
-    m_availableAngles = 0;
-
-//    m_currentChapter = Phonon::ChapterDescription();
-//    m_availableChapters.clear();
     m_currentChapter = 0;
     m_availableChapters = 0;
 
-//    current_title = Phonon::TitleDescription();
-//    m_availableTitles.clear();
     m_currentTitle = 0;
     m_availableTitles = 0;
 
     m_autoPlayTitles = false;
 }
 
-// Add title
-void MediaController::titleAdded(int id, const QString &name)
-{
-    Q_UNUSED(id);
-    Q_UNUSED(name);
-    ++m_availableTitles;
-    emit availableTitlesChanged(m_availableTitles);
-}
-
-// Add chapter
-void MediaController::chapterAdded(int titleId, const QString &name)
-{
-    Q_UNUSED(titleId);
-    Q_UNUSED(name);
-    ++m_availableChapters;
-    emit availableChaptersChanged(m_availableChapters);
-}
-
-// Audio channel
-
+// ----------------------------- Audio Channel ------------------------------ //
 void MediaController::setCurrentAudioChannel(const Phonon::AudioChannelDescription &audioChannel)
 {
     const int localIndex = GlobalAudioChannels::instance()->localIdFor(this, audioChannel.index());
-    if (libvlc_audio_set_track(m_player, localIndex))
+    if (m_player->setAudioTrack(localIndex))
         error() << "libVLC:" << LibVLC::errorMessage();
     else
         m_currentAudioChannel = audioChannel;
@@ -270,20 +214,16 @@ Phonon::AudioChannelDescription MediaController::currentAudioChannel() const
 
 void MediaController::refreshAudioChannels()
 {
-    m_currentAudioChannel = Phonon::AudioChannelDescription();
     GlobalAudioChannels::instance()->clearListFor(this);
 
-    libvlc_track_description_t *p_info = libvlc_audio_get_track_description(m_player);
-    while (p_info) {
-        GlobalAudioChannels::instance()->add(this, p_info->i_id, p_info->psz_name, "");
-        p_info = p_info->p_next;
+    VLC_TRACK_FOREACH(it, m_player->audioTrackDescription()) {
+        GlobalAudioChannels::instance()->add(this, it->i_id, it->psz_name, "");
     }
-    libvlc_track_description_release(p_info);
+
     emit availableAudioChannelsChanged();
 }
 
-// Subtitle
-
+// -------------------------------- Subtitle -------------------------------- //
 void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &subtitle)
 {
     QString type = subtitle.property("type").toString();
@@ -291,7 +231,7 @@ void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &subt
     if (type == "file") {
         QString filename = subtitle.property("name").toString();
         if (!filename.isEmpty()) {
-            if (!libvlc_video_set_subtitle_file(m_player, filename.toAscii().data()))
+            if (!m_player->setSubtitle(filename))
                 error() << "libVLC:" << LibVLC::errorMessage();
             else
                 m_currentSubtitle = subtitle;
@@ -302,7 +242,7 @@ void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &subt
         }
     } else {
         const int localIndex = GlobalSubtitles::instance()->localIdFor(this, subtitle.index());
-        if (libvlc_video_set_spu(m_player, localIndex))
+        if (m_player->setSubtitle(localIndex))
             error() << "libVLC:" << LibVLC::errorMessage();
         else
             m_currentSubtitle = subtitle;
@@ -322,48 +262,20 @@ Phonon::SubtitleDescription MediaController::currentSubtitle() const
 void MediaController::refreshSubtitles()
 {
     DEBUG_BLOCK;
-    m_currentSubtitle = Phonon::SubtitleDescription();
     GlobalSubtitles::instance()->clearListFor(this);
 
-    int idOffset = 0;
-    bool idSet = false;
-    libvlc_track_description_t *p_info = libvlc_video_get_spu_description(m_player);
-    while (p_info) {
-#ifdef __GNUC__
-#warning In the name of Kent Beck! libvlc is the broken...
-#endif
-        int id = -1; // Our fixed ID, some versions of libvlc report bogus IDs.
-        const int vlcId = p_info->i_id;
-
-        // Fix broken VLC - set_spu only accepts uint.
-        // -1 is always 'Disable' subtitles, which really should be 0.
-        if (vlcId == -1)
-            id = 0;
-
-        // This will be true for the very first real subtitle (that is excluding 'Disable').
-        if (vlcId > 0 && !idSet) {
-            idSet = true;
-            // If the ID is *not* 1 we must assume that libvlc has a broken numbering
-            // scheme and calculate an ID offset accordingly.
-            if (vlcId != 1)
-                idOffset = p_info->i_id - 1;
-        }
-
-        // The ID is always -1 except for the very first subtitle (that is 'Disable').
-        // Calculate a fixed ID in case we set an offset (see above).
-        if (id == -1)
-            id = p_info->i_id - idOffset;
-
-        GlobalSubtitles::instance()->add(this, id, p_info->psz_name, "");
-        p_info = p_info->p_next;
+    int idCount = 0;
+    VLC_TRACK_FOREACH(it, m_player->videoSubtitleDescription()) {
+        // LibVLC's internal ID is broken, so we simply count up as internally
+        // the setter will simply go by position in list anyway.
+        GlobalSubtitles::instance()->add(this, idCount, it->psz_name, "");
+        ++idCount;
     }
-    libvlc_track_description_release(p_info);
+
     emit availableSubtitlesChanged();
 }
 
-// Title
-
-//void MediaController::setCurrentTitle( const Phonon::TitleDescription & title )
+// --------------------------------- Title ---------------------------------- //
 void MediaController::setCurrentTitle(int title)
 {
     DEBUG_BLOCK;
@@ -379,20 +291,18 @@ void MediaController::setCurrentTitle(int title)
     case Dvd:
     case Vcd:
          //    libvlc_media_player_set_title(m_player, title.index(), vlc_exception);
-        libvlc_media_player_set_title(m_player, title);
+        m_player->setTitle(title);
         break;
     default:
         warning() << "Current media source is not a CD, DVD or VCD!";
     }
 }
 
-//QList<Phonon::TitleDescription> MediaController::availableTitles() const
 int MediaController::availableTitles() const
 {
     return m_availableTitles;
 }
 
-//Phonon::TitleDescription MediaController::currentTitle() const
 int MediaController::currentTitle() const
 {
     return m_currentTitle;
@@ -408,23 +318,28 @@ bool MediaController::autoplayTitles() const
     return m_autoPlayTitles;
 }
 
-// Chapter
+void MediaController::refreshTitles()
+{
+    m_availableTitles = 0;
 
-//void MediaController::setCurrentChapter(const Phonon::ChapterDescription &chapter)
+    VLC_TRACK_FOREACH(it, m_player->videoTitleDescription()) {
+        ++m_availableTitles;
+        emit availableTitlesChanged(m_availableTitles);
+    }
+}
+
+// -------------------------------- Chapter --------------------------------- //
 void MediaController::setCurrentChapter(int chapter)
 {
     m_currentChapter = chapter;
-//    libvlc_media_player_set_chapter(m_player, chapter.index(), vlc_exception);
-    libvlc_media_player_set_chapter(m_player, chapter);
+    m_player->setChapter(chapter);
 }
 
-//QList<Phonon::ChapterDescription> MediaController::availableChapters() const
 int MediaController::availableChapters() const
 {
     return m_availableChapters;
 }
 
-//Phonon::ChapterDescription MediaController::currentChapter() const
 int MediaController::currentChapter() const
 {
     return m_currentChapter;
@@ -433,36 +348,17 @@ int MediaController::currentChapter() const
 // We need to rebuild available chapters when title is changed
 void MediaController::refreshChapters(int title)
 {
-//    m_currentChapter = Phonon::ChapterDescription();
-//    m_availableChapters.clear();
-    m_currentChapter = 0;
     m_availableChapters = 0;
 
     // Get the description of available chapters for specific title
-    libvlc_track_description_t *p_info = libvlc_video_get_chapter_description(m_player, title);
-    while (p_info) {
-        chapterAdded(p_info->i_id, p_info->psz_name);
-        p_info = p_info->p_next;
+    VLC_TRACK_FOREACH(it, m_player->videoChapterDescription(title)) {
+        ++m_availableChapters;
+        emit availableChaptersChanged(m_availableChapters);
     }
-    libvlc_track_description_release(p_info);
 }
 
-// Angle
+// --------------------------------- Angle ---------------------------------- //
+//                          NOT SUPPORTED IN LIBVLC                           //
 
-void MediaController::setCurrentAngle(int angleNumber)
-{
-    m_currentAngle = angleNumber;
-}
-
-int MediaController::availableAngles() const
-{
-    return m_availableAngles;
-}
-
-int MediaController::currentAngle() const
-{
-    return m_currentAngle;
-}
-
-}
-} // Namespace Phonon::VLC
+} // namespace VLC
+} // namespace Phonon

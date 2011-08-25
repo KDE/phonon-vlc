@@ -24,9 +24,6 @@
 #ifndef PHONON_VLC_SINKNODE_H
 #define PHONON_VLC_SINKNODE_H
 
-struct libvlc_media_t;
-struct libvlc_media_player_t;
-
 namespace Phonon
 {
 
@@ -38,7 +35,9 @@ namespace Experimental
     class AvCapture;
 }
 
+class Media;
 class MediaObject;
+class MediaPlayer;
 
 /** \brief The sink node is essentialy an output for a media object
  *
@@ -75,7 +74,7 @@ public:
     /**
      * Does nothing. To be reimplemented in child classes.
      */
-    virtual void addToMedia(libvlc_media_t *media);
+    virtual void addToMedia(Media *media);
 
 #ifndef PHONON_VLC_NO_EXPERIMENTAL
     /**
@@ -104,7 +103,7 @@ public:
 
 protected:
     MediaObject *m_mediaObject;
-    libvlc_media_player_t *m_player;
+    MediaPlayer *m_player;
 };
 
 }

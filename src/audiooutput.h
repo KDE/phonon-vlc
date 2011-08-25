@@ -25,13 +25,13 @@
 #define PHONON_VLC_AUDIOOUTPUT_H
 
 #include <QtCore/QObject>
+
 #include <phonon/audiooutputinterface.h>
+
 #include "sinknode.h"
 
-namespace Phonon
-{
-namespace VLC
-{
+namespace Phonon {
+namespace VLC {
 
 /** \brief AudioOutput implementation for Phonon-VLC
  *
@@ -59,28 +59,11 @@ public:
     AudioOutput(QObject *parent);
     ~AudioOutput();
 
-    /* Overload */
+    /// \reimp
     virtual void connectToMediaObject(MediaObject *mediaObject);
 
-    /* Overload */
+    /// \reimp
     virtual void disconnectFromMediaObject(MediaObject *mediaObject);
-
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-    /**
-     * Connects the AudioOutput to an AvCapture. connectToMediaObject() is called
-     * only for the video media of the AvCapture.
-     *
-     * \see AvCapture
-     */
-    void connectToAvCapture(Experimental::AvCapture *avCapture);
-
-    /**
-     * Disconnect the AudioOutput from the audio media of the AvCapture.
-     *
-     * \see connectToAvCapture()
-     */
-    void disconnectFromAvCapture(Experimental::AvCapture *avCapture);
-#endif // PHONON_VLC_NO_EXPERIMENTAL
 
     /**
      * \return The current volume for this audio output.
@@ -108,13 +91,6 @@ public:
      */
     bool setOutputDevice(int);
 
-#if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 2, 0))
-    /**
-     * Does nothing.
-     */
-    bool setOutputDevice(const AudioOutputDevice &device);
-#endif
-
 signals:
     void volumeChanged(qreal volume);
     void audioDeviceFailed();
@@ -136,7 +112,7 @@ private:
     int m_deviceIndex;
 };
 
-}
-} // Namespace Phonon::VLC
+} // namespace VLC
+} // namespace Phonon
 
 #endif // PHONON_VLC_AUDIOOUTPUT_H

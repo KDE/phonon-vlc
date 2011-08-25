@@ -28,27 +28,21 @@
 #include <phonon/MediaSource>
 #include <phonon/ObjectDescription>
 
-#include "debug.h"
+namespace Phonon {
+namespace VLC {
 
-struct libvlc_media_player_t;
-
-namespace Phonon
-{
-namespace VLC
-{
+class MediaPlayer;
 
 /**
  * \brief Interface for AddonInterface.
  *
- * Provides a bridge between Phonon's AddonInterface and VLCMediaController.
+ * Provides a bridge between Phonon's AddonInterface and MediaController.
  *
  * This class cannot inherit from QObject has MediaObject already inherit from QObject.
  * This is a Qt limitation: there is no possibility to inherit virtual Qobject :/
  * See http://doc.trolltech.com/qq/qq15-academic.html
  * Phonon implementation got the same problem.
  *
- * \see VLCMediaController
- * \see VLCMediaObject
  * \see MediaObject
  */
 class MediaController : public AddonInterface
@@ -79,10 +73,6 @@ public:
     virtual void availableChaptersChanged(int) = 0;
     virtual void availableTitlesChanged(int) = 0;
 
-    virtual void availableAnglesChanged(int i_available_angles) = 0;
-    virtual void angleChanged(int i_angle_number) = 0;
-    virtual void chapterChanged(int i_chapter_number) = 0;
-
     void titleAdded(int id, const QString &name);
     void chapterAdded(int titleId, const QString &name);
 
@@ -99,30 +89,19 @@ protected:
     Phonon::SubtitleDescription currentSubtitle() const;
     void refreshSubtitles();
 
-    // Angle
-    void setCurrentAngle(int angleNumber);
-    int availableAngles() const;
-    int currentAngle() const;
-
     // Chapter
-//    void setCurrentChapter( const Phonon::ChapterDescription & chapter );
-//    QList<Phonon::ChapterDescription> availableChapters() const;
-//    Phonon::ChapterDescription currentChapter() const;
     void setCurrentChapter(int chapterNumber);
     int availableChapters() const;
     int currentChapter() const;
     void refreshChapters(int title);
 
     // Title
-//    void setCurrentTitle( const Phonon::TitleDescription & title );
-//    QList<Phonon::TitleDescription> availableTitles() const;
-//    Phonon::TitleDescription currentTitle() const;
     void setCurrentTitle(int titleNumber);
     int availableTitles() const;
     int currentTitle() const;
-
     void setAutoplayTitles(bool autoplay);
     bool autoplayTitles() const;
+    void refreshTitles();
 
     /**
      * Clear all member variables and emit appropriate signals.
@@ -140,29 +119,21 @@ protected:
     void resetMembers();
 
     Phonon::AudioChannelDescription m_currentAudioChannel;
-
     Phonon::SubtitleDescription m_currentSubtitle;
 
-//    Phonon::ChapterDescription current_chapter;
-//    QList<Phonon::ChapterDescription> available_chapters;
     int m_currentChapter;
     int m_availableChapters;
 
-//    Phonon::TitleDescription current_title;
-//    QList<Phonon::TitleDescription> available_titles;
     int m_currentTitle;
     int m_availableTitles;
-
-    int m_currentAngle;
-    int m_availableAngles;
 
     bool m_autoPlayTitles;
 
     // MediaPlayer
-    libvlc_media_player_t *m_player;
+    MediaPlayer *m_player;
 };
 
-}
-} // Namespace Phonon::VLC
+} // namespace VLC
+} // namespace Phonon
 
 #endif // PHONON_VLC_MEDIACONTROLLER_H

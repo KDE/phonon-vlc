@@ -25,6 +25,7 @@
 
 #include "debug.h"
 #include "mediaobject.h"
+#include "mediaplayer.h"
 
 #ifndef PHONON_VLC_NO_EXPERIMENTAL
 #include "experimental/avcapture.h"
@@ -65,9 +66,11 @@ void SinkNode::disconnectFromMediaObject(MediaObject *mediaObject)
     if (m_mediaObject) {
         m_mediaObject->removeSink(this);
     }
+
+    m_player = 0;
 }
 
-void SinkNode::addToMedia(libvlc_media_t *media)
+void SinkNode::addToMedia(Media *media)
 {
     Q_UNUSED(media);
 }

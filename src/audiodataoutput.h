@@ -2,6 +2,7 @@
     Copyright (C) 2006 Matthias Kretz <kretz@kde.org>
     Copyright (C) 2009 Martin Sandsmark <sandsmark@samfundet.no>
     Copyright (C) 2010 Ben Cooksley <sourtooth@gmail.com>
+    Copyright (C) 2011 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -24,21 +25,20 @@
 #ifndef Phonon_VLC_AUDIODATAOUTPUT_H
 #define Phonon_VLC_AUDIODATAOUTPUT_H
 
-#include <QtCore/QObject>
-#include <phonon/audiodataoutputinterface.h>
-#include "sinknode.h"
-
 #include <QtCore/QMutex>
+#include <QtCore/QObject>
 
 #include <phonon/audiodataoutput.h>
+#include <phonon/audiodataoutputinterface.h>
+
+#include "sinknode.h"
 
 QT_BEGIN_HEADER
 QT_BEGIN_NAMESPACE
 
-namespace Phonon
-{
-namespace VLC
-{
+namespace Phonon {
+namespace VLC {
+
 /** \brief Implementation for AudioDataOutput using libVLC
  *
  * This class makes the capture of raw audio data possible. It sets special options
@@ -68,22 +68,6 @@ public:
      */
     AudioDataOutput(QObject *parent);
     ~AudioDataOutput();
-
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-    /**
-     * Connect this AudioDataOutput only to the audio media part of the AvCapture.
-     *
-     * \see AvCapture
-     */
-    void connectToAvCapture(Experimental::AvCapture *avCapture);
-
-    /**
-     * Disconnect the AudioDataOutput from the video media of the AvCapture.
-     *
-     * \see connectToAvCapture()
-     */
-    void disconnectFromAvCapture(Experimental::AvCapture *avCapture);
-#endif//PHONON_VLC_NO_EXPERIMENTAL
 
     Phonon::AudioDataOutput *frontendObject() const
     {
@@ -119,7 +103,7 @@ public Q_SLOTS:
      * \see unlock()
      * \see SinkNode::connectToMediaObject()
      */
-    void addToMedia( libvlc_media_t *media);
+    void addToMedia(Media *media);
 
 signals:
     void dataReady(const QMap<Phonon::AudioDataOutput::Channel, QVector<qint16> > &data);
@@ -174,11 +158,11 @@ private:
     QVector<qint16> m_channelSamples[6];
     QList<Phonon::AudioDataOutput::Channel> m_channels;
 };
-}
-} //namespace Phonon::VLC
+
+} // namespace VLC
+} // namespace Phonon
 
 QT_END_NAMESPACE
 QT_END_HEADER
 
-// vim: sw=4 ts=4 tw=80
 #endif // Phonon_VLC_AUDIODATAOUTPUT_H

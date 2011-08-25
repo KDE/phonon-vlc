@@ -3,6 +3,7 @@
     Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>
     Copyright (C) 2009 Fathi Boudra <fabo@kde.org>
     Copyright (C) 2009-2011 vlc-phonon AUTHORS
+    Copyright (C) 2011 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -21,19 +22,23 @@
 #ifndef PHONON_VLC_VIDEOWIDGET_H
 #define PHONON_VLC_VIDEOWIDGET_H
 
-#include "overlaywidget.h"
-#include "sinknode.h"
+#include <QtGui/QWidget>
+
 #include <phonon/videowidgetinterface.h>
 
-#include <QtCore/QMutex>
+#ifdef Q_OS_MAC
+#include "mac/vlcmacwidget.h"
+typedef VlcMacWidget BaseWidget;
+#else
+typedef QWidget BaseWidget;
+#endif
 
-namespace Phonon
-{
-namespace VLC
-{
+#include "sinknode.h"
 
-namespace Experimental
-{
+namespace Phonon {
+namespace VLC {
+
+namespace Experimental {
 class AvCapture;
 }
 
@@ -43,7 +48,7 @@ class AvCapture;
  * It is connected to a media object that provides the video source. Methods to control
  * video settings such as brightness or contrast are provided.
  */
-class VideoWidget : public OverlayWidget, public SinkNode, public VideoWidgetInterface
+class VideoWidget : public BaseWidget, public SinkNode, public VideoWidgetInterface
 {
     Q_OBJECT
     Q_INTERFACES(Phonon::VideoWidgetInterface)
@@ -73,27 +78,11 @@ public:
      */
     void connectToMediaObject(MediaObject *mediaObject);
 
-    /**
-     * Overloads SinkNode.
-     */
+    /// \reimp
     void disconnectFromMediaObject(MediaObject *mediaObject);
 
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-    /**
-     * Connects the VideoWidget to an AvCapture. connectToMediaObject() is called
-     * only for the video media of the AvCapture.
-     *
-     * \see AvCapture
-     */
-    void connectToAvCapture(Experimental::AvCapture *avCapture);
-
-    /**
-     * Disconnect the VideoWidget from the video media of the AvCapture.
-     *
-     * \see connectToAvCapture()
-     */
-    void disconnectFromAvCapture(Experimental::AvCapture *avCapture);
-#endif // PHONON_VLC_NO_EXPERIMENTAL
+    /// \reimp
+    void addToMedia(Media *media);
 
     /**
      * \return The aspect ratio previously set for the video widget
@@ -160,63 +149,18 @@ public:
      */
     Q_INVOKABLE void setSaturation(qreal saturation);
 
-    void useCustomRender();
-
-    /**
-    * Call back function for libVLC.
-    *
-    * This function is public so that the compiler does not fall over.
-    *
-    * This function gets called by libVLC to lock the context, i.e. this
-    * interface.
-    *
-    * \param data pointer to 'this'
-    * \param buffer when this function returns this pointer should contain the
-    *        address of a buffer to use for libVLC
-    *
-    * \return picture identifier - NOT USED -> ALWAYS NULL
-    *
-    * \see unlock()
-    */
-    static void *lock(void *data, void **bufRet);
-
-    /**
-     * Call back function for libVLC.
-     *
-     * This function is public so that the compiler does not fall over.
-     *
-     * \param data pointer to 'this'
-     * \param id TODO: don't know that off the top of my head
-     * \param pixels the pixel buffer of the current frame
-     *
-     * \see lock()
-     */
-    static void unlock(void *data, void *id, void *const *pixels);
-
     /**
      * \return The owned widget that is used for the actual draw.
      */
     QWidget *widget();
 
-    /**
-     * Sets an approximate video size to provide a size hint. It will be set
-     * to the original size of the video.
-     */
-    void setVideoSize(const QSize &videoSize);
-
-    /* Overloading QWidget */
+    /// \reimp
     QSize sizeHint() const;
 
-    void setVisible(bool visible);
-
-public slots:
-    void setNextFrame(const QByteArray &array, int width, int height);
-
 private slots:
-    /**
-     * Handles the change in the size of the video
-     */
-    void videoWidgetSizeChanged(int width, int height);
+    /// Updates the sizeHint to match the native size of the video.
+    /// \param hasVideo \c true when there is a video, \c false otherwise
+    void updateVideoSize(bool hasVideo);
 
     /**
      * Sets all pending video adjusts (hue, brightness etc.) that the application
@@ -231,13 +175,9 @@ private slots:
      */
     void clearPendingAdjusts();
 
-
 protected:
-    /* Overloading QWidget */
-    virtual void paintEvent(QPaintEvent *event);
-
-    /* Overloading QWidget */
-    virtual void resizeEvent(QResizeEvent *event);
+    /// \reimp
+    void paintEvent(QPaintEvent *event);
 
 private:
     /**
@@ -276,27 +216,10 @@ private:
                                        bool shift = true);
 
     /**
-     * Whether custom rendering is used.
-     */
-    bool m_customRender;
-
-    /**
-     * Next drawable frame (if any).
-     */
-    mutable QImage m_frame;
-
-    QImage *m_img;
-
-    /**
      * Pending video adjusts the application tried to set before we actually
      * had a video to set them on.
      */
     QHash<QByteArray, qreal> m_pendingAdjusts;
-
-    /**
-     * Mutex for surface paintaing callbacks (i.e. when frames arrive)
-     */
-    QMutex m_mutex;
 
     /**
      * Original size of the video, needed for sizeHint().
@@ -304,7 +227,6 @@ private:
     QSize m_videoSize;
 
     Phonon::VideoWidget::AspectRatio m_aspectRatio;
-
     Phonon::VideoWidget::ScaleMode m_scaleMode;
 
     bool  m_filterAdjustActivated;
@@ -314,7 +236,7 @@ private:
     qreal m_saturation;
 };
 
-}
-} // Namespace Phonon::VLC
+} // namespace VLC
+} // namespace Phonon
 
 #endif // PHONON_VLC_VIDEOWIDGET_H
