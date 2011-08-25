@@ -23,17 +23,16 @@
 
 #include "mediacontroller.h"
 
-#include <vlc/vlc.h>
 #include <phonon/globaldescriptioncontainer.h>
 
 #include "debug.h"
 #include "libvlc.h"
 #include "mediaplayer.h"
 
-namespace Phonon
-{
-namespace VLC
-{
+namespace Phonon {
+namespace VLC {
+
+#warning titles and chapters not covered by globaldescriptioncontainer!!
 
 MediaController::MediaController()
     : m_player(0)
@@ -82,21 +81,10 @@ QVariant MediaController::interfaceCall(Interface iface, int i_command, const QL
     switch (iface) {
     case AddonInterface::ChapterInterface:
         switch (static_cast<AddonInterface::ChapterCommand>(i_command)) {
-//        case AddonInterface::availableChapters:
-//            return QVariant::fromValue(availableChapters());
         case AddonInterface::availableChapters:
             return availableChapters();
-//        case AddonInterface::currentChapter:
-//            return QVariant::fromValue(currentChapter());
         case AddonInterface::chapter:
             return currentChapter();
-//        case AddonInterface::setCurrentChapter:
-//            if( arguments.isEmpty() || !arguments.first().canConvert<ChapterDescription>()) {
-//                    error() << Q_FUNC_INFO << "arguments invalid";
-//                    return false;
-//                }
-//            setCurrentChapter(arguments.first().value<ChapterDescription>());
-//            return true;
         case AddonInterface::setChapter:
             if (arguments.isEmpty() || !arguments.first().canConvert(QVariant::Int)) {
                 error() << Q_FUNC_INFO << "arguments invalid";
@@ -110,21 +98,10 @@ QVariant MediaController::interfaceCall(Interface iface, int i_command, const QL
         break;
     case AddonInterface::TitleInterface:
         switch (static_cast<AddonInterface::TitleCommand>(i_command)) {
-//        case AddonInterface::availableTitles:
-//            return QVariant::fromValue(availableTitles());
         case AddonInterface::availableTitles:
             return availableTitles();
-//        case AddonInterface::currentTitle:
-//            return QVariant::fromValue(currentTitle());
         case AddonInterface::title:
             return currentTitle();
-//        case AddonInterface::setCurrentTitle:
-//            if( arguments.isEmpty() || !arguments.first().canConvert<TitleDescription>()) {
-//                    error() << Q_FUNC_INFO << " arguments invalid";
-//                    return false;
-//            }
-//            setCurrentTitle(arguments.first().value<TitleDescription>());
-//            return true;
         case AddonInterface::setTitle:
             if (arguments.isEmpty() || !arguments.first().canConvert(QVariant::Int)) {
                 error() << Q_FUNC_INFO << "arguments invalid";
@@ -237,8 +214,6 @@ Phonon::AudioChannelDescription MediaController::currentAudioChannel() const
 
 void MediaController::refreshAudioChannels()
 {
-#warning why is the member reset???
-    m_currentAudioChannel = Phonon::AudioChannelDescription();
     GlobalAudioChannels::instance()->clearListFor(this);
 
     VLC_TRACK_FOREACH(it, m_player->audioTrackDescription()) {
@@ -286,9 +261,7 @@ Phonon::SubtitleDescription MediaController::currentSubtitle() const
 
 void MediaController::refreshSubtitles()
 {
-#warning why is the current member reset?
     DEBUG_BLOCK;
-    m_currentSubtitle = Phonon::SubtitleDescription();
     GlobalSubtitles::instance()->clearListFor(this);
 
     int idCount = 0;
@@ -375,10 +348,6 @@ int MediaController::currentChapter() const
 // We need to rebuild available chapters when title is changed
 void MediaController::refreshChapters(int title)
 {
-#warning why is the current member reset?
-//    m_currentChapter = Phonon::ChapterDescription();
-//    m_availableChapters.clear();
-    m_currentChapter = 0;
     m_availableChapters = 0;
 
     // Get the description of available chapters for specific title
@@ -391,5 +360,5 @@ void MediaController::refreshChapters(int title)
 // --------------------------------- Angle ---------------------------------- //
 //                          NOT SUPPORTED IN LIBVLC                           //
 
-}
-} // Namespace Phonon::VLC
+} // namespace VLC
+} // namespace Phonon

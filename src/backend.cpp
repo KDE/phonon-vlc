@@ -42,6 +42,7 @@
 
 #include "audiooutput.h"
 #include "audiodataoutput.h"
+#include "debug.h"
 #include "devicemanager.h"
 #include "effect.h"
 #include "effectmanager.h"

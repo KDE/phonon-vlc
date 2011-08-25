@@ -28,29 +28,21 @@
 #include <phonon/MediaSource>
 #include <phonon/ObjectDescription>
 
-#include "debug.h"
-
-struct libvlc_media_player_t;
-
-namespace Phonon
-{
-namespace VLC
-{
+namespace Phonon {
+namespace VLC {
 
 class MediaPlayer;
 
 /**
  * \brief Interface for AddonInterface.
  *
- * Provides a bridge between Phonon's AddonInterface and VLCMediaController.
+ * Provides a bridge between Phonon's AddonInterface and MediaController.
  *
  * This class cannot inherit from QObject has MediaObject already inherit from QObject.
  * This is a Qt limitation: there is no possibility to inherit virtual Qobject :/
  * See http://doc.trolltech.com/qq/qq15-academic.html
  * Phonon implementation got the same problem.
  *
- * \see VLCMediaController
- * \see VLCMediaObject
  * \see MediaObject
  */
 class MediaController : public AddonInterface
@@ -98,18 +90,12 @@ protected:
     void refreshSubtitles();
 
     // Chapter
-//    void setCurrentChapter( const Phonon::ChapterDescription & chapter );
-//    QList<Phonon::ChapterDescription> availableChapters() const;
-//    Phonon::ChapterDescription currentChapter() const;
     void setCurrentChapter(int chapterNumber);
     int availableChapters() const;
     int currentChapter() const;
     void refreshChapters(int title);
 
     // Title
-//    void setCurrentTitle( const Phonon::TitleDescription & title );
-//    QList<Phonon::TitleDescription> availableTitles() const;
-//    Phonon::TitleDescription currentTitle() const;
     void setCurrentTitle(int titleNumber);
     int availableTitles() const;
     int currentTitle() const;
@@ -133,16 +119,11 @@ protected:
     void resetMembers();
 
     Phonon::AudioChannelDescription m_currentAudioChannel;
-
     Phonon::SubtitleDescription m_currentSubtitle;
 
-//    Phonon::ChapterDescription current_chapter;
-//    QList<Phonon::ChapterDescription> available_chapters;
     int m_currentChapter;
     int m_availableChapters;
 
-//    Phonon::TitleDescription current_title;
-//    QList<Phonon::TitleDescription> available_titles;
     int m_currentTitle;
     int m_availableTitles;
 
@@ -152,7 +133,7 @@ protected:
     MediaPlayer *m_player;
 };
 
-}
-} // Namespace Phonon::VLC
+} // namespace VLC
+} // namespace Phonon
 
 #endif // PHONON_VLC_MEDIACONTROLLER_H

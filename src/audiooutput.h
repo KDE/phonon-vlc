@@ -30,10 +30,8 @@
 
 #include "sinknode.h"
 
-namespace Phonon
-{
-namespace VLC
-{
+namespace Phonon {
+namespace VLC {
 
 /** \brief AudioOutput implementation for Phonon-VLC
  *

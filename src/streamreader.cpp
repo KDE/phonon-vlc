@@ -30,10 +30,9 @@
 
 QT_BEGIN_NAMESPACE
 #ifndef QT_NO_PHONON_ABSTRACTMEDIASTREAM
-namespace Phonon
-{
-namespace VLC
-{
+
+namespace Phonon {
+namespace VLC {
 
 #define BLOCKSIZE 32768
 
@@ -238,8 +237,9 @@ bool StreamReader::streamSeekable() const
     return m_seekable;
 }
 
-}// namespace VLC
-}// namespace Phonon
+} // namespace VLC
+} // namespace Phonon
+
 #endif //QT_NO_PHONON_ABSTRACTMEDIASTREAM
 
 QT_END_NAMESPACE

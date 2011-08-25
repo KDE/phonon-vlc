@@ -32,10 +32,8 @@
 #include "devicemanager.h"
 #include "mediaobject.h"
 
-namespace Phonon
-{
-namespace VLC
-{
+namespace Phonon {
+namespace VLC {
 
 #warning implement 4.2 interface
 
