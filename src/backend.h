@@ -22,8 +22,6 @@
 #ifndef Phonon_VLC_BACKEND_H
 #define Phonon_VLC_BACKEND_H
 
-#include <QtCore/QList>
-#include <QtCore/QPointer>
 #include <QtCore/QStringList>
 
 #include <phonon/objectdescription.h>
@@ -32,9 +30,6 @@
 #ifndef PHONON_VLC_NO_EXPERIMENTAL
 #include "phonon/experimental/backendinterface.h"
 #endif // PHONON_VLC_NO_EXPERIMENTAL
-
-#include "audiooutput.h"
-#include "debug.h"
 
 class LibVLC;
 

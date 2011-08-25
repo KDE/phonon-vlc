@@ -24,13 +24,11 @@
 #include <vlc/libvlc.h>
 #include <vlc/libvlc_version.h>
 
-#include "backend.h"
+#include "debug.h"
 #include "libvlc.h"
 
-namespace Phonon
-{
-namespace VLC
-{
+namespace Phonon {
+namespace VLC {
 
 EffectInfo::EffectInfo(const QString &name, const QString &description,
                        const QString &author, int filter, Type type)

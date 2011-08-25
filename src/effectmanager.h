@@ -24,10 +24,9 @@
 
 #include <QtCore/QObject>
 
-namespace Phonon
-{
-namespace VLC
-{
+namespace Phonon {
+namespace VLC {
+
 class Backend;
 class EffectManager;
 
@@ -106,7 +105,6 @@ private:
     /// Generates the aggegated list of effects from both video and audio
     void updateEffects();
 
-    Backend *m_backend;
     QList<EffectInfo *> m_effectList;
     QList<EffectInfo *> m_audioEffectList;
     QList<EffectInfo *> m_videoEffectList;
