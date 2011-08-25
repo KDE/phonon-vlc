@@ -160,7 +160,7 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
         return new VideoWidget(qobject_cast<QWidget *>(parent));
     }
 
-#warning a warning at runtime would be good for this, but first a qDebug streaming operator would be good to have
+    warning() << "Backend class" << c << "is not supported by Phonon VLC :(";
     return 0;
 }
 

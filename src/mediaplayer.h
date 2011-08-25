@@ -49,6 +49,7 @@ public:
     ~MediaPlayer();
 
     inline libvlc_media_player_t *libvlc_media_player() const { return m_player; }
+    inline float bufferCache() const { return m_bufferCache; }
 
     void setMedia(Media *media);
 
@@ -139,7 +140,6 @@ public:
 
     bool setAudioTrack(int track);
 
-
 signals:
     void lengthChanged(qint64 length);
     void seekableChanged(bool seekable);
@@ -152,6 +152,8 @@ private:
     Media *m_media;
 
     libvlc_media_player_t *m_player;
+
+    float m_bufferCache;
 };
 
 QDebug operator<<(QDebug dbg, const MediaPlayer::State &s);

@@ -575,6 +575,7 @@ void MediaObject::updateState(MediaPlayer::State state)
         break;
     case MediaPlayer::BufferingState:
         changeState(BufferingState);
+        emit bufferStatus(m_player->bufferCache());
         break;
     case MediaPlayer::PlayingState:
         changeState(PlayingState);

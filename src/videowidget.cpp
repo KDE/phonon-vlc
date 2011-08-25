@@ -38,14 +38,14 @@ namespace VLC
 VideoWidget::VideoWidget(QWidget *parent) :
     BaseWidget(parent),
     SinkNode(),
+    m_videoSize(DEFAULT_QSIZE),
     m_aspectRatio(Phonon::VideoWidget::AspectRatioAuto),
     m_scaleMode(Phonon::VideoWidget::FitInView),
     m_filterAdjustActivated(false),
     m_brightness(0.0),
     m_contrast(0.0),
     m_hue(0.0),
-    m_saturation(0.0),
-    m_videoSize(DEFAULT_QSIZE)
+    m_saturation(0.0)
 {
     // When resizing fill with black (backgroundRole color) the rest is done by paintEvent
     setAttribute(Qt::WA_OpaquePaintEvent);

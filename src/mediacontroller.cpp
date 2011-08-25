@@ -71,7 +71,7 @@ bool MediaController::hasInterface(Interface iface) const
         break;
     }
 
-#warning warning would be good
+    warning() << "Interface" << iface << "is not supported by Phonon VLC :(";
     return false;
 }
 

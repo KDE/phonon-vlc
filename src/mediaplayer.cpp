@@ -31,7 +31,8 @@ namespace VLC {
 
 MediaPlayer::MediaPlayer(QObject *parent) :
     QObject(parent),
-    m_player(libvlc_media_player_new(libvlc))
+    m_player(libvlc_media_player_new(libvlc)),
+    m_bufferCache(-1)
 {
     Q_ASSERT(m_player);
 
@@ -184,7 +185,6 @@ void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
         P_EMIT_STATE(OpeningState);
         break;
     case libvlc_MediaPlayerBuffering:
-#warning buffer level should be accessible from MO to be emitted
         // We need to only process the buffering event in >= 1.2 as the fact
         // that no explicit switch to Playing is sent would lock us into
         // buffering with no chance of ever getting back to playing (well, unless
@@ -193,7 +193,8 @@ void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
         // LibVLC <= 1.2 (possibly greater) does not explicitly switch to playing
         // once 100 % cache was reached. So we need to work around this by fake
         // emitting a playingstate event whereas really it was buffering :S
-        if (event->u.media_player_buffering.new_cache < 100)
+        that->m_bufferCache = event->u.media_player_buffering.new_cache;
+        if (that->m_bufferCache < 100)
             P_EMIT_STATE(BufferingState);
         else
             P_EMIT_STATE(PlayingState);
