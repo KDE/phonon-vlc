@@ -1,31 +1,26 @@
-/*****************************************************************************
- * libVLC backend for the Phonon library                                     *
- *                                                                           *
- * Copyright (C) 2007-2008 Tanguy Krotoff <tkrotoff@gmail.com>               *
- * Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>                *
- * Copyright (C) 2009 Fathi Boudra <fabo@kde.org>                            *
- * Copyright (C) 2009-2010 vlc-phonon AUTHORS                                *
- *                                                                           *
- * This program is free software; you can redistribute it and/or             *
- * modify it under the terms of the GNU Lesser General Public                *
- * License as published by the Free Software Foundation; either              *
- * version 2.1 of the License, or (at your option) any later version.        *
- *                                                                           *
- * This program is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of            *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU         *
- * Lesser General Public License for more details.                           *
- *                                                                           *
- * You should have received a copy of the GNU Lesser General Public          *
- * License along with this package; if not, write to the Free Software       *
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA *
- *****************************************************************************/
+/*
+    Copyright (C) 2007-2008 Tanguy Krotoff <tkrotoff@gmail.com>
+    Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>
+    Copyright (C) 2009 Fathi Boudra <fabo@kde.org>
+    Copyright (C) 2009-2011 vlc-phonon AUTHORS
+    Copyright (C) 2011 Harald Sitter <sitter@kde.org>
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #ifndef Phonon_VLC_EFFECTMANAGER_H
 #define Phonon_VLC_EFFECTMANAGER_H
-
-#include <phonon/effectinterface.h>
-#include <phonon/effectparameter.h>
 
 #include <QtCore/QObject>
 
@@ -36,8 +31,7 @@ namespace VLC
 class Backend;
 class EffectManager;
 
-/** \brief Holds information about an effect
- */
+/// Holds information about an effect
 class EffectInfo
 {
 public:
@@ -85,16 +79,31 @@ private:
 class EffectManager : public QObject
 {
     Q_OBJECT
-
 public:
-    EffectManager(Backend *parent);
-    virtual ~EffectManager();
+    /**
+     * Creates a new effect manager. It creates the lists of effects.
+     *
+     * \param backend A parent backend object for the effect manager
+     *
+     * \warning Currently it doesn't add any effects, everything is disabled.
+     * \see EffectInfo
+     */
+    EffectManager(QObject *parent = 0);
 
+    /// Deletes all the effects from the lists and destroys the effect manager.
+    ~EffectManager();
+
+    /// Returns a list of available audio effects
     const QList<EffectInfo *> audioEffects() const;
+
+    /// Returns a list of available video effects
     const QList<EffectInfo *> videoEffects() const;
+
+    /// Returns a list of available effects
     const QList<EffectInfo *> effects() const;
 
 private:
+    /// Generates the aggegated list of effects from both video and audio
     void updateEffects();
 
     Backend *m_backend;
@@ -104,7 +113,7 @@ private:
     bool m_equalizerEnabled;
 };
 
-}
-} // namespace Phonon::VLC
+} // namespace VLC
+} // namespace Phonon
 
 #endif // Phonon_VLC_EFFECTMANAGER_H
