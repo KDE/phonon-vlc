@@ -23,7 +23,7 @@
 
 #include "mediacontroller.h"
 
-#include <phonon/globaldescriptioncontainer.h>
+#include <phonon/GlobalDescriptionContainer>
 
 #include "debug.h"
 #include "libvlc.h"
