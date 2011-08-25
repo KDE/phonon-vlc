@@ -28,10 +28,8 @@
 #include "debug.h"
 #include "mediaobject.h"
 
-namespace Phonon
-{
-namespace VLC
-{
+namespace Phonon {
+namespace VLC {
 
 #define DEFAULT_QSIZE QSize(320, 240)
 

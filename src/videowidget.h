@@ -35,13 +35,10 @@ typedef QWidget BaseWidget;
 
 #include "sinknode.h"
 
-namespace Phonon
-{
-namespace VLC
-{
+namespace Phonon {
+namespace VLC {
 
-namespace Experimental
-{
+namespace Experimental {
 class AvCapture;
 }
 
@@ -239,7 +236,7 @@ private:
     qreal m_saturation;
 };
 
-}
-} // Namespace Phonon::VLC
+} // namespace VLC
+} // namespace Phonon
 
 #endif // PHONON_VLC_VIDEOWIDGET_H
