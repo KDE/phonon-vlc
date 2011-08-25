@@ -37,6 +37,8 @@ namespace Phonon
 namespace VLC
 {
 
+#warning implement 4.2 interface
+
 AudioOutput::AudioOutput(QObject *parent)
     : QObject(parent),
       m_volume(1.0),
@@ -122,13 +124,6 @@ void AudioOutput::setOutputDeviceImplementation()
     debug() << "Setting output device to" << deviceName << '(' << device.name << ')';
     m_player->setAudioOutputDevice(soundSystem, deviceName);
 }
-
-#if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 2, 0))
-bool AudioOutput::setOutputDevice(const Phonon::AudioOutputDevice &device)
-{
-    return true;
-}
-#endif
 
 void AudioOutput::updateVolume()
 {

@@ -25,7 +25,9 @@
 #define PHONON_VLC_AUDIOOUTPUT_H
 
 #include <QtCore/QObject>
+
 #include <phonon/audiooutputinterface.h>
+
 #include "sinknode.h"
 
 namespace Phonon
@@ -91,13 +93,6 @@ public:
      */
     bool setOutputDevice(int);
 
-#if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 2, 0))
-    /**
-     * Does nothing.
-     */
-    bool setOutputDevice(const AudioOutputDevice &device);
-#endif
-
 signals:
     void volumeChanged(qreal volume);
     void audioDeviceFailed();
@@ -119,7 +114,7 @@ private:
     int m_deviceIndex;
 };
 
-}
-} // Namespace Phonon::VLC
+} // namespace VLC
+} // namespace Phonon
 
 #endif // PHONON_VLC_AUDIOOUTPUT_H
