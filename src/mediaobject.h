@@ -222,7 +222,6 @@ signals:
     void tick(qint64 time);
     void totalTimeChanged(qint64 newTotalTime);
 
-    void stateChanged(Phonon::State newState);
     void moveToNext();
     void playbackCommenced();
 
@@ -233,7 +232,7 @@ private slots:
      * If the new state is different from the current state, the current state is
      * changed and the corresponding signal is emitted.
      */
-    void stateChangedInternal(Phonon::State newState);
+    void changeState(Phonon::State newState);
 
     /**
      * Checks when the tick(), prefinishMarkReached(), aboutToFinish() signals need to
@@ -291,7 +290,7 @@ private:
      *
      * \param filename The MRL of the media source
      */
-    void loadMedia(const QByteArray &filename);
+    void loadMedia(const QByteArray &mrl);
 
     /**
      * Overload for loadMedia, converting a QString to a QByteArray.
@@ -300,7 +299,7 @@ private:
      *
      * \see loadMedia
      */
-    void loadMedia(const QString &filename);
+    void loadMedia(const QString &mrl);
 
     /**
      * Uninitializes the media
@@ -321,7 +320,7 @@ private:
 
     MediaSource m_mediaSource;
     StreamReader *m_streamReader;
-    Phonon::State m_currentState;
+    Phonon::State m_state;
 
     qint32 m_prefinishMark;
     bool m_prefinishEmitted;
@@ -331,17 +330,21 @@ private:
     qint32 m_tickInterval;
     qint32 m_transitionTime;
 
-    // Media
     Media *m_media;
 
     qint64 m_totalTime;
-    QByteArray m_currentFile;
+    QByteArray m_mrl;
     QMultiMap<QString, QString> m_vlcMetaData;
     QList<SinkNode *> m_sinks;
 
     bool m_hasVideo;
     bool m_isScreen;
 
+    /**
+     * Workaround for being able to seek before VLC goes to playing state.
+     * Seeks before playing are stored in this var, and processed on state change
+     * to Playing.
+     */
     qint64 m_seekpoint;
 
     int m_timesVideoChecked;

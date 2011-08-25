@@ -48,9 +48,7 @@ MediaObject::MediaObject(QObject *parent)
     : QObject(parent)
     , m_nextSource(MediaSource(QUrl()))
     , m_streamReader(0)
-    , m_currentState(Phonon::StoppedState)
-    , m_prefinishEmitted(false)
-    , m_aboutToFinishEmitted(false)
+    , m_state(Phonon::StoppedState)
     // By default, no tick() signal
     // FIXME: Not implemented yet
     , m_tickInterval(0)
@@ -69,7 +67,6 @@ MediaObject::MediaObject(QObject *parent)
     connect(m_player, SIGNAL(stateChanged(MediaPlayer::State)), this, SLOT(updateState(MediaPlayer::State)));
 
     // Internal Signals.
-    connect(this, SIGNAL(stateChanged(Phonon::State)), SLOT(stateChangedInternal(Phonon::State)));
     connect(this, SIGNAL(tickInternal(qint64)), SLOT(tickInternalSlot(qint64)));
     connect(this, SIGNAL(moveToNext()), SLOT(moveToNextSource()));
 
@@ -81,7 +78,7 @@ MediaObject::~MediaObject()
     unloadMedia();
 }
 
-inline void MediaObject::resetMembers()
+void MediaObject::resetMembers()
 {
     // default to -1, so that streams won't break and to comply with the docs (-1 if unknown)
     m_totalTime = -1;
@@ -100,7 +97,7 @@ void MediaObject::play()
 {
     DEBUG_BLOCK;
 
-    switch (m_currentState) {
+    switch (m_state) {
     case PlayingState:
         // Do not do anything if we are already playing (as per documentation).
         return;
@@ -133,20 +130,35 @@ void MediaObject::stop()
 
 void MediaObject::seek(qint64 milliseconds)
 {
-    seekInternal(milliseconds);
+    DEBUG_BLOCK;
 
-    qint64 currentTime = this->currentTime();
-    qint64 totalTime = this->totalTime();
+    switch (m_state) {
+    case PlayingState:
+    case PausedState:
+    case BufferingState:
+        break;
+    default:
+        // Seeking while not being in a playingish state is cached for later.
+        m_seekpoint = milliseconds;
+        return;
+    }
 
-    if (currentTime < totalTime - m_prefinishMark)
+    debug() << "seeking" << milliseconds << "msec";
+
+    m_player->setTime(milliseconds);
+
+    const qint64 time = currentTime();
+    const qint64 total = totalTime();
+
+    if (time < total - m_prefinishMark)
         m_prefinishEmitted = false;
-    if (currentTime < totalTime - ABOUT_TO_FINISH_TIME)
+    if (time < total - ABOUT_TO_FINISH_TIME)
         m_aboutToFinishEmitted = false;
 }
 
 void MediaObject::tickInternalSlot(qint64 currentTime)
 {
-    qint64 totalTime = this->totalTime();
+    const qint64 totalTime = this->totalTime();
 
     if (m_tickInterval > 0) {
         // If _tickInternal == 0 means tick() signal is disabled
@@ -154,7 +166,7 @@ void MediaObject::tickInternalSlot(qint64 currentTime)
         emit tick(currentTime);
     }
 
-    if (m_currentState == Phonon::PlayingState) {
+    if (m_state == Phonon::PlayingState) {
         if (currentTime >= totalTime - m_prefinishMark) {
             if (!m_prefinishEmitted) {
                 m_prefinishEmitted = true;
@@ -167,7 +179,7 @@ void MediaObject::tickInternalSlot(qint64 currentTime)
     }
 }
 
-void MediaObject::loadMedia(const QByteArray &filename)
+void MediaObject::loadMedia(const QByteArray &mrl)
 {
     DEBUG_BLOCK;
 
@@ -176,21 +188,21 @@ void MediaObject::loadMedia(const QByteArray &filename)
     // until we play it.
     // FIXME: libvlc should really allow for this as it can cause unexpected delay
     // even though the GUI might indicate that playback should start right away.
-    emit stateChanged(Phonon::LoadingState);
+    changeState(Phonon::LoadingState);
 
-    m_currentFile = filename;
-    debug() << "loading encoded:" << m_currentFile;
+    m_mrl = mrl;
+    debug() << "loading encoded:" << m_mrl;
 
     // We do not have a loading state generally speaking, usually the backend
     // is exepected to go to loading state and then at some point reach stopped,
     // at which point playback can be started.
     // See state enum documentation for more information.
-    emit stateChanged(Phonon::StoppedState);
+    changeState(Phonon::StoppedState);
 }
 
-void MediaObject::loadMedia(const QString &filename)
+void MediaObject::loadMedia(const QString &mrl)
 {
-    loadMedia(filename.toUtf8());
+    loadMedia(mrl.toUtf8());
 }
 
 qint32 MediaObject::tickInterval() const
@@ -232,7 +244,7 @@ qint64 MediaObject::currentTime() const
 
 Phonon::State MediaObject::state() const
 {
-    return m_currentState;
+    return m_state;
 }
 
 Phonon::ErrorType MediaObject::errorType() const
@@ -389,12 +401,13 @@ void MediaObject::emitAboutToFinish()
     }
 }
 
-void MediaObject::stateChangedInternal(Phonon::State newState)
+// State changes are force queued by libphonon.
+void MediaObject::changeState(Phonon::State newState)
 {
     DEBUG_BLOCK;
-    debug() << m_currentState << "-->" << newState;
+    debug() << m_state << "-->" << newState;
 
-    if (newState == m_currentState) {
+    if (newState == m_state) {
         // State not changed
         return;
     } else if (checkGaplessWaiting()) {
@@ -403,10 +416,20 @@ void MediaObject::stateChangedInternal(Phonon::State newState)
         return;
     }
 
+#warning do we actually need m_seekpoint? if a consumer seeks before playing state that is their problem?!
+    // Workaround that seeking needs to work before the file is being played...
+    // We store seeks and apply them when going to seek (or discard them on reset).
+    if (newState == PlayingState) {
+        if (m_seekpoint != 0) {
+            seek(m_seekpoint);
+            m_seekpoint = 0;
+        }
+    }
+
     // State changed
-    Phonon::State previousState = m_currentState;
-    m_currentState = newState;
-    emit stateChanged(m_currentState, previousState);
+    Phonon::State previousState = m_state;
+    m_state = newState;
+    emit stateChanged(m_state, previousState);
 }
 
 void MediaObject::moveToNextSource()
@@ -443,7 +466,7 @@ void MediaObject::playInternal()
     m_totalTime = -1;
 
     // Create a media with the given MRL
-    m_media = new Media(m_currentFile, this);
+    m_media = new Media(m_mrl, this);
     if (!m_media)
         error() << "libVLC:" << LibVLC::errorMessage();
 
@@ -484,22 +507,6 @@ void MediaObject::playInternal()
     m_player->setMedia(m_media);
     if (m_player->play())
         error() << "libVLC:" << LibVLC::errorMessage();
-
-    if (m_seekpoint != 0) {  // Workaround that seeking needs to work before the file is being played...
-        seekInternal(m_seekpoint);
-        m_seekpoint = 0;
-    }
-}
-
-void MediaObject::seekInternal(qint64 milliseconds)
-{
-    DEBUG_BLOCK;
-    if (state() != Phonon::PlayingState) {  // Is we aren't playing, seeking is invalid...
-        m_seekpoint = milliseconds;
-    }
-
-    debug() << Q_FUNC_INFO << milliseconds;
-    m_player->setTime(milliseconds);
 }
 
 QString MediaObject::errorString() const
@@ -566,35 +573,35 @@ void MediaObject::updateState(MediaPlayer::State state)
     debug() << state;
     switch (state) {
     case MediaPlayer::NoState:
-        emit stateChanged(LoadingState);
+        changeState(LoadingState);
         break;
     case MediaPlayer::OpeningState:
-        emit stateChanged(LoadingState);
+        changeState(LoadingState);
         break;
     case MediaPlayer::BufferingState:
-        emit stateChanged(BufferingState);
+        changeState(BufferingState);
         break;
     case MediaPlayer::PlayingState:
-        emit stateChanged(PlayingState);
+        changeState(PlayingState);
         break;
     case MediaPlayer::PausedState:
-        emit stateChanged(PausedState);
+        changeState(PausedState);
         break;
     case MediaPlayer::StoppedState:
         resetMembers();
-        emit stateChanged(StoppedState);
+        changeState(StoppedState);
         break;
     case MediaPlayer::EndedState:
         resetMembers();
         emitAboutToFinish();
         emit finished();
-        emit stateChanged(StoppedState);
+        changeState(StoppedState);
         break;
     case MediaPlayer::ErrorState:
         resetMembers();
         emitAboutToFinish();
         emit finished();
-        emit stateChanged(ErrorState);
+        changeState(ErrorState);
         break;
     }
 }
