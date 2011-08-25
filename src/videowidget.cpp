@@ -3,6 +3,7 @@
     Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>
     Copyright (C) 2009 Fathi Boudra <fabo@kde.org>
     Copyright (C) 2009-2011 vlc-phonon AUTHORS
+    Copyright (C) 2011 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -41,7 +42,7 @@ namespace VLC
 {
 
 VideoWidget::VideoWidget(QWidget *parent) :
-    OverlayWidget(parent),
+    BaseWidget(parent),
     SinkNode(),
     m_aspectRatio(Phonon::VideoWidget::AspectRatioAuto),
     m_scaleMode(Phonon::VideoWidget::FitInView),
@@ -51,7 +52,26 @@ VideoWidget::VideoWidget(QWidget *parent) :
     m_hue(0.0),
     m_saturation(0.0)
 {
-    setBackgroundColor(Qt::black);
+    // When resizing fill with black (backgroundRole color) the rest is done by paintEvent
+    setAttribute(Qt::WA_OpaquePaintEvent);
+
+    // Disable Qt composition management as MPlayer draws onto the widget directly
+    setAttribute(Qt::WA_PaintOnScreen);
+
+    // Indicates that the widget has no background,
+    // i.e. when the widget receives paint events, the background is not automatically repainted.
+    setAttribute(Qt::WA_NoSystemBackground);
+
+    // Required for dvdnav
+#ifdef __GNUC__
+#warning dragonplayer munches on our mouse events, so clicking in a DVD menu does not work - vlc 1.2 where are thu?
+#endif // __GNUC__
+    setMouseTracking(true);
+
+    // setBackgroundColor
+    QPalette p = palette();
+    p.setColor(backgroundRole(), Qt::black);
+    setPalette(p);
 }
 
 VideoWidget::~VideoWidget()
@@ -282,6 +302,15 @@ void VideoWidget::processPendingAdjusts(bool videoAvailable)
 void VideoWidget::clearPendingAdjusts()
 {
     m_pendingAdjusts.clear();
+}
+
+void VideoWidget::paintEvent(QPaintEvent *event)
+{
+    Q_UNUSED(event);
+    // FIXME this makes the video flicker
+    // Make everything backgroundRole color
+    QPainter painter(this);
+    painter.eraseRect(rect());
 }
 
 bool VideoWidget::enableFilterAdjust(bool adjust)

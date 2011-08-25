@@ -40,7 +40,6 @@ set(phonon_vlc_SRCS
     mediacontroller.cpp
     mediaobject.cpp
     mediaplayer.cpp
-    overlaywidget.cpp
     sinknode.cpp
     streamreader.cpp
     #    videodataoutput.cpp

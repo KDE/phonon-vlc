@@ -3,6 +3,7 @@
     Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>
     Copyright (C) 2009 Fathi Boudra <fabo@kde.org>
     Copyright (C) 2009-2011 vlc-phonon AUTHORS
+    Copyright (C) 2011 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -21,11 +22,19 @@
 #ifndef PHONON_VLC_VIDEOWIDGET_H
 #define PHONON_VLC_VIDEOWIDGET_H
 
-#include "overlaywidget.h"
-#include "sinknode.h"
+#include <QtCore/QMutex>
+#include <QtGui/QWidget>
+
 #include <phonon/videowidgetinterface.h>
 
-#include <QtCore/QMutex>
+#ifdef Q_OS_MAC
+#include "mac/vlcmacwidget.h"
+typedef VlcMacWidget BaseWidget;
+#else
+typedef QWidget BaseWidget;
+#endif
+
+#include "sinknode.h"
 
 namespace Phonon
 {
@@ -43,7 +52,7 @@ class AvCapture;
  * It is connected to a media object that provides the video source. Methods to control
  * video settings such as brightness or contrast are provided.
  */
-class VideoWidget : public OverlayWidget, public SinkNode, public VideoWidgetInterface
+class VideoWidget : public BaseWidget, public SinkNode, public VideoWidgetInterface
 {
     Q_OBJECT
     Q_INTERFACES(Phonon::VideoWidgetInterface)
@@ -176,6 +185,10 @@ private slots:
      * Clears all pending video adjusts (hue, brightness etc.).
      */
     void clearPendingAdjusts();
+
+protected:
+    /// \reimp
+    void paintEvent(QPaintEvent *event);
 
 private:
     /**

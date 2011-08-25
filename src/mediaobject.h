@@ -30,7 +30,6 @@
 
 #include "mediacontroller.h"
 #include "mediaplayer.h"
-#include "overlaywidget.h" // for BaseWidget
 #include "streamreader.h"
 
 struct libvlc_event_t;
