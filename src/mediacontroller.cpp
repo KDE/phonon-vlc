@@ -216,8 +216,12 @@ void MediaController::refreshAudioChannels()
 {
     GlobalAudioChannels::instance()->clearListFor(this);
 
+    int idCount = 0;
     VLC_TRACK_FOREACH(it, m_player->audioTrackDescription()) {
-        GlobalAudioChannels::instance()->add(this, it->i_id, it->psz_name, "");
+        // LibVLC's internal ID is broken, so we simply count up as internally
+        // the setter will simply go by position in list anyway.
+        GlobalAudioChannels::instance()->add(this, idCount, it->psz_name, "");
+        ++idCount;
     }
 
     emit availableAudioChannelsChanged();
