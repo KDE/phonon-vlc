@@ -105,7 +105,9 @@ void MediaObject::play()
         m_player->resume();
         break;
     default:
+#ifdef __GNUC__
 #warning if we got rid of playinternal, we coulde simply call play and it would resume/play
+#endif
         playInternal();
         break;
     }
@@ -410,8 +412,9 @@ void MediaObject::changeState(Phonon::State newState)
         debug() << Q_FUNC_INFO << "no-op gapless item awaiting in queue - " << m_nextSource.type() ;
         return;
     }
-
+#ifdef __GNUC__
 #warning do we actually need m_seekpoint? if a consumer seeks before playing state that is their problem?!
+#endif
     // Workaround that seeking needs to work before the file is being played...
     // We store seeks and apply them when going to seek (or discard them on reset).
     if (newState == PlayingState) {
@@ -521,7 +524,9 @@ bool MediaObject::isSeekable() const
 
 void MediaObject::updateDuration(qint64 newDuration)
 {
+#ifdef __GNUC__
 #warning duration signal can just be forwarded, we have no gain from caching this
+#endif
     m_totalTime = newDuration;
     emit totalTimeChanged(m_totalTime);
 }
@@ -623,7 +628,9 @@ void MediaObject::updateTime(qint64 time)
 
         if (hasVideo) {
             debug() << "HASVIDEO";
+#ifdef __GNUC__
 #warning a bit inperformant and stuff
+#endif
             refreshAudioChannels();
             refreshSubtitles();
 

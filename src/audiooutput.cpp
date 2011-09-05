@@ -35,7 +35,9 @@
 namespace Phonon {
 namespace VLC {
 
+#ifdef __GNUC__
 #warning implement 4.2 interface
+#endif
 
 AudioOutput::AudioOutput(QObject *parent)
     : QObject(parent),
@@ -126,7 +128,9 @@ void AudioOutput::setOutputDeviceImplementation()
 void AudioOutput::updateVolume()
 {
     if (m_player) {
+#ifdef __GNUC__
 #warning or 100?
+#endif
         const int preVolume = m_player->audioVolume();
         const int newVolume = m_volume * 50;
         m_player->setAudioVolume(newVolume);

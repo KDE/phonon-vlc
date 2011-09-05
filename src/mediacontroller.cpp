@@ -32,7 +32,9 @@
 namespace Phonon {
 namespace VLC {
 
+#ifdef __GNUC__
 #warning titles and chapters not covered by globaldescriptioncontainer!!
+#endif
 
 MediaController::MediaController()
     : m_player(0)
