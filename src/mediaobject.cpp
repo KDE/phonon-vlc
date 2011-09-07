@@ -48,7 +48,9 @@ MediaObject::MediaObject(QObject *parent)
     , m_state(Phonon::StoppedState)
     // By default, no tick() signal
     // FIXME: Not implemented yet
+    #ifdef __GNUC__
     #warning implement tick proper
+    #endif
     , m_tickInterval(0)
     , m_transitionTime(0)
     , m_media(0)
