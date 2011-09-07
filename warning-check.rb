@@ -21,17 +21,16 @@ for file in Dir.glob("src/**")
     next if File.directory?(file)
 
     File.open(file, 'r').each_line do | line |
-        if line.start_with?("#ifdef __GNUC")
+        if line =~ /#\s*ifdef\s*__GNUC__\s*/
             has_open_ifdef = true
         end
 
-        if line.start_with?("#endif")
+        if line =~ /#\s*endif\s*/
             has_open_ifdef = false
         end
 
-        if line.start_with?("#warning") and not has_open_ifdef
-            puts ("unprotected warning in (#{file}:#{line_count}), please add #ifdef __GNUC__")
-            return -1
+        if line =~ /#\s*warning\s*/ and not has_open_ifdef
+            raise("unprotected warning in (#{file}:#{line_count}), please add #ifdef __GNUC__")
         end
 
         line_count += 1
