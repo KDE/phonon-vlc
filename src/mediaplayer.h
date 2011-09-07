@@ -146,6 +146,9 @@ signals:
     void stateChanged(MediaPlayer::State state);
     void timeChanged(qint64 time);
 
+    /** Emitted when the vout availability has changed */
+    void hasVideoChanged(bool hasVideo);
+
 private:
     static void event_cb(const libvlc_event_t *event, void *opaque);
 

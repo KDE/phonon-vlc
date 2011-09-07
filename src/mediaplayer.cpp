@@ -26,6 +26,18 @@
 #include "libvlc.h"
 #include "media.h"
 
+#define P_EMIT_HAS_VIDEO(hasVideo) \
+    QMetaObject::invokeMethod(\
+        that, "hasVideoChanged", \
+        Qt::QueuedConnection, \
+        Q_ARG(bool, hasVideo))
+
+#define P_EMIT_STATE(__state) \
+    QMetaObject::invokeMethod(\
+        that, "stateChanged", \
+        Qt::QueuedConnection, \
+        Q_ARG(MediaPlayer::State, __state))
+
 namespace Phonon {
 namespace VLC {
 
@@ -58,6 +70,9 @@ MediaPlayer::MediaPlayer(QObject *parent) :
         libvlc_MediaPlayerTitleChanged,
         libvlc_MediaPlayerSnapshotTaken,
         libvlc_MediaPlayerLengthChanged
+    #if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(1, 2, 0, 0))
+        , libvlc_MediaPlayerVout
+    #endif // VLC >= 1.2
     };
     const int eventCount = sizeof(events) / sizeof(*events);
     for (int i = 0; i < eventCount; ++i) {
@@ -150,17 +165,12 @@ bool MediaPlayer::setAudioTrack(int track)
     return libvlc_audio_set_track(m_player, track) == 0;
 }
 
-#define P_EMIT_STATE(__state) \
-    QMetaObject::invokeMethod(\
-        that, "stateChanged", \
-        Qt::QueuedConnection, \
-        Q_ARG(MediaPlayer::State, __state))
-
 void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
 {
     MediaPlayer *that = reinterpret_cast<MediaPlayer *>(opaque);
     Q_ASSERT(that);
 
+    // Do not forget to register for the events you want to handle here!
     switch (event->type) {
     case libvlc_MediaPlayerTimeChanged:
         QMetaObject::invokeMethod(
@@ -195,6 +205,7 @@ void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
         // LibVLC <= 1.2 (possibly greater) does not explicitly switch to playing
         // once 100 % cache was reached. So we need to work around this by fake
         // emitting a playingstate event whereas really it was buffering :S
+        // http://trac.videolan.org/vlc/ticket/5277
         that->m_bufferCache = event->u.media_player_buffering.new_cache;
         if (that->m_bufferCache < 100)
             P_EMIT_STATE(BufferingState);
@@ -217,6 +228,15 @@ void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
     case libvlc_MediaPlayerEncounteredError:
         P_EMIT_STATE(ErrorState);
         break;
+#warning bump dep to 1.2 once released
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(1, 2, 0, 0))
+    case libvlc_MediaPlayerVout:
+        if (event->u.media_player_vout.new_count > 0)
+            P_EMIT_HAS_VIDEO(true);
+        else
+            P_EMIT_HAS_VIDEO(false);
+        break;
+#endif // VLC >= 1.2
     case libvlc_MediaPlayerMediaChanged:
         break;
     case libvlc_MediaPlayerForward:

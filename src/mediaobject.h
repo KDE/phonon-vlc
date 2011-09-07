@@ -245,17 +245,16 @@ private slots:
      */
     void moveToNextSource();
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    /**
-     * Update media duration time
-     */
+    /** Update media duration time */
     void updateDuration(qint64 newDuration);
-    /**
-     * Retrieve meta data of a file (i.e ARTIST, TITLE, ALBUM, etc...).
-     */
+
+    /** Retrieve meta data of a file (i.e ARTIST, TITLE, ALBUM, etc...). */
     void updateMetaData();
     void updateState(MediaPlayer::State state);
     void updateTime(qint64 time);
+
+    /** Called when the availability of video output changed */
+    void onHasVideoChanged(bool hasVideo);
 
 private:
     /**
