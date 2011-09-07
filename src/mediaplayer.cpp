@@ -228,7 +228,9 @@ void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
     case libvlc_MediaPlayerEncounteredError:
         P_EMIT_STATE(ErrorState);
         break;
+#ifdef __GNUC__
 #warning bump dep to 1.2 once released
+#endif
 #if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(1, 2, 0, 0))
     case libvlc_MediaPlayerVout:
         if (event->u.media_player_vout.new_count > 0)

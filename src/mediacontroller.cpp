@@ -289,7 +289,7 @@ void MediaController::setCurrentTitle(int title)
 
     switch (source().discType()) {
     case Cd:
-#ifdef __GUNC__
+#ifdef __GNUC__
 #warning use media subitem to set track of audiocd
 #endif
         // Leave for MediaObject to handle.

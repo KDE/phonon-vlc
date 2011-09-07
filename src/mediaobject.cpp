@@ -633,7 +633,9 @@ void MediaObject::onHasVideoChanged(bool hasVideo)
 
     if (hasVideo) {
         debug() << "HASVIDEO";
+#ifdef __GNUC__
 #warning a bit inperformant and stuff
+#endif
         refreshAudioChannels();
         refreshSubtitles();
 
