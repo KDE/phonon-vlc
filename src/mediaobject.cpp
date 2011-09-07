@@ -48,6 +48,7 @@ MediaObject::MediaObject(QObject *parent)
     , m_state(Phonon::StoppedState)
     // By default, no tick() signal
     // FIXME: Not implemented yet
+    #warning implement tick proper
     , m_tickInterval(0)
     , m_transitionTime(0)
     , m_media(0)
