@@ -17,6 +17,7 @@ endif(PHONON_FOUND_EXPERIMENTAL)
 # libVLC
 set(LIBVLC_MIN_VERSION "1.1.1")
 find_package(LIBVLC REQUIRED)
+find_package(Davros REQUIRED)
 
 add_definitions(${QT_DEFINITIONS})
 remove_definitions(-DQT3_SUPPORT_WARNINGS -DQT3_SUPPORT)

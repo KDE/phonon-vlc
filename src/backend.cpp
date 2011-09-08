@@ -83,10 +83,11 @@ Backend::Backend(QObject *parent, const QVariantList &)
 
     // Check if we should enable debug output
     int debugLevel = qgetenv("PHONON_VLC_DEBUG").toInt();
-    if (debugLevel > 3) { // 3 is maximum
+    if (debugLevel > 3) // 3 is maximum
         debugLevel = 3;
-    }
-    Debug::setMinimumDebugLevel((Debug::DebugLevel)((int) Debug::DEBUG_NONE - 1 - debugLevel));
+    else if (debugLevel < 0) // 0 is minmum
+        debugLevel = 0;
+    Davros::setMinimumDebugLevel(static_cast<QtMsgType>(debugLevel));
 
     // Actual libVLC initialisation
     if (LibVLC::init()) {

@@ -31,7 +31,6 @@ set(phonon_vlc_SRCS
     audiooutput.cpp
     audiodataoutput.cpp
     backend.cpp
-    debug.cpp
     devicemanager.cpp
     effect.cpp
     effectmanager.cpp
@@ -59,7 +58,9 @@ target_link_libraries(phonon_vlc
     ${QT_QTCORE_LIBRARY}
     ${QT_QTGUI_LIBRARY}
     ${PHONON_LIBRARY}
-    ${LIBVLC_LIBRARY})
+    ${LIBVLC_LIBRARY}
+    ${DAVROS_LIBRARY}
+)
 
 if(WIN32)
     install(TARGETS phonon_vlc DESTINATION bin/phonon_backend)
