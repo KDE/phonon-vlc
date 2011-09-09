@@ -97,7 +97,10 @@ void VideoWidget::addToMedia(Media *media)
 {
     SinkNode::addToMedia(media);
 
+#ifdef __GNUC__
 #warning this seems an awful solution
+#endif
+
 #if defined(Q_OS_MAC)
     m_player->setNsObject(cocoaView());
 #elif defined(Q_OS_UNIX)
@@ -121,7 +124,9 @@ void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspect)
     m_aspectRatio = aspect;
 
     switch (m_aspectRatio) {
+#ifdef __GNUC__
 #warning TODO
+#endif
     // FIXME: find a way to implement aspectratiowidget, it is meant to scale
     // and stretch (i.e. scale to window without retaining aspect ratio).
     case Phonon::VideoWidget::AspectRatioAuto:

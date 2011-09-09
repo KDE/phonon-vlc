@@ -22,15 +22,12 @@
 
 #include "mediaobject.h"
 
-#include <QtCore/QFile>
-#include <QtCore/QMetaType>
 #include <QtCore/QStringBuilder>
-#include <QtCore/QTimer>
 #include <QtCore/QUrl>
 
-#include "vlc/vlc.h"
+#include <vlc/libvlc_version.h>
+#include <vlc/vlc.h>
 
-#include "backend.h"
 #include "debug.h"
 #include "libvlc.h"
 #include "media.h"
@@ -51,6 +48,9 @@ MediaObject::MediaObject(QObject *parent)
     , m_state(Phonon::StoppedState)
     // By default, no tick() signal
     // FIXME: Not implemented yet
+    #ifdef __GNUC__
+    #warning implement tick proper
+    #endif
     , m_tickInterval(0)
     , m_transitionTime(0)
     , m_media(0)
@@ -65,6 +65,7 @@ MediaObject::MediaObject(QObject *parent)
     connect(m_player, SIGNAL(seekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
     connect(m_player, SIGNAL(timeChanged(qint64)), this, SLOT(updateTime(qint64)));
     connect(m_player, SIGNAL(stateChanged(MediaPlayer::State)), this, SLOT(updateState(MediaPlayer::State)));
+    connect(m_player, SIGNAL(hasVideoChanged(bool)), this, SLOT(onHasVideoChanged(bool)));
 
     // Internal Signals.
     connect(this, SIGNAL(tickInternal(qint64)), SLOT(tickInternalSlot(qint64)));
@@ -105,7 +106,9 @@ void MediaObject::play()
         m_player->resume();
         break;
     default:
+#ifdef __GNUC__
 #warning if we got rid of playinternal, we coulde simply call play and it would resume/play
+#endif
         playInternal();
         break;
     }
@@ -410,8 +413,9 @@ void MediaObject::changeState(Phonon::State newState)
         debug() << Q_FUNC_INFO << "no-op gapless item awaiting in queue - " << m_nextSource.type() ;
         return;
     }
-
+#ifdef __GNUC__
 #warning do we actually need m_seekpoint? if a consumer seeks before playing state that is their problem?!
+#endif
     // Workaround that seeking needs to work before the file is being played...
     // We store seeks and apply them when going to seek (or discard them on reset).
     if (newState == PlayingState) {
@@ -521,7 +525,9 @@ bool MediaObject::isSeekable() const
 
 void MediaObject::updateDuration(qint64 newDuration)
 {
+#ifdef __GNUC__
 #warning duration signal can just be forwarded, we have no gain from caching this
+#endif
     m_totalTime = newDuration;
     emit totalTimeChanged(m_totalTime);
 }
@@ -608,35 +614,41 @@ void MediaObject::updateTime(qint64 time)
     debug() << time;
 
 #ifdef __GNUC__
-#warning FIXME - This is ugly. It should be solved by some events in libvlc
+#warning FIXME - This is ugly. It should be solved by some events in libvlc -> 1.2 implemented (see mediaplayer.cpp)
 #endif
+#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(1, 2, 0, 0))
     // Check 10 times for a video, then give up.
     if (!m_hasVideo && ++m_timesVideoChecked < 11) {
         debug() << "Looking for Video";
-
-//        // Does this media player have a video output
-        const bool hasVideo = m_player->hasVideoOutput();
-        if (m_hasVideo != hasVideo) {
-            m_hasVideo = hasVideo;
-            emit hasVideoChanged(m_hasVideo);
-        }
-
-        if (hasVideo) {
-            debug() << "HASVIDEO";
-#warning a bit inperformant and stuff
-            refreshAudioChannels();
-            refreshSubtitles();
-
-            // Get movie chapter count
-            // It is not a title/chapter media if there is no chapter
-            if (m_player->videoChapterCount() > 0) {
-                refreshTitles();
-                refreshChapters(m_player->title());
-            }
-        }
+        onHasVideoChanged(m_player->hasVideoOutput());
     }
+#endif
 
     emit tickInternal(time);
+}
+
+void MediaObject::onHasVideoChanged(bool hasVideo)
+{
+    if (m_hasVideo != hasVideo) {
+        m_hasVideo = hasVideo;
+        emit hasVideoChanged(m_hasVideo);
+    }
+
+    if (hasVideo) {
+        debug() << "HASVIDEO";
+#ifdef __GNUC__
+#warning a bit inperformant and stuff
+#endif
+        refreshAudioChannels();
+        refreshSubtitles();
+
+        // Get movie chapter count
+        // It is not a title/chapter media if there is no chapter
+        if (m_player->videoChapterCount() > 0) {
+            refreshTitles();
+            refreshChapters(m_player->title());
+        }
+    }
 }
 
 qint64 MediaObject::totalTime() const

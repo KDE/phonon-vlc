@@ -87,19 +87,26 @@ bool LibVLC::init()
             args << QByteArray("--logfile=").append(QFile::encodeName(QDir::toNativeSeparators(logFile)));
         }
 
-        args << "--reset-plugins-cache";
         args << "--no-media-library";
         args << "--no-osd";
         args << "--no-stats";
         args << "--no-video-title-show";
         args << "--album-art=0";
+        // Do not load xlib dependent modules as we cannot ensure proper init
+        // order as expected by xlib thus leading to crashes.
+        // KDE BUG: 240001
         args << "--no-xlib";
+        // By default do neither use a vout nor an aout. Since our medianodes
+        // represent VLC outputs only when one of those is attached to a MO an
+        // appropriate output should be loaded. This is to prevent cases where
+        // one has only an AudioOutput but plays a video, in which case libvlc
+        // would open a separate window for the video.
         args << "--vout=vdummy";
         args << "--aout=adummy";
-
-#ifndef Q_OS_MAC
+        // Do not preload services discovery modules, we don't use them.
+        args << "--services-discovery=''";
+        // Allow multiple starts (one gets to wonder whether that makes a difference.
         args << "--no-one-instance";
-#endif
 
         // Build const char* array
         QVarLengthArray<const char*, 64> vlcArgs(args.size());

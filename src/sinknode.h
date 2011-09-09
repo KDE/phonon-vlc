@@ -24,14 +24,10 @@
 #ifndef PHONON_VLC_SINKNODE_H
 #define PHONON_VLC_SINKNODE_H
 
-namespace Phonon
-{
+namespace Phonon {
+namespace VLC {
 
-namespace VLC
-{
-
-namespace Experimental
-{
+namespace Experimental {
     class AvCapture;
 }
 

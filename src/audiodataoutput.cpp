@@ -65,7 +65,9 @@ void AudioDataOutput::setDataSize(int size)
 
 void AudioDataOutput::addToMedia(Media *media)
 {
+#ifdef __GNUC__
 #warning broken with vlc 1.2 -> cant transcode && crashes
+#endif
     media->addOption(QLatin1String(":sout=#duplicate{dst=display,dst='transcode{}'}:smem"));
     media->addOption(QLatin1String(":sout-transcode-acodec=f32l"));
     media->addOption(QLatin1String(":sout-transcode-vcodec=none"));

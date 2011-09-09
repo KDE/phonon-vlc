@@ -54,7 +54,9 @@ EffectManager::~EffectManager()
     m_audioEffectList.clear();
     qDeleteAll(m_videoEffectList);
     m_videoEffectList.clear();
-    qDeleteAll(m_effectList);
+
+    // EffectsList holds the same pointers as audio and video, so qDeleteAll on
+    // this container would cause a double freeing.
     m_effectList.clear();
 }
 
