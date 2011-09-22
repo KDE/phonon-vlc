@@ -115,13 +115,13 @@ void AudioOutput::setOutputDeviceImplementation()
     const DeviceInfo &device = deviceList.at(m_deviceIndex);
 
     // ### we're not trying the whole access list (could mean same device on different soundsystems)
-    QByteArray soundSystem = device.accessList.first().first;
+    QByteArray soundSystem = device.accessList().first().first;
     debug() << "Setting output soundsystem to" << soundSystem;
     m_player->setAudioOutput(soundSystem);
 
-    QByteArray deviceName = device.accessList.first().second.toLatin1();
+    QByteArray deviceName = device.accessList().first().second.toLatin1();
     // print the name as possibly messed up by toLatin1() to see conversion problems
-    debug() << "Setting output device to" << deviceName << '(' << device.name << ')';
+    debug() << "Setting output device to" << deviceName << '(' << device.name() << ')';
     m_player->setAudioOutputDevice(soundSystem, deviceName);
 }
 

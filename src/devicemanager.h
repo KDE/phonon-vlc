@@ -53,12 +53,23 @@ public:
     explicit DeviceInfo(const QByteArray &name, const QString &description = "",
                         bool isAdvanced = true);
 
-    int id;
-    QByteArray name;
-    QString description;
-    bool isAdvanced;
-    DeviceAccessList accessList;
-    quint16 capabilities;
+    int id() const;
+    const QByteArray& name() const;
+    const QString& description() const;
+    bool isAdvanced() const;
+    void setAdvanced(bool advanced);
+    const DeviceAccessList& accessList() const;
+    void addAccess(const DeviceAccess &access);
+    quint16 capabilities() const;
+    void setCapabilities(quint16 cap);
+
+private:
+    int m_id;
+    QByteArray m_name;
+    QString m_description;
+    bool m_isAdvanced;
+    DeviceAccessList m_accessList;
+    quint16 m_capabilities;
 };
 
 /** \brief Keeps track of audio/video devices that libVLC supports

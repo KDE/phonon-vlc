@@ -279,13 +279,13 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const
     case Phonon::AudioOutputDeviceType: {
         deviceList = deviceManager()->audioOutputDevices();
         for (dev = 0 ; dev < deviceList.size() ; ++dev)
-            list.append(deviceList[dev].id);
+            list.append(deviceList[dev].id());
     }
     break;
     case Phonon::AudioCaptureDeviceType: {
         deviceList = deviceManager()->audioCaptureDevices();
         for (dev = 0 ; dev < deviceList.size() ; ++dev)
-            list.append(deviceList[dev].id);
+            list.append(deviceList[dev].id());
     }
     break;
     case Phonon::EffectType: {
@@ -302,7 +302,7 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const
     case Phonon::VideoCaptureDeviceType: {
         deviceList = deviceManager()->videoCaptureDevices();
         for (dev = 0 ; dev < deviceList.size() ; ++dev)
-            list.append(deviceList[dev].id);
+            list.append(deviceList[dev].id());
     }
     break;
     }
@@ -325,22 +325,22 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
     case Phonon::AudioOutputDeviceType: {
         deviceList = deviceManager()->audioOutputDevices();
         if (index >= 0 && index < deviceList.size()) {
-            ret.insert("name", deviceList[index].name);
-            ret.insert("description", deviceList[index].description);
+            ret.insert("name", deviceList[index].name());
+            ret.insert("description", deviceList[index].description());
             ret.insert("icon", QLatin1String("audio-card"));
-            ret.insert("isAdvanced", deviceList[index].isAdvanced);
+            ret.insert("isAdvanced", deviceList[index].isAdvanced());
         }
     }
     break;
     case Phonon::AudioCaptureDeviceType: {
         deviceList = deviceManager()->audioCaptureDevices();
         if (index >= 0 && index < deviceList.size()) {
-            ret.insert("name", deviceList[index].name);
-            ret.insert("description", deviceList[index].description);
+            ret.insert("name", deviceList[index].name());
+            ret.insert("description", deviceList[index].description());
             ret.insert("icon", QLatin1String("audio-input-microphone"));
-            ret.insert("isAdvanced", deviceList[index].isAdvanced);
-            ret.insert("deviceAccessList", QVariant::fromValue<Phonon::DeviceAccessList>(deviceList[index].accessList));
-            if (deviceList[index].capabilities & DeviceInfo::VideoCapture)
+            ret.insert("isAdvanced", deviceList[index].isAdvanced());
+            ret.insert("deviceAccessList", QVariant::fromValue<Phonon::DeviceAccessList>(deviceList[index].accessList()));
+            if (deviceList[index].capabilities() & DeviceInfo::VideoCapture)
                 ret.insert("hasvideo", true);
         }
     }
@@ -367,12 +367,12 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
     case Phonon::VideoCaptureDeviceType: {
         deviceList = deviceManager()->videoCaptureDevices();
         if (index >= 0 && index < deviceList.size()) {
-            ret.insert("name", deviceList[index].name);
-            ret.insert("description", deviceList[index].description);
+            ret.insert("name", deviceList[index].name());
+            ret.insert("description", deviceList[index].description());
             ret.insert("icon", QLatin1String("camera-web"));
-            ret.insert("isAdvanced", deviceList[index].isAdvanced);
-            ret.insert("deviceAccessList", QVariant::fromValue<Phonon::DeviceAccessList>(deviceList[index].accessList));
-            if (deviceList[index].capabilities & DeviceInfo::AudioCapture)
+            ret.insert("isAdvanced", deviceList[index].isAdvanced());
+            ret.insert("deviceAccessList", QVariant::fromValue<Phonon::DeviceAccessList>(deviceList[index].accessList()));
+            if (deviceList[index].capabilities() & DeviceInfo::AudioCapture)
                 ret.insert("hasaudio", true);
         }
     }

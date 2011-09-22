@@ -38,20 +38,74 @@ namespace Phonon
 namespace VLC
 {
 
+/*
+ * Device Info
+ */
+
 DeviceInfo::DeviceInfo(const QByteArray &name,
                        const QString &description,
                        bool isAdvanced)
 {
     // Get an id
     static int counter = 0;
-    id = counter++;
+    m_id = counter++;
 
     // Get name and description for the device
-    this->name = name;
-    this->description = description;
-    this->isAdvanced = isAdvanced;
-    capabilities = None;
+    m_name = name;
+    m_description = description;
+    m_isAdvanced = isAdvanced;
+    m_capabilities = None;
 }
+
+int DeviceInfo::id() const
+{
+    return m_id;
+}
+
+const QByteArray& DeviceInfo::name() const
+{
+    return m_name;
+}
+
+const QString& DeviceInfo::description() const
+{
+    return m_description;
+}
+
+bool DeviceInfo::isAdvanced() const
+{
+    return m_isAdvanced;
+}
+
+void DeviceInfo::setAdvanced(bool advanced)
+{
+    m_isAdvanced = advanced;
+}
+
+const DeviceAccessList& DeviceInfo::accessList() const
+{
+    return m_accessList;
+}
+
+void DeviceInfo::addAccess(const DeviceAccess& access)
+{
+    m_accessList.append(access);
+}
+
+quint16 DeviceInfo::capabilities() const
+{
+    return m_capabilities;
+}
+
+void DeviceInfo::setCapabilities(quint16 cap)
+{
+    m_capabilities = cap;
+}
+
+
+/*
+ * Device Manager
+ */
 
 DeviceManager::DeviceManager(Backend *parent)
     : QObject(parent)
@@ -83,8 +137,8 @@ int DeviceManager::deviceId(const QByteArray &name) const
 {
     foreach (const QList<DeviceInfo> *list, m_deviceLists) {
         foreach (const DeviceInfo &device, *list) {
-            if (device.name == name)
-                return device.id;
+            if (device.name() == name)
+                return device.id();
         }
     }
 
@@ -95,8 +149,8 @@ QString DeviceManager::deviceDescription(int id) const
 {
     foreach (const QList<DeviceInfo> *list, m_deviceLists) {
         foreach (const DeviceInfo &device, *list) {
-            if (device.id == id)
-                return QString(device.name);
+            if (device.id() == id)
+                return QString(device.description());
         }
     }
 
@@ -110,24 +164,24 @@ void DeviceManager::updateDeviceSublist(const QList<DeviceInfo> &newDevices, QLi
     int oldDeviceCount = deviceList.count();
 
     for (int i = 0; i < newDeviceCount; ++i) {
-        int id = deviceId(newDevices[i].name);
+        int id = deviceId(newDevices[i].name());
         if (id == -1) {
             // This is a new device, add it
             deviceList.append(newDevices[i]);
-            id = deviceId(newDevices[i].name);
+            id = deviceId(newDevices[i].name());
             emit deviceAdded(id);
 
-            debug() << "Added backend device" << newDevices[i].name.data() << "with id" << id;
+            debug() << "Added backend device" << newDevices[i].name() << "with id" << id;
         }
     }
 
     if (newDeviceCount < oldDeviceCount) {
         // A device was removed
         for (int i = oldDeviceCount - 1; i >= 0; --i) {
-            QByteArray currId = deviceList[i].name;
+            QByteArray currId = deviceList[i].name();
             bool b_found = false;
             for (int k = newDeviceCount - 1; k >= 0; --k) {
-                if (currId == newDevices[k].name) {
+                if (currId == newDevices[k].name()) {
                     b_found = true;
                     break;
                 }
@@ -164,7 +218,7 @@ void DeviceManager::updateDeviceList()
 
     audioOutputDeviceList.append(DeviceInfo("default"));
     DeviceInfo &defaultAudioOutputDevice = audioOutputDeviceList.first();
-    defaultAudioOutputDevice.capabilities = DeviceInfo::AudioOutput;
+    defaultAudioOutputDevice.setCapabilities(DeviceInfo::AudioOutput);
 
     if (!LibVLC::self || !libvlc)
         return;
@@ -175,8 +229,8 @@ void DeviceManager::updateDeviceList()
     PulseSupport *pulse = PulseSupport::getInstance();
     if (pulse && pulse->isActive()) {
         if (audioOutBackends.contains("pulse")) {
-            defaultAudioOutputDevice.isAdvanced = false;
-            defaultAudioOutputDevice.accessList.append(DeviceAccess("pulse", "default"));
+            defaultAudioOutputDevice.setAdvanced(false);
+            defaultAudioOutputDevice.addAccess(DeviceAccess("pulse", "default"));
             return;
         } else {
             pulse->enable(false);
@@ -195,8 +249,8 @@ void DeviceManager::updateDeviceList()
                 const char *longName = libvlc_audio_output_device_longname(libvlc, soundSystem, i);
 
                 DeviceInfo device(longName, QByteArray() /* no description, sorry */, false);
-                device.accessList.append(DeviceAccess(soundSystem, idName));
-                device.capabilities = DeviceInfo::AudioOutput;
+                device.addAccess(DeviceAccess(soundSystem, idName));
+                device.setCapabilities(DeviceInfo::AudioOutput);
                 audioOutputDeviceList.append(device);
             }
             break;
