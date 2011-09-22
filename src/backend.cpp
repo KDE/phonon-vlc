@@ -268,24 +268,16 @@ QStringList Backend::availableMimeTypes() const
 QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const
 {
     QList<int> list;
-    QList<DeviceInfo> deviceList;
-    int dev;
 
     switch (type) {
     case Phonon::AudioChannelType: {
         list << GlobalAudioChannels::instance()->globalIndexes();
     }
     break;
-    case Phonon::AudioOutputDeviceType: {
-        deviceList = deviceManager()->audioOutputDevices();
-        for (dev = 0 ; dev < deviceList.size() ; ++dev)
-            list.append(deviceList[dev].id());
-    }
-    break;
-    case Phonon::AudioCaptureDeviceType: {
-        deviceList = deviceManager()->audioCaptureDevices();
-        for (dev = 0 ; dev < deviceList.size() ; ++dev)
-            list.append(deviceList[dev].id());
+    case Phonon::AudioOutputDeviceType:
+    case Phonon::AudioCaptureDeviceType:
+    case Phonon::VideoCaptureDeviceType: {
+        return deviceManager()->deviceIds(type);
     }
     break;
     case Phonon::EffectType: {
@@ -299,12 +291,6 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const
         list << GlobalSubtitles::instance()->globalIndexes();
     }
     break;
-    case Phonon::VideoCaptureDeviceType: {
-        deviceList = deviceManager()->videoCaptureDevices();
-        for (dev = 0 ; dev < deviceList.size() ; ++dev)
-            list.append(deviceList[dev].id());
-    }
-    break;
     }
 
     return list;
@@ -313,7 +299,6 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const
 QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescriptionType type, int index) const
 {
     QHash<QByteArray, QVariant> ret;
-    QList<DeviceInfo> deviceList;
 
     switch (type) {
     case Phonon::AudioChannelType: {
@@ -322,27 +307,11 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
         ret.insert("description", description.description());
     }
     break;
-    case Phonon::AudioOutputDeviceType: {
-        deviceList = deviceManager()->audioOutputDevices();
-        if (index >= 0 && index < deviceList.size()) {
-            ret.insert("name", deviceList[index].name());
-            ret.insert("description", deviceList[index].description());
-            ret.insert("icon", QLatin1String("audio-card"));
-            ret.insert("isAdvanced", deviceList[index].isAdvanced());
-        }
-    }
-    break;
-    case Phonon::AudioCaptureDeviceType: {
-        deviceList = deviceManager()->audioCaptureDevices();
-        if (index >= 0 && index < deviceList.size()) {
-            ret.insert("name", deviceList[index].name());
-            ret.insert("description", deviceList[index].description());
-            ret.insert("icon", QLatin1String("audio-input-microphone"));
-            ret.insert("isAdvanced", deviceList[index].isAdvanced());
-            ret.insert("deviceAccessList", QVariant::fromValue<Phonon::DeviceAccessList>(deviceList[index].accessList()));
-            if (deviceList[index].capabilities() & DeviceInfo::VideoCapture)
-                ret.insert("hasvideo", true);
-        }
+    case Phonon::AudioOutputDeviceType:
+    case Phonon::AudioCaptureDeviceType:
+    case Phonon::VideoCaptureDeviceType: {
+        // Index should be unique, even for different categories
+        return deviceManager()->deviceProperties(index);
     }
     break;
     case Phonon::EffectType: {
@@ -362,19 +331,6 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
         ret.insert("name", description.name());
         ret.insert("description", description.description());
         ret.insert("type", description.property("type"));
-    }
-    break;
-    case Phonon::VideoCaptureDeviceType: {
-        deviceList = deviceManager()->videoCaptureDevices();
-        if (index >= 0 && index < deviceList.size()) {
-            ret.insert("name", deviceList[index].name());
-            ret.insert("description", deviceList[index].description());
-            ret.insert("icon", QLatin1String("camera-web"));
-            ret.insert("isAdvanced", deviceList[index].isAdvanced());
-            ret.insert("deviceAccessList", QVariant::fromValue<Phonon::DeviceAccessList>(deviceList[index].accessList()));
-            if (deviceList[index].capabilities() & DeviceInfo::AudioCapture)
-                ret.insert("hasaudio", true);
-        }
     }
     break;
     }

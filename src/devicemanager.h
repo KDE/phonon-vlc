@@ -74,7 +74,7 @@ private:
 
 /** \brief Keeps track of audio/video devices that libVLC supports
  *
- * This class maintains a device list for each of the following device categories:
+ * This class maintains a device list. Types of devices:
  * \li audio output devices
  * \li audio capture devices
  * \li video capture devices
@@ -89,32 +89,17 @@ class DeviceManager : public QObject
 
 public:
     /**
-     * Constructs a device manager and immediately updates the device lists.
+     * Constructs a device manager and immediately updates the devices.
      */
     DeviceManager(Backend *parent);
 
     /**
-     * Clears all the device lists before destroying.
+     * Clears all the devices before destroying.
      */
     virtual ~DeviceManager();
 
     /**
-    * \return a list of name identifiers for audio capture devices.
-    */
-    const QList<DeviceInfo> audioCaptureDevices() const;
-
-    /**
-    * \return a list of name identifiers for video capture devices.
-    */
-    const QList<DeviceInfo> videoCaptureDevices() const;
-
-    /**
-     * \return a list of name identifiers for audio output devices.
-     */
-    const QList<DeviceInfo> audioOutputDevices() const;
-
-    /**
-     * Searches for the device in the device lists, by comparing it's name
+     * Searches for the device in the devices list, by comparing it's name
      *
      * \param name Name identifier for the device to search for
      * \return A positive device id or -1 if device does not exist.
@@ -122,10 +107,30 @@ public:
     int deviceId(const QByteArray &vlcId) const;
 
     /**
-     * Get a human-readable description from a device id.
-     * \param id Device identifier
+     * \param type Only devices with a capability of this type are returned
+     * The following are supported:
+     * \li AudioOutputDeviceType
+     * \li AudioCaptureDeviceType
+     * \li VideoCaptureDeviceType
+     *
+     * \return A list of device identifiers that have capabilities that
+     * match the desired type
+     *
+     * \note The capture devices are temporarily not implemented / removed
      */
-    QString deviceDescription(int id) const;
+    QList<int> deviceIds(ObjectDescriptionType type);
+
+    /**
+     * \param id The identifier for the device
+     * \return Object description properties for a device
+     */
+    QHash<QByteArray, QVariant> deviceProperties(int id);
+
+    /**
+     * \param id The identifier for the device
+     * \return Pointer to DeviceInfo, or NULL if the id is invalid
+     */
+    const DeviceInfo* device(int id);
 
 signals:
     void deviceAdded(int);
@@ -140,31 +145,8 @@ public slots:
     void updateDeviceList();
 
 private:
-    /**
-     * \return True if the device can be opened.
-     */
-    bool canOpenDevice() const;
-
-    /** \internal
-     * Compares the list with the devices available at the moment with the last list. If
-     * a new device is seen, a signal is emitted. If a device dissapeared, another signal
-     * is emitted. The devices are only from one category (example audio output devices).
-     *
-     * \param newDevices The list for the devices currently available
-     * \param deviceList The old device list
-     *
-     * \see deviceAdded
-     * \see deviceRemoved
-     */
-    void updateDeviceSublist(const QList<DeviceInfo> &newDevices,
-                             QList<Phonon::VLC::DeviceInfo> &deviceList);
-
-private:
     Backend *m_backend;
-    QList<DeviceInfo> m_audioCaptureDeviceList;
-    QList<DeviceInfo> m_videoCaptureDeviceList;
-    QList<DeviceInfo> m_audioOutputDeviceList;
-    QList<const QList<DeviceInfo> *> m_deviceLists;
+    QList<DeviceInfo> m_devices;
 };
 }
 } // namespace Phonon::VLC

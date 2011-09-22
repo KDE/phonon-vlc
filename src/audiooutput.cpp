@@ -86,8 +86,8 @@ int AudioOutput::outputDevice() const
 
 bool AudioOutput::setOutputDevice(int deviceIndex)
 {
-    const QList<DeviceInfo> deviceList = Backend::self->deviceManager()->audioOutputDevices();
-    if (deviceIndex < 0 || deviceIndex >= deviceList.size()) {
+    const DeviceInfo *p_device = Backend::self->deviceManager()->device(deviceIndex);
+    if (!p_device) {
         return false;
     }
     if (m_deviceIndex != deviceIndex) {
@@ -109,19 +109,17 @@ void AudioOutput::setOutputDeviceImplementation()
         return;
     }
 #endif
-    const QList<DeviceInfo> deviceList = Backend::self->deviceManager()->audioOutputDevices();
-
-    Q_ASSERT(m_deviceIndex >= 0 && m_deviceIndex < deviceList.size());
-    const DeviceInfo &device = deviceList.at(m_deviceIndex);
+    const DeviceInfo *p_device = Backend::self->deviceManager()->device(m_deviceIndex);
+    Q_ASSERT(p_device);
 
     // ### we're not trying the whole access list (could mean same device on different soundsystems)
-    QByteArray soundSystem = device.accessList().first().first;
+    QByteArray soundSystem = p_device->accessList().first().first;
     debug() << "Setting output soundsystem to" << soundSystem;
     m_player->setAudioOutput(soundSystem);
 
-    QByteArray deviceName = device.accessList().first().second.toLatin1();
+    QByteArray deviceName = p_device->accessList().first().second.toLatin1();
     // print the name as possibly messed up by toLatin1() to see conversion problems
-    debug() << "Setting output device to" << deviceName << '(' << device.name() << ')';
+    debug() << "Setting output device to" << deviceName << '(' << p_device->name() << ')';
     m_player->setAudioOutputDevice(soundSystem, deviceName);
 }
 
