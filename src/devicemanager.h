@@ -130,7 +130,7 @@ public:
      * \param id The identifier for the device
      * \return Pointer to DeviceInfo, or NULL if the id is invalid
      */
-    const DeviceInfo* device(int id);
+    const DeviceInfo *device(int id);
 
 signals:
     void deviceAdded(int);

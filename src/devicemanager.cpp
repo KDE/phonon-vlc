@@ -189,11 +189,11 @@ QHash<QByteArray, QVariant> DeviceManager::deviceProperties(int id)
     return properties;
 }
 
-const DeviceInfo* DeviceManager::device(int id)
+const DeviceInfo *DeviceManager::device(int id)
 {
-    foreach (const DeviceInfo &device, m_devices) {
-        if (device.id() == id)
-            return &device;
+    for (int i = 0; i < m_devices.size(); i ++) {
+        if (m_devices[i].id() == id)
+            return &m_devices[i];
     }
 
     return NULL;
