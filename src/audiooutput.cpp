@@ -91,6 +91,10 @@ bool AudioOutput::setOutputDevice(int deviceIndex)
         error() << "Unable to find any output device with index" << m_deviceIndex;
         return false;
     }
+    if (device->accessList().isEmpty()) {
+        error() << "This output device cannot be used, it has no information for accessing it";
+        return false;
+    }
     if (m_deviceIndex != deviceIndex) {
         m_deviceIndex = deviceIndex;
         if (m_player) {
@@ -111,15 +115,17 @@ void AudioOutput::setOutputDeviceImplementation()
     }
 #endif
     const DeviceInfo *device = Backend::self->deviceManager()->device(m_deviceIndex);
-    if (!device)
+    if (!device || device->accessList().isEmpty())
         return;
 
     // ### we're not trying the whole access list (could mean same device on different soundsystems)
-    QByteArray soundSystem = device->accessList().first().first;
+    const DeviceAccess &firstDeviceAccess = device->accessList().first();
+
+    QByteArray soundSystem = firstDeviceAccess.first;
     debug() << "Setting output soundsystem to" << soundSystem;
     m_player->setAudioOutput(soundSystem);
 
-    QByteArray deviceName = device->accessList().first().second.toLatin1();
+    QByteArray deviceName = firstDeviceAccess.second.toLatin1();
     // print the name as possibly messed up by toLatin1() to see conversion problems
     debug() << "Setting output device to" << deviceName << '(' << device->name() << ')';
     m_player->setAudioOutputDevice(soundSystem, deviceName);
