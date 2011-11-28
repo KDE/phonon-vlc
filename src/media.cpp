@@ -28,7 +28,7 @@ namespace VLC {
 
 Media::Media(const QByteArray &mrl, QObject *parent) :
     QObject(parent),
-    m_media(libvlc_media_new_location(libvlc, mrl.data()))
+    m_media(libvlc_media_new_location(libvlc, mrl.constData()))
 {
     Q_ASSERT(m_media);
 
