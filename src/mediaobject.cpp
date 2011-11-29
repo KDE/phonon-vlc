@@ -283,11 +283,13 @@ void MediaObject::setSource(const MediaSource &source)
     case MediaSource::Empty:
         error() << Q_FUNC_INFO << "MediaSource is empty.";
         break;
-    case MediaSource::LocalFile:
-    case MediaSource::Url: {
+    case MediaSource::LocalFile: {
+    case MediaSource::Url:
         debug() << "MediaSource::Mrl:" << source.mrl();
-        loadMedia(source.mrl().toEncoded());
-    } // Keep these braces and the following break as-is, some compilers fall over the var decl above.
+#warning FIXME, FIXME, FIXME, FIXME
+        QUrl tempURL = source.mrl();
+        loadMedia(tempURL.toEncoded());
+    }
     break;
     case MediaSource::Disc:
         switch (source.discType()) {
