@@ -286,7 +286,9 @@ void MediaObject::setSource(const MediaSource &source)
     case MediaSource::LocalFile: {
     case MediaSource::Url:
         debug() << "MediaSource::Mrl:" << source.mrl();
-#warning FIXME, FIXME, FIXME, FIXME
+#ifdef __GNUC__
+# warning FIXME, FIXME, FIXME, FIXME
+#endif
         QUrl tempURL = source.mrl();
         loadMedia(tempURL.toEncoded());
     }
