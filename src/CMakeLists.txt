@@ -28,8 +28,8 @@ else(PHONON_VLC_NO_EXPERIMENTAL)
 endif(PHONON_VLC_NO_EXPERIMENTAL)
 
 set(phonon_vlc_SRCS
-    audiooutput.cpp
-    audiodataoutput.cpp
+    audio/audiooutput.cpp
+    audio/audiodataoutput.cpp
     backend.cpp
     debug.cpp
     devicemanager.cpp
@@ -42,14 +42,14 @@ set(phonon_vlc_SRCS
     mediaplayer.cpp
     sinknode.cpp
     streamreader.cpp
-    #    videodataoutput.cpp
-    videowidget.cpp
+    #    video/videodataoutput.cpp
+    video/videowidget.cpp
     ${phonon_vlc_experimental_SRCS})
 
 if(APPLE)
     list(APPEND phonon_vlc_SRCS
-        mac/nsvideoview.mm
-        mac/vlcmacwidget.mm)
+        video/mac/nsvideoview.mm
+        video/mac/vlcmacwidget.mm)
 endif(APPLE)
 
 automoc4_add_library(phonon_vlc MODULE ${phonon_vlc_SRCS})

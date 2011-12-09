@@ -36,7 +36,7 @@ namespace Phonon {
 namespace VLC {
 
 #ifdef __GNUC__
-#warning implement 4.2 interface
+#warning implement 4.2 interface, AudioOutputInterface42
 #endif
 
 AudioOutput::AudioOutput(QObject *parent)

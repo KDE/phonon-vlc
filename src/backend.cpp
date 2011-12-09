@@ -41,8 +41,8 @@
 #include <vlc/libvlc_version.h>
 #include <vlc/vlc.h>
 
-#include "audiooutput.h"
-#include "audiodataoutput.h"
+#include "audio/audiooutput.h"
+#include "audio/audiodataoutput.h"
 #include "debug.h"
 #include "devicemanager.h"
 #include "effect.h"
@@ -50,8 +50,8 @@
 #include "libvlc.h"
 #include "mediaobject.h"
 #include "sinknode.h"
-//#include "videodataoutput.h"
-#include "videowidget.h"
+//#include "video/videodataoutput.h"
+#include "video/videowidget.h"
 
 #ifndef PHONON_VLC_NO_EXPERIMENTAL
 #include "experimental/avcapture.h"

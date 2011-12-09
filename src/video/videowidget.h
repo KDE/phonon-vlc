@@ -27,7 +27,7 @@
 #include <phonon/videowidgetinterface.h>
 
 #ifdef Q_OS_MAC
-#include "mac/vlcmacwidget.h"
+#include "video/mac/vlcmacwidget.h"
 typedef VlcMacWidget BaseWidget;
 #else
 typedef QWidget BaseWidget;
