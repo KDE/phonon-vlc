@@ -48,7 +48,7 @@ VideoWidget::VideoWidget(QWidget *parent) :
     // When resizing fill with black (backgroundRole color) the rest is done by paintEvent
     setAttribute(Qt::WA_OpaquePaintEvent);
 
-    // Disable Qt composition management as MPlayer draws onto the widget directly
+    // Disable Qt composition management as VLC draws onto the widget directly
     setAttribute(Qt::WA_PaintOnScreen);
 
     // Indicates that the widget has no background,
@@ -124,11 +124,14 @@ void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspect)
     m_aspectRatio = aspect;
 
     switch (m_aspectRatio) {
+        case Phonon::VideoWidget::AspectRatioWidget:
+        // FIXME: find a way to implement aspectratiowidget, it is meant to scale
+        // and stretch (i.e. scale to window without retaining aspect ratio).
 #ifdef __GNUC__
-#warning TODO
+#warning TODO AspectRatioWidget
 #endif
-    // FIXME: find a way to implement aspectratiowidget, it is meant to scale
-    // and stretch (i.e. scale to window without retaining aspect ratio).
+        warning() << "The free apect Ratio  is not supported by Phonon VLC.";
+        return;
     case Phonon::VideoWidget::AspectRatioAuto:
         m_player->setVideoAspectRatio(QByteArray());
         return;
@@ -138,8 +141,9 @@ void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspect)
     case Phonon::VideoWidget::AspectRatio16_9:
         m_player->setVideoAspectRatio("16:9");
         return;
+    default:
+        warning() << "The aspect ratio" << aspect << "is not supported by Phonon VLC.";
     }
-    warning() << "The aspect ratio" << aspect << "is not supported by Phonon VLC.";
 }
 
 Phonon::VideoWidget::ScaleMode VideoWidget::scaleMode() const
@@ -154,8 +158,11 @@ void VideoWidget::setScaleMode(Phonon::VideoWidget::ScaleMode scale)
 #endif
     m_scaleMode = scale;
     switch (m_scaleMode) {
+        case Phonon::VideoWidget::FitInView:
+        case Phonon::VideoWidget::ScaleAndCrop:
+        default:
+        warning() << "The scale mode" << scale << "is not supported by Phonon VLC.";
     }
-    warning() << "The scale mode" << scale << "is not supported by Phonon VLC.";
 }
 
 qreal VideoWidget::brightness() const

@@ -164,9 +164,13 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
         return new Effect(m_effectManager, args[0].toInt(), parent);
     case VideoWidgetClass:
         return new VideoWidget(qobject_cast<QWidget *>(parent));
+    case VolumeFaderEffectClass:
+    case VisualizationClass:
+    case VideoDataOutputClass:
+    default:
+   	warning() << "Backend class" << c << "is not supported by Phonon VLC :(";
     }
 
-    warning() << "Backend class" << c << "is not supported by Phonon VLC :(";
     return 0;
 }
 
