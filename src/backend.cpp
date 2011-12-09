@@ -43,11 +43,11 @@
 
 #include "audio/audiooutput.h"
 #include "audio/audiodataoutput.h"
-#include "debug.h"
+#include "utils/debug.h"
 #include "devicemanager.h"
 #include "effect.h"
 #include "effectmanager.h"
-#include "libvlc.h"
+#include "utils/libvlc.h"
 #include "mediaobject.h"
 #include "sinknode.h"
 //#include "video/videodataoutput.h"

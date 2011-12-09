@@ -28,8 +28,8 @@
 #include <vlc/libvlc_version.h>
 #include <vlc/vlc.h>
 
-#include "debug.h"
-#include "libvlc.h"
+#include "utils/debug.h"
+#include "utils/libvlc.h"
 #include "media.h"
 #include "sinknode.h"
 #include "streamreader.h"

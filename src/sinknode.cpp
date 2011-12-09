@@ -23,7 +23,7 @@
 
 #include "sinknode.h"
 
-#include "debug.h"
+#include "utils/debug.h"
 #include "mediaobject.h"
 #include "mediaplayer.h"
 

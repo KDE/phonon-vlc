@@ -31,11 +31,11 @@ set(phonon_vlc_SRCS
     audio/audiooutput.cpp
     audio/audiodataoutput.cpp
     backend.cpp
-    debug.cpp
+    utils/debug.cpp
     devicemanager.cpp
     effect.cpp
     effectmanager.cpp
-    libvlc.cpp
+    utils/libvlc.cpp
     media.cpp
     mediacontroller.cpp
     mediaobject.cpp

@@ -28,7 +28,7 @@
 #include <vlc/vlc.h>
 
 #include "backend.h"
-#include "debug.h"
+#include "utils/debug.h"
 #include "devicemanager.h"
 #include "mediaobject.h"
 

@@ -28,8 +28,8 @@
 #include <vlc/vlc.h>
 
 #include "backend.h"
-#include "debug.h"
-#include "libvlc.h"
+#include "utils/debug.h"
+#include "utils/libvlc.h"
 
 QT_BEGIN_NAMESPACE
 

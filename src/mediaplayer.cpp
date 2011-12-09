@@ -23,7 +23,7 @@
 
 #include <vlc/libvlc_version.h>
 
-#include "libvlc.h"
+#include "utils/libvlc.h"
 #include "media.h"
 
 #define P_EMIT_HAS_VIDEO(hasVideo) \
