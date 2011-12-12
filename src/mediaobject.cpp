@@ -283,16 +283,11 @@ void MediaObject::setSource(const MediaSource &source)
     case MediaSource::Empty:
         error() << Q_FUNC_INFO << "MediaSource is empty.";
         break;
-    case MediaSource::LocalFile: {
+    case MediaSource::LocalFile:
     case MediaSource::Url:
-        debug() << "MediaSource::Mrl:" << source.mrl();
-#ifdef __GNUC__
-# warning FIXME, FIXME, FIXME, FIXME
-#endif
-        QUrl tempURL = source.mrl();
-        loadMedia(tempURL.toEncoded());
-    }
-    break;
+        debug() << "MediaSource::Url:" << source.url();
+        loadMedia(source.url().toEncoded());
+        break;
     case MediaSource::Disc:
         switch (source.discType()) {
         case Phonon::NoDisc:
