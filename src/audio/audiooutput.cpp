@@ -88,7 +88,7 @@ bool AudioOutput::setOutputDevice(int deviceIndex)
 {
     const DeviceInfo *device = Backend::self->deviceManager()->device(deviceIndex);
     if (!device) {
-        error() << "Unable to find any output device with index" << m_deviceIndex;
+        error() << "Unable to find any output device with index" << deviceIndex;
         return false;
     }
     if (device->accessList().isEmpty()) {
