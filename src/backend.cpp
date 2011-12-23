@@ -53,10 +53,6 @@
 //#include "video/videodataoutput.h"
 #include "video/videowidget.h"
 
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-#include "experimental/avcapture.h"
-#endif // PHONON_VLC_NO_EXPERIMENTAL
-
 Q_EXPORT_PLUGIN2(phonon_vlc, Phonon::VLC::Backend)
 
 namespace Phonon
@@ -137,16 +133,6 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
 {
     if (!LibVLC::self || !libvlc)
         return 0;
-
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-    Phonon::Experimental::BackendInterface::Class cex =
-            static_cast<Phonon::Experimental::BackendInterface::Class>(c);
-    switch (cex) {
-    case Phonon::Experimental::BackendInterface::AvCaptureClass:
-        warning() << "createObject() : AvCapture created - WARNING: Experimental!";
-        return new Experimental::AvCapture(parent);
-    }
-#endif // PHONON_VLC_NO_EXPERIMENTAL
 
     switch (c) {
     case MediaObjectClass:
@@ -364,15 +350,6 @@ bool Backend::connectNodes(QObject *source, QObject *sink)
             return true;
         }
 
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-        Experimental::AvCapture *avCapture = qobject_cast<Experimental::AvCapture *>(source);
-        if (avCapture) {
-            // Connect the SinkNode to a AvCapture
-            sinkNode->connectToAvCapture(avCapture);
-            return true;
-        }
-#endif // PHONON_VLC_NO_EXPERIMENTAL
-
         /*
         Effect *effect = qobject_cast<Effect *>(source);
         if (effect) {
@@ -397,15 +374,6 @@ bool Backend::disconnectNodes(QObject *source, QObject *sink)
             sinkNode->disconnectFromMediaObject(mediaObject);
             return true;
         }
-
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-        Experimental::AvCapture *avCapture = qobject_cast<Experimental::AvCapture *>(source);
-        if (avCapture) {
-            // Disconnect the SinkNode from a AvCapture
-            sinkNode->disconnectFromAvCapture(avCapture);
-            return true;
-        }
-#endif // PHONON_VLC_NO_EXPERIMENTAL
 
         /*
         Effect *effect = qobject_cast<Effect *>(source);

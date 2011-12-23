@@ -38,10 +38,6 @@ typedef QWidget BaseWidget;
 namespace Phonon {
 namespace VLC {
 
-namespace Experimental {
-class AvCapture;
-}
-
 /** \brief Implements the Phonon VideoWidget MediaNode, responsible for displaying video
  *
  * Phonon video is displayed using this widget. It implements the VideoWidgetInterface.
