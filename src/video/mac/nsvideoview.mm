@@ -28,4 +28,10 @@
 {
       [view removeFromSuperview];
 }
+- (BOOL)stretchesVideo
+{
+      //Whatever you would want
+      return NO;  
+}
+
 @end

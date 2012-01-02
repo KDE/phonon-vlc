@@ -23,6 +23,7 @@
 @interface VideoView : NSView
 - (void)addVoutSubview: (NSView *)view;
 - (void)removeVoutSubview: (NSView *)view;
+- (BOOL)stretchesVideo;
 @end
 
 #endif // NSVIDEOVIEW_H
