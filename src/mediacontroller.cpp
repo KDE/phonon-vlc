@@ -25,8 +25,8 @@
 
 #include <phonon/GlobalDescriptionContainer>
 
-#include "debug.h"
-#include "libvlc.h"
+#include "utils/debug.h"
+#include "utils/libvlc.h"
 #include "mediaplayer.h"
 
 namespace Phonon {

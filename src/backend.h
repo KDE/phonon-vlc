@@ -27,10 +27,6 @@
 #include <phonon/objectdescription.h>
 #include <phonon/backendinterface.h>
 
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-#include "phonon/experimental/backendinterface.h"
-#endif // PHONON_VLC_NO_EXPERIMENTAL
-
 class LibVLC;
 
 namespace Phonon

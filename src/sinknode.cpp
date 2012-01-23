@@ -23,13 +23,9 @@
 
 #include "sinknode.h"
 
-#include "debug.h"
+#include "utils/debug.h"
 #include "mediaobject.h"
 #include "mediaplayer.h"
-
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-#include "experimental/avcapture.h"
-#endif // PHONON_VLC_NO_EXPERIMENTAL
 
 namespace Phonon
 {
@@ -74,20 +70,6 @@ void SinkNode::addToMedia(Media *media)
 {
     Q_UNUSED(media);
 }
-
-#ifndef PHONON_VLC_NO_EXPERIMENTAL
-void SinkNode::connectToAvCapture(Experimental::AvCapture *avCapture)
-{
-    connectToMediaObject(avCapture->audioMediaObject());
-    connectToMediaObject(avCapture->videoMediaObject());
-}
-
-void SinkNode::disconnectFromAvCapture(Experimental::AvCapture *avCapture)
-{
-    disconnectFromMediaObject(avCapture->audioMediaObject());
-    disconnectFromMediaObject(avCapture->videoMediaObject());
-}
-#endif // PHONON_VLC_NO_EXPERIMENTAL
 
 }
 } // Namespace Phonon::VLC

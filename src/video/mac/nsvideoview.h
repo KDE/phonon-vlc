@@ -15,17 +15,15 @@
     License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "nsvideoview.h"
+#ifndef NSVIDEOVIEW_H
+#define NSVIDEOVIEW_H
 
-@implementation VideoView
-- (void)addVoutSubview:(NSView *)view
-{
-      [view setFrame:[self bounds]];
-      [self addSubview:view];
-      [view setAutoresizingMask: NSViewHeightSizable |NSViewWidthSizable];
-}
-- (void)removeVoutSubview:(NSView *)view
-{
-      [view removeFromSuperview];
-}
+#import <Cocoa/Cocoa.h>
+
+@interface VideoView : NSView
+- (void)addVoutSubview: (NSView *)view;
+- (void)removeVoutSubview: (NSView *)view;
+- (BOOL)stretchesVideo;
 @end
+
+#endif // NSVIDEOVIEW_H

@@ -27,7 +27,7 @@
 #include <phonon/videowidgetinterface.h>
 
 #ifdef Q_OS_MAC
-#include "mac/vlcmacwidget.h"
+#include "video/mac/vlcmacwidget.h"
 typedef VlcMacWidget BaseWidget;
 #else
 typedef QWidget BaseWidget;
@@ -37,10 +37,6 @@ typedef QWidget BaseWidget;
 
 namespace Phonon {
 namespace VLC {
-
-namespace Experimental {
-class AvCapture;
-}
 
 /** \brief Implements the Phonon VideoWidget MediaNode, responsible for displaying video
  *

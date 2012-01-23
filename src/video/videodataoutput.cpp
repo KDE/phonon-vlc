@@ -30,7 +30,7 @@
 
 #include <QMetaObject>
 
-#include "debug.h"
+#include "utils/debug.h"
 #include "mediaobject.h"
 
 namespace Phonon

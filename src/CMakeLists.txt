@@ -20,22 +20,15 @@ endif (MSVC)
 
 add_definitions(-D_PHONON_BACKEND_VERSION_4_2)
 
-option(PHONON_VLC_NO_EXPERIMENTAL "Do not build anything experimental" true)
-if(PHONON_VLC_NO_EXPERIMENTAL)
-    add_definitions(-DPHONON_VLC_NO_EXPERIMENTAL)
-else(PHONON_VLC_NO_EXPERIMENTAL)
-    add_subdirectory(experimental)
-endif(PHONON_VLC_NO_EXPERIMENTAL)
-
 set(phonon_vlc_SRCS
-    audiooutput.cpp
-    audiodataoutput.cpp
+    audio/audiooutput.cpp
+    audio/audiodataoutput.cpp
     backend.cpp
-    debug.cpp
+    utils/debug.cpp
     devicemanager.cpp
     effect.cpp
     effectmanager.cpp
-    libvlc.cpp
+    utils/libvlc.cpp
     media.cpp
     mediacontroller.cpp
     mediaobject.cpp
@@ -44,13 +37,15 @@ set(phonon_vlc_SRCS
     streamreader.cpp
     #    videodataoutput.cpp
     videographicsobject.cpp
-    videowidget.cpp
-    ${phonon_vlc_experimental_SRCS})
+    ${phonon_vlc_experimental_SRCS}
+    #    video/videodataoutput.cpp
+    video/videowidget.cpp
+)
 
 if(APPLE)
     list(APPEND phonon_vlc_SRCS
-        mac/nsvideoview.mm
-        mac/vlcmacwidget.mm)
+        video/mac/nsvideoview.mm
+        video/mac/vlcmacwidget.mm)
 endif(APPLE)
 
 automoc4_add_library(phonon_vlc MODULE ${phonon_vlc_SRCS})

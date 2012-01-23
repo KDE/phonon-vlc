@@ -24,7 +24,7 @@
 
 #include <phonon/streaminterface.h>
 
-#include "debug.h"
+#include "utils/debug.h"
 #include "media.h"
 #include "mediaobject.h"
 

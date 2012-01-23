@@ -28,8 +28,8 @@
 #include <vlc/libvlc_version.h>
 #include <vlc/vlc.h>
 
-#include "debug.h"
-#include "libvlc.h"
+#include "utils/debug.h"
+#include "utils/libvlc.h"
 #include "media.h"
 #include "sinknode.h"
 #include "streamreader.h"
@@ -284,11 +284,10 @@ void MediaObject::setSource(const MediaSource &source)
         error() << Q_FUNC_INFO << "MediaSource is empty.";
         break;
     case MediaSource::LocalFile:
-    case MediaSource::Url: {
-        debug() << "MediaSource::Mrl:" << source.mrl();
-        loadMedia(source.mrl().toEncoded());
-    } // Keep these braces and the following break as-is, some compilers fall over the var decl above.
-    break;
+    case MediaSource::Url:
+        debug() << "MediaSource::Url:" << source.url();
+        loadMedia(source.url().toEncoded());
+        break;
     case MediaSource::Disc:
         switch (source.discType()) {
         case Phonon::NoDisc:

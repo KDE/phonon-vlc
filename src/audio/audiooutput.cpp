@@ -28,7 +28,7 @@
 #include <vlc/vlc.h>
 
 #include "backend.h"
-#include "debug.h"
+#include "utils/debug.h"
 #include "devicemanager.h"
 #include "mediaobject.h"
 
@@ -36,7 +36,7 @@ namespace Phonon {
 namespace VLC {
 
 #ifdef __GNUC__
-#warning implement 4.2 interface
+#warning implement 4.2 interface, AudioOutputInterface42
 #endif
 
 AudioOutput::AudioOutput(QObject *parent)
@@ -86,8 +86,13 @@ int AudioOutput::outputDevice() const
 
 bool AudioOutput::setOutputDevice(int deviceIndex)
 {
-    const QList<DeviceInfo> deviceList = Backend::self->deviceManager()->audioOutputDevices();
-    if (deviceIndex < 0 || deviceIndex >= deviceList.size()) {
+    const DeviceInfo *device = Backend::self->deviceManager()->device(deviceIndex);
+    if (!device) {
+        error() << "Unable to find any output device with index" << deviceIndex;
+        return false;
+    }
+    if (device->accessList().isEmpty()) {
+        error() << "This output device cannot be used, it has no information for accessing it";
         return false;
     }
     if (m_deviceIndex != deviceIndex) {
@@ -109,19 +114,20 @@ void AudioOutput::setOutputDeviceImplementation()
         return;
     }
 #endif
-    const QList<DeviceInfo> deviceList = Backend::self->deviceManager()->audioOutputDevices();
-
-    Q_ASSERT(m_deviceIndex >= 0 && m_deviceIndex < deviceList.size());
-    const DeviceInfo &device = deviceList.at(m_deviceIndex);
+    const DeviceInfo *device = Backend::self->deviceManager()->device(m_deviceIndex);
+    if (!device || device->accessList().isEmpty())
+        return;
 
     // ### we're not trying the whole access list (could mean same device on different soundsystems)
-    QByteArray soundSystem = device.accessList.first().first;
+    const DeviceAccess &firstDeviceAccess = device->accessList().first();
+
+    QByteArray soundSystem = firstDeviceAccess.first;
     debug() << "Setting output soundsystem to" << soundSystem;
     m_player->setAudioOutput(soundSystem);
 
-    QByteArray deviceName = device.accessList.first().second.toLatin1();
+    QByteArray deviceName = firstDeviceAccess.second.toLatin1();
     // print the name as possibly messed up by toLatin1() to see conversion problems
-    debug() << "Setting output device to" << deviceName << '(' << device.name << ')';
+    debug() << "Setting output device to" << deviceName << '(' << device->name() << ')';
     m_player->setAudioOutputDevice(soundSystem, deviceName);
 }
 

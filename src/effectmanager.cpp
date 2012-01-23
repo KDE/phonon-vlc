@@ -24,8 +24,8 @@
 #include <vlc/libvlc.h>
 #include <vlc/libvlc_version.h>
 
-#include "debug.h"
-#include "libvlc.h"
+#include "utils/debug.h"
+#include "utils/libvlc.h"
 
 namespace Phonon {
 namespace VLC {

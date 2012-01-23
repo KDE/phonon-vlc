@@ -18,8 +18,8 @@
     License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef AMAROK_DEBUG_H
-#define AMAROK_DEBUG_H
+#ifndef PHONON_DEBUG_H
+#define PHONON_DEBUG_H
 
 // We always want debug output available at runtime
 #undef QT_NO_DEBUG_OUTPUT
@@ -114,12 +114,6 @@ using Debug::fatal;
 
 /// Convenience macro for making a standard Debug::Block
 #define DEBUG_BLOCK Debug::Block uniquelyNamedStackAllocatedStandardBlock( __PRETTY_FUNCTION__ );
-
-/// Use this to remind yourself to finish the implementation of a function
-#define AMAROK_NOTIMPLEMENTED warning() << "NOT-IMPLEMENTED:" << __PRETTY_FUNCTION__ << endl;
-
-/// Use this to alert other developers to stop using a function
-#define AMAROK_DEPRECATED warning() << "DEPRECATED:" << __PRETTY_FUNCTION__ << endl;
 
 /// Performance logging
 #define PERF_LOG( msg ) { Debug::perfLog( msg, __PRETTY_FUNCTION__ ); }
