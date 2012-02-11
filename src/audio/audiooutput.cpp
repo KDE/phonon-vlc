@@ -73,6 +73,7 @@ qreal AudioOutput::volume() const
 void AudioOutput::setVolume(qreal volume)
 {
     if (m_player) {
+        debug() << "async setting of volume to" << volume;
         m_volume = volume;
         updateVolume();
         emit volumeChanged(m_volume);
@@ -134,11 +135,8 @@ void AudioOutput::setOutputDeviceImplementation()
 void AudioOutput::updateVolume()
 {
     if (m_player) {
-#ifdef __GNUC__
-#warning or 100?
-#endif
         const int preVolume = m_player->audioVolume();
-        const int newVolume = m_volume * 50;
+        const int newVolume = m_volume * 100;
         m_player->setAudioVolume(newVolume);
 
         debug() << "Volume changed from" << preVolume << "to" << newVolume;
