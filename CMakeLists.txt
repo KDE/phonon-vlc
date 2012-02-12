@@ -19,7 +19,6 @@ set(LIBVLC_MIN_VERSION "1.1.10")
 find_package(LIBVLC REQUIRED)
 
 add_definitions(${QT_DEFINITIONS})
-remove_definitions(-DQT3_SUPPORT_WARNINGS -DQT3_SUPPORT)
 
 include_directories(${PHONON_INCLUDES} ${QT_INCLUDES} ${LIBVLC_INCLUDE_DIR})
 
