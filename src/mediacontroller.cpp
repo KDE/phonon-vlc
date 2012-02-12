@@ -293,15 +293,19 @@ void MediaController::setCurrentTitle(int title)
 #warning use media subitem to set track of audiocd
 #endif
         // Leave for MediaObject to handle.
-        break;
+        return;
     case Dvd:
     case Vcd:
          //    libvlc_media_player_set_title(m_player, title.index(), vlc_exception);
         m_player->setTitle(title);
-        break;
-    default:
+        return;
+    case NoDisc:
         warning() << "Current media source is not a CD, DVD or VCD!";
+        return;
     }
+
+    warning() << "MediaSource does not support setting of tile in this version of Phonon VLC!"
+              << "Type is" << source().discType();
 }
 
 int MediaController::availableTitles() const
