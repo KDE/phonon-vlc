@@ -91,6 +91,9 @@ public:
     void setVideoAdjust(libvlc_video_adjust_option_t adjust, float value)
     { libvlc_video_set_adjust_float(m_player, adjust, value); }
 
+    int subtitle() const
+    { return libvlc_video_get_spu(m_player); }
+
     libvlc_track_description_t *videoSubtitleDescription() const
     { return libvlc_video_get_spu_description(m_player); }
 
