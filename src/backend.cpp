@@ -139,13 +139,8 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
         return new MediaObject(parent);
     case AudioOutputClass:
         return new AudioOutput(parent);
-#ifdef __GNUC__
-#warning ADO crashes with vlc 1.2
-#endif
-#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(1, 2, 0, 0))
     case AudioDataOutputClass:
         return new AudioDataOutput(parent);
-#endif
     case EffectClass:
         return new Effect(m_effectManager, args[0].toInt(), parent);
     case VideoWidgetClass:
