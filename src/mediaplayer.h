@@ -138,6 +138,9 @@ public:
     void setAudioOutputDevice(const QByteArray &outputName, const QByteArray &deviceName)
     { libvlc_audio_output_device_set(m_player, outputName.data(), deviceName.data()); }
 
+    int audioTrack() const
+    { return libvlc_audio_get_track(m_player); }
+
     libvlc_track_description_t * audioTrackDescription() const
     { return libvlc_audio_get_track_description(m_player); }
 

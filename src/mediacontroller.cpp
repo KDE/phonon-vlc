@@ -198,7 +198,7 @@ void MediaController::resetMembers()
 void MediaController::setCurrentAudioChannel(const Phonon::AudioChannelDescription &audioChannel)
 {
     const int localIndex = GlobalAudioChannels::instance()->localIdFor(this, audioChannel.index());
-    if (m_player->setAudioTrack(localIndex))
+    if (!m_player->setAudioTrack(localIndex))
         error() << "libVLC:" << LibVLC::errorMessage();
     else
         m_currentAudioChannel = audioChannel;
@@ -218,11 +218,24 @@ void MediaController::refreshAudioChannels()
 {
     GlobalAudioChannels::instance()->clearListFor(this);
 
+    const int currentChannelId = m_player->subtitle();
+
     int idCount = 0;
     VLC_TRACK_FOREACH(it, m_player->audioTrackDescription()) {
         // LibVLC's internal ID is broken, so we simply count up as internally
         // the setter will simply go by position in list anyway.
         GlobalAudioChannels::instance()->add(this, idCount, QString::fromUtf8(it->psz_name), "");
+        if (idCount == currentChannelId) {
+#ifdef __GNUC__
+#warning GlobalDescriptionContainer does not allow reverse resolution from local to descriptor!
+#endif
+            const QList<AudioChannelDescription> list = GlobalAudioChannels::instance()->listFor(this);
+            foreach (AudioChannelDescription descriptor, list) {
+                if (descriptor.name() == QString::fromUtf8(it->psz_name)) {
+                    m_currentAudioChannel = descriptor;
+                }
+            }
+        }
         ++idCount;
     }
 
