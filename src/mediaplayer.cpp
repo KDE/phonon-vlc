@@ -26,6 +26,9 @@
 #include "utils/libvlc.h"
 #include "media.h"
 
+// Callbacks come from a VLC thread. In some cases Qt fails to detect this and
+// tries to invoke directly (i.e. from same thread). This can lead to thread
+// pollution throughout Phonon, which is very much not desired.
 #define P_EMIT_HAS_VIDEO(hasVideo) \
     QMetaObject::invokeMethod(\
         that, "hasVideoChanged", \
