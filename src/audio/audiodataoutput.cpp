@@ -115,19 +115,27 @@ void AudioDataOutput::unlock(AudioDataOutput *cw, quint8 *pcm_buffer,
         int bufferPosition = (bytesPerChannelPerSample * channelCount * readSamples);
 
         for (quint32 readChannels = 0; readChannels < channelCount; ++readChannels) {
+            quint32 complet = 0;
             for (int readBytes = 0; readBytes < bytesPerChannelPerSample; ++readBytes) {
                 // Read from the pcm_buffer into the per channel internal buffer
-                sampleBuffer[readChannels] += pcm_buffer[bufferPosition];
+
+                quint32 complet_temp = 0;
+                complet_temp = pcm_buffer[bufferPosition];
+                complet_temp <<=  (8 * readBytes);
+
+                complet += complet_temp;
                 ++bufferPosition;
             }
+
+            sampleBuffer[readChannels] = complet;
         }
 
         if (channelCount == 1) {
-            cw->m_channelSamples[1].append(sampleBuffer[0]);
+            cw->m_channelSamples[1].append(qint16(sampleBuffer[0]));
         }
 
         for (quint32 readChannels = 0; readChannels < channelCount; ++readChannels) {
-            cw->m_channelSamples[readChannels].append(sampleBuffer[readChannels]);
+            cw->m_channelSamples[readChannels].append(qint16(sampleBuffer[readChannels]));
         }
         // Finished reading one sample
     }
