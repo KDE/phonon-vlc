@@ -73,9 +73,9 @@ MediaPlayer::MediaPlayer(QObject *parent) :
         libvlc_MediaPlayerTitleChanged,
         libvlc_MediaPlayerSnapshotTaken,
         libvlc_MediaPlayerLengthChanged
-    #if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(1, 2, 0, 0))
+    #if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 0, 0, 0))
         , libvlc_MediaPlayerVout
-    #endif // VLC >= 1.2
+    #endif // VLC >= 2.0
     };
     const int eventCount = sizeof(events) / sizeof(*events);
     for (int i = 0; i < eventCount; ++i) {
@@ -200,12 +200,12 @@ void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
         P_EMIT_STATE(OpeningState);
         break;
     case libvlc_MediaPlayerBuffering:
-        // We need to only process the buffering event in >= 1.2 as the fact
+        // We need to only process the buffering event in >= 2.0 as the fact
         // that no explicit switch to Playing is sent would lock us into
         // buffering with no chance of ever getting back to playing (well, unless
         // there is a playing event obviously).
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(1, 2, 0, 0))
-        // LibVLC <= 1.2 (possibly greater) does not explicitly switch to playing
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 0, 0, 0))
+        // LibVLC <= 2.0 (possibly greater) does not explicitly switch to playing
         // once 100 % cache was reached. So we need to work around this by fake
         // emitting a playingstate event whereas really it was buffering :S
         // http://trac.videolan.org/vlc/ticket/5277
@@ -214,7 +214,7 @@ void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
             P_EMIT_STATE(BufferingState);
         else
             P_EMIT_STATE(PlayingState);
-#endif // VLC >= 1.2
+#endif // VLC >= 2.0
         break;
     case libvlc_MediaPlayerPlaying:
         P_EMIT_STATE(PlayingState);
@@ -231,17 +231,14 @@ void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
     case libvlc_MediaPlayerEncounteredError:
         P_EMIT_STATE(ErrorState);
         break;
-#ifdef __GNUC__
-#warning bump dep to 1.2 once released
-#endif
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(1, 2, 0, 0))
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 0, 0, 0))
     case libvlc_MediaPlayerVout:
         if (event->u.media_player_vout.new_count > 0)
             P_EMIT_HAS_VIDEO(true);
         else
             P_EMIT_HAS_VIDEO(false);
         break;
-#endif // VLC >= 1.2
+#endif // VLC >= 2.0
     case libvlc_MediaPlayerMediaChanged:
         break;
     case libvlc_MediaPlayerForward:
