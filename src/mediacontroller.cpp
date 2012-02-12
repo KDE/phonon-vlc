@@ -222,7 +222,7 @@ void MediaController::refreshAudioChannels()
     VLC_TRACK_FOREACH(it, m_player->audioTrackDescription()) {
         // LibVLC's internal ID is broken, so we simply count up as internally
         // the setter will simply go by position in list anyway.
-        GlobalAudioChannels::instance()->add(this, idCount, it->psz_name, "");
+        GlobalAudioChannels::instance()->add(this, idCount, QString::fromUtf8(it->psz_name), "");
         ++idCount;
     }
 
@@ -274,7 +274,7 @@ void MediaController::refreshSubtitles()
     VLC_TRACK_FOREACH(it, m_player->videoSubtitleDescription()) {
         // LibVLC's internal ID is broken, so we simply count up as internally
         // the setter will simply go by position in list anyway.
-        GlobalSubtitles::instance()->add(this, idCount, it->psz_name, "");
+        GlobalSubtitles::instance()->add(this, idCount, QString::fromUtf8(it->psz_name), "");
         ++idCount;
     }
 
