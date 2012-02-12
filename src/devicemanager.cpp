@@ -112,9 +112,6 @@ DeviceManager::DeviceManager(Backend *parent)
     , m_backend(parent)
 {
     Q_ASSERT(parent);
-#ifdef __GNUC__
-#warning capture code needs rewrite, was removed due to brokeneness
-#endif
     updateDeviceList();
 }
 
