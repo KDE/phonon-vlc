@@ -100,6 +100,13 @@ bool LibVLC::init()
         args << "--services-discovery=''";
         // Allow multiple starts (one gets to wonder whether that makes a difference.
         args << "--no-one-instance";
+        // This causes leaky abstraction. VLC by default will create a default vout/aout
+        // when none was defined/requested. i.e. when you have a VideoWidget but
+        // no AudioOutput you will still get audio if there is an audio stream,
+        // equally if you have only an AudioOutput and play a video VLC will pop
+        // up a Video window.
+        args << "--aout=none";
+        args << "--vout=none";
 
         // Build const char* array
         QVarLengthArray<const char*, 64> vlcArgs(args.size());
