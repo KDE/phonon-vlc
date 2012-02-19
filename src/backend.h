@@ -49,6 +49,7 @@ class EffectManager;
  * This class also provides information about the devices and effects that the backend supports.
  * These are audio output devices, audio capture devices, video capture devices, effects.
  */
+
 class Backend : public QObject, public BackendInterface
 {
     Q_OBJECT
@@ -139,6 +140,9 @@ public:
      * \param objects Nodes involved in the disconnection
      */
     bool endConnectionChange(QSet<QObject *>);
+
+Q_SIGNALS:
+    void objectDescriptionChanged(ObjectDescriptionType);
 
 private:
     mutable QStringList m_supportedMimeTypes;
