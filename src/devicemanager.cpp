@@ -117,17 +117,6 @@ DeviceManager::DeviceManager(Backend *parent)
 
 DeviceManager::~DeviceManager()
 {
-    m_devices.clear();
-}
-
-int DeviceManager::deviceId(const QByteArray &name) const
-{
-    foreach (const DeviceInfo &device, m_devices) {
-        if (device.name() == name)
-            return device.id();
-    }
-
-    return -1;
 }
 
 QList<int> DeviceManager::deviceIds(ObjectDescriptionType type)
@@ -186,7 +175,7 @@ QHash<QByteArray, QVariant> DeviceManager::deviceProperties(int id)
     return properties;
 }
 
-const DeviceInfo *DeviceManager::device(int id)
+const DeviceInfo *DeviceManager::device(int id) const
 {
     for (int i = 0; i < m_devices.size(); i ++) {
         if (m_devices[i].id() == id)
@@ -261,42 +250,38 @@ void DeviceManager::updateDeviceList()
     /*
      * Compares the list with the devices available at the moment with the last list. If
      * a new device is seen, a signal is emitted. If a device dissapeared, another signal
-     * is emitted. The devices are only from one category (example audio output devices).
+     * is emitted.
      */
 
-    // New and old device counts
-    int newDeviceCount = newDeviceList.count();
-    int oldDeviceCount = m_devices.count();
-
-    for (int i = 0; i < newDeviceCount; ++i) {
-        int id = deviceId(newDeviceList[i].name());
-        if (id == -1) {
+    // Search for added devices
+    for (int i = 0; i < newDeviceList.count(); ++i) {
+        int id = newDeviceList[i].id();
+        if (!listContainsDevice(m_devices, id)) {
             // This is a new device, add it
             m_devices.append(newDeviceList[i]);
-            id = deviceId(newDeviceList[i].name());
             emit deviceAdded(id);
 
-            debug() << "Added backend device" << newDeviceList[i].name() << "with id" << id;
+            debug() << "Added backend device vlcId" << newDeviceList[i].name();
         }
     }
 
-    if (newDeviceCount < oldDeviceCount) {
-        // A device was removed
-        for (int i = oldDeviceCount - 1; i >= 0; --i) {
-            QByteArray name = m_devices[i].name();
-            bool found = false;
-            for (int k = newDeviceCount - 1; k >= 0; --k) {
-                if (name == newDeviceList[k].name()) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                emit deviceRemoved(deviceId(name));
-                m_devices.removeAt(i);
-            }
+    // Search for removed devices
+    for (int i = m_devices.count() - 1; i >= 0; --i) {
+        int id = m_devices[i].id();
+        if (!listContainsDevice(newDeviceList, id)) {
+            emit deviceRemoved(id);
+            m_devices.removeAt(i);
         }
     }
+}
+
+bool DeviceManager::listContainsDevice(const QList<DeviceInfo> &list, int id)
+{
+    foreach (const DeviceInfo &d, list) {
+        if (d.id() == id)
+            return true;
+    }
+    return false;
 }
 
 }

@@ -99,14 +99,6 @@ public:
     virtual ~DeviceManager();
 
     /**
-     * Searches for the device in the devices list, by comparing it's name
-     *
-     * \param name Name identifier for the device to search for
-     * \return A positive device id or -1 if device does not exist.
-     */
-    int deviceId(const QByteArray &vlcId) const;
-
-    /**
      * \param type Only devices with a capability of this type are returned
      * The following are supported:
      * \li AudioOutputDeviceType
@@ -130,7 +122,7 @@ public:
      * \param id The identifier for the device
      * \return Pointer to DeviceInfo, or NULL if the id is invalid
      */
-    const DeviceInfo *device(int id);
+    const DeviceInfo *device(int id) const;
 
 signals:
     void deviceAdded(int);
@@ -143,6 +135,9 @@ public slots:
      * device types.
      */
     void updateDeviceList();
+
+private:
+    static bool listContainsDevice(const QList<DeviceInfo> &list, int id);
 
 private:
     Backend *m_backend;
