@@ -52,6 +52,10 @@ DeviceInfo::DeviceInfo(const QString &name, bool isAdvanced)
     m_name = name;
     m_isAdvanced = isAdvanced;
     m_capabilities = None;
+
+    // A default device should never be advanced
+    if (name.startsWith("default", Qt::CaseInsensitive))
+        m_isAdvanced = false;
 }
 
 int DeviceInfo::id() const
@@ -206,10 +210,6 @@ void DeviceManager::updateDeviceList()
 {
     QList<DeviceInfo> newDeviceList;
 
-    DeviceInfo defaultAudioOutputDevice("default");
-    defaultAudioOutputDevice.setCapabilities(DeviceInfo::AudioOutput);
-    newDeviceList.append(defaultAudioOutputDevice);
-
     if (!LibVLC::self || !libvlc)
         return;
 
@@ -219,8 +219,10 @@ void DeviceManager::updateDeviceList()
     PulseSupport *pulse = PulseSupport::getInstance();
     if (pulse && pulse->isActive()) {
         if (audioOutBackends.contains("pulse")) {
-            defaultAudioOutputDevice.setAdvanced(false);
+            DeviceInfo defaultAudioOutputDevice("Default", false);
+            defaultAudioOutputDevice.setCapabilities(DeviceInfo::AudioOutput);
             defaultAudioOutputDevice.addAccess(DeviceAccess("pulse", "default"));
+            newDeviceList.append(defaultAudioOutputDevice);
             return;
         } else {
             pulse->enable(false);
