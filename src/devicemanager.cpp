@@ -239,7 +239,7 @@ void DeviceManager::updateDeviceList()
                 const char *idName = libvlc_audio_output_device_id(libvlc, soundSystem, i);
                 const char *longName = libvlc_audio_output_device_longname(libvlc, soundSystem, i);
 
-                DeviceInfo device(longName, QByteArray() /* no description, sorry */, false);
+                DeviceInfo device(longName, QByteArray() /* no description, sorry */, true);
                 device.addAccess(DeviceAccess(soundSystem, idName));
                 device.setCapabilities(DeviceInfo::AudioOutput);
                 newDeviceList.append(device);
