@@ -50,11 +50,10 @@ public:
     /**
      * Constructs a device info object and sets it's device identifiers.
      */
-    explicit DeviceInfo(const QByteArray &name, const QString &description = "",
-                        bool isAdvanced = true);
+    explicit DeviceInfo(const QString &name, bool isAdvanced = true);
 
     int id() const;
-    const QByteArray& name() const;
+    const QString& name() const;
     const QString& description() const;
     bool isAdvanced() const;
     void setAdvanced(bool advanced);
@@ -65,7 +64,7 @@ public:
 
 private:
     int m_id;
-    QByteArray m_name;
+    QString m_name;
     QString m_description;
     bool m_isAdvanced;
     DeviceAccessList m_accessList;

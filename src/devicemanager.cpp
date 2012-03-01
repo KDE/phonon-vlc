@@ -42,9 +42,7 @@ namespace VLC
  * Device Info
  */
 
-DeviceInfo::DeviceInfo(const QByteArray &name,
-                       const QString &description,
-                       bool isAdvanced)
+DeviceInfo::DeviceInfo(const QString &name, bool isAdvanced)
 {
     // Get an id
     static int counter = 0;
@@ -52,7 +50,6 @@ DeviceInfo::DeviceInfo(const QByteArray &name,
 
     // Get name and description for the device
     m_name = name;
-    m_description = description;
     m_isAdvanced = isAdvanced;
     m_capabilities = None;
 }
@@ -62,7 +59,7 @@ int DeviceInfo::id() const
     return m_id;
 }
 
-const QByteArray& DeviceInfo::name() const
+const QString& DeviceInfo::name() const
 {
     return m_name;
 }
@@ -89,6 +86,8 @@ const DeviceAccessList& DeviceInfo::accessList() const
 
 void DeviceInfo::addAccess(const DeviceAccess& access)
 {
+    if (m_accessList.isEmpty())
+        m_description = access.first + ": " + access.second;
     m_accessList.append(access);
 }
 
@@ -239,7 +238,7 @@ void DeviceManager::updateDeviceList()
                 const char *idName = libvlc_audio_output_device_id(libvlc, soundSystem, i);
                 const char *longName = libvlc_audio_output_device_longname(libvlc, soundSystem, i);
 
-                DeviceInfo device(longName, QByteArray() /* no description, sorry */, true);
+                DeviceInfo device(longName, true);
                 device.addAccess(DeviceAccess(soundSystem, idName));
                 device.setCapabilities(DeviceInfo::AudioOutput);
                 newDeviceList.append(device);
@@ -262,7 +261,7 @@ void DeviceManager::updateDeviceList()
             m_devices.append(newDeviceList[i]);
             emit deviceAdded(id);
 
-            debug() << "Added backend device vlcId" << newDeviceList[i].name();
+            debug() << "Added backend device" << newDeviceList[i].name();
         }
     }
 
