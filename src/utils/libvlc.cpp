@@ -28,6 +28,7 @@
 #include <QtCore/QVarLengthArray>
 
 #include <vlc/libvlc.h>
+#include <vlc/libvlc_version.h>
 
 #include "debug.h"
 
@@ -114,7 +115,7 @@ bool LibVLC::init()
 #endif
 
         // Build const char* array
-        QVarLengthArray<const char*, 64> vlcArgs(args.size());
+        QVarLengthArray<const char *, 64> vlcArgs(args.size());
         for (int i = 0; i < args.size(); ++i) {
             vlcArgs[i] = args.at(i).constData();
         }
