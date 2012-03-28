@@ -88,7 +88,7 @@ public:
 
     /**
      * If the current state is paused, it resumes playing. Else, the playback
-     * is commenced. The corresponding playbackCommenced() signal is emitted.
+     * is commenced.
      */
     void play();
 
@@ -218,7 +218,6 @@ signals:
     void totalTimeChanged(qint64 newTotalTime);
 
     void moveToNext();
-    void playbackCommenced();
 
     void tickInternal(qint64 time);
 

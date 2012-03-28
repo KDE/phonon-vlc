@@ -49,15 +49,15 @@ void AudioOutput::connectToMediaObject(MediaObject *mediaObject)
 {
     SinkNode::connectToMediaObject(mediaObject);
     setOutputDeviceImplementation();
-    connect(m_mediaObject, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
+#ifdef PHONON_PULSESUPPORT // Only mess with the volume if no PA is active!
+    if (!PulseSupport::getInstance()->isActive())
+#endif
+        applyVolume();
 }
 
 void AudioOutput::disconnectFromMediaObject(MediaObject *mediaObject)
 {
     SinkNode::disconnectFromMediaObject(mediaObject);
-    if (m_mediaObject) {
-        disconnect(m_mediaObject, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
-    }
 }
 
 qreal AudioOutput::volume() const
@@ -70,7 +70,7 @@ void AudioOutput::setVolume(qreal volume)
     if (m_player) {
         debug() << "async setting of volume to" << volume;
         m_volume = volume;
-        updateVolume();
+        applyVolume();
         emit volumeChanged(m_volume);
     }
 }
@@ -145,7 +145,7 @@ void AudioOutput::setOutputDeviceImplementation()
     m_player->setAudioOutputDevice(soundSystem, deviceName);
 }
 
-void AudioOutput::updateVolume()
+void AudioOutput::applyVolume()
 {
     if (m_player) {
         const int preVolume = m_player->audioVolume();

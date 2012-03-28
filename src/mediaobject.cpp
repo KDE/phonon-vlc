@@ -112,8 +112,6 @@ void MediaObject::play()
         playInternal();
         break;
     }
-
-    emit playbackCommenced();
 }
 
 void MediaObject::pause()

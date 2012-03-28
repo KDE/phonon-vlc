@@ -111,7 +111,7 @@ private slots:
     /**
      * Sets the volume to m_volume.
      */
-    void updateVolume();
+    void applyVolume();
 
 private:
     /**
