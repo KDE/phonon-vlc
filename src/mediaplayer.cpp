@@ -18,8 +18,11 @@
 #include "mediaplayer.h"
 
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
 #include <QtCore/QMetaType>
 #include <QtCore/QString>
+#include <QtCore/QTemporaryFile>
+#include <QtGui/QImage>
 
 #include <vlc/libvlc_version.h>
 
@@ -163,6 +166,18 @@ void MediaPlayer::setChapter(int chapter)
     libvlc_media_player_set_chapter(m_player, chapter);
 }
 
+QImage MediaPlayer::snapshot() const
+{
+    QTemporaryFile tempFile(QDir::tempPath() % QDir::separator() % QLatin1Literal("phonon-vlc-snapshot"));
+    tempFile.open();
+
+    // This function is sync.
+    if (libvlc_video_take_snapshot(m_player, 0, tempFile.fileName().toLocal8Bit().data(), 0, 0) != 0)
+        return QImage();
+
+    return QImage(tempFile.fileName());
+}
+
 bool MediaPlayer::setAudioTrack(int track)
 {
     return libvlc_audio_set_track(m_player, track) == 0;
@@ -246,7 +261,7 @@ void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
     case libvlc_MediaPlayerPositionChanged:
     case libvlc_MediaPlayerPausableChanged:
     case libvlc_MediaPlayerTitleChanged:
-    case libvlc_MediaPlayerSnapshotTaken:
+    case libvlc_MediaPlayerSnapshotTaken: // Snapshot call is sync, so this is useless.
     default:
         break;
         QString msg = QString("Unknown event: ") + QString(libvlc_event_type_name(event->type));

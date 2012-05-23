@@ -23,6 +23,7 @@
 
 #include <vlc/vlc.h>
 
+class QImage;
 class QString;
 
 namespace Phonon {
@@ -115,6 +116,9 @@ public:
     { return libvlc_video_get_chapter_description(m_player, title); }
 
     void setChapter(int chapter);
+
+    /** Reentrant, through libvlc */
+    QImage snapshot() const;
 
     // Audio
     /// Get current audio volume.
