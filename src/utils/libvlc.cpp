@@ -93,6 +93,9 @@ bool LibVLC::init()
         args << "--no-stats";
         args << "--no-video-title-show";
         args << "--album-art=0";
+        // By default VLC will put a picture-in-picture when making a snapshot.
+        // This is unexpected behaviour for us, so we force it off.
+        args << "--no-snapshot-preview";
         // Do not load xlib dependent modules as we cannot ensure proper init
         // order as expected by xlib thus leading to crashes.
         // KDE BUG: 240001
