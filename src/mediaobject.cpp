@@ -24,6 +24,7 @@
 
 #include <QtCore/QStringBuilder>
 #include <QtCore/QUrl>
+#include <QDir>
 
 #include <vlc/libvlc_version.h>
 #include <vlc/vlc.h>
@@ -274,6 +275,7 @@ void MediaObject::setSource(const MediaSource &source)
 
     m_mediaSource = source;
 
+    QByteArray url;
     switch (source.type()) {
     case MediaSource::Invalid:
         error() << Q_FUNC_INFO << "MediaSource Type is Invalid:" << source.type();
@@ -284,7 +286,13 @@ void MediaObject::setSource(const MediaSource &source)
     case MediaSource::LocalFile:
     case MediaSource::Url:
         debug() << "MediaSource::Url:" << source.url();
-        loadMedia(source.url().toEncoded());
+        if (source.url().scheme().isEmpty()) {
+            url = "file:///";
+            if (source.url().isRelative())
+                url.append(QFile::encodeName(QDir::currentPath()) + "/");
+        }
+        url += source.url().toEncoded();
+        loadMedia(url);
         break;
     case MediaSource::Disc:
         switch (source.discType()) {
