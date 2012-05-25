@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2011 vlc-phonon AUTHORS
+    Copyright (C) 2011-2012 vlc-phonon AUTHORS
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -56,14 +56,19 @@ bool LibVLC::init()
     if (!path.isEmpty()) {
         QList<QByteArray> args;
 
-        QString pluginsPath = QLatin1Literal("--plugin-path=") %
-                QDir::toNativeSeparators(QFileInfo(self->vlcPath()).dir().path());
+        QString pluginsPath = QDir::toNativeSeparators(QFileInfo(self->vlcPath()).dir().path());
 #if defined(Q_OS_UNIX)
         pluginsPath.append("/vlc");
 #elif defined(Q_OS_WIN)
         pluginsPath.append("\\plugins");
 #endif
-        args << QFile::encodeName(pluginsPath);
+
+        QByteArray encodedPluginPath = QFile::encodeName(pluginsPath);
+#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 0, 0, 0))
+        args << QByteArray("--plugin-path=").append(encodedPluginPath);
+#else
+        qputenv("VLC_PLUGIN_PATH", encodedPluginPath);
+#endif
 
         // Ends up as something like $HOME/.config/Phonon/vlc.conf
         const QString configFileName = QSettings("Phonon", "vlc").fileName();
