@@ -23,6 +23,7 @@
 
 #include <vlc/vlc.h>
 
+class QImage;
 class QString;
 
 namespace Phonon {
@@ -92,6 +93,9 @@ public:
     void setVideoAdjust(libvlc_video_adjust_option_t adjust, float value)
     { libvlc_video_set_adjust_float(m_player, adjust, value); }
 
+    int subtitle() const
+    { return libvlc_video_get_spu(m_player); }
+
     libvlc_track_description_t *videoSubtitleDescription() const
     { return libvlc_video_get_spu_description(m_player); }
 
@@ -114,6 +118,9 @@ public:
 
     void setChapter(int chapter);
 
+    /** Reentrant, through libvlc */
+    QImage snapshot() const;
+
     // Audio
     /// Get current audio volume.
     /// \return the software volume in percents (0 = mute, 100 = nominal / 0dB)
@@ -135,6 +142,9 @@ public:
      */
     void setAudioOutputDevice(const QByteArray &outputName, const QByteArray &deviceName)
     { libvlc_audio_output_device_set(m_player, outputName.data(), deviceName.data()); }
+
+    int audioTrack() const
+    { return libvlc_audio_get_track(m_player); }
 
     libvlc_track_description_t * audioTrackDescription() const
     { return libvlc_audio_get_track_description(m_player); }

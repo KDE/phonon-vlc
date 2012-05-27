@@ -345,5 +345,14 @@ float VideoWidget::phononRangeToVlcRange(qreal phononValue, float upperBoundary,
     return (value * (upperBoundary/range));
 }
 
+QImage VideoWidget::snapshot() const
+{
+    DEBUG_BLOCK;
+    if (m_player)
+        return m_player->snapshot();
+    else
+        return QImage();
+}
+
 } // namespace VLC
 } // namespace Phonon

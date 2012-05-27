@@ -42,9 +42,7 @@ namespace VLC
  * Device Info
  */
 
-DeviceInfo::DeviceInfo(const QByteArray &name,
-                       const QString &description,
-                       bool isAdvanced)
+DeviceInfo::DeviceInfo(const QString &name, bool isAdvanced)
 {
     // Get an id
     static int counter = 0;
@@ -52,9 +50,12 @@ DeviceInfo::DeviceInfo(const QByteArray &name,
 
     // Get name and description for the device
     m_name = name;
-    m_description = description;
     m_isAdvanced = isAdvanced;
     m_capabilities = None;
+
+    // A default device should never be advanced
+    if (name.startsWith("default", Qt::CaseInsensitive))
+        m_isAdvanced = false;
 }
 
 int DeviceInfo::id() const
@@ -62,7 +63,7 @@ int DeviceInfo::id() const
     return m_id;
 }
 
-const QByteArray& DeviceInfo::name() const
+const QString& DeviceInfo::name() const
 {
     return m_name;
 }
@@ -89,6 +90,8 @@ const DeviceAccessList& DeviceInfo::accessList() const
 
 void DeviceInfo::addAccess(const DeviceAccess& access)
 {
+    if (m_accessList.isEmpty())
+        m_description = access.first + ": " + access.second;
     m_accessList.append(access);
 }
 
@@ -112,25 +115,11 @@ DeviceManager::DeviceManager(Backend *parent)
     , m_backend(parent)
 {
     Q_ASSERT(parent);
-#ifdef __GNUC__
-#warning capture code needs rewrite, was removed due to brokeneness
-#endif
     updateDeviceList();
 }
 
 DeviceManager::~DeviceManager()
 {
-    m_devices.clear();
-}
-
-int DeviceManager::deviceId(const QByteArray &name) const
-{
-    foreach (const DeviceInfo &device, m_devices) {
-        if (device.name() == name)
-            return device.id();
-    }
-
-    return -1;
 }
 
 QList<int> DeviceManager::deviceIds(ObjectDescriptionType type)
@@ -168,6 +157,7 @@ QHash<QByteArray, QVariant> DeviceManager::deviceProperties(int id)
             properties.insert("description", device.description());
             properties.insert("isAdvanced", device.isAdvanced());
             properties.insert("deviceAccessList", QVariant::fromValue<Phonon::DeviceAccessList>(device.accessList()));
+            properties.insert("discovererIcon", "vlc");
 
             if (device.capabilities() & DeviceInfo::AudioOutput) {
                 properties.insert("icon", QLatin1String("audio-card"));
@@ -189,7 +179,7 @@ QHash<QByteArray, QVariant> DeviceManager::deviceProperties(int id)
     return properties;
 }
 
-const DeviceInfo *DeviceManager::device(int id)
+const DeviceInfo *DeviceManager::device(int id) const
 {
     for (int i = 0; i < m_devices.size(); i ++) {
         if (m_devices[i].id() == id)
@@ -220,10 +210,6 @@ void DeviceManager::updateDeviceList()
 {
     QList<DeviceInfo> newDeviceList;
 
-    DeviceInfo defaultAudioOutputDevice("default");
-    defaultAudioOutputDevice.setCapabilities(DeviceInfo::AudioOutput);
-    newDeviceList.append(defaultAudioOutputDevice);
-
     if (!LibVLC::self || !libvlc)
         return;
 
@@ -233,8 +219,10 @@ void DeviceManager::updateDeviceList()
     PulseSupport *pulse = PulseSupport::getInstance();
     if (pulse && pulse->isActive()) {
         if (audioOutBackends.contains("pulse")) {
-            defaultAudioOutputDevice.setAdvanced(false);
+            DeviceInfo defaultAudioOutputDevice("Default", false);
+            defaultAudioOutputDevice.setCapabilities(DeviceInfo::AudioOutput);
             defaultAudioOutputDevice.addAccess(DeviceAccess("pulse", "default"));
+            newDeviceList.append(defaultAudioOutputDevice);
             return;
         } else {
             pulse->enable(false);
@@ -252,7 +240,7 @@ void DeviceManager::updateDeviceList()
                 const char *idName = libvlc_audio_output_device_id(libvlc, soundSystem, i);
                 const char *longName = libvlc_audio_output_device_longname(libvlc, soundSystem, i);
 
-                DeviceInfo device(longName, QByteArray() /* no description, sorry */, false);
+                DeviceInfo device(longName, true);
                 device.addAccess(DeviceAccess(soundSystem, idName));
                 device.setCapabilities(DeviceInfo::AudioOutput);
                 newDeviceList.append(device);
@@ -264,42 +252,38 @@ void DeviceManager::updateDeviceList()
     /*
      * Compares the list with the devices available at the moment with the last list. If
      * a new device is seen, a signal is emitted. If a device dissapeared, another signal
-     * is emitted. The devices are only from one category (example audio output devices).
+     * is emitted.
      */
 
-    // New and old device counts
-    int newDeviceCount = newDeviceList.count();
-    int oldDeviceCount = m_devices.count();
-
-    for (int i = 0; i < newDeviceCount; ++i) {
-        int id = deviceId(newDeviceList[i].name());
-        if (id == -1) {
+    // Search for added devices
+    for (int i = 0; i < newDeviceList.count(); ++i) {
+        int id = newDeviceList[i].id();
+        if (!listContainsDevice(m_devices, id)) {
             // This is a new device, add it
             m_devices.append(newDeviceList[i]);
-            id = deviceId(newDeviceList[i].name());
             emit deviceAdded(id);
 
-            debug() << "Added backend device" << newDeviceList[i].name() << "with id" << id;
+            debug() << "Added backend device" << newDeviceList[i].name();
         }
     }
 
-    if (newDeviceCount < oldDeviceCount) {
-        // A device was removed
-        for (int i = oldDeviceCount - 1; i >= 0; --i) {
-            QByteArray name = m_devices[i].name();
-            bool found = false;
-            for (int k = newDeviceCount - 1; k >= 0; --k) {
-                if (name == newDeviceList[k].name()) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                emit deviceRemoved(deviceId(name));
-                m_devices.removeAt(i);
-            }
+    // Search for removed devices
+    for (int i = m_devices.count() - 1; i >= 0; --i) {
+        int id = m_devices[i].id();
+        if (!listContainsDevice(newDeviceList, id)) {
+            emit deviceRemoved(id);
+            m_devices.removeAt(i);
         }
     }
+}
+
+bool DeviceManager::listContainsDevice(const QList<DeviceInfo> &list, int id)
+{
+    foreach (const DeviceInfo &d, list) {
+        if (d.id() == id)
+            return true;
+    }
+    return false;
 }
 
 }

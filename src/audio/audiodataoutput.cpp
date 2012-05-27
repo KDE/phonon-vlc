@@ -66,27 +66,29 @@ void AudioDataOutput::setDataSize(int size)
 void AudioDataOutput::addToMedia(Media *media)
 {
 #ifdef __GNUC__
-#warning broken with vlc 1.2 -> cant transcode && crashes
+#warning vlc 2.0 somehow broke option parsing so that one cannot hand it multiple args
 #endif
-    media->addOption(QLatin1String(":sout=#duplicate{dst=display,dst='transcode{}'}:smem"));
-    media->addOption(QLatin1String(":sout-transcode-acodec=f32l"));
-    media->addOption(QLatin1String(":sout-transcode-vcodec=none"));
-    media->addOption(QLatin1String(":sout-smem-time-sync"));
+    media->addOption(QString(":sout=#duplicate{dst=display,dst='transcode{{vcodec=none,acodec=s16l`}'}"
+                             ":smem{audio-prerender-callback=%1,audio-postrender-callback=%2,audio-data=%3,time-sync=true}"
+                             ).arg(QString::number((long long int) INTPTR_FUNC(AudioDataOutput::lock)),
+                                   QString::number((long long int) INTPTR_FUNC(AudioDataOutput::unlock)),
+                                   QString::number((long long int) INTPTR_PTR(this))));
+//    media->addOption(QLatin1String(":sout-transcode-acodec=s16l"));
+//    media->addOption(QLatin1String(":sout-transcode-vcodec=none"));
+//    media->addOption(QLatin1String(":sout-smem-time-sync"));
 
-    // Add audio lock callback
-    media->addOption(QLatin1String(":sout-smem-audio-prerender-callback="),
-                     INTPTR_FUNC(AudioDataOutput::lock));
-    // Add audio unlock callback
-    media->addOption(QLatin1String(":sout-smem-audio-postrender-callback="),
-                     INTPTR_FUNC(AudioDataOutput::unlock));
-    // Add pointer to ourselves...
-    media->addOption(QLatin1String(":sout-smem-audio-data="), INTPTR_PTR(this));
+//    // Add audio lock callback
+//    media->addOption(QLatin1String(":sout-smem-audio-prerender-callback=0xF"));
+//    // Add audio unlock callback
+//    media->addOption(QLatin1String(":sout-smem-audio-postrender-callback="),
+//                     INTPTR_FUNC(AudioDataOutput::unlock));
+//    // Add pointer to ourselves...
+//    media->addOption(QLatin1String(":sout-smem-audio-data="), INTPTR_PTR(this));
 }
 
 void AudioDataOutput::lock(AudioDataOutput *cw, quint8 **pcm_buffer , quint32 size)
 {
     cw->m_locker.lock();
-
     *pcm_buffer = new quint8[size];
 }
 
@@ -113,19 +115,27 @@ void AudioDataOutput::unlock(AudioDataOutput *cw, quint8 *pcm_buffer,
         int bufferPosition = (bytesPerChannelPerSample * channelCount * readSamples);
 
         for (quint32 readChannels = 0; readChannels < channelCount; ++readChannels) {
+            quint32 complet = 0;
             for (int readBytes = 0; readBytes < bytesPerChannelPerSample; ++readBytes) {
                 // Read from the pcm_buffer into the per channel internal buffer
-                sampleBuffer[readChannels] += pcm_buffer[bufferPosition];
+
+                quint32 complet_temp = 0;
+                complet_temp = pcm_buffer[bufferPosition];
+                complet_temp <<=  (8 * readBytes);
+
+                complet += complet_temp;
                 ++bufferPosition;
             }
+
+            sampleBuffer[readChannels] = complet;
         }
 
         if (channelCount == 1) {
-            cw->m_channelSamples[1].append(sampleBuffer[0]);
+            cw->m_channelSamples[1].append(qint16(sampleBuffer[0]));
         }
 
         for (quint32 readChannels = 0; readChannels < channelCount; ++readChannels) {
-            cw->m_channelSamples[readChannels].append(sampleBuffer[readChannels]);
+            cw->m_channelSamples[readChannels].append(qint16(sampleBuffer[readChannels]));
         }
         // Finished reading one sample
     }

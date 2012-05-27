@@ -198,7 +198,7 @@ void MediaController::resetMembers()
 void MediaController::setCurrentAudioChannel(const Phonon::AudioChannelDescription &audioChannel)
 {
     const int localIndex = GlobalAudioChannels::instance()->localIdFor(this, audioChannel.index());
-    if (m_player->setAudioTrack(localIndex))
+    if (!m_player->setAudioTrack(localIndex))
         error() << "libVLC:" << LibVLC::errorMessage();
     else
         m_currentAudioChannel = audioChannel;
@@ -218,11 +218,24 @@ void MediaController::refreshAudioChannels()
 {
     GlobalAudioChannels::instance()->clearListFor(this);
 
+    const int currentChannelId = m_player->subtitle();
+
     int idCount = 0;
     VLC_TRACK_FOREACH(it, m_player->audioTrackDescription()) {
         // LibVLC's internal ID is broken, so we simply count up as internally
         // the setter will simply go by position in list anyway.
-        GlobalAudioChannels::instance()->add(this, idCount, it->psz_name, "");
+        GlobalAudioChannels::instance()->add(this, idCount, QString::fromUtf8(it->psz_name), "");
+        if (idCount == currentChannelId) {
+#ifdef __GNUC__
+#warning GlobalDescriptionContainer does not allow reverse resolution from local to descriptor!
+#endif
+            const QList<AudioChannelDescription> list = GlobalAudioChannels::instance()->listFor(this);
+            foreach (AudioChannelDescription descriptor, list) {
+                if (descriptor.name() == QString::fromUtf8(it->psz_name)) {
+                    m_currentAudioChannel = descriptor;
+                }
+            }
+        }
         ++idCount;
     }
 
@@ -248,7 +261,7 @@ void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &subt
         }
     } else {
         const int localIndex = GlobalSubtitles::instance()->localIdFor(this, subtitle.index());
-        if (m_player->setSubtitle(localIndex))
+        if (!m_player->setSubtitle(localIndex))
             error() << "libVLC:" << LibVLC::errorMessage();
         else
             m_currentSubtitle = subtitle;
@@ -270,11 +283,25 @@ void MediaController::refreshSubtitles()
     DEBUG_BLOCK;
     GlobalSubtitles::instance()->clearListFor(this);
 
+    const int currentSubtitleId = m_player->subtitle();
+
     int idCount = 0;
     VLC_TRACK_FOREACH(it, m_player->videoSubtitleDescription()) {
         // LibVLC's internal ID is broken, so we simply count up as internally
         // the setter will simply go by position in list anyway.
-        GlobalSubtitles::instance()->add(this, idCount, it->psz_name, "");
+        GlobalSubtitles::instance()->add(this, idCount, QString::fromUtf8(it->psz_name), "");
+        if (idCount == currentSubtitleId) {
+#ifdef __GNUC__
+#warning GlobalDescriptionContainer does not allow reverse resolution from local to descriptor!
+#endif
+            const QList<SubtitleDescription> list = GlobalSubtitles::instance()->listFor(this);
+            foreach (SubtitleDescription descriptor, list) {
+                if (descriptor.name() == QString::fromUtf8(it->psz_name)) {
+                    m_currentSubtitle = descriptor;
+                }
+            }
+        }
+
         ++idCount;
     }
 
@@ -293,15 +320,19 @@ void MediaController::setCurrentTitle(int title)
 #warning use media subitem to set track of audiocd
 #endif
         // Leave for MediaObject to handle.
-        break;
+        return;
     case Dvd:
     case Vcd:
          //    libvlc_media_player_set_title(m_player, title.index(), vlc_exception);
         m_player->setTitle(title);
-        break;
-    default:
+        return;
+    case NoDisc:
         warning() << "Current media source is not a CD, DVD or VCD!";
+        return;
     }
+
+    warning() << "MediaSource does not support setting of tile in this version of Phonon VLC!"
+              << "Type is" << source().discType();
 }
 
 int MediaController::availableTitles() const

@@ -35,14 +35,9 @@
 namespace Phonon {
 namespace VLC {
 
-#ifdef __GNUC__
-#warning implement 4.2 interface, AudioOutputInterface42
-#endif
-
 AudioOutput::AudioOutput(QObject *parent)
     : QObject(parent),
-      m_volume(1.0),
-      m_deviceIndex(0)
+      m_volume(1.0)
 {
 }
 
@@ -54,15 +49,15 @@ void AudioOutput::connectToMediaObject(MediaObject *mediaObject)
 {
     SinkNode::connectToMediaObject(mediaObject);
     setOutputDeviceImplementation();
-    connect(m_mediaObject, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
+#ifdef PHONON_PULSESUPPORT // Only mess with the volume if no PA is active!
+    if (!PulseSupport::getInstance()->isActive())
+#endif
+        applyVolume();
 }
 
 void AudioOutput::disconnectFromMediaObject(MediaObject *mediaObject)
 {
     SinkNode::disconnectFromMediaObject(mediaObject);
-    if (m_mediaObject) {
-        disconnect(m_mediaObject, SIGNAL(playbackCommenced()), this, SLOT(updateVolume()));
-    }
 }
 
 qreal AudioOutput::volume() const
@@ -73,34 +68,45 @@ qreal AudioOutput::volume() const
 void AudioOutput::setVolume(qreal volume)
 {
     if (m_player) {
+        debug() << "async setting of volume to" << volume;
         m_volume = volume;
-        updateVolume();
+        applyVolume();
         emit volumeChanged(m_volume);
     }
 }
 
 int AudioOutput::outputDevice() const
 {
-    return m_deviceIndex;
+    return m_device.index();
 }
 
 bool AudioOutput::setOutputDevice(int deviceIndex)
 {
-    const DeviceInfo *device = Backend::self->deviceManager()->device(deviceIndex);
-    if (!device) {
-        error() << "Unable to find any output device with index" << deviceIndex;
+    const AudioOutputDevice device = AudioOutputDevice::fromIndex(deviceIndex);
+    if (!device.isValid()) {
+        error() << Q_FUNC_INFO << "Unable to find the output device with index" << deviceIndex;
         return false;
     }
-    if (device->accessList().isEmpty()) {
-        error() << "This output device cannot be used, it has no information for accessing it";
+    return setOutputDevice(device);
+}
+
+bool AudioOutput::setOutputDevice(const AudioOutputDevice &newDevice)
+{
+    debug() << Q_FUNC_INFO;
+
+    if (!newDevice.isValid()) {
+        error() << "Invalid audio output device";
         return false;
     }
-    if (m_deviceIndex != deviceIndex) {
-        m_deviceIndex = deviceIndex;
-        if (m_player) {
-            setOutputDeviceImplementation();
-        }
+
+    if (newDevice == m_device)
+        return true;
+
+    m_device = newDevice;
+    if (m_player) {
+        setOutputDeviceImplementation();
     }
+
     return true;
 }
 
@@ -114,12 +120,20 @@ void AudioOutput::setOutputDeviceImplementation()
         return;
     }
 #endif
-    const DeviceInfo *device = Backend::self->deviceManager()->device(m_deviceIndex);
-    if (!device || device->accessList().isEmpty())
+
+    const QVariant dalProperty = m_device.property("deviceAccessList");
+    if (!dalProperty.isValid()) {
+        error() << "Device" << m_device.property("name") << "has no access list";
         return;
+    }
+    const DeviceAccessList deviceAccessList = qVariantValue<DeviceAccessList>(dalProperty);
+    if (deviceAccessList.isEmpty()) {
+        error() << "Device" << m_device.property("name") << "has an empty access list";
+        return;
+    }
 
     // ### we're not trying the whole access list (could mean same device on different soundsystems)
-    const DeviceAccess &firstDeviceAccess = device->accessList().first();
+    const DeviceAccess &firstDeviceAccess = deviceAccessList.first();
 
     QByteArray soundSystem = firstDeviceAccess.first;
     debug() << "Setting output soundsystem to" << soundSystem;
@@ -127,18 +141,15 @@ void AudioOutput::setOutputDeviceImplementation()
 
     QByteArray deviceName = firstDeviceAccess.second.toLatin1();
     // print the name as possibly messed up by toLatin1() to see conversion problems
-    debug() << "Setting output device to" << deviceName << '(' << device->name() << ')';
+    debug() << "Setting output device to" << deviceName << '(' << m_device.property("name") << ')';
     m_player->setAudioOutputDevice(soundSystem, deviceName);
 }
 
-void AudioOutput::updateVolume()
+void AudioOutput::applyVolume()
 {
     if (m_player) {
-#ifdef __GNUC__
-#warning or 100?
-#endif
         const int preVolume = m_player->audioVolume();
-        const int newVolume = m_volume * 50;
+        const int newVolume = m_volume * 100;
         m_player->setAudioVolume(newVolume);
 
         debug() << "Volume changed from" << preVolume << "to" << newVolume;

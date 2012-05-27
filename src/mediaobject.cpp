@@ -112,8 +112,6 @@ void MediaObject::play()
         playInternal();
         break;
     }
-
-    emit playbackCommenced();
 }
 
 void MediaObject::pause()
@@ -609,13 +607,9 @@ void MediaObject::updateState(MediaPlayer::State state)
 
 void MediaObject::updateTime(qint64 time)
 {
-    DEBUG_BLOCK;
-    debug() << time;
-
-#ifdef __GNUC__
-#warning FIXME - This is ugly. It should be solved by some events in libvlc -> 1.2 implemented (see mediaplayer.cpp)
-#endif
-#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(1, 2, 0, 0))
+    // Only VLC >= 2.0 implements a signal on vout appearance.
+    // On older versions we simply probe for it...
+#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 0, 0, 0))
     // Check 10 times for a video, then give up.
     if (!m_hasVideo && ++m_timesVideoChecked < 11) {
         debug() << "Looking for Video";

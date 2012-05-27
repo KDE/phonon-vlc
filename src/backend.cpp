@@ -21,14 +21,7 @@
 
 #include "backend.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
 #include <QtCore/QLatin1Literal>
-#include <QtCore/QLibrary>
-#include <QtCore/QSet>
-#include <QtCore/QSettings>
-#include <QtCore/QStringBuilder>
 #include <QtCore/QtPlugin>
 #include <QtCore/QVariant>
 #include <QtGui/QMessageBox>
@@ -39,17 +32,16 @@
 #endif
 
 #include <vlc/libvlc_version.h>
-#include <vlc/vlc.h>
 
 #include "audio/audiooutput.h"
 #include "audio/audiodataoutput.h"
-#include "utils/debug.h"
 #include "devicemanager.h"
 #include "effect.h"
 #include "effectmanager.h"
-#include "utils/libvlc.h"
 #include "mediaobject.h"
 #include "sinknode.h"
+#include "utils/debug.h"
+#include "utils/libvlc.h"
 //#include "video/videodataoutput.h"
 #include "videographicsobject.h"
 #include "video/videowidget.h"
@@ -80,9 +72,8 @@ Backend::Backend(QObject *parent, const QVariantList &)
 
     // Check if we should enable debug output
     int debugLevel = qgetenv("PHONON_VLC_DEBUG").toInt();
-    if (debugLevel > 3) { // 3 is maximum
+    if (debugLevel > 3) // 3 is maximum
         debugLevel = 3;
-    }
     Debug::setMinimumDebugLevel((Debug::DebugLevel)((int) Debug::DEBUG_NONE - 1 - debugLevel));
 
     // Actual libVLC initialisation
@@ -141,9 +132,9 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
     case AudioOutputClass:
         return new AudioOutput(parent);
 #ifdef __GNUC__
-#warning ADO crashes with vlc 1.2
+#warning VLC 2.0 broke sout/transcode/smem -> ADO
 #endif
-#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(1, 2, 0, 0))
+#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 0, 0, 0))
     case AudioDataOutputClass:
         return new AudioDataOutput(parent);
 #endif

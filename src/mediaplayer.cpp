@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2011 Harald Sitter <sitter@kde.org>
+    Copyright (C) 2011-2012 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -18,14 +18,20 @@
 #include "mediaplayer.h"
 
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
 #include <QtCore/QMetaType>
 #include <QtCore/QString>
+#include <QtCore/QTemporaryFile>
+#include <QtGui/QImage>
 
 #include <vlc/libvlc_version.h>
 
 #include "utils/libvlc.h"
 #include "media.h"
 
+// Callbacks come from a VLC thread. In some cases Qt fails to detect this and
+// tries to invoke directly (i.e. from same thread). This can lead to thread
+// pollution throughout Phonon, which is very much not desired.
 #define P_EMIT_HAS_VIDEO(hasVideo) \
     QMetaObject::invokeMethod(\
         that, "hasVideoChanged", \
@@ -70,9 +76,9 @@ MediaPlayer::MediaPlayer(QObject *parent) :
         libvlc_MediaPlayerTitleChanged,
         libvlc_MediaPlayerSnapshotTaken,
         libvlc_MediaPlayerLengthChanged
-    #if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(1, 2, 0, 0))
+    #if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 0, 0, 0))
         , libvlc_MediaPlayerVout
-    #endif // VLC >= 1.2
+    #endif // VLC >= 2.0
     };
     const int eventCount = sizeof(events) / sizeof(*events);
     for (int i = 0; i < eventCount; ++i) {
@@ -160,6 +166,18 @@ void MediaPlayer::setChapter(int chapter)
     libvlc_media_player_set_chapter(m_player, chapter);
 }
 
+QImage MediaPlayer::snapshot() const
+{
+    QTemporaryFile tempFile(QDir::tempPath() % QDir::separator() % QLatin1Literal("phonon-vlc-snapshot"));
+    tempFile.open();
+
+    // This function is sync.
+    if (libvlc_video_take_snapshot(m_player, 0, tempFile.fileName().toLocal8Bit().data(), 0, 0) != 0)
+        return QImage();
+
+    return QImage(tempFile.fileName());
+}
+
 bool MediaPlayer::setAudioTrack(int track)
 {
     return libvlc_audio_set_track(m_player, track) == 0;
@@ -197,12 +215,12 @@ void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
         P_EMIT_STATE(OpeningState);
         break;
     case libvlc_MediaPlayerBuffering:
-        // We need to only process the buffering event in >= 1.2 as the fact
+        // We need to only process the buffering event in >= 2.0 as the fact
         // that no explicit switch to Playing is sent would lock us into
         // buffering with no chance of ever getting back to playing (well, unless
         // there is a playing event obviously).
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(1, 2, 0, 0))
-        // LibVLC <= 1.2 (possibly greater) does not explicitly switch to playing
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 0, 0, 0))
+        // LibVLC <= 2.0 (possibly greater) does not explicitly switch to playing
         // once 100 % cache was reached. So we need to work around this by fake
         // emitting a playingstate event whereas really it was buffering :S
         // http://trac.videolan.org/vlc/ticket/5277
@@ -211,7 +229,7 @@ void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
             P_EMIT_STATE(BufferingState);
         else
             P_EMIT_STATE(PlayingState);
-#endif // VLC >= 1.2
+#endif // VLC >= 2.0
         break;
     case libvlc_MediaPlayerPlaying:
         P_EMIT_STATE(PlayingState);
@@ -228,17 +246,14 @@ void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
     case libvlc_MediaPlayerEncounteredError:
         P_EMIT_STATE(ErrorState);
         break;
-#ifdef __GNUC__
-#warning bump dep to 1.2 once released
-#endif
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(1, 2, 0, 0))
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 0, 0, 0))
     case libvlc_MediaPlayerVout:
         if (event->u.media_player_vout.new_count > 0)
             P_EMIT_HAS_VIDEO(true);
         else
             P_EMIT_HAS_VIDEO(false);
         break;
-#endif // VLC >= 1.2
+#endif // VLC >= 2.0
     case libvlc_MediaPlayerMediaChanged:
         break;
     case libvlc_MediaPlayerForward:
@@ -246,7 +261,7 @@ void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
     case libvlc_MediaPlayerPositionChanged:
     case libvlc_MediaPlayerPausableChanged:
     case libvlc_MediaPlayerTitleChanged:
-    case libvlc_MediaPlayerSnapshotTaken:
+    case libvlc_MediaPlayerSnapshotTaken: // Snapshot call is sync, so this is useless.
     default:
         break;
         QString msg = QString("Unknown event: ") + QString(libvlc_event_type_name(event->type));

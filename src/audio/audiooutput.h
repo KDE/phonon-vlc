@@ -91,6 +91,18 @@ public:
      */
     bool setOutputDevice(int);
 
+    /**
+     * Sets the current output device for this audio output.
+     *
+     * \param device The device to set; it should be valid and contain an usable deviceAccessList property
+     * \return \c true if succeeded, or no change was made
+     * \return \c false if failed
+     */
+#if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 2, 0))
+    bool setOutputDevice(const AudioOutputDevice &newDevice);
+#endif
+
+
 signals:
     void volumeChanged(qreal volume);
     void audioDeviceFailed();
@@ -99,7 +111,7 @@ private slots:
     /**
      * Sets the volume to m_volume.
      */
-    void updateVolume();
+    void applyVolume();
 
 private:
     /**
@@ -109,7 +121,7 @@ private:
     void setOutputDeviceImplementation();
 
     qreal m_volume;
-    int m_deviceIndex;
+    AudioOutputDevice m_device;
 };
 
 } // namespace VLC

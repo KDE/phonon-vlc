@@ -28,6 +28,7 @@
 #include <QtCore/QVarLengthArray>
 
 #include <vlc/libvlc.h>
+#include <vlc/libvlc_version.h>
 
 #include "debug.h"
 
@@ -92,6 +93,9 @@ bool LibVLC::init()
         args << "--no-stats";
         args << "--no-video-title-show";
         args << "--album-art=0";
+        // By default VLC will put a picture-in-picture when making a snapshot.
+        // This is unexpected behaviour for us, so we force it off.
+        args << "--no-snapshot-preview";
         // Do not load xlib dependent modules as we cannot ensure proper init
         // order as expected by xlib thus leading to crashes.
         // KDE BUG: 240001
@@ -107,9 +111,21 @@ bool LibVLC::init()
         args << "--services-discovery=''";
         // Allow multiple starts (one gets to wonder whether that makes a difference.
         args << "--no-one-instance";
+        // This causes leaky abstraction. VLC by default will create a default vout/aout
+        // when none was defined/requested. i.e. when you have a VideoWidget but
+        // no AudioOutput you will still get audio if there is an audio stream,
+        // equally if you have only an AudioOutput and play a video VLC will pop
+        // up a Video window.
+#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 0, 0, 0))
+        args << "--aout=none";
+        args << "--vout=none";
+#else // In VLC < 2.0 the argument was dummy, not none.
+        args << "--aout=dummy";
+        args << "--vout=dummy";
+#endif
 
         // Build const char* array
-        QVarLengthArray<const char*, 64> vlcArgs(args.size());
+        QVarLengthArray<const char *, 64> vlcArgs(args.size());
         for (int i = 0; i < args.size(); ++i) {
             vlcArgs[i] = args.at(i).constData();
         }
@@ -175,18 +191,16 @@ QStringList LibVLC::findAllLibVlcPaths()
     QStringList paths;
 
 #ifdef Q_OS_UNIX
-    paths = QString::fromLatin1(qgetenv("LD_LIBRARY_PATH"))
-            .split(QLatin1Char(':'), QString::SkipEmptyParts);
-    paths << QLatin1String(PHONON_LIB_INSTALL_DIR) << QLatin1String("/usr/lib") << QLatin1String("/usr/local/lib");
-    paths << QLatin1String("/usr/lib64") << QLatin1String("/usr/local/lib64");
-
 #if defined(Q_WS_MAC)
-    paths
-            << QCoreApplication::applicationDirPath()
+    paths   << QCoreApplication::applicationDirPath()
             << QCoreApplication::applicationDirPath() % QLatin1Literal("/../Frameworks")
             << QCoreApplication::applicationDirPath() % QLatin1Literal("/../PlugIns")
             << QCoreApplication::applicationDirPath() % QLatin1Literal("/lib");
 #endif
+    paths << QString::fromLatin1(qgetenv("LD_LIBRARY_PATH"))
+            .split(QLatin1Char(':'), QString::SkipEmptyParts);
+    paths << QLatin1String(PHONON_LIB_INSTALL_DIR) << QLatin1String("/usr/lib") << QLatin1String("/usr/local/lib");
+    paths << QLatin1String("/usr/lib64") << QLatin1String("/usr/local/lib64");
 
     QStringList foundVlcs;
     foreach (const QString & path, paths) {

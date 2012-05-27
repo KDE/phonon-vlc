@@ -44,10 +44,10 @@ namespace VLC {
  * It is connected to a media object that provides the video source. Methods to control
  * video settings such as brightness or contrast are provided.
  */
-class VideoWidget : public BaseWidget, public SinkNode, public VideoWidgetInterface
+class VideoWidget : public BaseWidget, public SinkNode, public VideoWidgetInterface44
 {
     Q_OBJECT
-    Q_INTERFACES(Phonon::VideoWidgetInterface)
+    Q_INTERFACES(Phonon::VideoWidgetInterface44)
 public:
     /**
      * Constructs a new VideoWidget with the given parent. The video settings members
@@ -210,6 +210,11 @@ private:
      */
     static float phononRangeToVlcRange(qreal phononValue, float upperBoundary,
                                        bool shift = true);
+
+    /**
+     * \return The snapshot of the current video frame.
+     */
+    QImage snapshot() const;
 
     /**
      * Pending video adjusts the application tried to set before we actually
