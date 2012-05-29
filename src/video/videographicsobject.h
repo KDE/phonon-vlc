@@ -54,6 +54,9 @@ public:
 
     const VideoFrame *frame() const { return &m_frame; }
 
+    Q_INVOKABLE QList<VideoFrame::Format> offering(QList<VideoFrame::Format> offers);
+    Q_INVOKABLE void choose(VideoFrame::Format format);
+
     static void *lock_cb(void *opaque, void **planes);
     static void unlock_cb(void *opaque, void *picture, void *const *planes);
     static void display_cb(void *opaque, void *picture);
@@ -62,11 +65,15 @@ signals:
     void frameReady();
     void reset();
 
+    void needFormat();
+
 protected:
     QMutex m_mutex;
 
     Phonon::VideoGraphicsObject *m_videoGraphicsObject;
     Phonon::VideoFrame m_frame;
+
+    Phonon::VideoFrame::Format m_chosenFormat;
 };
 
 #if defined(P_LIBVLC12)
@@ -84,6 +91,9 @@ public:
                                   unsigned int *pitches,
                                   unsigned int *lines);
     static void cleanup_cb(void *opaque);
+
+
+
 };
 #endif // P_LIBVLC12
 

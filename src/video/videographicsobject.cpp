@@ -25,7 +25,7 @@
 
 #include <vlc/plugins/vlc_fourcc.h>
 
-#include "debug.h"
+#include "utils/debug.h"
 #include "mediaobject.h"
 
 namespace Phonon {
@@ -37,7 +37,8 @@ namespace VLC {
 
 VideoGraphicsObject1point1::VideoGraphicsObject1point1(QObject *parent) :
     QObject(parent),
-    m_videoGraphicsObject(0)
+    m_videoGraphicsObject(0),
+    m_chosenFormat(VideoFrame::Format_Invalid)
 {
     DEBUG_BLOCK;
     m_frame.format = VideoFrame::Format_Invalid;
@@ -85,8 +86,6 @@ void VideoGraphicsObject1point1::unlock()
 
 void *VideoGraphicsObject1point1::lock_cb(void *opaque, void **planes)
 {
-    DEBUG_BLOCK;
-    debug() << opaque;
     P_THAT1point1;
     that->lock();
 
@@ -100,8 +99,6 @@ void *VideoGraphicsObject1point1::lock_cb(void *opaque, void **planes)
 void VideoGraphicsObject1point1::unlock_cb(void *opaque, void *picture,
                                     void *const*planes)
 {
-    DEBUG_BLOCK;
-    debug() << opaque;
     P_THAT1point1;
     that->unlock();
     // To avoid thread polution do not call frameReady directly, but via the
@@ -113,6 +110,18 @@ void VideoGraphicsObject1point1::display_cb(void *opaque, void *picture)
 {
     Q_UNUSED(opaque);
     Q_UNUSED(picture); // There is only one buffer.
+}
+
+QList<VideoFrame::Format> VideoGraphicsObject1point1::offering(QList<VideoFrame::Format> offers)
+{
+    // FIXME: impl
+    return offers;
+}
+
+void VideoGraphicsObject1point1::choose(VideoFrame::Format format)
+{
+    // FIXME: review
+    m_chosenFormat = format;
 }
 
 #ifdef P_LIBVLC12
@@ -130,7 +139,6 @@ void VideoGraphicsObject::connectToMediaObject(MediaObject *mediaObject)
 {
     DEBUG_BLOCK;
     SinkNode::connectToMediaObject(mediaObject);
-#warning todo
     libvlc_video_set_callbacks(*m_player, lock_cb, unlock_cb, display_cb, this);
     libvlc_video_set_format_callbacks(*m_player, format_cb, cleanup_cb);
 }
@@ -156,33 +164,38 @@ unsigned int VideoGraphicsObject::format_cb(void **opaque, char *chroma,
 
     P_THAT2;
 
-    that->m_frame.width = *width;
-    that->m_frame.height = *height;
+    if (that->m_chosenFormat == VideoFrame::Format_Invalid)
+        emit that->needFormat();
 
-    const QByteArray paintEnv = qgetenv("PHONON_COLOR");
-    if (paintEnv == "rgb")
-        qstrcpy(chroma, "RV32");
-    else if (paintEnv == "yuv")
-        qstrcpy(chroma, "YV12");
+    Q_ASSERT(that->m_chosenFormat != VideoFrame::Format_Invalid);
 
     const vlc_chroma_description_t *chromaDesc = 0;
-    if (qstrcmp(chroma, "RV32") == 0) {
+    switch(that->m_chosenFormat) {
+    case VideoFrame::Format_RGB32:
         that->m_frame.format = VideoFrame::Format_RGB32;
+        qstrcpy(chroma, "RV32");
         chromaDesc = vlc_fourcc_GetChromaDescription(VLC_CODEC_RGB32);
-    } else if (qstrcmp(chroma, "YV12") != 0) {
-        // Ensure we use a valid format, so choose YV12 as last resort fallback.
-        qstrcpy(chroma, "YV12");
-    }
-    if (qstrcmp(chroma, "YV12") == 0) {
+        break;
+    case VideoFrame::Format_YV12:
         that->m_frame.format = VideoFrame::Format_YV12;
+        qstrcpy(chroma, "YV12");
         chromaDesc = vlc_fourcc_GetChromaDescription(VLC_CODEC_YV12);
+        break;
+    case VideoFrame::Format_I420:
+        that->m_frame.format = VideoFrame::Format_I420;
+        qstrcpy(chroma, "I420");
+        chromaDesc = vlc_fourcc_GetChromaDescription(VLC_CODEC_I420);
+        break;
     }
 
     Q_ASSERT(chromaDesc);
+
+    that->m_frame.width = *width;
+    that->m_frame.height = *height;
     that->m_frame.planeCount = chromaDesc->plane_count;
 
     unsigned int bufferSize = 0;
-    for (int i = 0; i < that->m_frame.planeCount; ++i) {
+    for (unsigned int i = 0; i < that->m_frame.planeCount; ++i) {
         pitches[i] = *width * chromaDesc->p[i].w.num / chromaDesc->p[i].w.den * chromaDesc->pixel_size;
         lines[i] = *height * chromaDesc->p[i].h.num / chromaDesc->p[i].h.den;
         that->m_frame.plane[i].resize(pitches[i] * lines[i]);

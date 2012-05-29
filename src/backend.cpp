@@ -43,7 +43,7 @@
 #include "utils/debug.h"
 #include "utils/libvlc.h"
 //#include "video/videodataoutput.h"
-#include "videographicsobject.h"
+#include "video/videographicsobject.h"
 #include "video/videowidget.h"
 
 Q_EXPORT_PLUGIN2(phonon_vlc, Phonon::VLC::Backend)
