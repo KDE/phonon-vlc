@@ -76,10 +76,9 @@ protected:
     Phonon::VideoFrame::Format m_chosenFormat;
 };
 
-#if defined(P_LIBVLC12)
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 0, 0, 0))
 class VideoGraphicsObject : public VideoGraphicsObject1point1
 {
-    Q_OBJECT
 public:
     VideoGraphicsObject(QObject *parent = 0);
     virtual ~VideoGraphicsObject();
@@ -91,20 +90,20 @@ public:
                                   unsigned int *pitches,
                                   unsigned int *lines);
     static void cleanup_cb(void *opaque);
-
-
-
 };
-#endif // P_LIBVLC12
+#endif // >= VLC 2
 
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 0, 0, 0))
+static VideoGraphicsObject *createVideoGraphicsObject(QObject *parent = 0)
+{
+    return new VideoGraphicsObject(parent);
+}
+#else
 static VideoGraphicsObject1point1 *createVideoGraphicsObject(QObject *parent = 0)
 {
-#if defined(P_LIBVLC12)
-    return new VideoGraphicsObject(parent);
-#else
     return new VideoGraphicsObject1point1(parent);
-#endif // P_LIBVLC12
 }
+#endif // >= VLC 2
 
 } // namespace VLC
 } // namespace Phonon

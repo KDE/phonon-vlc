@@ -124,15 +124,13 @@ void VideoGraphicsObject1point1::choose(VideoFrame::Format format)
     m_chosenFormat = format;
 }
 
-#ifdef P_LIBVLC12
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 0, 0, 0))
 VideoGraphicsObject::VideoGraphicsObject(QObject *parent) :
     VideoGraphicsObject1point1(parent)
 {}
 
 VideoGraphicsObject::~VideoGraphicsObject()
 {
-    DEBUG_BLOCK;
-    debug() << this;
 }
 
 void VideoGraphicsObject::connectToMediaObject(MediaObject *mediaObject)
@@ -214,7 +212,7 @@ void VideoGraphicsObject::cleanup_cb(void *opaque)
     // To avoid thread polution do not call reset directly but via the event loop.
     QMetaObject::invokeMethod(that, "reset", Qt::QueuedConnection);
 }
-#endif // P_LIBVLC12
+#endif // >= VLC 2
 
 } // namespace VLC
 } // namespace Phonon
