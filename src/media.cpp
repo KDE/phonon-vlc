@@ -22,6 +22,7 @@
 #include <vlc/vlc.h>
 
 #include "utils/libvlc.h"
+#include "utils/vstring.h"
 
 namespace Phonon {
 namespace VLC {
@@ -62,10 +63,7 @@ void Media::addOption(const QString &option)
 
 QString Media::meta(libvlc_meta_t meta)
 {
-    char *metastr = libvlc_media_get_meta(m_media, meta);
-    QString ret = QString::fromUtf8(metastr);
-    libvlc_free(metastr);
-    return ret;
+    return VString(libvlc_media_get_meta(m_media, meta)).toQString();
 }
 
 void Media::event_cb(const libvlc_event_t *event, void *opaque)

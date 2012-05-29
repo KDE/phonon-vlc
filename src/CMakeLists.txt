@@ -24,11 +24,9 @@ set(phonon_vlc_SRCS
     audio/audiooutput.cpp
     audio/audiodataoutput.cpp
     backend.cpp
-    utils/debug.cpp
     devicemanager.cpp
     effect.cpp
     effectmanager.cpp
-    utils/libvlc.cpp
     media.cpp
     mediacontroller.cpp
     mediaobject.cpp
@@ -37,6 +35,8 @@ set(phonon_vlc_SRCS
     streamreader.cpp
     #    video/videodataoutput.cpp
     video/videowidget.cpp
+    utils/debug.cpp
+    utils/libvlc.cpp
 )
 
 if(APPLE)

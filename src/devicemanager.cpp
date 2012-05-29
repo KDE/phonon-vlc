@@ -30,6 +30,7 @@
 #include "backend.h"
 #include "utils/debug.h"
 #include "utils/libvlc.h"
+#include "utils/vstring.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -237,8 +238,8 @@ void DeviceManager::updateDeviceList()
             const int deviceCount = libvlc_audio_output_device_count(libvlc, soundSystem);
 
             for (int i = 0; i < deviceCount; i++) {
-                const char *idName = libvlc_audio_output_device_id(libvlc, soundSystem, i);
-                const char *longName = libvlc_audio_output_device_longname(libvlc, soundSystem, i);
+                VString idName(libvlc_audio_output_device_id(libvlc, soundSystem, i));
+                VString longName(libvlc_audio_output_device_longname(libvlc, soundSystem, i));
 
                 DeviceInfo device(longName, true);
                 device.addAccess(DeviceAccess(soundSystem, idName));
