@@ -37,7 +37,6 @@ namespace VLC {
 
 VideoGraphicsObject1point1::VideoGraphicsObject1point1(QObject *parent) :
     QObject(parent),
-    m_videoGraphicsObject(0),
     m_chosenFormat(VideoFrame::Format_Invalid)
 {
     DEBUG_BLOCK;
