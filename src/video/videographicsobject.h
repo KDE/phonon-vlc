@@ -66,7 +66,6 @@ signals:
 protected:
     QMutex m_mutex;
 
-    Phonon::VideoGraphicsObject *m_videoGraphicsObject;
     Phonon::VideoFrame m_frame;
 
     Phonon::VideoFrame::Format m_chosenFormat;
