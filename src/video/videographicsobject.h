@@ -22,7 +22,6 @@
 #include <QtCore/QMutex>
 
 #include <phonon/videoframe.h>
-#include <phonon/videographicsobject.h>
 #include <phonon/videographicsobjectinterface.h>
 
 #include <vlc/libvlc_version.h>
@@ -44,9 +43,6 @@ public:
     VideoGraphicsObject1point1(QObject *parent = 0);
     virtual ~VideoGraphicsObject1point1();
     virtual void connectToMediaObject(MediaObject *mediaObject);
-
-    Phonon::VideoGraphicsObject *videoGraphicsObject() { return m_videoGraphicsObject; }
-    void setVideoGraphicsObject(Phonon::VideoGraphicsObject *object) { m_videoGraphicsObject = object; }
 
     void lock();
     bool tryLock();
