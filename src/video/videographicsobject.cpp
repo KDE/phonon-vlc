@@ -59,7 +59,9 @@ void VideoGraphicsObject1point1::connectToMediaObject(MediaObject *mediaObject)
     m_frame.height = 360;
 
 #warning todo
-    libvlc_video_set_format(*m_player, "RV32", m_frame.width, m_frame.height, m_frame.width * 4);
+    libvlc_video_set_format(*m_player, "RV32", m_frame.width, m_frame.height,
+                            // RV32 Pitch = width * 1 / 1 * 4 = width * 4
+                            m_frame.width * 4);
     libvlc_video_set_callbacks(*m_player, lock_cb, unlock_cb, display_cb, this);
 
     m_frame.format = VideoFrame::Format_RGB32;
