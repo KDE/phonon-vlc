@@ -86,7 +86,7 @@ Backend::Backend(QObject *parent, const QVariantList &)
 #endif
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
-        msg.setWindowTitle(tr("LibVLC failed to initialize"));
+        msg.setWindowTitle(tr("LibVLC Failed to Initialize"));
         msg.setText(tr("Phonon's VLC backend failed to start."
                        "\n\n"
                        "This usually means a problem with your VLC installation,"

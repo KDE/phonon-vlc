@@ -19,8 +19,9 @@
 #define LIBVLC_H
 
 #include <QtCore/QtGlobal>
-
 #include <QtCore/QStringList>
+
+#include <vlc/libvlc_version.h>
 
 class QLibrary;
 
@@ -56,7 +57,12 @@ struct libvlc_instance_t;
     for (libvlc_##type##_t *variable = getter; variable; \
         variable = variable->p_next, !variable ? releaseSuffix(variable) : (void)0)
 
+// TODO: once VLC1 support is dropped unify the FOREACH macro to only require the type
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 0, 0, 0))
+#define VLC_TRACK_FOREACH(variable, getter) VLC_FOREACH(track_description, variable, getter, libvlc_track_description_list_release)
+#else
 #define VLC_TRACK_FOREACH(variable, getter) VLC_FOREACH(track_description, variable, getter, libvlc_track_description_release)
+#endif // >= VLC 2
 #define VLC_MODULE_FOREACH(variable, getter) VLC_FOREACH(module_description, variable, getter, libvlc_module_description_list_release)
 
 /**
