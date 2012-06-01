@@ -308,6 +308,8 @@ void MediaObject::setSource(const MediaSource &source)
         case Phonon::Vcd:
             loadMedia(m_mediaSource.deviceName());
             break;
+        case Phonon::BluRay:
+            loadMedia(QLatin1Literal("bluray://") % m_mediaSource.deviceName());
         }
         break;
     case MediaSource::CaptureDevice: {
