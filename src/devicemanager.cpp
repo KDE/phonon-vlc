@@ -220,7 +220,7 @@ void DeviceManager::updateDeviceList()
     PulseSupport *pulse = PulseSupport::getInstance();
     if (pulse && pulse->isActive()) {
         if (audioOutBackends.contains("pulse")) {
-            DeviceInfo defaultAudioOutputDevice("Default", false);
+            DeviceInfo defaultAudioOutputDevice(tr("Default"), false);
             defaultAudioOutputDevice.setCapabilities(DeviceInfo::AudioOutput);
             defaultAudioOutputDevice.addAccess(DeviceAccess("pulse", "default"));
             newDeviceList.append(defaultAudioOutputDevice);
