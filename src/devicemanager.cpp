@@ -246,13 +246,20 @@ void DeviceManager::updateDeviceList()
                 device.setCapabilities(DeviceInfo::AudioOutput);
                 newDeviceList.append(device);
             }
-            break;
+
+            // libVLC gives no devices for some sound systems, like OSS
+            if (!deviceCount) {
+                DeviceInfo device(QString("Default %1").arg(QString(soundSystem)), true);
+                device.addAccess(DeviceAccess(soundSystem, ""));
+                device.setCapabilities(DeviceInfo::AudioOutput);
+                newDeviceList.append(device);
+            }
         }
     }
 
     /*
      * Compares the list with the devices available at the moment with the last list. If
-     * a new device is seen, a signal is emitted. If a device dissapeared, another signal
+     * a new device is seen, a signal is emitted. If a device disappeared, another signal
      * is emitted.
      */
 

@@ -140,9 +140,11 @@ void AudioOutput::setOutputDeviceImplementation()
     m_player->setAudioOutput(soundSystem);
 
     QByteArray deviceName = firstDeviceAccess.second.toLatin1();
-    // print the name as possibly messed up by toLatin1() to see conversion problems
-    debug() << "Setting output device to" << deviceName << '(' << m_device.property("name") << ')';
-    m_player->setAudioOutputDevice(soundSystem, deviceName);
+    if (!deviceName.isEmpty()) {
+        // print the name as possibly messed up by toLatin1() to see conversion problems
+        debug() << "Setting output device to" << deviceName << '(' << m_device.property("name") << ')';
+        m_player->setAudioOutputDevice(soundSystem, deviceName);
+    }
 }
 
 void AudioOutput::applyVolume()
