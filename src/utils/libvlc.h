@@ -50,13 +50,15 @@ struct libvlc_instance_t;
         variable; \
         variable = variable->p_next, !variable ? releaser(__libvlc_first_element) : (void)0)
 
+#define VLC_FOREACH_LIST(type, variable) VLC_FOREACH(type, variable, libvlc_##type##_list_get(libvlc), libvlc_##type##_list_release)
+
 // TODO: once VLC1 support is dropped unify the FOREACH macro to only require the type
 #if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 0, 0, 0))
-#define VLC_TRACK_FOREACH(variable, getter) VLC_FOREACH(track_description, variable, getter, libvlc_track_description_list_release)
+#define VLC_FOREACH_TRACK(variable, getter) VLC_FOREACH(track_description, variable, getter, libvlc_track_description_list_release)
 #else
-#define VLC_TRACK_FOREACH(variable, getter) VLC_FOREACH(track_description, variable, getter, libvlc_track_description_release)
+#define VLC_FOREACH_TRACK(variable, getter) VLC_FOREACH(track_description, variable, getter, libvlc_track_description_release)
 #endif // >= VLC 2
-#define VLC_MODULE_FOREACH(variable, getter) VLC_FOREACH(module_description, variable, getter, libvlc_module_description_list_release)
+#define VLC_FOREACH_MODULE(variable, getter) VLC_FOREACH(module_description, variable, getter, libvlc_module_description_list_release)
 
 /**
  * \brief Singleton class containing a libvlc instance.

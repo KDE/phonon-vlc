@@ -85,7 +85,7 @@ void EffectManager::updateEffects()
 
 #if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 0, 0, 0))
     int moduleCount = -1;
-    VLC_MODULE_FOREACH(module, libvlc_audio_filter_list_get(libvlc)) {
+    VLC_FOREACH_MODULE(module, libvlc_audio_filter_list_get(libvlc)) {
         m_audioEffectList.append(new EffectInfo(module->psz_longname,
                                                 module->psz_help,
                                                 QString(),
@@ -94,7 +94,7 @@ void EffectManager::updateEffects()
     }
 
     moduleCount = -1;
-    VLC_MODULE_FOREACH(module, libvlc_video_filter_list_get(libvlc)) {
+    VLC_FOREACH_MODULE(module, libvlc_video_filter_list_get(libvlc)) {
         m_videoEffectList.append(new EffectInfo(module->psz_longname,
                                                 module->psz_help,
                                                 QString(),
