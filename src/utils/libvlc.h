@@ -36,26 +36,19 @@ struct libvlc_instance_t;
 
 /**
  * Foreach loop macro for VLC descriptions.
- * Mind that you will have to release the descriptions after the foreach.
  *
  * For this macro to work the type name must be of the form:
  * \verbatim libvlc_FOO_t \endverbatim
- *
- * \code
- * VLC_FOREACH(track_description, it, m_player->getAudioTrackDescription()) {
-       qDebug() << it->psz_name;
- * }
- * libvlc_track_description_release(it);
- * \endcode
- *
+ * *
  * \param type the type identifier of VLC (without libvlc and _t)
  * \param variable the variable name you want to use
  * \param getter the getter from which to get the iterator
- * \param releaseSuffix, function name to release the list
+ * \param releaser, function name to release the list
  */
-#define VLC_FOREACH(type, variable, getter, releaseSuffix) \
-    for (libvlc_##type##_t *variable = getter; variable; \
-        variable = variable->p_next, !variable ? releaseSuffix(variable) : (void)0)
+#define VLC_FOREACH(type, variable, getter, releaser) \
+    for (libvlc_##type##_t *__libvlc_first_element = getter, *variable = __libvlc_first_element; \
+        variable; \
+        variable = variable->p_next, !variable ? releaser(__libvlc_first_element) : (void)0)
 
 // TODO: once VLC1 support is dropped unify the FOREACH macro to only require the type
 #if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 0, 0, 0))
