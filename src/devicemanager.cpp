@@ -241,26 +241,32 @@ void DeviceManager::updateDeviceList()
                       << QByteArray("directx") // Windows
                       << QByteArray("auhal"); // Mac
     foreach (const QByteArray &soundSystem, knownSoundSystems) {
-        if (audioOutBackends.contains(soundSystem)) {
-            const int deviceCount = libvlc_audio_output_device_count(libvlc, soundSystem);
+        if (!audioOutBackends.contains(soundSystem)) {
+            debug() << "Sound system" << soundSystem << "not supported by libvlc";
+            continue;
+        }
 
-            for (int i = 0; i < deviceCount; i++) {
-                VString idName(libvlc_audio_output_device_id(libvlc, soundSystem, i));
-                VString longName(libvlc_audio_output_device_longname(libvlc, soundSystem, i));
+        const int deviceCount = libvlc_audio_output_device_count(libvlc, soundSystem);
 
-                DeviceInfo device(longName, true);
-                device.addAccess(DeviceAccess(soundSystem, idName));
-                device.setCapabilities(DeviceInfo::AudioOutput);
-                newDeviceList.append(device);
-            }
+        for (int i = 0; i < deviceCount; i++) {
+            VString idName(libvlc_audio_output_device_id(libvlc, soundSystem, i));
+            VString longName(libvlc_audio_output_device_longname(libvlc, soundSystem, i));
 
-            // libVLC gives no devices for some sound systems, like OSS
-            if (!deviceCount) {
-                DeviceInfo device(QString("Default %1").arg(QString(soundSystem)), true);
-                device.addAccess(DeviceAccess(soundSystem, ""));
-                device.setCapabilities(DeviceInfo::AudioOutput);
-                newDeviceList.append(device);
-            }
+            debug() << "found device" << soundSystem << idName << longName;
+
+            DeviceInfo device(longName, true);
+            device.addAccess(DeviceAccess(soundSystem, idName));
+            device.setCapabilities(DeviceInfo::AudioOutput);
+            newDeviceList.append(device);
+        }
+
+        // libVLC gives no devices for some sound systems, like OSS
+        if (deviceCount == 0) {
+            debug() << "manually injecting sound system" << soundSystem;
+            DeviceInfo device(QString::fromUtf8(soundSystem), true);
+            device.addAccess(DeviceAccess(soundSystem, ""));
+            device.setCapabilities(DeviceInfo::AudioOutput);
+            newDeviceList.append(device);
         }
     }
 
