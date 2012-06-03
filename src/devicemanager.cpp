@@ -243,7 +243,12 @@ void DeviceManager::updateDeviceList()
 #endif
 
     QList<QByteArray> knownSoundSystems;
-    knownSoundSystems << "alsa" << "oss";
+    // Whitelist
+    knownSoundSystems << QByteArray("alsa")
+                      << QByteArray("oss")
+                      << QByteArray("jack")
+                      << QByteArray("directx") // Windows
+                      << QByteArray("auhal"); // Mac
     foreach (const QByteArray &soundSystem, knownSoundSystems) {
         if (audioOutBackends.contains(soundSystem)) {
             const int deviceCount = libvlc_audio_output_device_count(libvlc, soundSystem);
