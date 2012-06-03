@@ -200,7 +200,9 @@ static QList<QByteArray> vlcAudioOutBackends()
         return ret;
     }
     for (libvlc_audio_output_t *audioOut = firstAudioOut; audioOut; audioOut = audioOut->p_next) {
-        ret.append(QByteArray(audioOut->psz_name));
+        QByteArray name(audioOut->psz_name);
+        if (!ret.contains(name))
+            ret.append(name);
     }
     libvlc_audio_output_list_release(firstAudioOut);
 
