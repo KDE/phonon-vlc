@@ -605,6 +605,7 @@ void MediaObject::updateState(MediaPlayer::State state)
         changeState(StoppedState);
         break;
     case MediaPlayer::ErrorState:
+        debug() << errorString();
         resetMembers();
         emitAboutToFinish();
         emit finished();
