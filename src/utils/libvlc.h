@@ -50,8 +50,12 @@ struct libvlc_instance_t;
         variable; \
         variable = variable->p_next, !variable ? releaser(__libvlc_first_element) : (void)0)
 
+// This foreach expects only a type and variable because getter and releaser are generic.
+// Also the type is in short form i.e. libvlc_foo_t would be foo.
 #define VLC_FOREACH_LIST(type, variable) VLC_FOREACH(type, variable, libvlc_##type##_list_get(libvlc), libvlc_##type##_list_release)
 
+// These foreach expect no type because the type is generic, they do however
+// expect a getter to allow usage with our wrapper classes (Player, Media...).
 // TODO: once VLC1 support is dropped unify the FOREACH macro to only require the type
 #if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 0, 0, 0))
 #define VLC_FOREACH_TRACK(variable, getter) VLC_FOREACH(track_description, variable, getter, libvlc_track_description_list_release)
