@@ -76,7 +76,7 @@ bool LibVLC::init()
             args << QByteArray("--config=").append(QFile::encodeName(configFileName));
         }
 
-        int debugLevel = 3 - (int) Debug::minimumDebugLevel();
+        int debugLevel = qgetenv("PHONON_SUBSYSTEM_DEBUG").toInt();
         if (debugLevel > 0) {
             args << QByteArray("--verbose=").append(QString::number(debugLevel));
             args << QByteArray("--extraintf=logger");

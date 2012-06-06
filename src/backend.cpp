@@ -70,7 +70,7 @@ Backend::Backend(QObject *parent, const QVariantList &)
     setProperty("backendWebsite", QLatin1String("https://projects.kde.org/projects/kdesupport/phonon/phonon-vlc"));
 
     // Check if we should enable debug output
-    int debugLevel = qgetenv("PHONON_VLC_DEBUG").toInt();
+    int debugLevel = qgetenv("PHONON_BACKEND_DEBUG").toInt();
     if (debugLevel > 3) // 3 is maximum
         debugLevel = 3;
     Debug::setMinimumDebugLevel((Debug::DebugLevel)((int) Debug::DEBUG_NONE - 1 - debugLevel));
