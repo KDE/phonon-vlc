@@ -36,15 +36,15 @@ namespace VLC {
 
 #define BLOCKSIZE 32768
 
-StreamReader::StreamReader(const Phonon::MediaSource &source, MediaObject *parent)
-    : m_pos(0)
+StreamReader::StreamReader(MediaObject *parent)
+    : QObject(parent)
+    , m_pos(0)
     , m_size(0)
     , m_eos(false)
     , m_seekable(false)
     , m_unlocked(false)
     , m_mediaObject(parent)
 {
-    connectToSource(source);
 }
 
 StreamReader::~StreamReader()
@@ -227,9 +227,10 @@ qint64 StreamReader::streamSize() const
     return m_size;
 }
 
-void StreamReader::setStreamSeekable(bool s)
+void StreamReader::setStreamSeekable(bool seekable)
 {
-    m_seekable = s;
+    m_seekable = seekable;
+    emit streamSeekableChanged(seekable);
 }
 
 bool StreamReader::streamSeekable() const
