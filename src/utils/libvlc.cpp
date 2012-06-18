@@ -34,8 +34,9 @@
 
 LibVLC *LibVLC::self;
 
-LibVLC::LibVLC() :
-    m_vlcInstance(0)
+LibVLC::LibVLC()
+    : m_vlcLibrary(0)
+    , m_vlcInstance(0)
 {
 }
 
@@ -279,7 +280,10 @@ QString LibVLC::vlcPath()
 
 void LibVLC::vlcUnload()
 {
-    m_vlcLibrary->unload();
+    if (!m_vlcLibrary)
+        return;
+    if (m_vlcLibrary->isLoaded())
+        m_vlcLibrary->unload();
     delete m_vlcLibrary;
     m_vlcLibrary = 0;
 }
