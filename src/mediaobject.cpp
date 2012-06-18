@@ -270,6 +270,10 @@ void MediaObject::setSource(const MediaSource &source)
         m_streamReader->unlock();
         delete m_streamReader;
         m_streamReader = 0;
+        // For streamreaders we exchanage the player's seekability with the
+        // reader's so here we change it back.
+        // Note: the reader auto-disconnects due to destruction.
+        connect(m_player, SIGNAL(seekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
     }
 
     // Reset previous isScreen flag
@@ -358,7 +362,15 @@ void MediaObject::setSource(const MediaSource &source)
         break;
     }
     case MediaSource::Stream:
-        m_streamReader = new StreamReader(m_mediaSource, this);
+        m_streamReader = new StreamReader(this);
+        // LibVLC refuses to emit seekability as it does a try-and-seek approach
+        // to work around this we exchange the player's seekability signal
+        // for the readers
+        // https://bugs.kde.org/show_bug.cgi?id=293012
+        connect(m_streamReader, SIGNAL(streamSeekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
+        disconnect(m_player, SIGNAL(seekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
+        // Only connect now to avoid seekability detection before we are connected.
+        m_streamReader->connectToSource(source);
         loadMedia(QByteArray("imem://"));
         break;
     }
@@ -527,6 +539,8 @@ bool MediaObject::hasVideo() const
 
 bool MediaObject::isSeekable() const
 {
+    if (m_streamReader)
+        return m_streamReader->streamSeekable();
     return m_player->isSeekable();
 }
 

@@ -54,10 +54,11 @@ class MediaObject;
  *
  * There are callbacks implemented in streamhooks.cpp, for libVLC.
  */
-class StreamReader : public Phonon::StreamInterface
+class StreamReader : public QObject, public Phonon::StreamInterface
 {
+    Q_OBJECT
 public:
-    StreamReader(const Phonon::MediaSource &source, MediaObject *parent);
+    StreamReader(MediaObject *parent);
     ~StreamReader();
 
     void addToMedia(Media *media);
@@ -93,8 +94,11 @@ public:
     void endOfData();
     void setStreamSize(qint64 newSize);
     qint64 streamSize() const;
-    void setStreamSeekable(bool s);
+    void setStreamSeekable(bool seekable);
     bool streamSeekable() const;
+
+signals:
+    void streamSeekableChanged(bool seekable);
 
 protected:
     QByteArray m_buffer;
