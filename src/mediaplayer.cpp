@@ -88,10 +88,6 @@ MediaPlayer::MediaPlayer(QObject *parent) :
 
 MediaPlayer::~MediaPlayer()
 {
-#ifdef __GNUC__
-#warning unloadmedia ... see MO
-#endif
-    libvlc_media_player_stop(m_player); // ensure that we are stopped.
     libvlc_media_player_release(m_player);
 }
 
