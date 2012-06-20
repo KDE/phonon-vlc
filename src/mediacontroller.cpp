@@ -323,6 +323,7 @@ void MediaController::setCurrentTitle(int title)
         return;
     case Dvd:
     case Vcd:
+    case BluRay:
          //    libvlc_media_player_set_title(m_player, title.index(), vlc_exception);
         m_player->setTitle(title);
         return;
