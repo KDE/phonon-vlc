@@ -479,9 +479,9 @@ inline void MediaObject::unloadMedia()
 void MediaObject::playInternal()
 {
     DEBUG_BLOCK;
-    unloadMedia();
 
-    m_totalTime = -1;
+    unloadMedia();
+    resetMembers();
 
     // Create a media with the given MRL
     m_media = new Media(m_mrl, this);
@@ -611,18 +611,15 @@ void MediaObject::updateState(MediaPlayer::State state)
         changeState(PausedState);
         break;
     case MediaPlayer::StoppedState:
-        resetMembers();
         changeState(StoppedState);
         break;
     case MediaPlayer::EndedState:
-        resetMembers();
         emitAboutToFinish();
         emit finished();
         changeState(StoppedState);
         break;
     case MediaPlayer::ErrorState:
         debug() << errorString();
-        resetMembers();
         emitAboutToFinish();
         emit finished();
         changeState(ErrorState);
