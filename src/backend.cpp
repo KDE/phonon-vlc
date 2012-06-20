@@ -133,7 +133,7 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
 #ifdef __GNUC__
 #warning VLC 2.0 broke sout/transcode/smem -> ADO
 #endif
-#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 0, 0, 0))
+#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 0, 0, 0)) || (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 1, 0, 0))
     case AudioDataOutputClass:
         return new AudioDataOutput(parent);
 #endif
