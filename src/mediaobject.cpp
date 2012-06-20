@@ -47,11 +47,6 @@ MediaObject::MediaObject(QObject *parent)
     , m_nextSource(MediaSource(QUrl()))
     , m_streamReader(0)
     , m_state(Phonon::StoppedState)
-    // By default, no tick() signal
-    // FIXME: Not implemented yet
-    #ifdef __GNUC__
-    #warning implement tick proper
-    #endif
     , m_tickInterval(0)
     , m_transitionTime(0)
     , m_media(0)
@@ -64,13 +59,13 @@ MediaObject::MediaObject(QObject *parent)
 
     // Player signals.
     connect(m_player, SIGNAL(seekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
-    connect(m_player, SIGNAL(timeChanged(qint64)), this, SLOT(updateTime(qint64)));
+    connect(m_player, SIGNAL(timeChanged(qint64)), this, SLOT(timeChanged(qint64)));
     connect(m_player, SIGNAL(stateChanged(MediaPlayer::State)), this, SLOT(updateState(MediaPlayer::State)));
     connect(m_player, SIGNAL(hasVideoChanged(bool)), this, SLOT(onHasVideoChanged(bool)));
 
     // Internal Signals.
-    connect(this, SIGNAL(tickInternal(qint64)), SLOT(tickInternalSlot(qint64)));
     connect(this, SIGNAL(moveToNext()), SLOT(moveToNextSource()));
+    connect(&m_tickTimer, SIGNAL(timeout()), this, SLOT(emitTick()));
 
     resetMembers();
 }
@@ -158,27 +153,35 @@ void MediaObject::seek(qint64 milliseconds)
         m_aboutToFinishEmitted = false;
 }
 
-void MediaObject::tickInternalSlot(qint64 currentTime)
+void MediaObject::timeChanged(qint64 time)
 {
-    const qint64 totalTime = this->totalTime();
-
-    if (m_tickInterval > 0) {
-        // If _tickInternal == 0 means tick() signal is disabled
-        // Default is _tickInternal = 0
-        emit tick(currentTime);
+    // Only VLC >= 2.0 implements a signal on vout appearance.
+    // On older versions we simply probe for it...
+#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 0, 0, 0))
+    // Check 10 times for a video, then give up.
+    if (!m_hasVideo && ++m_timesVideoChecked < 11) {
+        debug() << "Looking for Video";
+        onHasVideoChanged(m_player->hasVideoOutput());
     }
+#endif
 
-    if (m_state == Phonon::PlayingState) {
-        if (currentTime >= totalTime - m_prefinishMark) {
+    const qint64 totalTime = this->totalTime();
+    if (m_state == PlayingState || m_state == BufferingState) { // Buffering is concurrent
+        if (time >= totalTime - m_prefinishMark) {
             if (!m_prefinishEmitted) {
                 m_prefinishEmitted = true;
-                emit prefinishMarkReached(totalTime - currentTime);
+                emit prefinishMarkReached(totalTime - time);
             }
         }
-        if (totalTime > -1 && currentTime >= totalTime - ABOUT_TO_FINISH_TIME) {
+        if (totalTime > -1 && time >= totalTime - ABOUT_TO_FINISH_TIME)
             emitAboutToFinish();
-        }
     }
+}
+
+void MediaObject::emitTick()
+{
+    if (m_tickInterval > 0) // Make sure we do not ever emit ticks when deactivated.
+        emit tick(m_player->time());
 }
 
 void MediaObject::loadMedia(const QByteArray &mrl)
@@ -212,14 +215,31 @@ qint32 MediaObject::tickInterval() const
     return m_tickInterval;
 }
 
-void MediaObject::setTickInterval(qint32 tickInterval)
+/**
+ * Supports runtime changes.
+ * If the user goes to tick(0) we stop the timer, otherwise we fire it up.
+ */
+void MediaObject::setTickInterval(qint32 interval)
 {
-    m_tickInterval = tickInterval;
-//    if (_tickInterval <= 0) {
-//        _tickTimer->setInterval(50);
-//    } else {
-//        _tickTimer->setInterval(_tickInterval);
-//    }
+    m_tickInterval = interval;
+    if (m_tickInterval > 0) {
+        m_tickTimer.setInterval(interval);
+        if (!m_tickTimer.isActive()) {
+            switch (m_state) {
+            case PlayingState:
+            case BufferingState:
+            case PausedState:
+                m_tickTimer.start();
+                break;
+            case StoppedState:
+            case LoadingState:
+            case ErrorState:
+                break; // Leave it deactivated.
+            }
+        }
+    } else {
+        m_tickTimer.stop();
+    }
 }
 
 qint64 MediaObject::currentTime() const
@@ -432,6 +452,7 @@ void MediaObject::changeState(Phonon::State newState)
         debug() << Q_FUNC_INFO << "no-op gapless item awaiting in queue - " << m_nextSource.type() ;
         return;
     }
+
 #ifdef __GNUC__
 #warning do we actually need m_seekpoint? if a consumer seeks before playing state that is their problem?!
 #endif
@@ -442,6 +463,22 @@ void MediaObject::changeState(Phonon::State newState)
             seek(m_seekpoint);
             m_seekpoint = 0;
         }
+    }
+
+    switch (newState) {
+    case BufferingState:
+    case PausedState:
+    case PlayingState:
+        if (!m_tickTimer.isActive() && m_tickInterval > 0) {
+            m_tickTimer.setInterval(m_tickInterval);
+            m_tickTimer.start();
+        }
+        break;
+    case ErrorState:
+    case StoppedState:
+    case LoadingState:
+        m_tickTimer.stop();
+        break;
     }
 
     // State changed
@@ -462,7 +499,7 @@ void MediaObject::moveToNextSource()
     m_nextSource = MediaSource(QUrl());
 }
 
-bool MediaObject::checkGaplessWaiting()
+inline bool MediaObject::checkGaplessWaiting()
 {
     return m_nextSource.type() != MediaSource::Invalid && m_nextSource.type() != MediaSource::Empty;
 }
@@ -625,21 +662,6 @@ void MediaObject::updateState(MediaPlayer::State state)
         changeState(ErrorState);
         break;
     }
-}
-
-void MediaObject::updateTime(qint64 time)
-{
-    // Only VLC >= 2.0 implements a signal on vout appearance.
-    // On older versions we simply probe for it...
-#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 0, 0, 0))
-    // Check 10 times for a video, then give up.
-    if (!m_hasVideo && ++m_timesVideoChecked < 11) {
-        debug() << "Looking for Video";
-        onHasVideoChanged(m_player->hasVideoOutput());
-    }
-#endif
-
-    emit tickInternal(time);
 }
 
 void MediaObject::onHasVideoChanged(bool hasVideo)

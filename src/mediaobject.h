@@ -23,6 +23,7 @@
 #define PHONON_VLC_MEDIAOBJECT_H
 
 #include <QtCore/QObject>
+#include <QtCore/QTimer>
 
 #include <phonon/mediaobjectinterface.h>
 #include <phonon/addoninterface.h>
@@ -219,8 +220,6 @@ signals:
 
     void moveToNext();
 
-    void tickInternal(qint64 time);
-
 private slots:
     /**
      * If the new state is different from the current state, the current state is
@@ -234,7 +233,8 @@ private slots:
      *
      * \param currentTime The current play time for the media, in miliseconds.
      */
-    void tickInternalSlot(qint64 time);
+    void timeChanged(qint64 time);
+    void emitTick();
 
     /**
      * If the next media source is valid, the current source is replaced and playback is commenced.
@@ -250,7 +250,6 @@ private slots:
     /** Retrieve meta data of a file (i.e ARTIST, TITLE, ALBUM, etc...). */
     void updateMetaData();
     void updateState(MediaPlayer::State state);
-    void updateTime(qint64 time);
 
     /** Called when the availability of video output changed */
     void onHasVideoChanged(bool hasVideo);
@@ -310,6 +309,7 @@ private:
 
     bool m_aboutToFinishEmitted;
 
+    QTimer m_tickTimer;
     qint32 m_tickInterval;
     qint32 m_transitionTime;
 
