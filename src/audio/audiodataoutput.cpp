@@ -65,25 +65,16 @@ void AudioDataOutput::setDataSize(int size)
 
 void AudioDataOutput::addToMedia(Media *media)
 {
-#ifdef __GNUC__
-#warning vlc 2.0 somehow broke option parsing so that one cannot hand it multiple args
-#endif
-    media->addOption(QString(":sout=#duplicate{dst=display,dst='transcode{{vcodec=none,acodec=s16l`}'}"
-                             ":smem{audio-prerender-callback=%1,audio-postrender-callback=%2,audio-data=%3,time-sync=true}"
-                             ).arg(QString::number((long long int) INTPTR_FUNC(AudioDataOutput::lock)),
+
+    media->addOption(QString(":sout=#duplicate{dst=display,dst='transcode{vcodec=none,acodec=s16l,samplerate=%1}"
+                              ":smem{audio-prerender-callback=%2,"
+                                    "audio-postrender-callback=%3,"
+                                    "audio-data=%4,"
+                                    "time-sync=true}'}"
+                             ).arg(QString::number(m_sampleRate),
+                                   QString::number((long long int) INTPTR_FUNC(AudioDataOutput::lock)),
                                    QString::number((long long int) INTPTR_FUNC(AudioDataOutput::unlock)),
                                    QString::number((long long int) INTPTR_PTR(this))));
-//    media->addOption(QLatin1String(":sout-transcode-acodec=s16l"));
-//    media->addOption(QLatin1String(":sout-transcode-vcodec=none"));
-//    media->addOption(QLatin1String(":sout-smem-time-sync"));
-
-//    // Add audio lock callback
-//    media->addOption(QLatin1String(":sout-smem-audio-prerender-callback=0xF"));
-//    // Add audio unlock callback
-//    media->addOption(QLatin1String(":sout-smem-audio-postrender-callback="),
-//                     INTPTR_FUNC(AudioDataOutput::unlock));
-//    // Add pointer to ourselves...
-//    media->addOption(QLatin1String(":sout-smem-audio-data="), INTPTR_PTR(this));
 }
 
 void AudioDataOutput::lock(AudioDataOutput *cw, quint8 **pcm_buffer , quint32 size)

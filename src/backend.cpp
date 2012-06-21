@@ -131,9 +131,12 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
     case AudioOutputClass:
         return new AudioOutput(parent);
 #ifdef __GNUC__
-#warning VLC 2.0 broke sout/transcode/smem -> ADO
+#warning using sout in VLC2 breaks libvlcs vout functions, see vlc bug 6992
+// https://trac.videolan.org/vlc/ticket/6992
 #endif
-#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 0, 0, 0)) || (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 0, 2, 0))
+#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 0, 0, 0))
+    // FWIW: the case is inside the if because that gives clear indication which
+    // frontend objects are not supported!
     case AudioDataOutputClass:
         return new AudioDataOutput(parent);
 #endif
