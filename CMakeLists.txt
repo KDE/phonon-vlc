@@ -20,7 +20,7 @@ find_package(LIBVLC REQUIRED)
 
 add_definitions(${QT_DEFINITIONS})
 
-include_directories(${PHONON_INCLUDES} ${QT_INCLUDES} ${LIBVLC_INCLUDE_DIR})
+include_directories(${PHONON_INCLUDES} ${QT_INCLUDES} ${LIBVLC_INCLUDE_DIR} ${LIBVLC_INCLUDE_DIR}/vlc/plugins)
 
 set(PHONON_VLC_MAJOR_VERSION "0")
 set(PHONON_VLC_MINOR_VERSION "5")

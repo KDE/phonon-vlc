@@ -33,11 +33,16 @@ set(phonon_vlc_SRCS
     mediaplayer.cpp
     sinknode.cpp
     streamreader.cpp
-    #    video/videodataoutput.cpp
     video/videowidget.cpp
+    video/videomemorystream.cpp
     utils/debug.cpp
     utils/libvlc.cpp
 )
+
+if(PHONON_FOUND_EXPERIMENTAL)
+    add_definitions(-DPHONON_EXPERIMENTAL)
+    list(APPEND phonon_vlc_SRCS video/videodataoutput.cpp)
+endif(PHONON_FOUND_EXPERIMENTAL)
 
 if(APPLE)
     list(APPEND phonon_vlc_SRCS
@@ -52,7 +57,9 @@ target_link_libraries(phonon_vlc
     ${QT_QTCORE_LIBRARY}
     ${QT_QTGUI_LIBRARY}
     ${PHONON_LIBRARY}
-    ${LIBVLC_LIBRARY})
+    ${LIBVLC_LIBRARY}
+    ${LIBVLCCORE_LIBRARY}
+)
 
 if(WIN32)
     install(TARGETS phonon_vlc DESTINATION bin/phonon_backend)

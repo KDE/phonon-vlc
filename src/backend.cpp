@@ -42,7 +42,9 @@
 #include "sinknode.h"
 #include "utils/debug.h"
 #include "utils/libvlc.h"
-//#include "video/videodataoutput.h"
+#ifdef PHONON_EXPERIMENTAL
+#include "video/videodataoutput.h"
+#endif
 #include "video/videowidget.h"
 
 Q_EXPORT_PLUGIN2(phonon_vlc, Phonon::VLC::Backend)
@@ -139,6 +141,10 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
     // frontend objects are not supported!
     case AudioDataOutputClass:
         return new AudioDataOutput(parent);
+#endif
+#ifdef PHONON_EXPERIMENTAL
+    case VideoDataOutputClass:
+        return new VideoDataOutput(parent);
 #endif
     case EffectClass:
         return new Effect(m_effectManager, args[0].toInt(), parent);
