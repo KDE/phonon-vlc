@@ -1,7 +1,5 @@
-/*  libVLC backend for the Phonon library
-    Copyright (C) 2006 Matthias Kretz <kretz@kde.org>
-    Copyright (C) 2009 Martin Sandsmark <sandsmark@samfundet.no>
-    Copyright (C) 2010 Harald Sitter <apachelogger@ubuntu.com>
+/*
+    Copyright (C) 2010-2012 Harald Sitter <apachelogger@ubuntu.com>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
