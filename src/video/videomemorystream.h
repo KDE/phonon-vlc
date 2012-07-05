@@ -38,10 +38,10 @@ public:
                                      unsigned width, unsigned height,
                                      unsigned *pitches, unsigned *lines);
 
-protected:
     void setCallbacks(Phonon::VLC::MediaPlayer *player);
     void unsetCallbacks(Phonon::VLC::MediaPlayer *player);
 
+protected:
     virtual void *lockCallback(void **planes) = 0;
     virtual void unlockCallback(void *picture,void *const *planes) = 0;
     virtual void displayCallback(void *picture) = 0;
