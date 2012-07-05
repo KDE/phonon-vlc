@@ -43,11 +43,7 @@ public:
     VString(char *vlcString) : m_vlcString(vlcString) {}
     ~VString()
     {
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 0, 0, 0))
         libvlc_free(m_vlcString);
-#else
-        free(m_vlcString);
-#endif // >= VLC 2
     }
 
     // VLC internally only uses UTF8!

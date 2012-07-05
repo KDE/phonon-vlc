@@ -83,7 +83,6 @@ void EffectManager::updateEffects()
     m_audioEffectList.clear();
     m_videoEffectList.clear();
 
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 0, 0, 0))
     int moduleCount = -1;
     VLC_FOREACH_MODULE(module, libvlc_audio_filter_list_get(libvlc)) {
         m_audioEffectList.append(new EffectInfo(module->psz_longname,
@@ -101,7 +100,6 @@ void EffectManager::updateEffects()
                                                 ++moduleCount,
                                                 EffectInfo::VideoEffect));
     }
-#endif
 
     m_effectList.append(m_audioEffectList);
     m_effectList.append(m_videoEffectList);

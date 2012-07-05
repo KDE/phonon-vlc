@@ -75,10 +75,8 @@ MediaPlayer::MediaPlayer(QObject *parent) :
         libvlc_MediaPlayerPausableChanged,
         libvlc_MediaPlayerTitleChanged,
         libvlc_MediaPlayerSnapshotTaken,
-        libvlc_MediaPlayerLengthChanged
-    #if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 0, 0, 0))
-        , libvlc_MediaPlayerVout
-    #endif // VLC >= 2.0
+        libvlc_MediaPlayerLengthChanged,
+        libvlc_MediaPlayerVout
     };
     const int eventCount = sizeof(events) / sizeof(*events);
     for (int i = 0; i < eventCount; ++i) {
@@ -242,14 +240,12 @@ void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
     case libvlc_MediaPlayerEncounteredError:
         P_EMIT_STATE(ErrorState);
         break;
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 0, 0, 0))
     case libvlc_MediaPlayerVout:
         if (event->u.media_player_vout.new_count > 0)
             P_EMIT_HAS_VIDEO(true);
         else
             P_EMIT_HAS_VIDEO(false);
         break;
-#endif // VLC >= 2.0
     case libvlc_MediaPlayerMediaChanged:
         break;
     case libvlc_MediaPlayerForward:

@@ -65,11 +65,7 @@ bool LibVLC::init()
 #endif
 
         QByteArray encodedPluginPath = QFile::encodeName(pluginsPath);
-#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 0, 0, 0))
-        args << QByteArray("--plugin-path=").append(encodedPluginPath);
-#else
         qputenv("VLC_PLUGIN_PATH", encodedPluginPath);
-#endif
 
         // Ends up as something like $HOME/.config/Phonon/vlc.conf
         const QString configFileName = QSettings("Phonon", "vlc").fileName();
@@ -115,13 +111,8 @@ bool LibVLC::init()
         // no AudioOutput you will still get audio if there is an audio stream,
         // equally if you have only an AudioOutput and play a video VLC will pop
         // up a Video window.
-#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 0, 0, 0))
-        args << "--aout=none";
-        args << "--vout=none";
-#else // In VLC < 2.0 the argument was dummy, not none.
         args << "--aout=dummy";
         args << "--vout=dummy";
-#endif
 
         // Build const char* array
         QVarLengthArray<const char *, 64> vlcArgs(args.size());

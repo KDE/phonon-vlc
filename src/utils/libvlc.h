@@ -57,6 +57,9 @@ struct libvlc_instance_t;
 // These foreach expect no type because the type is generic, they do however
 // expect a getter to allow usage with our wrapper classes (Player, Media...).
 // TODO: once VLC1 support is dropped unify the FOREACH macro to only require the type
+#ifdef __GNUC__
+#warning drop VLC1 compat
+#endif
 #if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 0, 0, 0))
 #define VLC_FOREACH_TRACK(variable, getter) VLC_FOREACH(track_description, variable, getter, libvlc_track_description_list_release)
 #else
