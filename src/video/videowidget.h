@@ -38,6 +38,8 @@ typedef QWidget BaseWidget;
 namespace Phonon {
 namespace VLC {
 
+class SurfacePainter;
+
 /** \brief Implements the Phonon VideoWidget MediaNode, responsible for displaying video
  *
  * Phonon video is displayed using this widget. It implements the VideoWidgetInterface.
@@ -153,6 +155,8 @@ public:
     /// \reimp
     QSize sizeHint() const;
 
+    void setVisible(bool visible);
+
 private slots:
     /// Updates the sizeHint to match the native size of the video.
     /// \param hasVideo \c true when there is a video, \c false otherwise
@@ -235,6 +239,8 @@ private:
     qreal m_contrast;
     qreal m_hue;
     qreal m_saturation;
+
+    SurfacePainter *m_surfacePainter;
 };
 
 } // namespace VLC

@@ -28,10 +28,126 @@
 #include "utils/debug.h"
 #include "mediaobject.h"
 
+#include "video/videomemorystream.h"
+
 namespace Phonon {
 namespace VLC {
 
 #define DEFAULT_QSIZE QSize(320, 240)
+
+class SurfacePainter : public VideoMemoryStream
+{
+public:
+    void handlePaint(QPaintEvent *event)
+    {
+#warning can we make painting lockless?
+        QMutexLocker lock(&m_mutex); // LOCK!!!!#$!
+        Q_UNUSED(event);
+        QPainter painter(widget);
+        painter.drawImage(drawFrameRect(), m_frame);
+    }
+
+    VideoWidget *widget;
+
+private:
+    virtual void *lockCallback(void **planes)
+    {
+        m_mutex.lock();
+        planes[0] = (void *) m_frame.bits();
+        return 0;
+    }
+
+    virtual void unlockCallback(void *picture,void *const *planes)
+    {
+        m_mutex.unlock();
+    }
+
+    virtual void displayCallback(void *picture)
+    {
+        if (widget)
+            widget->update();
+    }
+
+    virtual unsigned formatCallback(char *chroma,
+                                    unsigned *width, unsigned *height,
+                                    unsigned *pitches,
+                                    unsigned *lines)
+    {
+        m_frame = QImage(QSize(*width, *height), QImage::Format_RGB32);
+        qstrcpy(chroma, "RV32");
+        return setPitchAndLines(vlc_fourcc_GetChromaDescription(VLC_CODEC_RGB32),
+                                *width, *height,
+                                pitches, lines);
+    }
+
+    virtual void formatCleanUpCallback()
+    {
+        // Lazy delete the object to avoid callbacks from VLC after deletion.
+        if (!widget)
+            delete this;
+    }
+
+    QRect scaleToAspect(QRect srcRect, int w, int h) const
+    {
+        float width = srcRect.width();
+        float height = srcRect.width() * (float(h) / float(w));
+        if (height > srcRect.height()) {
+            height = srcRect.height();
+            width = srcRect.height() * (float(w) / float(h));
+        }
+        return QRect(0, 0, (int)width, (int)height);
+    }
+
+    QRect drawFrameRect() const
+    {
+        QRect widgetRect = widget->rect();
+        QRect drawFrameRect;
+        switch (widget->aspectRatio()) {
+        case Phonon::VideoWidget::AspectRatioWidget:
+            drawFrameRect = widgetRect;
+            // No more calculations needed.
+            return drawFrameRect;
+        case Phonon::VideoWidget::AspectRatio4_3:
+            drawFrameRect = scaleToAspect(widgetRect, 4, 3);
+            break;
+        case Phonon::VideoWidget::AspectRatio16_9:
+            drawFrameRect = scaleToAspect(widgetRect, 16, 9);
+            break;
+        case Phonon::VideoWidget::AspectRatioAuto:
+            drawFrameRect = QRect(0, 0, m_frame.width(), m_frame.height());
+            break;
+        }
+
+        // Scale m_drawFrameRect to fill the widget
+        // without breaking aspect:
+        float widgetWidth = widgetRect.width();
+        float widgetHeight = widgetRect.height();
+        float frameWidth = widgetWidth;
+        float frameHeight = drawFrameRect.height() * float(widgetWidth) / float(drawFrameRect.width());
+
+        switch (widget->scaleMode()) {
+        case Phonon::VideoWidget::ScaleAndCrop:
+            if (frameHeight < widgetHeight) {
+                frameWidth *= float(widgetHeight) / float(frameHeight);
+                frameHeight = widgetHeight;
+            }
+            break;
+        case Phonon::VideoWidget::FitInView:
+            if (frameHeight > widgetHeight) {
+                frameWidth *= float(widgetHeight) / float(frameHeight);
+                frameHeight = widgetHeight;
+            }
+            break;
+        }
+        drawFrameRect.setSize(QSize(int(frameWidth), int(frameHeight)));
+        drawFrameRect.moveTo(int((widgetWidth - frameWidth) / 2.0f),
+                               int((widgetHeight - frameHeight) / 2.0f));
+        return drawFrameRect;
+    }
+
+    QImage m_frame;
+    QMutex m_mutex;
+};
 
 VideoWidget::VideoWidget(QWidget *parent) :
     BaseWidget(parent),
@@ -43,17 +159,11 @@ VideoWidget::VideoWidget(QWidget *parent) :
     m_brightness(0.0),
     m_contrast(0.0),
     m_hue(0.0),
-    m_saturation(0.0)
+    m_saturation(0.0),
+    m_surfacePainter(0)
 {
-    // When resizing fill with black (backgroundRole color) the rest is done by paintEvent
-    setAttribute(Qt::WA_OpaquePaintEvent);
-
-    // Disable Qt composition management as MPlayer draws onto the widget directly
-    setAttribute(Qt::WA_PaintOnScreen);
-
-    // Indicates that the widget has no background,
-    // i.e. when the widget receives paint events, the background is not automatically repainted.
-    setAttribute(Qt::WA_NoSystemBackground);
+    // We want background painting so Qt autofills with black.
+    setAttribute(Qt::WA_NoSystemBackground, false);
 
     // Required for dvdnav
 #ifdef __GNUC__
@@ -65,10 +175,13 @@ VideoWidget::VideoWidget(QWidget *parent) :
     QPalette p = palette();
     p.setColor(backgroundRole(), Qt::black);
     setPalette(p);
+    setAutoFillBackground(true);
 }
 
 VideoWidget::~VideoWidget()
 {
+    if (m_surfacePainter)
+        m_surfacePainter->widget = 0; // Lazy delete
 }
 
 void VideoWidget::connectToMediaObject(MediaObject *mediaObject)
@@ -101,13 +214,15 @@ void VideoWidget::addToMedia(Media *media)
 #warning this seems an awful solution
 #endif
 
+    if (!m_surfacePainter) {
 #if defined(Q_OS_MAC)
-    m_player->setNsObject(cocoaView());
+        m_player->setNsObject(cocoaView());
 #elif defined(Q_OS_UNIX)
-    m_player->setXWindow(winId());
+        m_player->setXWindow(winId());
 #elif defined(Q_OS_WIN)
-    m_player->setHwnd(winId());
+        m_player->setHwnd(winId());
 #endif
+    }
 }
 
 Phonon::VideoWidget::AspectRatio VideoWidget::aspectRatio() const
@@ -269,6 +384,17 @@ void VideoWidget::updateVideoSize(bool hasVideo)
         m_videoSize = DEFAULT_QSIZE;
 }
 
+void VideoWidget::setVisible(bool visible)
+{
+    if (window() && window()->testAttribute(Qt::WA_DontShowOnScreen) && !m_surfacePainter) {
+        debug() << "SURFACE PAINTING";
+        m_surfacePainter = new SurfacePainter;
+        m_surfacePainter->widget = this;
+        m_surfacePainter->setCallbacks(m_player);
+    }
+    QWidget::setVisible(visible);
+}
+
 void VideoWidget::processPendingAdjusts(bool videoAvailable)
 {
     if (!videoAvailable || !m_mediaObject || !m_mediaObject->hasVideo()) {
@@ -291,10 +417,8 @@ void VideoWidget::clearPendingAdjusts()
 void VideoWidget::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
-    // FIXME this makes the video flicker
-    // Make everything backgroundRole color
-    QPainter painter(this);
-    painter.eraseRect(rect());
+    if (m_surfacePainter)
+        m_surfacePainter->handlePaint(event);
 }
 
 bool VideoWidget::enableFilterAdjust(bool adjust)
