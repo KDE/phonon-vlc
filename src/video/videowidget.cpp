@@ -40,7 +40,9 @@ class SurfacePainter : public VideoMemoryStream
 public:
     void handlePaint(QPaintEvent *event)
     {
+#ifdef __GNUC__
 #warning can we make painting lockless?
+#endif
         QMutexLocker lock(&m_mutex); // LOCK!!!!#$!
         Q_UNUSED(event);
         QPainter painter(widget);

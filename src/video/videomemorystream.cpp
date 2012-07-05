@@ -50,7 +50,6 @@ unsigned VideoMemoryStream::setPitchAndLines(const vlc_chroma_description_t *des
 
 void VideoMemoryStream::setCallbacks(MediaPlayer *player)
 {
-#warning needs wrappers
     libvlc_video_set_callbacks(player->libvlc_media_player(),
                                lockCallbackInternal,
                                unlockCallbackInternal,
