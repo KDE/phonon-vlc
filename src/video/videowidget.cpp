@@ -61,11 +61,14 @@ private:
 
     virtual void unlockCallback(void *picture,void *const *planes)
     {
+        Q_UNUSED(picture);
+        Q_UNUSED(planes);
         m_mutex.unlock();
     }
 
     virtual void displayCallback(void *picture)
     {
+        Q_UNUSED(picture);
         if (widget)
             widget->update();
     }

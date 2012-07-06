@@ -120,6 +120,11 @@ void MediaPlayer::stop()
     libvlc_media_player_stop(m_player);
 }
 
+qint64 MediaPlayer::length() const
+{
+    return libvlc_media_player_get_length(m_player);
+}
+
 qint64 MediaPlayer::time() const
 {
     return libvlc_media_player_get_time(m_player);

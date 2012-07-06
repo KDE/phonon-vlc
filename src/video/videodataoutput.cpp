@@ -81,6 +81,8 @@ void *VideoDataOutput::lockCallback(void **planes)
 
 void VideoDataOutput::unlockCallback(void *picture, void *const*planes)
 {
+    Q_UNUSED(picture);
+    Q_UNUSED(planes);
     DEBUG_BLOCK;
 
     // For some reason VLC yields BGR24, so we swap it to RGB
@@ -102,6 +104,7 @@ void VideoDataOutput::unlockCallback(void *picture, void *const*planes)
 
 void VideoDataOutput::displayCallback(void *picture)
 {
+    Q_UNUSED(picture);
     DEBUG_BLOCK;
     // We send the frame while unlocking as we could loose syncing otherwise.
     // With VDO the consumer is expected to ensure syncness while not blocking
@@ -110,13 +113,15 @@ void VideoDataOutput::displayCallback(void *picture)
 
 static VideoFrame2::Format fourccToFormat(const char *fourcc)
 {
-    if (strcmp(fourcc, "RV24"))
+    if (qstrcmp(fourcc, "RV24"))
         return VideoFrame2::Format_RGB888;
-    else if (strcmp(fourcc, "RV32"))
+    else if (qstrcmp(fourcc, "RV32"))
         return VideoFrame2::Format_RGB32;
-    else if (strcmp(fourcc, "YV12"))
+    else if (qstrcmp(fourcc, "YV12"))
         return VideoFrame2::Format_YV12;
-    else // No clue what YUV2 is in VLC
+    else if (qstrcmp(fourcc, "YUY2"))
+        return VideoFrame2::Format_YUY2;
+    else
         return VideoFrame2::Format_Invalid;
 }
 
@@ -127,17 +132,17 @@ static const vlc_chroma_description_t *setFormat(VideoFrame2::Format format, cha
         *chroma = 0;
         return 0;
     case VideoFrame2::Format_RGB32:
-        debug() << "32";
         qstrcpy(*chroma, "RV32");
         return vlc_fourcc_GetChromaDescription(VLC_CODEC_RGB32);
     case VideoFrame2::Format_RGB888:
-        debug() << "24";
         qstrcpy(*chroma, "RV24");
         return vlc_fourcc_GetChromaDescription(VLC_CODEC_RGB24);
     case VideoFrame2::Format_YV12:
-        debug() << "12";
         qstrcpy(*chroma, "YV12");
         return vlc_fourcc_GetChromaDescription(VLC_CODEC_YV12);
+    case VideoFrame2::Format_YUY2:
+        qstrcpy(*chroma, "YUY2");
+        return vlc_fourcc_GetChromaDescription(VLC_CODEC_YUYV);
     }
     return 0;
 }
@@ -157,11 +162,9 @@ unsigned VideoDataOutput::formatCallback(char *chroma,
     VideoFrame2::Format suggestedFormat = fourccToFormat(chroma);
     if (suggestedFormat != VideoFrame2::Format_Invalid
             && allowedFormats.contains(suggestedFormat)) { // Use suggested
-        debug() << "suggested:" << chroma;
         chromaDesc = setFormat(suggestedFormat, &chroma);
         m_frame.format = suggestedFormat;
     } else { // Pick first and use that
-        debug() << "picking" << allowedFormats;
         foreach (VideoFrame2::Format format, allowedFormats) {
             chromaDesc = setFormat(format, &chroma);
             if (chroma) {
@@ -170,8 +173,6 @@ unsigned VideoDataOutput::formatCallback(char *chroma,
             }
         }
     }
-
-    qDebug() << "USING" << chroma;
 
     Q_ASSERT(chromaDesc);
 

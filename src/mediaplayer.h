@@ -68,6 +68,7 @@ public:
     void togglePause();
     void stop();
 
+    qint64 length() const;
     qint64 time() const;
     void setTime(qint64 newTime);
 

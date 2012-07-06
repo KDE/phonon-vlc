@@ -78,7 +78,6 @@ MediaObject::~MediaObject()
 void MediaObject::resetMembers()
 {
     // default to -1, so that streams won't break and to comply with the docs (-1 if unknown)
-    m_totalTime = -1;
     m_hasVideo = false;
     m_seekpoint = 0;
 
@@ -155,16 +154,6 @@ void MediaObject::seek(qint64 milliseconds)
 
 void MediaObject::timeChanged(qint64 time)
 {
-    // Only VLC >= 2.0 implements a signal on vout appearance.
-    // On older versions we simply probe for it...
-#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 0, 0, 0))
-    // Check 10 times for a video, then give up.
-    if (!m_hasVideo && ++m_timesVideoChecked < 11) {
-        debug() << "Looking for Video";
-        onHasVideoChanged(m_player->hasVideoOutput());
-    }
-#endif
-
     const qint64 totalTime = this->totalTime();
     if (m_state == PlayingState || m_state == BufferingState) { // Buffering is concurrent
         if (time >= totalTime - m_prefinishMark) {
@@ -547,7 +536,7 @@ void MediaObject::playInternal()
 
     // Connect to Media signals. Disconnection is done at unloading.
     connect(m_media, SIGNAL(durationChanged(qint64)),
-            this, SLOT(updateDuration(qint64)));
+            this, SIGNAL(totalTimeChanged(qint64)));
     connect(m_media, SIGNAL(metaDataChanged()),
             this, SLOT(updateMetaData()));
 
@@ -579,15 +568,6 @@ bool MediaObject::isSeekable() const
     if (m_streamReader)
         return m_streamReader->streamSeekable();
     return m_player->isSeekable();
-}
-
-void MediaObject::updateDuration(qint64 newDuration)
-{
-#ifdef __GNUC__
-#warning duration signal can just be forwarded, we have no gain from caching this
-#endif
-    m_totalTime = newDuration;
-    emit totalTimeChanged(m_totalTime);
 }
 
 void MediaObject::updateMetaData()
@@ -690,7 +670,7 @@ void MediaObject::onHasVideoChanged(bool hasVideo)
 
 qint64 MediaObject::totalTime() const
 {
-    return m_totalTime;
+    return m_player->length();
 }
 
 void MediaObject::addSink(SinkNode *node)
