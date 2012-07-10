@@ -127,21 +127,25 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
     if (!LibVLC::self || !libvlc)
         return 0;
 
+    // Effect N/I (libvlc insufficiency)
+    // VolumeFaderEffect N/I (vlc design insufficiency
+    // AudioDataOutput N/I for 2.0 (vlc breakage all over the place)
+    //
     switch (c) {
     case MediaObjectClass:
         return new MediaObject(parent);
     case AudioOutputClass:
         return new AudioOutput(parent);
-#ifdef __GNUC__
-#warning using sout in VLC2 breaks libvlcs vout functions, see vlc bug 6992
-// https://trac.videolan.org/vlc/ticket/6992
-#endif
-#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 0, 0, 0))
+//#ifdef __GNUC__
+//#warning using sout in VLC2 breaks libvlcs vout functions, see vlc bug 6992
+//// https://trac.videolan.org/vlc/ticket/6992
+//#endif
+//#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 0, 0, 0))
     // FWIW: the case is inside the if because that gives clear indication which
     // frontend objects are not supported!
     case AudioDataOutputClass:
         return new AudioDataOutput(parent);
-#endif
+//#endif
 #ifdef PHONON_EXPERIMENTAL
     case VideoDataOutputClass:
         return new VideoDataOutput(parent);

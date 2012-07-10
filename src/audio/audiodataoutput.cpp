@@ -25,12 +25,14 @@
 #include "audiodataoutput.h"
 
 #include "media.h"
+#include "utils/debug.h"
 
 namespace Phonon {
 namespace VLC {
 
 AudioDataOutput::AudioDataOutput(QObject *parent)
     : QObject(parent)
+    , m_sampleRate(44100)
 {
     m_sampleRate = 44100;
     connect(this, SIGNAL(sampleReadDone()), this, SLOT(sendData()));
@@ -65,16 +67,8 @@ void AudioDataOutput::setDataSize(int size)
 
 void AudioDataOutput::addToMedia(Media *media)
 {
-
-    media->addOption(QString(":sout=#duplicate{dst=display,dst='transcode{vcodec=none,acodec=s16l,samplerate=%1}"
-                              ":smem{audio-prerender-callback=%2,"
-                                    "audio-postrender-callback=%3,"
-                                    "audio-data=%4,"
-                                    "time-sync=true}'}"
-                             ).arg(QString::number(m_sampleRate),
-                                   QString::number((long long int) INTPTR_FUNC(AudioDataOutput::lock)),
-                                   QString::number((long long int) INTPTR_FUNC(AudioDataOutput::unlock)),
-                                   QString::number((long long int) INTPTR_PTR(this))));
+    Q_UNUSED(media);
+    setCallbacks(m_player);
 }
 
 void AudioDataOutput::lock(AudioDataOutput *cw, quint8 **pcm_buffer , quint32 size)
@@ -157,6 +151,63 @@ void AudioDataOutput::sendData()
         emit dataReady(m_data);
     }
     m_locker.unlock();
+}
+
+void AudioDataOutput::playCallback(const void *samples, unsigned sampleCount, int64_t pts)
+{
+    DEBUG_BLOCK;
+    QMutexLocker lock(&m_locker);
+
+    // (bytesPerChannelPerSample * channels * read_samples) + (bytesPerChannelPerSample * read_channels)
+//    int bytesPerChannelPerSample = bits_per_sample / 8;
+    int bytesPerChannelPerSample = 16/8;
+
+    for (quint32 readSamples = 0; readSamples < sampleCount; ++readSamples) {
+        // Prepare a sample buffer, and initialise it
+        quint16 sampleBuffer[6];
+        for (int initialised = 0; initialised < 6; ++initialised) {
+            sampleBuffer[initialised] = 0;
+        }
+
+        int bufferPosition = (bytesPerChannelPerSample * m_channelCount * readSamples);
+
+        for (quint32 readChannels = 0; readChannels < m_channelCount; ++readChannels) {
+            quint32 complet = 0;
+            for (int readBytes = 0; readBytes < bytesPerChannelPerSample; ++readBytes) {
+                // Read from the pcm_buffer into the per channel internal buffer
+
+                quint32 complet_temp = 0;
+                complet_temp = ((quint8 *) samples)[bufferPosition];
+                complet_temp <<=  (8 * readBytes);
+
+                complet += complet_temp;
+                ++bufferPosition;
+            }
+
+            sampleBuffer[readChannels] = complet;
+        }
+
+        if (m_channelCount == 1) {
+            m_channelSamples[1].append(qint16(sampleBuffer[0]));
+        }
+
+        for (quint32 readChannels = 0; readChannels < m_channelCount; ++readChannels) {
+            m_channelSamples[readChannels].append(qint16(sampleBuffer[readChannels]));
+        }
+        // Finished reading one sample
+    }
+
+    emit sampleReadDone();
+}
+
+bool AudioDataOutput::setupCallback(char *format, unsigned *rate, unsigned *channels)
+{
+    qstrcpy(format, "S16N"); // As of 2.0 S16N is the only format amem supports
+    *rate = m_sampleRate; // Force 44100 Hz as it is not clear what VLC will propose here...
+    if (*channels > 6)
+        *channels = 6; // Phonon only supports 6 channels
+    m_channelCount = *channels;
+    return true;
 }
 
 } // namespace VLC

@@ -31,6 +31,7 @@
 #include <phonon/audiodataoutput.h>
 #include <phonon/audiodataoutputinterface.h>
 
+#include "audiomemorystream.h"
 #include "sinknode.h"
 
 QT_BEGIN_HEADER
@@ -56,7 +57,8 @@ namespace VLC {
  *
  * \author Martin Sandsmark <sandsmark@samfundet.no>
  */
-class AudioDataOutput : public QObject, public SinkNode, public AudioDataOutputInterface
+class AudioDataOutput : public QObject, public SinkNode, public AudioDataOutputInterface,
+        private AbstractAudioMemoryOutput
 {
     Q_OBJECT
     Q_INTERFACES(Phonon::AudioDataOutputInterface)
@@ -148,6 +150,9 @@ private:
                        quint32 channelCount, quint32 rate,
                        quint32 sampleCount, quint32 bits_per_sample,
                        quint32 size, qint64 pts);
+
+    virtual void playCallback(const void *samples, unsigned count, int64_t pts);
+    virtual bool setupCallback(char *format, unsigned *rate, unsigned *channels);
 
     int m_dataSize;
     int m_sampleRate;
