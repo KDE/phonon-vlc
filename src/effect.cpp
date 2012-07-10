@@ -36,9 +36,6 @@ Effect::Effect(EffectManager *p_em, int i_effectId, QObject *p_parent)
     : QObject(p_parent)
     , SinkNode()
 {
-#ifdef __GNUC__
-#warning Effects depend on VLC 1.2 - contains a billion Q_UNUSED
-#endif
     p_effectManager = p_em;
     const QList<EffectInfo *> effects = p_effectManager->effects();
 
