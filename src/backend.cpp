@@ -83,7 +83,6 @@ Backend::Backend(QObject *parent, const QVariantList &)
     } else {
 #ifdef __GNUC__
 #warning TODO - this error message is about as useful as a cooling unit in the arctic
-#warning TODO - supposedly Phonon VLC should not make kabooom if libvlc fails to init, probably impossible though
 #endif
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
@@ -122,7 +121,7 @@ Backend::~Backend()
 #endif
 }
 
-QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const QList<QVariant> &args)
+QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const QList<QVariant> &/*args*/)
 {
     if (!LibVLC::self || !libvlc)
         return 0;

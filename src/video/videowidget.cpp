@@ -40,10 +40,10 @@ class SurfacePainter : public VideoMemoryStream
 public:
     void handlePaint(QPaintEvent *event)
     {
-#ifdef __GNUC__
-#warning can we make painting lockless?
-#endif
-        QMutexLocker lock(&m_mutex); // LOCK!!!!#$!
+        // Mind that locking here is still faster than making this lockfree by
+        // dispatching QEvents.
+        // Plus VLC can actually skip frames as necessary.
+        QMutexLocker lock(&m_mutex);
         Q_UNUSED(event);
         QPainter painter(widget);
         painter.drawImage(drawFrameRect(), m_frame);
@@ -215,10 +215,6 @@ void VideoWidget::addToMedia(Media *media)
 {
     SinkNode::addToMedia(media);
 
-#ifdef __GNUC__
-#warning this seems an awful solution
-#endif
-
     if (!m_surfacePainter) {
 #if defined(Q_OS_MAC)
         m_player->setNsObject(cocoaView());
@@ -244,9 +240,6 @@ void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspect)
     m_aspectRatio = aspect;
 
     switch (m_aspectRatio) {
-#ifdef __GNUC__
-#warning TODO
-#endif
     // FIXME: find a way to implement aspectratiowidget, it is meant to scale
     // and stretch (i.e. scale to window without retaining aspect ratio).
     case Phonon::VideoWidget::AspectRatioAuto:

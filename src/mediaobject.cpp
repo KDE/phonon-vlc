@@ -646,16 +646,17 @@ void MediaObject::updateState(MediaPlayer::State state)
 
 void MediaObject::onHasVideoChanged(bool hasVideo)
 {
+    DEBUG_BLOCK;
     if (m_hasVideo != hasVideo) {
         m_hasVideo = hasVideo;
         emit hasVideoChanged(m_hasVideo);
-    }
+    } else
+        // We can simply return if we are have the appropriate caching already.
+        // Otherwise we'd do pointless rescans of mediacontroller stuff.
+        // MC and MO are force-reset on media changes anyway.
+        return;
 
     if (hasVideo) {
-        debug() << "HASVIDEO";
-#ifdef __GNUC__
-#warning a bit inperformant and stuff
-#endif
         refreshAudioChannels();
         refreshSubtitles();
 
