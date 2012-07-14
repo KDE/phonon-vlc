@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2011 Harald Sitter <sitter@kde.org>
+    Copyright (C) 2011-2012 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -27,22 +27,26 @@
 #include <vlc/libvlc_version.h>
 
 #include "sinknode.h"
+#include "videomemorystream.h"
 
 struct libvlc_media_t;
 
 namespace Phonon {
 namespace VLC {
 
-class VideoGraphicsObject1point1 : public QObject,
-                                   public VideoGraphicsObjectInterface,
-                                   public SinkNode
+class VideoGraphicsObject : public QObject,
+                            public VideoGraphicsObjectInterface,
+                            public SinkNode,
+                            public VideoMemoryStream
 {
     Q_OBJECT
     Q_INTERFACES(Phonon::VideoGraphicsObjectInterface)
 public:
-    VideoGraphicsObject1point1(QObject *parent = 0);
-    virtual ~VideoGraphicsObject1point1();
+    VideoGraphicsObject(QObject *parent = 0);
+    virtual ~VideoGraphicsObject();
+
     virtual void connectToMediaObject(MediaObject *mediaObject);
+    virtual void disconnectFromMediaObject(MediaObject *mediaObject);
 
     void lock();
     bool tryLock();
@@ -53,9 +57,15 @@ public:
     Q_INVOKABLE QList<VideoFrame::Format> offering(QList<VideoFrame::Format> offers);
     Q_INVOKABLE void choose(VideoFrame::Format format);
 
-    static void *lock_cb(void *opaque, void **planes);
-    static void unlock_cb(void *opaque, void *picture, void *const *planes);
-    static void display_cb(void *opaque, void *picture);
+    virtual void *lockCallback(void **planes);
+    virtual void unlockCallback(void *picture,void *const *planes);
+    virtual void displayCallback(void *picture);
+
+    virtual unsigned formatCallback(char *chroma,
+                                    unsigned *width, unsigned *height,
+                                    unsigned *pitches,
+                                    unsigned *lines);
+    virtual void formatCleanUpCallback();
 
 signals:
     void frameReady();
@@ -70,35 +80,6 @@ protected:
 
     Phonon::VideoFrame::Format m_chosenFormat;
 };
-
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 0, 0, 0))
-class VideoGraphicsObject : public VideoGraphicsObject1point1
-{
-public:
-    VideoGraphicsObject(QObject *parent = 0);
-    virtual ~VideoGraphicsObject();
-    virtual void connectToMediaObject(MediaObject *mediaObject);
-    virtual void disconnectFromMediaObject(MediaObject *mediaObject);
-
-    static unsigned int format_cb(void **opaque, char *chroma,
-                                  unsigned int *width, unsigned int *height,
-                                  unsigned int *pitches,
-                                  unsigned int *lines);
-    static void cleanup_cb(void *opaque);
-};
-#endif // >= VLC 2
-
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 0, 0, 0))
-static VideoGraphicsObject *createVideoGraphicsObject(QObject *parent = 0)
-{
-    return new VideoGraphicsObject(parent);
-}
-#else
-static VideoGraphicsObject1point1 *createVideoGraphicsObject(QObject *parent = 0)
-{
-    return new VideoGraphicsObject1point1(parent);
-}
-#endif // >= VLC 2
 
 } // namespace VLC
 } // namespace Phonon

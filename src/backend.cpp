@@ -147,7 +147,7 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
         return new VideoDataOutput(parent);
 #endif
     case VideoGraphicsObjectClass:
-        return createVideoGraphicsObject(parent);
+        return new VideoGraphicsObject(parent);
     case VideoWidgetClass:
         return new VideoWidget(qobject_cast<QWidget *>(parent));
     }
