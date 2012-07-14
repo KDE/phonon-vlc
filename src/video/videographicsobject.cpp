@@ -148,7 +148,10 @@ unsigned int VideoGraphicsObject::formatCallback(char *chroma,
     m_frame.planeCount = chromaDesc->plane_count;
 
     debug() << chroma;
-    return setPitchAndLines(chromaDesc, *width, *height, pitches, lines);
+    const unsigned int bufferSize = setPitchAndLines(chromaDesc, *width, *height, pitches, lines);
+    for (unsigned int i = 0; i < m_frame.planeCount; ++i)
+        m_frame.plane[i].resize(pitches[i] * lines[i]);
+    return bufferSize;
 }
 
 void VideoGraphicsObject::formatCleanUpCallback()
