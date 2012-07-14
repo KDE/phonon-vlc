@@ -33,6 +33,8 @@ set(phonon_vlc_SRCS
     mediaplayer.cpp
     sinknode.cpp
     streamreader.cpp
+#    video/videodataoutput.cpp
+    video/videographicsobject.cpp
     video/videowidget.cpp
     video/videomemorystream.cpp
     utils/debug.cpp
@@ -57,8 +59,13 @@ target_link_libraries(phonon_vlc
     ${QT_QTCORE_LIBRARY}
     ${QT_QTGUI_LIBRARY}
     ${PHONON_LIBRARY}
+<<<<<<< HEAD
     ${LIBVLC_LIBRARY}
     ${LIBVLCCORE_LIBRARY}
+=======
+    ${LIBVLCCORE_LIBRARY}
+    ${LIBVLC_LIBRARY}
+>>>>>>> qml
 )
 
 if(WIN32)

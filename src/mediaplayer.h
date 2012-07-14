@@ -50,6 +50,7 @@ public:
     ~MediaPlayer();
 
     inline libvlc_media_player_t *libvlc_media_player() const { return m_player; }
+    inline operator libvlc_media_player_t *() const { return m_player; }
     inline float bufferCache() const { return m_bufferCache; }
 
     void setMedia(Media *media);
