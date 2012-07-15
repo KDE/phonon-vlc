@@ -48,6 +48,11 @@ void VideoGraphicsObject::connectToMediaObject(MediaObject *mediaObject)
 
 void VideoGraphicsObject::disconnectFromMediaObject(MediaObject *mediaObject)
 {
+    // Try to prevent callbacks called after this object is being deleted
+    if (m_mediaObject) {
+        m_mediaObject->stop();
+    }
+
     unsetCallbacks(m_player);
     SinkNode::disconnectFromMediaObject(mediaObject);
 }

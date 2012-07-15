@@ -40,6 +40,9 @@ SinkNode::SinkNode()
 
 SinkNode::~SinkNode()
 {
+    if (m_mediaObject) {
+        disconnectFromMediaObject(m_mediaObject);
+    }
 }
 
 void SinkNode::connectToMediaObject(MediaObject *mediaObject)
@@ -63,6 +66,7 @@ void SinkNode::disconnectFromMediaObject(MediaObject *mediaObject)
         m_mediaObject->removeSink(this);
     }
 
+    m_mediaObject = 0;
     m_player = 0;
 }
 
