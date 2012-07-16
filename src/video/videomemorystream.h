@@ -36,7 +36,8 @@ public:
      */
     static unsigned setPitchAndLines(const vlc_chroma_description_t *chromaDescription,
                                      unsigned width, unsigned height,
-                                     unsigned *pitches, unsigned *lines);
+                                     unsigned *pitches, unsigned *lines,
+                                     unsigned *visiblePitches = 0, unsigned *visibleLines = 0);
 
     void setCallbacks(Phonon::VLC::MediaPlayer *player);
     void unsetCallbacks(Phonon::VLC::MediaPlayer *player);
