@@ -78,11 +78,14 @@ private:
                                     unsigned *pitches,
                                     unsigned *lines)
     {
-        m_frame = QImage(QSize(*width, *height), QImage::Format_RGB32);
         qstrcpy(chroma, "RV32");
-        return setPitchAndLines(vlc_fourcc_GetChromaDescription(VLC_CODEC_RGB32),
-                                *width, *height,
-                                pitches, lines);
+        unsigned bufferSize = setPitchAndLines(vlc_fourcc_GetChromaDescription(VLC_CODEC_RGB32),
+                                               *width, *height,
+                                               pitches, lines);
+        m_plane.resize(bufferSize);
+        m_frame = QImage(reinterpret_cast<const uchar *>(m_plane.constData()),
+                         *width, *height, pitches[0], QImage::Format_RGB32);
+        return bufferSize;
     }
 
     virtual void formatCleanUpCallback()
@@ -151,6 +154,8 @@ private:
     }
 
     QImage m_frame;
+    // We need an idependent plane as QImage needs to be forced to use the right stride/pitch.
+    QByteArray m_plane;
     QMutex m_mutex;
 };
 
