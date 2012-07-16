@@ -55,7 +55,7 @@ private:
     virtual void *lockCallback(void **planes)
     {
         m_mutex.lock();
-        planes[0] = (void *) m_frame.bits();
+        planes[0] = (void *) m_plane.data();
         return 0;
     }
 
