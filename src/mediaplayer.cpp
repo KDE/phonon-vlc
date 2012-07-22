@@ -224,7 +224,7 @@ void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
         // emitting a playingstate event whereas really it was buffering :S
         // http://trac.videolan.org/vlc/ticket/5277
         that->m_bufferCache = event->u.media_player_buffering.new_cache;
-#warning for some reason VLC is constantly buffering with dragon3's recent items, which keeps the mainloop busy and results in discarding just about every frame
+#warning for some reason VLC is constantly buffering with dragon3 recent items, which keeps the mainloop busy and results in discarding just about every frame
 //        if (that->m_bufferCache < 100)
 //            P_EMIT_STATE(BufferingState);
 //        else
