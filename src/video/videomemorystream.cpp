@@ -52,7 +52,6 @@ static int lcm(int a, int b)
     return a * b / GCD( a, b );
 }
 
-
 unsigned VideoMemoryStream::setPitchAndLines(const vlc_chroma_description_t *desc,
                                              unsigned width, unsigned height,
                                              unsigned *pitches, unsigned *lines,
@@ -80,10 +79,6 @@ unsigned VideoMemoryStream::setPitchAndLines(const vlc_chroma_description_t *des
     unsigned int bufferSize = 0;
     for(unsigned i = 0; i < desc->plane_count; ++i)
     {
-        //    qDebug() << width << "x" << height;
-        //    qDebug() << (i_height_aligned + i_height_extra ) * desc->p[i].h.num / desc->p[i].h.den << "/" << height * desc->p[i].h.num / desc->p[i].h.den;
-        //    qDebug() << i_width_aligned * desc->p[i].w.num / desc->p[i].w.den * desc->pixel_size << "/" << (width * desc->p[i].w.num / desc->p[i].w.den * desc->pixel_size);
-        //    qDebug() << QString("%1 * %2 / %3 * %4").arg(QString::number(width), QString::number(desc->p[i].w.num), QString::number(desc->p[i].w.den), QString::number(desc->pixel_size));
         pitches[i] = i_width_aligned * desc->p[i].w.num / desc->p[i].w.den * desc->pixel_size;
         if (visiblePitches)
             visiblePitches[i] = width * desc->p[i].w.num / desc->p[i].w.den * desc->pixel_size;
