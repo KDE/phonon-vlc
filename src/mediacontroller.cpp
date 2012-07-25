@@ -230,7 +230,7 @@ void MediaController::refreshAudioChannels()
 #warning GlobalDescriptionContainer does not allow reverse resolution from local to descriptor!
 #endif
             const QList<AudioChannelDescription> list = GlobalAudioChannels::instance()->listFor(this);
-            foreach (AudioChannelDescription descriptor, list) {
+            foreach (const AudioChannelDescription &descriptor, list) {
                 if (descriptor.name() == QString::fromUtf8(it->psz_name)) {
                     m_currentAudioChannel = descriptor;
                 }
@@ -295,7 +295,7 @@ void MediaController::refreshSubtitles()
 #warning GlobalDescriptionContainer does not allow reverse resolution from local to descriptor!
 #endif
             const QList<SubtitleDescription> list = GlobalSubtitles::instance()->listFor(this);
-            foreach (SubtitleDescription descriptor, list) {
+            foreach (const SubtitleDescription &descriptor, list) {
                 if (descriptor.name() == QString::fromUtf8(it->psz_name)) {
                     m_currentSubtitle = descriptor;
                 }

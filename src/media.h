@@ -35,7 +35,7 @@ class Media : public QObject
 {
     Q_OBJECT
 public:
-    Media(const QByteArray &mrl, QObject *parent = 0);
+    explicit Media(const QByteArray &mrl, QObject *parent = 0);
     ~Media();
 
     inline libvlc_media_t *libvlc_media() const { return m_media; }

@@ -302,7 +302,7 @@ void MediaObject::setSource(const MediaSource &source)
         if (source.url().scheme().isEmpty()) {
             url = "file:///";
             if (source.url().isRelative())
-                url.append(QFile::encodeName(QDir::currentPath()) + "/");
+                url.append(QFile::encodeName(QDir::currentPath()) + '/');
         }
         url += source.url().toEncoded();
         loadMedia(url);

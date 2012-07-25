@@ -68,7 +68,7 @@ public:
     void unlock();
 
     static int readCallback(void *data, const char *cookie,
-                            int64_t *dts, int64_t *pts, unsigned *flags,
+                            int64_t *dts, int64_t *pts, unsigned *flags, // krazy:exclude=typedefs
                             size_t *bufferSize, void **buffer);
 
     static int readDoneCallback(void *data, const char *cookie,

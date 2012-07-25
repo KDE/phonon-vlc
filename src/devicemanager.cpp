@@ -55,7 +55,7 @@ DeviceInfo::DeviceInfo(const QString &name, bool isAdvanced)
     m_capabilities = None;
 
     // A default device should never be advanced
-    if (name.startsWith("default", Qt::CaseInsensitive))
+    if (name.startsWith(QLatin1String("default"), Qt::CaseInsensitive))
         m_isAdvanced = false;
 }
 

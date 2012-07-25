@@ -84,7 +84,7 @@ void StreamReader::unlock()
 }
 
 int StreamReader::readCallback(void *data, const char *cookie,
-                               int64_t *dts, int64_t *pts, unsigned *flags,
+                               int64_t *dts, int64_t *pts, unsigned *flags, // krazy:exclude=typedefs
                                size_t *bufferSize, void **buffer)
 {
     Q_UNUSED(cookie);
@@ -118,7 +118,7 @@ int StreamReader::readDoneCallback(void *data, const char *cookie,
 int StreamReader::seekCallback(void *data, const uint64_t pos)
 {
     StreamReader *that = static_cast<StreamReader *>(data);
-    if (static_cast<int64_t>(pos) > that->streamSize()) {
+    if (static_cast<int64_t>(pos) > that->streamSize()) { // krazy:exclude=typedefs
         // attempt to seek past the end of our data.
         return -1;
     }

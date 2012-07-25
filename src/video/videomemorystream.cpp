@@ -40,7 +40,7 @@ static inline qint64 gcd(qint64 a, qint64 b)
 {
     while( b )
     {
-        int64_t c = a % b;
+        qint64 c = a % b;
         a = b;
         b = c;
     }

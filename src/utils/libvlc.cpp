@@ -260,13 +260,16 @@ QString LibVLC::vlcPath()
 
     m_vlcLibrary = new QLibrary();
     QStringList paths = LibVLC::findAllLibVlcPaths();
+#ifdef __GNUC__
+#warning why is this using a local static qstring?! :O
+#endif
     foreach(path, paths) {
         m_vlcLibrary->setFileName(path);
 
         if (!m_vlcLibrary->resolve("libvlc_exception_init")) { //"libvlc_exception_init" not contained in 1.1+
             return path;
         } else {
-            debug() << "Cannot resolve the symbol or load VLC library";
+            warning() << "Cannot resolve the symbol or load VLC library";
         }
         warning() << m_vlcLibrary->errorString();
     }

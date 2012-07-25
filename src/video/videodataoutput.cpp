@@ -165,7 +165,7 @@ unsigned VideoDataOutput::formatCallback(char *chroma,
         chromaDesc = setFormat(suggestedFormat, &chroma);
         m_frame.format = suggestedFormat;
     } else { // Pick first and use that
-        foreach (VideoFrame2::Format format, allowedFormats) {
+        foreach (const VideoFrame2::Format &format, allowedFormats) {
             chromaDesc = setFormat(format, &chroma);
             if (chroma) {
                 m_frame.format = format;
