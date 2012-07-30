@@ -45,7 +45,6 @@
 #ifdef PHONON_EXPERIMENTAL
 #include "video/videodataoutput.h"
 #endif
-#include "video/videographicsobject.h"
 #include "video/videowidget.h"
 
 Q_EXPORT_PLUGIN2(phonon_vlc, Phonon::VLC::Backend)
@@ -146,8 +145,6 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
     case VideoDataOutputClass:
         return new VideoDataOutput(parent);
 #endif
-    case VideoGraphicsObjectClass:
-        return new VideoGraphicsObject(parent);
     case VideoWidgetClass:
         return new VideoWidget(qobject_cast<QWidget *>(parent));
     }

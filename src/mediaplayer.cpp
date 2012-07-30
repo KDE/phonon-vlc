@@ -218,20 +218,12 @@ void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
         // that no explicit switch to Playing is sent would lock us into
         // buffering with no chance of ever getting back to playing (well, unless
         // there is a playing event obviously).
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 0, 0, 0))
-        // LibVLC <= 2.0 (possibly greater) does not explicitly switch to playing
-        // once 100 % cache was reached. So we need to work around this by fake
-        // emitting a playingstate event whereas really it was buffering :S
         // http://trac.videolan.org/vlc/ticket/5277
         that->m_bufferCache = event->u.media_player_buffering.new_cache;
-#ifdef __GNUC__
-#warning for some reason VLC is constantly buffering with dragon3 recent items, which keeps the mainloop busy and results in discarding just about every frame
-#endif
-//        if (that->m_bufferCache < 100)
-//            P_EMIT_STATE(BufferingState);
-//        else
+        if (that->m_bufferCache < 100)
+            P_EMIT_STATE(BufferingState);
+        else
             P_EMIT_STATE(PlayingState);
-#endif // VLC >= 2.0
         break;
     case libvlc_MediaPlayerPlaying:
         P_EMIT_STATE(PlayingState);
