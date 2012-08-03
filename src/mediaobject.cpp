@@ -62,6 +62,7 @@ MediaObject::MediaObject(QObject *parent)
     connect(m_player, SIGNAL(timeChanged(qint64)), this, SLOT(timeChanged(qint64)));
     connect(m_player, SIGNAL(stateChanged(MediaPlayer::State)), this, SLOT(updateState(MediaPlayer::State)));
     connect(m_player, SIGNAL(hasVideoChanged(bool)), this, SLOT(onHasVideoChanged(bool)));
+    connect(m_player, SIGNAL(bufferChanged(int)), this, SLOT(setBufferStatus(int)));
 
     // Internal Signals.
     connect(this, SIGNAL(moveToNext()), SLOT(moveToNextSource()));
@@ -85,6 +86,9 @@ void MediaObject::resetMembers()
     m_aboutToFinishEmitted = false;
 
     m_timesVideoChecked = 0;
+
+    m_buffering = false;
+    m_stateAfterBuffering = ErrorState;
 
     resetMediaController();
 }
@@ -431,8 +435,6 @@ void MediaObject::emitAboutToFinish()
 void MediaObject::changeState(Phonon::State newState)
 {
     DEBUG_BLOCK;
-    debug() << m_state << "-->" << newState;
-
     if (newState == m_state) {
         // State not changed
         return;
@@ -441,6 +443,8 @@ void MediaObject::changeState(Phonon::State newState)
         debug() << Q_FUNC_INFO << "no-op gapless item awaiting in queue - " << m_nextSource.type() ;
         return;
     }
+
+    debug() << m_state << "-->" << newState;
 
 #ifdef __GNUC__
 #warning do we actually need m_seekpoint? if a consumer seeks before playing state that is their problem?!
@@ -610,6 +614,7 @@ void MediaObject::updateState(MediaPlayer::State state)
 {
     DEBUG_BLOCK;
     debug() << state;
+
     switch (state) {
     case MediaPlayer::NoState:
         changeState(LoadingState);
@@ -619,7 +624,6 @@ void MediaObject::updateState(MediaPlayer::State state)
         break;
     case MediaPlayer::BufferingState:
         changeState(BufferingState);
-        emit bufferStatus(m_player->bufferCache());
         break;
     case MediaPlayer::PlayingState:
         changeState(PlayingState);
@@ -642,6 +646,29 @@ void MediaObject::updateState(MediaPlayer::State state)
         changeState(ErrorState);
         break;
     }
+
+    if (m_buffering) {
+        switch (state) {
+        case MediaPlayer::BufferingState:
+            break;
+        case MediaPlayer::PlayingState:
+            debug() << "Restoring buffering state after state change to Playing";
+            changeState(BufferingState);
+            m_stateAfterBuffering = PlayingState;
+            break;
+        case MediaPlayer::PausedState:
+            debug() << "Restoring buffering state after state change to Paused";
+            changeState(BufferingState);
+            m_stateAfterBuffering = PausedState;
+            break;
+        default:
+            debug() << "Buffering aborted!";
+            m_buffering = false;
+            break;
+        }
+    }
+
+    return;
 }
 
 void MediaObject::onHasVideoChanged(bool hasVideo)
@@ -666,6 +693,34 @@ void MediaObject::onHasVideoChanged(bool hasVideo)
             refreshTitles();
             refreshChapters(m_player->title());
         }
+    }
+}
+
+void MediaObject::setBufferStatus(int percent)
+{
+    // VLC does not have a buffering state (surprise!) but instead only sends the
+    // event (surprise!). Hence we need to simulate the state change.
+    // Problem with BufferingState is that it is actually concurent to Playing or Paused
+    // meaning that while you are buffering you can also pause, thus triggering
+    // a state change to paused. To handle this we let updateState change the
+    // state accordingly (as we need to allow the UI to update itself, and
+    // immediately after that we change back to buffering again.
+    // This loop can only be interrupted by a state change to !Playing & !Paused
+    // or by reaching a 100 % buffer caching (i.e. full cache).
+
+    m_buffering = true;
+    if (m_state != BufferingState) {
+        m_stateAfterBuffering = m_state;
+        changeState(BufferingState);
+    }
+
+    emit bufferStatus(percent);
+
+    // Transit to actual state only after emission so the signal is still
+    // delivered while in BufferingState.
+    if (percent >= 100) { // http://trac.videolan.org/vlc/ticket/5277
+        m_buffering = false;
+        changeState(m_stateAfterBuffering);
     }
 }
 

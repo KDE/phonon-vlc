@@ -51,7 +51,6 @@ public:
 
     inline libvlc_media_player_t *libvlc_media_player() const { return m_player; }
     inline operator libvlc_media_player_t *() const { return m_player; }
-    inline float bufferCache() const { return m_bufferCache; }
 
     void setMedia(Media *media);
 
@@ -160,6 +159,7 @@ signals:
     void seekableChanged(bool seekable);
     void stateChanged(MediaPlayer::State state);
     void timeChanged(qint64 time);
+    void bufferChanged(int percent);
 
     /** Emitted when the vout availability has changed */
     void hasVideoChanged(bool hasVideo);
@@ -170,8 +170,6 @@ private:
     Media *m_media;
 
     libvlc_media_player_t *m_player;
-
-    float m_bufferCache;
 };
 
 QDebug operator<<(QDebug dbg, const MediaPlayer::State &s);
