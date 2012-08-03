@@ -24,8 +24,20 @@ include_directories(${PHONON_INCLUDES} ${QT_INCLUDES} ${LIBVLC_INCLUDE_DIR} ${LI
 
 set(PHONON_VLC_MAJOR_VERSION "0")
 set(PHONON_VLC_MINOR_VERSION "5")
-set(PHONON_VLC_PATCH_VERSION "90")
+set(PHONON_VLC_PATCH_VERSION "91")
 set(PHONON_VLC_VERSION "${PHONON_VLC_MAJOR_VERSION}.${PHONON_VLC_MINOR_VERSION}.${PHONON_VLC_PATCH_VERSION}")
 add_definitions(-DPHONON_VLC_VERSION="${PHONON_VLC_VERSION}")
 
 add_subdirectory(src)
+
+add_custom_command(
+    OUTPUT ${CMAKE_BINARY_DIR}/phonon-backend-vlc-${PHONON_VLC_VERSION}.tar.xz
+    COMMAND
+        git archive --prefix=phonon-backend-vlc-${PHONON_VLC_VERSION}/ HEAD | xz -9 > ${CMAKE_BINARY_DIR}/phonon-backend-vlc-${PHONON_VLC_VERSION}.tar.xz
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
+
+add_custom_target(
+    dist
+    DEPENDS ${CMAKE_BINARY_DIR}/phonon-backend-vlc-${PHONON_VLC_VERSION}.tar.xz
+)
