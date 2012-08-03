@@ -244,6 +244,9 @@ private slots:
      */
     void moveToNextSource();
 
+    /*** Update media duration time - see comment in CPP */
+    void updateDuration(qint64 newDuration);
+
     /** Retrieve meta data of a file (i.e ARTIST, TITLE, ALBUM, etc...). */
     void updateMetaData();
     void updateState(MediaPlayer::State state);
@@ -314,6 +317,7 @@ private:
 
     Media *m_media;
 
+    qint64 m_totalTime;
     QByteArray m_mrl;
     QMultiMap<QString, QString> m_vlcMetaData;
     QList<SinkNode *> m_sinks;

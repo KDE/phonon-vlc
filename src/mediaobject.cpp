@@ -79,6 +79,7 @@ MediaObject::~MediaObject()
 void MediaObject::resetMembers()
 {
     // default to -1, so that streams won't break and to comply with the docs (-1 if unknown)
+    m_totalTime = -1;
     m_hasVideo = false;
     m_seekpoint = 0;
 
@@ -542,7 +543,7 @@ void MediaObject::playInternal()
 
     // Connect to Media signals. Disconnection is done at unloading.
     connect(m_media, SIGNAL(durationChanged(qint64)),
-            this, SIGNAL(totalTimeChanged(qint64)));
+            this, SIGNAL(updateDuration(qint64)));
     connect(m_media, SIGNAL(metaDataChanged()),
             this, SLOT(updateMetaData()));
 
@@ -574,6 +575,17 @@ bool MediaObject::isSeekable() const
     if (m_streamReader)
         return m_streamReader->streamSeekable();
     return m_player->isSeekable();
+}
+
+void MediaObject::updateDuration(qint64 newDuration)
+{
+    // This here cache is needed because we need to provide -1 as totalTime()
+    // for as long as we do not get a proper update through this slot.
+    // VLC reports -1 with no media but 0 if it does not know the duration, so
+    // apps that assume 0 = unkown get screwed if they query too early.
+    // http://bugs.tomahawk-player.org/browse/TWK-1029
+    m_totalTime = newDuration;
+    emit totalTimeChanged(m_totalTime);
 }
 
 void MediaObject::updateMetaData()
@@ -728,7 +740,7 @@ void MediaObject::setBufferStatus(int percent)
 
 qint64 MediaObject::totalTime() const
 {
-    return m_player->length();
+    return m_totalTime;
 }
 
 void MediaObject::addSink(SinkNode *node)
