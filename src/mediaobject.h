@@ -207,7 +207,7 @@ signals:
     void videoWidgetSizeChanged(int i_width, int i_height);
 
     void aboutToFinish();
-    void bufferStatus(int i_percent_filled);
+    void bufferStatus(int percentFilled);
     void currentSourceChanged(const MediaSource &newSource);
     void finished();
     void hasVideoChanged(bool b_has_video);
@@ -250,6 +250,8 @@ private slots:
 
     /** Called when the availability of video output changed */
     void onHasVideoChanged(bool hasVideo);
+
+    void setBufferStatus(int percent);
 
 private:
     /**
@@ -327,6 +329,9 @@ private:
     qint64 m_seekpoint;
 
     int m_timesVideoChecked;
+
+    bool m_buffering;
+    Phonon::State m_stateAfterBuffering;
 };
 
 } // namespace VLC

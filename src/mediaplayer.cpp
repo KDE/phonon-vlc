@@ -49,8 +49,7 @@ namespace VLC {
 
 MediaPlayer::MediaPlayer(QObject *parent) :
     QObject(parent),
-    m_player(libvlc_media_player_new(libvlc)),
-    m_bufferCache(-1)
+    m_player(libvlc_media_player_new(libvlc))
 {
     Q_ASSERT(m_player);
 
@@ -214,16 +213,10 @@ void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
         P_EMIT_STATE(OpeningState);
         break;
     case libvlc_MediaPlayerBuffering:
-        // We need to only process the buffering event in >= 2.0 as the fact
-        // that no explicit switch to Playing is sent would lock us into
-        // buffering with no chance of ever getting back to playing (well, unless
-        // there is a playing event obviously).
-        // http://trac.videolan.org/vlc/ticket/5277
-        that->m_bufferCache = event->u.media_player_buffering.new_cache;
-        if (that->m_bufferCache < 100)
-            P_EMIT_STATE(BufferingState);
-        else
-            P_EMIT_STATE(PlayingState);
+        QMetaObject::invokeMethod(
+                    that, "bufferChanged",
+                    Qt::QueuedConnection,
+                    Q_ARG(int, event->u.media_player_buffering.new_cache));
         break;
     case libvlc_MediaPlayerPlaying:
         P_EMIT_STATE(PlayingState);
