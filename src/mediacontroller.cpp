@@ -323,9 +323,11 @@ void MediaController::setCurrentTitle(int title)
         return;
     case Dvd:
     case Vcd:
+#if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 7, 0))
     case BluRay:
         m_player->setTitle(title);
         return;
+#endif
     case NoDisc:
         warning() << "Current media source is not a CD, DVD or VCD!";
         return;
