@@ -161,7 +161,7 @@ void MediaObject::seek(qint64 milliseconds)
 
 void MediaObject::timeChanged(qint64 time)
 {
-    const qint64 totalTime = this->totalTime();
+    const qint64 totalTime = m_totalTime;
 
     switch (m_state) {
     case PlayingState:
