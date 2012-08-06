@@ -339,9 +339,23 @@ void VideoWidget::setHue(qreal hue)
     }
 
     // VLC operates within a 0 to 360 range for hue.
+    // Phonon operates on -1.0 to 1.0, so we need to consider 0 to 180 as
+    // 0 to 1.0 and 180 to 360 as -1 to 0.0.
+    //              360/0 (0)
+    //                 ___
+    //                /   \
+    //    270 (-.25)  |   |  90 (.25)
+    //                \___/
+    //             180 (1/-1)
+    // (-.25 is 360 minus 90 (vlcValue of .25).
     m_hue = hue;
-    m_player->setVideoAdjust(libvlc_adjust_Hue,
-                             static_cast<int>(phononRangeToVlcRange(m_hue, 360.0, false)));
+    const int vlcValue = static_cast<int>(phononRangeToVlcRange(qAbs(hue), 180.0, false));
+    int value = 0;
+    if (hue >= 0)
+        value = vlcValue;
+    else
+        value = 360.0 - vlcValue;
+    m_player->setVideoAdjust(libvlc_adjust_Hue, value);
 }
 
 qreal VideoWidget::saturation() const
