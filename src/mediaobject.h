@@ -234,7 +234,7 @@ private slots:
      * \param currentTime The current play time for the media, in miliseconds.
      */
     void timeChanged(qint64 time);
-    void emitTick();
+    void emitTick(qint64 time);
 
     /**
      * If the next media source is valid, the current source is replaced and playback is commenced.
@@ -311,8 +311,8 @@ private:
 
     bool m_aboutToFinishEmitted;
 
-    QTimer m_tickTimer;
     qint32 m_tickInterval;
+    qint64 m_lastTick;
     qint32 m_transitionTime;
 
     Media *m_media;
