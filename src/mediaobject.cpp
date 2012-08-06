@@ -189,7 +189,6 @@ void MediaObject::emitTick(qint64 time)
     if (m_tickInterval == 0) // Make sure we do not ever emit ticks when deactivated.\]
         return;
     if (time + m_tickInterval >= m_lastTick) {
-        debug() << "ticking" << time;
         m_lastTick = time;
         emit tick(time);
     }
@@ -459,7 +458,6 @@ void MediaObject::changeState(Phonon::State newState)
             m_seekpoint = 0;
         }
     }
-
 
     // State changed
     Phonon::State previousState = m_state;
