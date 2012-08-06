@@ -527,7 +527,7 @@ void MediaObject::playInternal()
 
     // Connect to Media signals. Disconnection is done at unloading.
     connect(m_media, SIGNAL(durationChanged(qint64)),
-            this, SIGNAL(updateDuration(qint64)));
+            this, SLOT(updateDuration(qint64)));
     connect(m_media, SIGNAL(metaDataChanged()),
             this, SLOT(updateMetaData()));
 
