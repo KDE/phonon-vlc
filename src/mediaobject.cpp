@@ -63,10 +63,10 @@ MediaObject::MediaObject(QObject *parent)
     connect(m_player, SIGNAL(stateChanged(MediaPlayer::State)), this, SLOT(updateState(MediaPlayer::State)));
     connect(m_player, SIGNAL(hasVideoChanged(bool)), this, SLOT(onHasVideoChanged(bool)));
     connect(m_player, SIGNAL(bufferChanged(int)), this, SLOT(setBufferStatus(int)));
+    connect(m_player, SIGNAL(timeChanged(qint64)), this, SLOT(timeChanged(qint64)));
 
     // Internal Signals.
     connect(this, SIGNAL(moveToNext()), SLOT(moveToNextSource()));
-    connect(&m_tickTimer, SIGNAL(timeout()), this, SLOT(emitTick()));
 
     resetMembers();
 }
@@ -85,6 +85,8 @@ void MediaObject::resetMembers()
 
     m_prefinishEmitted = false;
     m_aboutToFinishEmitted = false;
+
+    m_lastTick = 0;
 
     m_timesVideoChecked = 0;
 
@@ -160,6 +162,16 @@ void MediaObject::seek(qint64 milliseconds)
 void MediaObject::timeChanged(qint64 time)
 {
     const qint64 totalTime = this->totalTime();
+
+    switch (m_state) {
+    case PlayingState:
+    case BufferingState:
+    case PausedState:
+        emitTick(time);
+    default:
+        break;
+    }
+
     if (m_state == PlayingState || m_state == BufferingState) { // Buffering is concurrent
         if (time >= totalTime - m_prefinishMark) {
             if (!m_prefinishEmitted) {
@@ -172,10 +184,15 @@ void MediaObject::timeChanged(qint64 time)
     }
 }
 
-void MediaObject::emitTick()
+void MediaObject::emitTick(qint64 time)
 {
-    if (m_tickInterval > 0) // Make sure we do not ever emit ticks when deactivated.
-        emit tick(m_player->time());
+    if (m_tickInterval == 0) // Make sure we do not ever emit ticks when deactivated.\]
+        return;
+    if (time + m_tickInterval >= m_lastTick) {
+        debug() << "ticking" << time;
+        m_lastTick = time;
+        emit tick(time);
+    }
 }
 
 void MediaObject::loadMedia(const QByteArray &mrl)
@@ -216,24 +233,6 @@ qint32 MediaObject::tickInterval() const
 void MediaObject::setTickInterval(qint32 interval)
 {
     m_tickInterval = interval;
-    if (m_tickInterval > 0) {
-        m_tickTimer.setInterval(interval);
-        if (!m_tickTimer.isActive()) {
-            switch (m_state) {
-            case PlayingState:
-            case BufferingState:
-            case PausedState:
-                m_tickTimer.start();
-                break;
-            case StoppedState:
-            case LoadingState:
-            case ErrorState:
-                break; // Leave it deactivated.
-            }
-        }
-    } else {
-        m_tickTimer.stop();
-    }
 }
 
 qint64 MediaObject::currentTime() const
@@ -461,21 +460,6 @@ void MediaObject::changeState(Phonon::State newState)
         }
     }
 
-    switch (newState) {
-    case BufferingState:
-    case PausedState:
-    case PlayingState:
-        if (!m_tickTimer.isActive() && m_tickInterval > 0) {
-            m_tickTimer.setInterval(m_tickInterval);
-            m_tickTimer.start();
-        }
-        break;
-    case ErrorState:
-    case StoppedState:
-    case LoadingState:
-        m_tickTimer.stop();
-        break;
-    }
 
     // State changed
     Phonon::State previousState = m_state;
