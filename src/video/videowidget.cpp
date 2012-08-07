@@ -22,6 +22,7 @@
 #include "videowidget.h"
 
 #include <QtGui/QPainter>
+#include <QtGui/QPaintEvent>
 
 #include <vlc/vlc.h>
 
@@ -46,7 +47,16 @@ public:
         QMutexLocker lock(&m_mutex);
         Q_UNUSED(event);
         QPainter painter(widget);
-        painter.drawImage(drawFrameRect(), m_frame);
+        // When using OpenGL for the QPaintEngine drawing the same QImage twice
+        // does not actually result in a texture change for one reason or another.
+        // So we simply create new iamges for every event. This is plenty cheap
+        // as the QImage only points to the plane data (it can't even make it
+        // properly shared as it does not know that the data belongs to a QBA).
+        painter.drawImage(drawFrameRect(),
+                          QImage(reinterpret_cast<const uchar *>(m_plane.constData()),
+                                 m_frame.width(), m_frame.height(),
+                                 m_frame.bytesPerLine(), m_frame.format()));
+        event->accept();
     }
 
     VideoWidget *widget;
