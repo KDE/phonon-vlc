@@ -25,7 +25,7 @@ namespace VLC {
 
 static QStringList mimeTypeList()
 {
-    # In CMake we null-terminate this list for ease of iteration.
+    // In CMake we null-terminate this list for ease of iteration.
     const char *c_strings[] = @PHONON_VLC_MIME_TYPES_C_ARRAY@;
 
     QStringList list;
