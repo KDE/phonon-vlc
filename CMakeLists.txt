@@ -28,4 +28,7 @@ set(PHONON_VLC_PATCH_VERSION "50")
 set(PHONON_VLC_VERSION "${PHONON_VLC_MAJOR_VERSION}.${PHONON_VLC_MINOR_VERSION}.${PHONON_VLC_PATCH_VERSION}")
 add_definitions(-DPHONON_VLC_VERSION="${PHONON_VLC_VERSION}")
 
+# PVLC only uses static mimetype lists, they are created by cmake, hooray.
+include(MimeTypes.cmake)
+
 add_subdirectory(src)

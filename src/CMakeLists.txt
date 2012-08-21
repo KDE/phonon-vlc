@@ -69,6 +69,9 @@ else(WIN32)
     install(TARGETS phonon_vlc DESTINATION ${PLUGIN_INSTALL_DIR}/plugins/phonon_backend)
 endif(WIN32)
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/utils/mime.h.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/utils/mime.h @ONLY)
+
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vlc.desktop.cmake
     ${CMAKE_CURRENT_BINARY_DIR}/vlc.desktop @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/vlc.desktop
