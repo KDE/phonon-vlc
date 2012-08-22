@@ -49,7 +49,8 @@ namespace VLC {
 
 MediaPlayer::MediaPlayer(QObject *parent) :
     QObject(parent),
-    m_player(libvlc_media_player_new(libvlc))
+    m_player(libvlc_media_player_new(libvlc)),
+    m_doingPausedPlay(false)
 {
     Q_ASSERT(m_player);
 
@@ -96,16 +97,25 @@ void MediaPlayer::setMedia(Media *media)
 
 bool MediaPlayer::play()
 {
+    m_doingPausedPlay = false;
     return libvlc_media_player_play(m_player) == 0;
 }
 
 void MediaPlayer::pause()
 {
+    m_doingPausedPlay = false;
     libvlc_media_player_set_pause(m_player, 1);
+}
+
+void MediaPlayer::pausedPlay()
+{
+    m_doingPausedPlay = true;
+    libvlc_media_player_play(m_player);
 }
 
 void MediaPlayer::resume()
 {
+    m_doingPausedPlay = false;
     libvlc_media_player_set_pause(m_player, 0);
 }
 
@@ -116,6 +126,7 @@ void MediaPlayer::togglePause()
 
 void MediaPlayer::stop()
 {
+    m_doingPausedPlay = false;
     libvlc_media_player_stop(m_player);
 }
 
@@ -219,7 +230,12 @@ void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
                     Q_ARG(int, event->u.media_player_buffering.new_cache));
         break;
     case libvlc_MediaPlayerPlaying:
-        P_EMIT_STATE(PlayingState);
+        // Intercept state change and apply pausing once playing.
+        if (that->m_doingPausedPlay) {
+            that->m_doingPausedPlay = false;
+            that->pause();
+        } else
+            P_EMIT_STATE(PlayingState);
         break;
     case libvlc_MediaPlayerPaused:
         P_EMIT_STATE(PausedState);

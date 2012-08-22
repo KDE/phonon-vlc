@@ -270,7 +270,7 @@ private:
      * \see updateMetaData()
      * \see setVLCWidgetId()
      */
-    void playInternal();
+    void setupMedia();
 
     /**
      * Seeks to the required position. If the state is not playing, the seek position is remembered.

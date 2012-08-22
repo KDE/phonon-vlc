@@ -108,18 +108,29 @@ void MediaObject::play()
         m_player->resume();
         break;
     default:
-#ifdef __GNUC__
-#warning if we got rid of playinternal, we coulde simply call play and it would resume/play
-#endif
-        playInternal();
+        setupMedia();
+        if (m_player->play())
+            error() << "libVLC:" << LibVLC::errorMessage();
         break;
     }
 }
 
 void MediaObject::pause()
 {
-    if (state() != Phonon::PausedState)
+    DEBUG_BLOCK;
+    switch (m_state) {
+    case BufferingState:
+    case PlayingState:
         m_player->pause();
+        break;
+    case PausedState:
+        return;
+    default:
+        debug() << "doing paused play";
+        setupMedia();
+        m_player->pausedPlay();
+        break;
+    }
 }
 
 void MediaObject::stop()
@@ -493,7 +504,7 @@ inline void MediaObject::unloadMedia()
     }
 }
 
-void MediaObject::playInternal()
+void MediaObject::setupMedia()
 {
     DEBUG_BLOCK;
 
@@ -540,8 +551,6 @@ void MediaObject::playInternal()
 
     // Play
     m_player->setMedia(m_media);
-    if (m_player->play())
-        error() << "libVLC:" << LibVLC::errorMessage();
 }
 
 QString MediaObject::errorString() const

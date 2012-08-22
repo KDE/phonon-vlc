@@ -64,6 +64,7 @@ public:
     // Playback
     bool play();
     void pause();
+    void pausedPlay();
     void resume();
     void togglePause();
     void stop();
@@ -170,6 +171,8 @@ private:
     Media *m_media;
 
     libvlc_media_player_t *m_player;
+
+    bool m_doingPausedPlay;
 };
 
 QDebug operator<<(QDebug dbg, const MediaPlayer::State &s);
