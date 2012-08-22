@@ -179,7 +179,8 @@ void MediaObject::timeChanged(qint64 time)
                 emit prefinishMarkReached(totalTime - time);
             }
         }
-        if (totalTime > -1 && time >= totalTime - ABOUT_TO_FINISH_TIME)
+        // Note that when the totalTime is <= 0 we cannot calculate any sane delta.
+        if (totalTime > 0 && time >= totalTime - ABOUT_TO_FINISH_TIME)
             emitAboutToFinish();
     }
 }
@@ -387,6 +388,7 @@ void MediaObject::setSource(const MediaSource &source)
         break;
     }
 
+    debug() << "Sending currentSourceChanged";
     emit currentSourceChanged(m_mediaSource);
 }
 
@@ -465,6 +467,7 @@ void MediaObject::changeState(Phonon::State newState)
 
 void MediaObject::moveToNextSource()
 {
+    DEBUG_BLOCK;
     if (m_nextSource.type() == MediaSource::Invalid) {
         // No item is scheduled to be next...
         return;
@@ -477,6 +480,7 @@ void MediaObject::moveToNextSource()
 
 inline bool MediaObject::checkGaplessWaiting()
 {
+    DEBUG_BLOCK;
     return m_nextSource.type() != MediaSource::Invalid && m_nextSource.type() != MediaSource::Empty;
 }
 
