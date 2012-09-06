@@ -31,7 +31,7 @@ static QStringList mimeTypeList()
     QStringList list;
     int i = 0;
     while (c_strings[i])
-        list.append(QLatin1String(c_strings[i]));
+        list.append(QLatin1String(c_strings[i++]));
     return list;
 }
 
