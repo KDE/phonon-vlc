@@ -31,6 +31,7 @@ set(PHONON_VLC_MIME_TYPES
     audio/x-it
     audio/x-m4a
     audio/x-matroska
+    audio/x-mod
     audio/x-mp3
     audio/x-mpeg
     audio/x-mpeg2
