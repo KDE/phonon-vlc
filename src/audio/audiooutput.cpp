@@ -21,9 +21,7 @@
 
 #include "audiooutput.h"
 
-#ifdef PHONON_PULSESUPPORT
 #include <phonon/pulsesupport.h>
-#endif
 
 #include <vlc/vlc.h>
 
@@ -49,9 +47,7 @@ void AudioOutput::connectToMediaObject(MediaObject *mediaObject)
 {
     SinkNode::connectToMediaObject(mediaObject);
     setOutputDeviceImplementation();
-#ifdef PHONON_PULSESUPPORT // Only mess with the volume if no PA is active!
     if (!PulseSupport::getInstance()->isActive())
-#endif
         applyVolume();
 }
 
@@ -113,13 +109,11 @@ bool AudioOutput::setOutputDevice(const AudioOutputDevice &newDevice)
 void AudioOutput::setOutputDeviceImplementation()
 {
     Q_ASSERT(m_player);
-#ifdef PHONON_PULSESUPPORT
     if (PulseSupport::getInstance()->isActive()) {
         m_player->setAudioOutput("pulse");
         debug() << "Setting aout to pulse";
         return;
     }
-#endif
 
     const QVariant dalProperty = m_device.property("deviceAccessList");
     if (!dalProperty.isValid()) {

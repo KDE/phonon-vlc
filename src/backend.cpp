@@ -27,9 +27,7 @@
 #include <QtGui/QMessageBox>
 
 #include <phonon/GlobalDescriptionContainer>
-#ifdef PHONON_PULSESUPPORT
 #include <phonon/pulsesupport.h>
-#endif
 
 #include <vlc/libvlc_version.h>
 
@@ -101,13 +99,11 @@ Backend::Backend(QObject *parent, const QVariantList &)
     m_deviceManager = new DeviceManager(this);
     m_effectManager = new EffectManager(this);
 
-#ifdef PHONON_PULSESUPPORT
     // Initialise PulseAudio support
     PulseSupport *pulse = PulseSupport::getInstance();
     pulse->enable();
     connect(pulse, SIGNAL(objectDescriptionChanged(ObjectDescriptionType)),
             SIGNAL(objectDescriptionChanged(ObjectDescriptionType)));
-#endif
 }
 
 Backend::~Backend()
@@ -118,9 +114,7 @@ Backend::~Backend()
         delete GlobalAudioChannels::self;
     if (GlobalSubtitles::self)
         delete GlobalSubtitles::self;
-#ifdef PHONON_PULSESUPPORT
     PulseSupport::shutdown();
-#endif
 }
 
 QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const QList<QVariant> &/*args*/)
