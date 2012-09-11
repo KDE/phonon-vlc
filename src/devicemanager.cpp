@@ -228,8 +228,12 @@ void DeviceManager::updateDeviceList()
 #endif
 
     QList<QByteArray> knownSoundSystems;
-    // Whitelist
-    knownSoundSystems << QByteArray("alsa")
+    // Whitelist - Order has no particular impact.
+    // NOTE: if listing was not intercepted by the PA code above we also need
+    //       to try injecting the pulse aout as otherwise the user would have to
+    //       use the fake PA device in ALSA to output through PA (kind of silly).
+    knownSoundSystems << QByteArray("pulse")
+                      << QByteArray("alsa")
                       << QByteArray("oss")
                       << QByteArray("jack")
                       << QByteArray("aout_directx") // Windows
