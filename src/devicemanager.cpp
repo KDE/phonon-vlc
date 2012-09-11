@@ -21,9 +21,7 @@
 
 #include "devicemanager.h"
 
-#ifdef PHONON_PULSESUPPORT
-#  include <phonon/pulsesupport.h>
-#endif
+#include <phonon/pulsesupport.h>
 
 #include <vlc/vlc.h>
 
@@ -212,7 +210,6 @@ void DeviceManager::updateDeviceList()
 
     QList<QByteArray> audioOutBackends = vlcAudioOutBackends();
 
-#ifdef PHONON_PULSESUPPORT
     PulseSupport *pulse = PulseSupport::getInstance();
     if (pulse && pulse->isActive()) {
         if (audioOutBackends.contains("pulse")) {
@@ -225,7 +222,6 @@ void DeviceManager::updateDeviceList()
             pulse->enable(false);
         }
     }
-#endif
 
     QList<QByteArray> knownSoundSystems;
     // Whitelist
