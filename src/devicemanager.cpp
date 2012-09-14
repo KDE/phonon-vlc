@@ -232,7 +232,7 @@ void DeviceManager::updateDeviceList()
     knownSoundSystems << QByteArray("alsa")
                       << QByteArray("oss")
                       << QByteArray("jack")
-                      << QByteArray("directx") // Windows
+                      << QByteArray("aout_directx") // Windows
                       << QByteArray("auhal"); // Mac
     foreach (const QByteArray &soundSystem, knownSoundSystems) {
         if (!audioOutBackends.contains(soundSystem)) {
