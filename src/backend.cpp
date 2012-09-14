@@ -79,7 +79,7 @@ Backend::Backend(QObject *parent, const QVariantList &)
 
     // Actual libVLC initialisation
     if (LibVLC::init()) {
-        debug() << "Using VLC version %0" << libvlc_get_version();
+        debug() << "Using VLC version" << libvlc_get_version();
     } else {
 #ifdef __GNUC__
 #warning TODO - this error message is about as useful as a cooling unit in the arctic
