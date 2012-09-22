@@ -24,6 +24,8 @@
 #ifndef PHONON_VLC_SINKNODE_H
 #define PHONON_VLC_SINKNODE_H
 
+#include <QPointer>
+
 namespace Phonon {
 namespace VLC {
 
@@ -69,7 +71,7 @@ public:
     virtual void addToMedia(Media *media);
 
 protected:
-    MediaObject *m_mediaObject;
+    QPointer<MediaObject> m_mediaObject;
     MediaPlayer *m_player;
 };
 
