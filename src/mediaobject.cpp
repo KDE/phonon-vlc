@@ -164,6 +164,9 @@ void MediaObject::seek(qint64 milliseconds)
     const qint64 time = currentTime();
     const qint64 total = totalTime();
 
+    // Reset last tick marker so we emit time even after seeking
+    if (time < m_lastTick)
+        m_lastTick = time;
     if (time < total - m_prefinishMark)
         m_prefinishEmitted = false;
     if (time < total - ABOUT_TO_FINISH_TIME)
