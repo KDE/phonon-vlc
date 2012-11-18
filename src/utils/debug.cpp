@@ -173,7 +173,7 @@ Block::Block( const char *label )
     : m_label( label )
     , m_color( s_colorIndex )
 {
-    if( !debugEnabled() )
+    if( !debugEnabled() || DEBUG_INFO < s_debugLevel)
         return;
 
 #if QT_VERSION >= 0x040700
@@ -193,7 +193,7 @@ Block::Block( const char *label )
 
 Block::~Block()
 {
-    if( !debugEnabled() )
+    if( !debugEnabled() || DEBUG_INFO < s_debugLevel)
         return;
 
 #if QT_VERSION >= 0x040700
