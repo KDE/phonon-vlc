@@ -20,7 +20,7 @@
 
 #include <QtCore/QObject>
 
-#include <Phonon/ObjectDescription>
+#include <phonon/ObjectDescription>
 
 QT_BEGIN_NAMESPACE
 
