@@ -337,7 +337,7 @@ void MediaObject::setSource(const MediaSource &source)
             loadMedia(QLatin1Literal("dvd://") % m_mediaSource.deviceName());
             break;
         case Phonon::Vcd:
-            loadMedia(m_mediaSource.deviceName());
+            loadMedia(QLatin1Literal("vcd://") % m_mediaSource.deviceName());
             break;
 #if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 7, 0))
         case Phonon::BluRay:
