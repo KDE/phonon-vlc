@@ -106,14 +106,14 @@ Backend::Backend(QObject *parent, const QVariantList &)
         fatal() << "Phonon::VLC::vlcInit: Failed to initialize VLC";
     }
 
-    m_deviceManager = new DeviceManager(this);
-    m_effectManager = new EffectManager(this);
-
     // Initialise PulseAudio support
     PulseSupport *pulse = PulseSupport::getInstance();
     pulse->enable();
     connect(pulse, SIGNAL(objectDescriptionChanged(ObjectDescriptionType)),
             SIGNAL(objectDescriptionChanged(ObjectDescriptionType)));
+
+    m_deviceManager = new DeviceManager(this);
+    m_effectManager = new EffectManager(this);
 }
 
 Backend::~Backend()
