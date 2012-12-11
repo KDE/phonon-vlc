@@ -277,7 +277,7 @@ private:
      */
     void seekInternal(qint64 milliseconds);
 
-    bool checkGaplessWaiting();
+    bool hasNextTrack();
 
     /**
      * Changes the current state to buffering and sets the new current file.

@@ -411,6 +411,14 @@ void MediaObject::setNextSource(const MediaSource &source)
     DEBUG_BLOCK;
     debug() << source.url();
     m_nextSource = source;
+    // This function is not ever called by the consumer but only libphonon.
+    // Furthermore libphonon only calls this function in its aboutToFinish slot,
+    // iff sources are already in the queue. In case our aboutToFinish was too
+    // late we may already be stopped when the slot gets activated.
+    // Therefore we need to make sure that we move to the next source iff
+    // this function is called when we are in stoppedstate.
+    if (m_state == StoppedState)
+        moveToNext();
 }
 
 qint32 MediaObject::prefinishMark() const
@@ -450,14 +458,10 @@ void MediaObject::emitAboutToFinish()
 void MediaObject::changeState(Phonon::State newState)
 {
     DEBUG_BLOCK;
-    if (newState == m_state) {
-        // State not changed
+
+    // State not changed
+    if (newState == m_state)
         return;
-    } else if (checkGaplessWaiting()) {
-        // This is a no-op, warn that we are....
-        debug() << Q_FUNC_INFO << "no-op gapless item awaiting in queue - " << m_nextSource.type() ;
-        return;
-    }
 
     debug() << m_state << "-->" << newState;
 
@@ -482,19 +486,14 @@ void MediaObject::changeState(Phonon::State newState)
 void MediaObject::moveToNextSource()
 {
     DEBUG_BLOCK;
-    if (m_nextSource.type() == MediaSource::Invalid) {
-        // No item is scheduled to be next...
-        return;
-    }
 
     setSource(m_nextSource);
     play();
     m_nextSource = MediaSource(QUrl());
 }
 
-inline bool MediaObject::checkGaplessWaiting()
+inline bool MediaObject::hasNextTrack()
 {
-    DEBUG_BLOCK;
     return m_nextSource.type() != MediaSource::Invalid && m_nextSource.type() != MediaSource::Empty;
 }
 
@@ -645,9 +644,13 @@ void MediaObject::updateState(MediaPlayer::State state)
         changeState(StoppedState);
         break;
     case MediaPlayer::EndedState:
-        emitAboutToFinish();
-        emit finished();
-        changeState(StoppedState);
+        if (hasNextTrack())
+            moveToNextSource();
+        else {
+            emitAboutToFinish();
+            emit finished();
+            changeState(StoppedState);
+        }
         break;
     case MediaPlayer::ErrorState:
         debug() << errorString();
