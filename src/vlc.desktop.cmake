@@ -11,6 +11,7 @@ InitialPreference=10
 
 Name=VLC
 Name[bg]=VLC
+Name[bs]=VLC
 Name[ca]=VLC
 Name[ca@valencia]=VLC
 Name[cs]=VLC
@@ -52,6 +53,7 @@ Name[zh_TW]=VLC
 
 Comment=Phonon VLC backend
 Comment[bg]=Ядро VLC за Phonon
+Comment[bs]=VLC kao pozadina za Phonon
 Comment[ca]=Dorsal del VLC pel Phonon
 Comment[ca@valencia]=Dorsal del VLC pel Phonon
 Comment[cs]=Podpůrná vrstva VLC
