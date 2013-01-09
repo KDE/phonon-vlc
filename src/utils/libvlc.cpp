@@ -71,6 +71,7 @@ bool LibVLC::init()
         const QString configFileName = QSettings("Phonon", "vlc").fileName();
         if (QFile::exists(configFileName)) {
             args << QByteArray("--config=").append(QFile::encodeName(configFileName));
+            args << "--no-ignore-config";
         }
 
         int debugLevel = qgetenv("PHONON_SUBSYSTEM_DEBUG").toInt();
