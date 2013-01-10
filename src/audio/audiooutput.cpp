@@ -120,7 +120,7 @@ void AudioOutput::setOutputDeviceImplementation()
         error() << "Device" << m_device.property("name") << "has no access list";
         return;
     }
-    const DeviceAccessList deviceAccessList = qVariantValue<DeviceAccessList>(dalProperty);
+    const DeviceAccessList deviceAccessList = dalProperty.value<DeviceAccessList>();
     if (deviceAccessList.isEmpty()) {
         error() << "Device" << m_device.property("name") << "has an empty access list";
         return;

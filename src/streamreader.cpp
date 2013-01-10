@@ -178,7 +178,7 @@ bool StreamReader::read(quint64 pos, int *length, char *buffer)
         enoughData();
     }
 
-    qMemCopy(buffer, m_buffer.data(), *length);
+    memcpy(buffer, m_buffer.data(), *length);
     m_pos += *length;
     // trim the buffer by the amount read
     m_buffer = m_buffer.mid(*length);

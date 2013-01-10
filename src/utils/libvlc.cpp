@@ -112,7 +112,7 @@ bool LibVLC::init()
         args << "--aout=adummy";
         // Do not preload services discovery modules, we don't use them.
         args << "--services-discovery=''";
-        // Allow multiple starts (one gets to wonder whether that makes a difference.
+        // Allow multiple starts (one gets to wonder whether that makes a difference).
         args << "--no-one-instance";
         // This causes leaky abstraction. VLC by default will create a default vout/aout
         // when none was defined/requested. i.e. when you have a VideoWidget but
