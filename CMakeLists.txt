@@ -1,4 +1,4 @@
-project(PhononVLC)
+project(Phonon4Qt5VLC)
 
 cmake_minimum_required(VERSION 2.6.2 FATAL_ERROR)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")

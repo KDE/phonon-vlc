@@ -53,11 +53,10 @@ if(APPLE)
 endif(APPLE)
 
 automoc4_add_library(phonon_vlc MODULE ${phonon_vlc_SRCS})
+qt5_use_modules(phonon_vlc Core Widgets)
 
 set_target_properties(phonon_vlc PROPERTIES PREFIX "")
 target_link_libraries(phonon_vlc
-    ${QT_QTCORE_LIBRARY}
-    ${QT_QTGUI_LIBRARY}
     ${PHONON_LIBRARY}
     ${LIBVLCCORE_LIBRARY}
     ${LIBVLC_LIBRARY}

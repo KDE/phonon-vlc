@@ -23,7 +23,7 @@
 
 #include <QtCore/QMutex>
 #include <QtCore/QObject>
-#include <QtGui/QApplication>
+#include <QtWidgets/QApplication>
 
 #ifdef Q_OS_UNIX
 # include <unistd.h>

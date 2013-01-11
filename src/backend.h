@@ -53,6 +53,7 @@ class EffectManager;
 class Backend : public QObject, public BackendInterface
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.kde.phonon.vlc" FILE "phonon-vlc.json")
     Q_INTERFACES(Phonon::BackendInterface)
 
 public:

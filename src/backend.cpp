@@ -25,7 +25,7 @@
 #include <QtCore/QLatin1Literal>
 #include <QtCore/QtPlugin>
 #include <QtCore/QVariant>
-#include <QtGui/QMessageBox>
+#include <QtWidgets/QMessageBox>
 
 #include <phonon/GlobalDescriptionContainer>
 #include <phonon/pulsesupport.h>
@@ -48,7 +48,7 @@
 #include "video/videographicsobject.h"
 #include "video/videowidget.h"
 
-Q_EXPORT_PLUGIN2(phonon_vlc, Phonon::VLC::Backend)
+//Q_EXPORT_PLUGIN2(phonon_vlc, Phonon::VLC::Backend)
 
 namespace Phonon
 {
