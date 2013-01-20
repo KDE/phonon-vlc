@@ -20,6 +20,7 @@ set(PHONON_VLC_MIME_TYPES
     audio/mpeg
     audio/mpeg2
     audio/mpeg3
+    audio/prs.sid
     audio/vnd.rn-realaudio
     audio/vnd.rn-realmedia
     audio/wav
