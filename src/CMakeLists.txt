@@ -74,6 +74,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/utils/mime.h.cmake
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vlc.desktop.cmake
     ${CMAKE_CURRENT_BINARY_DIR}/vlc.desktop @ONLY)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/vlc.desktop
-     DESTINATION ${SERVICES_INSTALL_DIR}/phononbackends)
+message(WARNING "Desktop file and icons are not supported for lack of KCM/KDE Platform Plugin.")
+#install(FILES ${CMAKE_CURRENT_BINARY_DIR}/vlc.desktop
+#     DESTINATION ${SERVICES_INSTALL_DIR}/phononbackends)
 
