@@ -30,8 +30,6 @@
 #include "utils/libvlc.h"
 #include "utils/vstring.h"
 
-QT_BEGIN_NAMESPACE
-
 namespace Phonon
 {
 namespace VLC
@@ -303,5 +301,3 @@ bool DeviceManager::listContainsDevice(const QList<DeviceInfo> &list, int id)
 
 }
 }
-
-QT_END_NAMESPACE

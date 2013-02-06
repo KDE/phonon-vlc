@@ -22,8 +22,6 @@
 
 #include <phonon/ObjectDescription>
 
-QT_BEGIN_NAMESPACE
-
 namespace Phonon
 {
 namespace VLC
@@ -144,7 +142,5 @@ private:
 };
 }
 } // namespace Phonon::VLC
-
-QT_END_NAMESPACE
 
 #endif // Phonon_VLC_DEVICEMANAGER_H

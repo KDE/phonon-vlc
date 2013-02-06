@@ -18,8 +18,6 @@
 #include "volumefadereffect.h"
 #include "common.h"
 
-QT_BEGIN_NAMESPACE
-
 #ifndef QT_NO_PHONON_VOLUMEFADEREFFECT
 namespace Phonon
 {
@@ -129,6 +127,5 @@ bool VolumeFaderEffect::event(QEvent *event)
 }
 } //namespace Phonon::VLC
 #endif //QT_NO_PHONON_VOLUMEFADEREFFECT
-QT_END_NAMESPACE
 
 #include "moc_volumefadereffect.cpp"
