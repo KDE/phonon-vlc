@@ -33,9 +33,6 @@
 
 #include "sinknode.h"
 
-QT_BEGIN_HEADER
-QT_BEGIN_NAMESPACE
-
 namespace Phonon {
 namespace VLC {
 
@@ -161,8 +158,5 @@ private:
 
 } // namespace VLC
 } // namespace Phonon
-
-QT_END_NAMESPACE
-QT_END_HEADER
 
 #endif // Phonon_VLC_AUDIODATAOUTPUT_H

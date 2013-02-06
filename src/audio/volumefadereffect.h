@@ -45,8 +45,6 @@
 #include <phonon/effectparameter.h>
 #include <phonon/volumefaderinterface.h>
 
-
-QT_BEGIN_NAMESPACE
 #ifndef QT_NO_PHONON_VOLUMEFADEREFFECT
 namespace Phonon
 {
@@ -87,6 +85,5 @@ public:
 }
 } //namespace Phonon::Gstreamer
 #endif //QT_NO_PHONON_VOLUMEFADEREFFECT
-QT_END_NAMESPACE
 
 #endif // Phonon_VLC_VOLUMEFADEREFFECT_H
