@@ -22,7 +22,6 @@
 #include <QtCore/QSize>
 
 #include <vlc/vlc.h>
-#include <qt4/QtCore/QtGlobal>
 
 class QImage;
 class QString;
