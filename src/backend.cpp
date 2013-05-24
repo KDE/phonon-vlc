@@ -34,6 +34,7 @@
 
 #include "audio/audiooutput.h"
 #include "audio/audiodataoutput.h"
+#include "audio/volumefadereffect.h"
 #include "devicemanager.h"
 #include "effect.h"
 #include "effectmanager.h"
@@ -155,6 +156,8 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
         return new VideoGraphicsObject(parent);
     case VideoWidgetClass:
         return new VideoWidget(qobject_cast<QWidget *>(parent));
+    case VolumeFaderEffectClass:
+        return new VolumeFaderEffect(parent);
     }
 
     warning() << "Backend class" << c << "is not supported by Phonon VLC :(";
@@ -267,13 +270,11 @@ bool Backend::connectNodes(QObject *source, QObject *sink)
             return true;
         }
 
-        /*
-        Effect *effect = qobject_cast<Effect *>(source);
+        VolumeFaderEffect *effect = qobject_cast<VolumeFaderEffect *>(source);
         if (effect) {
-            // FIXME connect the effect
+            sinkNode->connectToMediaObject(effect->mediaObject());
             return true;
         }
-        */
     }
 
     warning() << "Linking" << source->metaObject()->className() << "to" << sink->metaObject()->className() << "failed";
