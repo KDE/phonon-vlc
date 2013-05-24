@@ -304,5 +304,23 @@ QDebug operator<<(QDebug dbg, const MediaPlayer::State &s)
     return dbg.space();
 }
 
+void MediaPlayer::setAudioFade(qreal fade)
+{
+    m_fadeAmount = fade;
+    setVolumeInternal();
+}
+
+void MediaPlayer::setAudioVolume(int volume)
+{
+    m_volume = volume;
+    setVolumeInternal();
+}
+
+void MediaPlayer::setVolumeInternal()
+{
+    libvlc_audio_set_volume(m_player, m_volume * m_fadeAmount);
+}
+
+
 } // namespace VLC
 } // namespace Phonon

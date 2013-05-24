@@ -22,6 +22,7 @@
 #include <QtCore/QSize>
 
 #include <vlc/vlc.h>
+#include <qt4/QtCore/QtGlobal>
 
 class QImage;
 class QString;
@@ -128,11 +129,14 @@ public:
     // Audio
     /// Get current audio volume.
     /// \return the software volume in percents (0 = mute, 100 = nominal / 0dB)
-    int audioVolume() const { return libvlc_audio_get_volume(m_player); }
+    int audioVolume() const { return m_volume; }
 
     /// Set new audio volume.
     /// \param volume new volume
-    void setAudioVolume(int volume) { libvlc_audio_set_volume(m_player, volume); }
+    void setAudioVolume(int volume);
+
+    /// Set the fade percentage, between 0 (muted) and 1.0 (no fade)
+    void setAudioFade(qreal fade);
 
     /// \param name name of the output to set
     /// \returns \c true when setting was successful, \c false otherwise
@@ -167,12 +171,15 @@ signals:
 
 private:
     static void event_cb(const libvlc_event_t *event, void *opaque);
+    void setVolumeInternal();
 
     Media *m_media;
 
     libvlc_media_player_t *m_player;
 
     bool m_doingPausedPlay;
+    int m_volume;
+    qreal m_fadeAmount;
 };
 
 QDebug operator<<(QDebug dbg, const MediaPlayer::State &s);

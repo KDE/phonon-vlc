@@ -113,7 +113,7 @@ void VolumeFaderEffect::abortFade()
 void VolumeFaderEffect::setVolumeInternal(float v)
 {
     if (m_player)
-        m_player->setAudioVolume(v * 100);
+        m_player->setAudioFade(v);
     else
         warning() << "no m_player set";
 }
