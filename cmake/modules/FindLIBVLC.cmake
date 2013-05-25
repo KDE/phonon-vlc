@@ -29,7 +29,7 @@ endif (NOT WIN32)
 #Put here path to custom location
 #example: /home/user/vlc/include etc..
 find_path(LIBVLC_INCLUDE_DIR vlc/vlc.h
-HINTS "$ENV{LIBVLC_INCLUDE_PATH}"
+HINTS "$ENV{LIBVLC_INCLUDE_PATH}" ${PC_LIBVLC_INCLUDEDIR} ${PC_LIBVLC_INCLUDE_DIRS}
 PATHS
     "$ENV{LIB_DIR}/include"
     "$ENV{LIB_DIR}/include/vlc"
