@@ -113,7 +113,9 @@ bool LibVLC::init()
         // Do not preload services discovery modules, we don't use them.
         args << "--services-discovery=''";
         // Allow multiple starts (one gets to wonder whether that makes a difference).
+#if (LIBVLC_VERSION_INT > LIBVLC_VERSION(2, 1, 0, 0) && defined(Q_OS_MAC)) || defined( Q_OS_WIN) || !defined(PHONON_NO_DBUS)
         args << "--no-one-instance";
+#endif
         // This causes leaky abstraction. VLC by default will create a default vout/aout
         // when none was defined/requested. i.e. when you have a VideoWidget but
         // no AudioOutput you will still get audio if there is an audio stream,
