@@ -50,7 +50,9 @@ namespace VLC {
 MediaPlayer::MediaPlayer(QObject *parent) :
     QObject(parent),
     m_player(libvlc_media_player_new(libvlc)),
-    m_doingPausedPlay(false)
+    m_doingPausedPlay(false),
+    m_fadeAmount(1.0f),
+    m_volume(75)
 {
     Q_ASSERT(m_player);
 
