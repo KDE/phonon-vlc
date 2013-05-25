@@ -24,7 +24,7 @@
 
 #include <QtCore/QStringBuilder>
 #include <QtCore/QUrl>
-#include <QDir>
+#include <QtCore/QDir>
 
 #include <vlc/libvlc_version.h>
 #include <vlc/vlc.h>
