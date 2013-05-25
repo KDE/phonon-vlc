@@ -158,6 +158,8 @@ public:
 
     bool setAudioTrack(int track);
 
+    void setCdTrack(int track);
+   
 signals:
     void lengthChanged(qint64 length);
     void seekableChanged(bool seekable);

@@ -188,7 +188,7 @@ void MediaController::resetMembers()
     m_currentChapter = 0;
     m_availableChapters = 0;
 
-    m_currentTitle = 0;
+    m_currentTitle = 1;
     m_availableTitles = 0;
 
     m_autoPlayTitles = false;
@@ -319,7 +319,7 @@ void MediaController::setCurrentTitle(int title)
 #ifdef __GNUC__
 #warning use media subitem to set track of audiocd
 #endif
-        // Leave for MediaObject to handle.
+        m_player->setCdTrack(title);
         return;
     case Dvd:
     case Vcd:

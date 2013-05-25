@@ -323,6 +323,15 @@ void MediaPlayer::setVolumeInternal()
     libvlc_audio_set_volume(m_player, m_volume * m_fadeAmount);
 }
 
+void MediaPlayer::setCdTrack(int track)
+{
+    libvlc_media_player_stop(m_player);
+    m_media->setCdTrack(track);
+    libvlc_media_player_set_media(m_player, *m_media);
+    libvlc_media_player_play(m_player);
+}
+
+
 
 } // namespace VLC
 } // namespace Phonon

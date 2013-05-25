@@ -526,7 +526,7 @@ void MediaObject::setupMedia()
 
     if (source().discType() == Cd && m_currentTitle > 0) {
         debug() << "setting CDDA track";
-        m_media->addOption(QLatin1String("cdda-track="), QVariant(m_currentTitle));
+        m_media->addOption(QLatin1String(":cdda-track="), QVariant(m_currentTitle));
     }
 
     if (m_streamReader)
