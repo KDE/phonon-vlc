@@ -35,12 +35,17 @@ set(phonon_vlc_SRCS
     sinknode.cpp
     streamreader.cpp
 #    video/videodataoutput.cpp
-    video/videographicsobject.cpp
     video/videowidget.cpp
     video/videomemorystream.cpp
     utils/debug.cpp
     utils/libvlc.cpp
 )
+
+if(NOT PHONON_NO_GRAPHICSVIEW)
+    list(APPEND phonon_vlc_SRCS video/videographicsobject.cpp)
+else()
+    add_definitions(-DPHONON_NO_GRAPHICSVIEW)
+endif()
 
 if(PHONON_FOUND_EXPERIMENTAL)
     add_definitions(-DPHONON_EXPERIMENTAL)
