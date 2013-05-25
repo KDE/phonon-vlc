@@ -343,6 +343,7 @@ void MediaObject::setSource(const MediaSource &source)
             loadMedia(QLatin1Literal("bluray://") % m_mediaSource.deviceName());
             break;
         }
+        break;
     case MediaSource::CaptureDevice: {
         QByteArray driverName;
         QString deviceName;
