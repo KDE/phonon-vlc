@@ -6,7 +6,14 @@
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 
-find_package(Phonon4Qt5 NO_MODULE)
+set(PKG UndefinedPhononPackage)
+if(PHONON_BUILD_PHONON4QT5)
+    set(PKG Phonon4Qt5)
+else()
+    set(PKG Phonon)
+endif()
+
+find_package(${PKG} NO_MODULE)
 
 if(PHONON_BUILDSYSTEM_DIR)
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PHONON_BUILDSYSTEM_DIR})
@@ -19,4 +26,4 @@ endif()
 
 include(FindPackageHandleStandardArgs)
 
-find_package_handle_standard_args(Phonon4Qt5  DEFAULT_MSG  Phonon4Qt5_DIR )
+find_package_handle_standard_args(${PKG}  DEFAULT_MSG  ${PKG}_DIR )

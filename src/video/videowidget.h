@@ -22,7 +22,7 @@
 #ifndef PHONON_VLC_VIDEOWIDGET_H
 #define PHONON_VLC_VIDEOWIDGET_H
 
-#include <QtWidgets/QWidget>
+#include <QWidget>
 
 #include <phonon/videowidgetinterface.h>
 
