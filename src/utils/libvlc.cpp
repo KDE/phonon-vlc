@@ -133,7 +133,7 @@ bool LibVLC::init()
         // Create and initialize a libvlc instance (it should be done only once)
         self->m_vlcInstance = libvlc_new(vlcArgs.size(), vlcArgs.constData());
         if (!self->m_vlcInstance) {
-            fatal() << "libVLC:" << LibVLC::errorMessage();
+            fatal() << "libVLC: could not initialize";
             return false;
         }
         return true;
