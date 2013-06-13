@@ -81,15 +81,19 @@ Backend::Backend(QObject *parent, const QVariantList &)
     // Actual libVLC initialisation
     if (LibVLC::init()) {
         debug() << "Using VLC version" << libvlc_get_version();
-        QString userAgent =
-                QString("%0/%1 (Phonon/%2; Phonon-VLC/%3)").arg(
-                    QCoreApplication::applicationName(),
-                    QCoreApplication::applicationVersion(),
-                    PHONON_VERSION_STR,
-                    PHONON_VLC_VERSION);
-        libvlc_set_user_agent(libvlc,
-                              QCoreApplication::applicationName().toUtf8().constData(),
-                              userAgent.toUtf8().constData());
+        if (!QCoreApplication::applicationName().isEmpty()) {
+            QString userAgent =
+                    QString("%0/%1 (Phonon/%2; Phonon-VLC/%3)").arg(
+                        QCoreApplication::applicationName(),
+                        QCoreApplication::applicationVersion(),
+                        PHONON_VERSION_STR,
+                        PHONON_VLC_VERSION);
+            libvlc_set_user_agent(libvlc,
+                                  QCoreApplication::applicationName().toUtf8().constData(),
+                                  userAgent.toUtf8().constData());
+        } else {
+            qWarning("WARNING: Setting the user agent for streaming and PulseAudio requires you to set QCoreApplication::applicationName()");
+        }
     } else {
 #ifdef __GNUC__
 #warning TODO - this error message is about as useful as a cooling unit in the arctic
