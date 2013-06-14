@@ -236,7 +236,8 @@ void DeviceManager::updateDeviceList()
                       << QByteArray("alsa")
                       << QByteArray("oss")
                       << QByteArray("jack")
-                      << QByteArray("aout_directx") // Windows
+                      << QByteArray("aout_directx") // Windows up to VLC 2.0
+                      << QByteArray("directsound") // Windows from VLC 2.1 upwards
                       << QByteArray("auhal"); // Mac
     foreach (const QByteArray &soundSystem, knownSoundSystems) {
         if (!audioOutBackends.contains(soundSystem)) {
