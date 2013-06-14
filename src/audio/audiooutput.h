@@ -65,6 +65,9 @@ public:
     /// \reimp
     virtual void disconnectFromMediaObject(MediaObject *mediaObject);
 
+    /// \reimp
+    virtual void addToMedia(Media *media);
+
     /**
      * \return The current volume for this audio output.
      */

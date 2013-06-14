@@ -88,26 +88,14 @@ bool LibVLC::init()
     // order as expected by xlib thus leading to crashes.
     // KDE BUG: 240001
     args << "--no-xlib";
-    // By default do neither use a vout nor an aout. Since our medianodes
-    // represent VLC outputs only when one of those is attached to a MO an
-    // appropriate output should be loaded. This is to prevent cases where
-    // one has only an AudioOutput but plays a video, in which case libvlc
-    // would open a separate window for the video.
-    args << "--vout=vdummy";
-    args << "--aout=adummy";
     // Do not preload services discovery modules, we don't use them.
     args << "--services-discovery=''";
     // Allow multiple starts (one gets to wonder whether that makes a difference).
 #if (LIBVLC_VERSION_INT > LIBVLC_VERSION(2, 1, 0, 0) && defined(Q_OS_MAC)) || defined( Q_OS_WIN) || !defined(PHONON_NO_DBUS)
     args << "--no-one-instance";
 #endif
-    // This causes leaky abstraction. VLC by default will create a default vout/aout
-    // when none was defined/requested. i.e. when you have a VideoWidget but
-    // no AudioOutput you will still get audio if there is an audio stream,
-    // equally if you have only an AudioOutput and play a video VLC will pop
-    // up a Video window.
-    args << "--aout=dummy";
-    args << "--vout=dummy";
+    args << "--no-audio";
+    args << "--no-video";
 
     // Build const char* array
     QVarLengthArray<const char *, 64> vlcArgs(args.size());

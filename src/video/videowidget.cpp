@@ -28,6 +28,7 @@
 
 #include "utils/debug.h"
 #include "mediaobject.h"
+#include "media.h"
 
 #include "video/videomemorystream.h"
 
@@ -229,6 +230,8 @@ void VideoWidget::disconnectFromMediaObject(MediaObject *mediaObject)
 void VideoWidget::addToMedia(Media *media)
 {
     SinkNode::addToMedia(media);
+
+    media->addOption(":video");
 
     if (!m_surfacePainter) {
 #if defined(Q_OS_MAC)

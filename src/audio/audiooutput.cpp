@@ -29,6 +29,7 @@
 #include "utils/debug.h"
 #include "devicemanager.h"
 #include "mediaobject.h"
+#include "media.h"
 
 namespace Phonon {
 namespace VLC {
@@ -54,6 +55,12 @@ void AudioOutput::connectToMediaObject(MediaObject *mediaObject)
 void AudioOutput::disconnectFromMediaObject(MediaObject *mediaObject)
 {
     SinkNode::disconnectFromMediaObject(mediaObject);
+}
+
+void AudioOutput::addToMedia(Media *media)
+{
+    SinkNode::addToMedia(media);
+    media->addOption(":audio");
 }
 
 qreal AudioOutput::volume() const
