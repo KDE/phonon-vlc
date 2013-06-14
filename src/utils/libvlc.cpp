@@ -21,7 +21,6 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
-#include <QtCore/QLibrary>
 #include <QtCore/QSettings>
 #include <QtCore/QString>
 #include <QtCore/QStringBuilder>
@@ -35,8 +34,7 @@
 LibVLC *LibVLC::self;
 
 LibVLC::LibVLC()
-    : m_vlcLibrary(0)
-    , m_vlcInstance(0)
+    : m_vlcInstance(0)
 {
 }
 
@@ -44,7 +42,6 @@ LibVLC::~LibVLC()
 {
     if (m_vlcInstance)
         libvlc_release(m_vlcInstance);
-    vlcUnload();
     self = 0;
 }
 
@@ -53,92 +50,78 @@ bool LibVLC::init()
     Q_ASSERT_X(!self, "LibVLC", "there should be only one LibVLC object");
     LibVLC::self = new LibVLC;
 
-    QString path = self->vlcPath();
-    if (!path.isEmpty()) {
-        QList<QByteArray> args;
+    QList<QByteArray> args;
 
-        QString pluginsPath = QDir::toNativeSeparators(QFileInfo(self->vlcPath()).dir().path());
-#if defined(Q_OS_UNIX)
-        pluginsPath.append("/vlc");
-#elif defined(Q_OS_WIN)
-        pluginsPath.append("\\plugins");
-#endif
-
-        QByteArray encodedPluginPath = QFile::encodeName(pluginsPath);
-        qputenv("VLC_PLUGIN_PATH", encodedPluginPath);
-
-        // Ends up as something like $HOME/.config/Phonon/vlc.conf
-        const QString configFileName = QSettings("Phonon", "vlc").fileName();
-        if (QFile::exists(configFileName)) {
-            args << QByteArray("--config=").append(QFile::encodeName(configFileName));
-            args << "--no-ignore-config";
-        }
-
-        int debugLevel = qgetenv("PHONON_SUBSYSTEM_DEBUG").toInt();
-        if (debugLevel > 0) {
-            args << QByteArray("--verbose=").append(QString::number(debugLevel));
-            args << QByteArray("--extraintf=logger");
-#ifdef Q_WS_WIN
-            QDir logFilePath(QString(qgetenv("APPDATA")).append("/vlc"));
-#else
-            QDir logFilePath(QDir::homePath().append("/.vlc"));
-#endif //Q_WS_WIN
-            logFilePath.mkdir("log");
-            const QString logFile = logFilePath.path()
-                    .append("/log/vlc-log-")
-                    .append(QString::number(qApp->applicationPid()))
-                    .append(".txt");
-            args << QByteArray("--logfile=").append(QFile::encodeName(QDir::toNativeSeparators(logFile)));
-        }
-
-        args << "--no-media-library";
-        args << "--no-osd";
-        args << "--no-stats";
-        args << "--no-video-title-show";
-        args << "--album-art=0";
-        // By default VLC will put a picture-in-picture when making a snapshot.
-        // This is unexpected behaviour for us, so we force it off.
-        args << "--no-snapshot-preview";
-        // Do not load xlib dependent modules as we cannot ensure proper init
-        // order as expected by xlib thus leading to crashes.
-        // KDE BUG: 240001
-        args << "--no-xlib";
-        // By default do neither use a vout nor an aout. Since our medianodes
-        // represent VLC outputs only when one of those is attached to a MO an
-        // appropriate output should be loaded. This is to prevent cases where
-        // one has only an AudioOutput but plays a video, in which case libvlc
-        // would open a separate window for the video.
-        args << "--vout=vdummy";
-        args << "--aout=adummy";
-        // Do not preload services discovery modules, we don't use them.
-        args << "--services-discovery=''";
-        // Allow multiple starts (one gets to wonder whether that makes a difference).
-#if (LIBVLC_VERSION_INT > LIBVLC_VERSION(2, 1, 0, 0) && defined(Q_OS_MAC)) || defined( Q_OS_WIN) || !defined(PHONON_NO_DBUS)
-        args << "--no-one-instance";
-#endif
-        // This causes leaky abstraction. VLC by default will create a default vout/aout
-        // when none was defined/requested. i.e. when you have a VideoWidget but
-        // no AudioOutput you will still get audio if there is an audio stream,
-        // equally if you have only an AudioOutput and play a video VLC will pop
-        // up a Video window.
-        args << "--aout=dummy";
-        args << "--vout=dummy";
-
-        // Build const char* array
-        QVarLengthArray<const char *, 64> vlcArgs(args.size());
-        for (int i = 0; i < args.size(); ++i) {
-            vlcArgs[i] = args.at(i).constData();
-        }
-
-        // Create and initialize a libvlc instance (it should be done only once)
-        self->m_vlcInstance = libvlc_new(vlcArgs.size(), vlcArgs.constData());
-        if (!self->m_vlcInstance) {
-            fatal() << "libVLC: could not initialize";
-            return false;
-        }
-        return true;
+    // Ends up as something like $HOME/.config/Phonon/vlc.conf
+    const QString configFileName = QSettings("Phonon", "vlc").fileName();
+    if (QFile::exists(configFileName)) {
+        args << QByteArray("--config=").append(QFile::encodeName(configFileName));
+        args << "--no-ignore-config";
     }
-    return false;
+
+    int debugLevel = qgetenv("PHONON_SUBSYSTEM_DEBUG").toInt();
+    if (debugLevel > 0) {
+        args << QByteArray("--verbose=").append(QString::number(debugLevel));
+        args << QByteArray("--extraintf=logger");
+#ifdef Q_WS_WIN
+        QDir logFilePath(QString(qgetenv("APPDATA")).append("/vlc"));
+#else
+        QDir logFilePath(QDir::homePath().append("/.vlc"));
+#endif //Q_WS_WIN
+        logFilePath.mkdir("log");
+        const QString logFile = logFilePath.path()
+                .append("/log/vlc-log-")
+                .append(QString::number(qApp->applicationPid()))
+                .append(".txt");
+        args << QByteArray("--logfile=").append(QFile::encodeName(QDir::toNativeSeparators(logFile)));
+    }
+
+    args << "--no-media-library";
+    args << "--no-osd";
+    args << "--no-stats";
+    args << "--no-video-title-show";
+    args << "--album-art=0";
+    // By default VLC will put a picture-in-picture when making a snapshot.
+    // This is unexpected behaviour for us, so we force it off.
+    args << "--no-snapshot-preview";
+    // Do not load xlib dependent modules as we cannot ensure proper init
+    // order as expected by xlib thus leading to crashes.
+    // KDE BUG: 240001
+    args << "--no-xlib";
+    // By default do neither use a vout nor an aout. Since our medianodes
+    // represent VLC outputs only when one of those is attached to a MO an
+    // appropriate output should be loaded. This is to prevent cases where
+    // one has only an AudioOutput but plays a video, in which case libvlc
+    // would open a separate window for the video.
+    args << "--vout=vdummy";
+    args << "--aout=adummy";
+    // Do not preload services discovery modules, we don't use them.
+    args << "--services-discovery=''";
+    // Allow multiple starts (one gets to wonder whether that makes a difference).
+#if (LIBVLC_VERSION_INT > LIBVLC_VERSION(2, 1, 0, 0) && defined(Q_OS_MAC)) || defined( Q_OS_WIN) || !defined(PHONON_NO_DBUS)
+    args << "--no-one-instance";
+#endif
+    // This causes leaky abstraction. VLC by default will create a default vout/aout
+    // when none was defined/requested. i.e. when you have a VideoWidget but
+    // no AudioOutput you will still get audio if there is an audio stream,
+    // equally if you have only an AudioOutput and play a video VLC will pop
+    // up a Video window.
+    args << "--aout=dummy";
+    args << "--vout=dummy";
+
+    // Build const char* array
+    QVarLengthArray<const char *, 64> vlcArgs(args.size());
+    for (int i = 0; i < args.size(); ++i) {
+        vlcArgs[i] = args.at(i).constData();
+    }
+
+    // Create and initialize a libvlc instance (it should be done only once)
+    self->m_vlcInstance = libvlc_new(vlcArgs.size(), vlcArgs.constData());
+    if (!self->m_vlcInstance) {
+        fatal() << "libVLC: could not initialize";
+        return false;
+    }
+    return true;
 }
 
 const char *LibVLC::errorMessage()
@@ -185,109 +168,3 @@ bool LibVLC::libGreaterThan(const QString &lhs, const QString &rhs)
     return true;
 }
 #endif
-
-QStringList LibVLC::findAllLibVlcPaths()
-{
-    QStringList paths;
-
-#ifdef Q_OS_UNIX
-#if defined(Q_WS_MAC)
-    paths   << QCoreApplication::applicationDirPath()
-            << QCoreApplication::applicationDirPath() % QLatin1Literal("/../Frameworks")
-            << QCoreApplication::applicationDirPath() % QLatin1Literal("/../PlugIns")
-            << QCoreApplication::applicationDirPath() % QLatin1Literal("/lib");
-#endif
-    paths << QString::fromLatin1(qgetenv("LD_LIBRARY_PATH"))
-            .split(QLatin1Char(':'), QString::SkipEmptyParts);
-    paths << QLatin1String(PHONON_LIB_INSTALL_DIR) << QLatin1String("/usr/lib") << QLatin1String("/usr/local/lib");
-    paths << QLatin1String("/usr/lib64") << QLatin1String("/usr/local/lib64");
-
-    QStringList foundVlcs;
-    foreach (const QString & path, paths) {
-        QDir dir = QDir(path);
-        QStringList entryList = dir.entryList(QStringList() << QLatin1String("libvlc.*"), QDir::Files);
-
-        qSort(entryList.begin(), entryList.end(), LibVLC::libGreaterThan);
-        foreach(const QString & entry, entryList) {
-            if (entry.contains(".debug")) {
-                continue;
-            }
-            foundVlcs << path % QLatin1Char('/') % entry;
-        }
-    }
-
-    return foundVlcs;
-#elif defined(Q_OS_WIN)
-    // Current application path has highest priority.
-    // Application could be delivered with own copy of qt, phonon, LibVLC, vlc and vlc plugins.
-    QString appDirVlc =
-            QDir::toNativeSeparators(QCoreApplication::applicationDirPath()
-                                     % QLatin1Char('\\')
-                                     % QLatin1Literal("libvlc.dll"));
-    if (QFile::exists(appDirVlc)) {
-        paths << appDirVlc;
-    }
-
-    // Read VLC version and installation directory from Windows registry
-    QSettings settings(QSettings::SystemScope, "VideoLAN", "VLC");
-    QString vlcVersion = settings.value("Version").toString();
-    QString vlcInstallDir = settings.value("InstallDir").toString();
-    if (vlcVersion.startsWith(QLatin1String("1.1")) && !vlcInstallDir.isEmpty()) {
-        paths << vlcInstallDir % QLatin1Char('\\') % QLatin1Literal("libvlc.dll");
-        return paths;
-    } else {
-        //If nothing is found in the registry try %PATH%
-        QStringList searchPaths = QString::fromLatin1(qgetenv("PATH"))
-                                  .split(QLatin1Char(';'), QString::SkipEmptyParts);
-
-        QStringList foundVlcs;
-        foreach(const QString & sp, searchPaths) {
-            QDir dir = QDir(sp);
-            QStringList entryList = dir.entryList(QStringList() << QLatin1String("libvlc.dll"), QDir::Files);
-            foreach(const QString & entry, entryList){
-                foundVlcs << sp % QLatin1Char('\\') % entry;
-            }
-        }
-        paths << foundVlcs;
-        return paths;
-    }
-#endif
-}
-
-QString LibVLC::vlcPath()
-{
-    static QString path;
-    if (!path.isEmpty()) {
-        return path;
-    }
-
-    m_vlcLibrary = new QLibrary();
-    QStringList paths = LibVLC::findAllLibVlcPaths();
-#ifdef __GNUC__
-#warning why is this using a local static qstring?! :O
-#endif
-    foreach(path, paths) {
-        m_vlcLibrary->setFileName(path);
-
-        if (!m_vlcLibrary->resolve("libvlc_exception_init")) { //"libvlc_exception_init" not contained in 1.1+
-            return path;
-        } else {
-            warning() << "Cannot resolve the symbol or load VLC library";
-        }
-        warning() << m_vlcLibrary->errorString();
-    }
-
-    vlcUnload();
-
-    return QString();
-}
-
-void LibVLC::vlcUnload()
-{
-    if (!m_vlcLibrary)
-        return;
-    if (m_vlcLibrary->isLoaded())
-        m_vlcLibrary->unload();
-    delete m_vlcLibrary;
-    m_vlcLibrary = 0;
-}

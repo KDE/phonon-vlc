@@ -23,8 +23,6 @@
 
 #include <vlc/libvlc_version.h>
 
-class QLibrary;
-
 struct libvlc_instance_t;
 
 /**
@@ -136,25 +134,10 @@ private:
      */
     LibVLC();
 
-    /**
-     * Get VLC path.
-     *
-     * @return the VLC path
-     */
-    QString vlcPath();
-
-    /**
-     * Unload VLC library.
-     */
-    void vlcUnload();
-
 #if defined(Q_OS_UNIX)
      static bool libGreaterThan(const QString &lhs, const QString &rhs);
 #endif // defined(Q_OS_UNIX)
 
-     static QStringList findAllLibVlcPaths();
-
-     QLibrary *m_vlcLibrary;
      libvlc_instance_t *m_vlcInstance;
 };
 
