@@ -29,7 +29,8 @@ namespace Phonon
 namespace VLC
 {
 VolumeFaderEffect::VolumeFaderEffect(QObject *parent)
-    : QObject(parent), SinkNode()
+    : QObject(parent)
+    , SinkNode()
     , m_fadeCurve(Phonon::VolumeFaderEffect::Fade3Decibel)
     , m_fadeFromVolume(0)
     , m_fadeToVolume(0)
@@ -115,7 +116,7 @@ void VolumeFaderEffect::setVolumeInternal(float v)
     if (m_player)
         m_player->setAudioFade(v);
     else
-        warning() << "no m_player set";
+        warning() << Q_FUNC_INFO << this << "no m_player set";
 }
 
 }

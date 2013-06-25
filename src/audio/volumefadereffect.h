@@ -16,20 +16,24 @@
  *    along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Phonon_VLC_VOLUMEFADEREFFECT_H
-#define Phonon_VLC_VOLUMEFADEREFFECT_H
-
-#include "effect.h"
+#ifndef PHONON_VLC_VOLUMEFADEREFFECT_H
+#define PHONON_VLC_VOLUMEFADEREFFECT_H
 
 #include <phonon/volumefaderinterface.h>
 
 #include <QtCore/QTime>
+#include <QtCore/QPointer>
+
+#include "sinknode.h"
+
 class QTimeLine;
-#ifndef QT_NO_PHONON_VOLUMEFADEREFFECT
-namespace Phonon
-{
-namespace VLC
-{
+
+namespace Phonon {
+
+class MediaObject;
+
+namespace VLC {
+
 class VolumeFaderEffect : public QObject, public SinkNode, public VolumeFaderInterface
 {
     Q_OBJECT
@@ -60,7 +64,8 @@ private:
     QTimeLine *m_fadeTimeline;
 
 };
-}
-} //namespace Phonon::VLC
-#endif //QT_NO_PHONON_VOLUMEFADEREFFECT
-#endif // Phonon_GSTREAMER_VOLUMEFADEREFFECT_H
+
+} // namespace VLC
+} // namespace Phonon
+
+#endif // PHONON_VLC_VOLUMEFADEREFFECT_H

@@ -166,8 +166,9 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
 #endif
     case VideoWidgetClass:
         return new VideoWidget(qobject_cast<QWidget *>(parent));
-    case VolumeFaderEffectClass:
-        return new VolumeFaderEffect(parent);
+//    case VolumeFaderEffectClass:
+#warning VFE crashes and has volume bugs ... deactivated
+//        return new VolumeFaderEffect(parent);
     }
 
     warning() << "Backend class" << c << "is not supported by Phonon VLC :(";
@@ -303,13 +304,11 @@ bool Backend::disconnectNodes(QObject *source, QObject *sink)
             return true;
         }
 
-        /*
-        Effect *effect = qobject_cast<Effect *>(source);
+        VolumeFaderEffect *const effect = qobject_cast<VolumeFaderEffect *>(source);
         if (effect) {
-            // FIXME disconnect the effect
+            sinkNode->disconnectFromMediaObject(effect->mediaObject());
             return true;
         }
-        */
     }
 
     return false;
