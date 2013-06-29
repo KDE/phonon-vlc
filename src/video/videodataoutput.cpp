@@ -28,6 +28,7 @@
 #include <QMetaObject>
 
 #include "utils/debug.h"
+#include "media.h"
 #include "mediaobject.h"
 
 using namespace Phonon::Experimental;
