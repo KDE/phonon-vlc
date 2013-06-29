@@ -46,6 +46,7 @@ public:
 
     void connectToMediaObject(MediaObject *mediaObject);
     void disconnectFromMediaObject(MediaObject *mediaObject);
+    void addToMedia(Media *media);
 
     Experimental::AbstractVideoDataOutput *frontendObject() const;
     void setFrontendObject(Experimental::AbstractVideoDataOutput *frontend);

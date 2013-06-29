@@ -59,6 +59,12 @@ void VideoDataOutput::disconnectFromMediaObject(MediaObject *mediaObject)
     SinkNode::disconnectFromMediaObject(mediaObject);
 }
 
+void VideoDataOutput::addToMedia(Media *media)
+{
+    SinkNode::addToMedia(media);
+    media->addOption(":video");
+}
+
 Experimental::AbstractVideoDataOutput *VideoDataOutput::frontendObject() const
 {
     return m_frontend;
