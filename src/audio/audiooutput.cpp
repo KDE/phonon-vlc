@@ -44,22 +44,15 @@ AudioOutput::~AudioOutput()
 {
 }
 
-void AudioOutput::connectToMediaObject(MediaObject *mediaObject)
+void AudioOutput::handleConnectToMediaObject(MediaObject *mediaObject)
 {
-    SinkNode::connectToMediaObject(mediaObject);
     setOutputDeviceImplementation();
     if (!PulseSupport::getInstance()->isActive())
         applyVolume();
 }
 
-void AudioOutput::disconnectFromMediaObject(MediaObject *mediaObject)
+void AudioOutput::handleAddToMedia(Media *media)
 {
-    SinkNode::disconnectFromMediaObject(mediaObject);
-}
-
-void AudioOutput::addToMedia(Media *media)
-{
-    SinkNode::addToMedia(media);
     media->addOption(":audio");
 }
 

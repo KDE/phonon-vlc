@@ -44,9 +44,9 @@ public:
     explicit VideoDataOutput(QObject *parent);
     ~VideoDataOutput();
 
-    void connectToMediaObject(MediaObject *mediaObject);
-    void disconnectFromMediaObject(MediaObject *mediaObject);
-    void addToMedia(Media *media);
+    void handleConnectToMediaObject(MediaObject *mediaObject);
+    void handleDisconnectFromMediaObject(MediaObject *mediaObject);
+    void handleAddToMedia(Media *media);
 
     Experimental::AbstractVideoDataOutput *frontendObject() const;
     void setFrontendObject(Experimental::AbstractVideoDataOutput *frontend);

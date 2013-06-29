@@ -73,14 +73,13 @@ public:
      *
      * \see MediaObject
      * \param mediaObject What media object to connect to
+     * \reimp
      */
-    void connectToMediaObject(MediaObject *mediaObject);
-
-    /// \reimp
-    void disconnectFromMediaObject(MediaObject *mediaObject);
-
-    /// \reimp
-    void addToMedia(Media *media);
+    void handleConnectToMediaObject(MediaObject *mediaObject);
+    /** \reimp */
+    void handleDisconnectFromMediaObject(MediaObject *mediaObject);
+    /** \reimp */
+    void handleAddToMedia(Media *media);
 
     /**
      * \return The aspect ratio previously set for the video widget

@@ -98,9 +98,9 @@ public Q_SLOTS:
      *
      * \see lock()
      * \see unlock()
-     * \see SinkNode::connectToMediaObject()
+     * \reimp
      */
-    void addToMedia(Media *media);
+    void handleAddToMedia(Media *media);
 
 signals:
     void dataReady(const QMap<Phonon::AudioDataOutput::Channel, QVector<qint16> > &data);

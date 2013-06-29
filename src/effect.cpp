@@ -54,10 +54,8 @@ Effect::~Effect()
     parameterList.clear();
 }
 
-void Effect::connectToMediaObject(MediaObject *p_media_object)
+void Effect::handleConnectToMediaObject(MediaObject *p_media_object)
 {
-    SinkNode::connectToMediaObject(p_media_object);
-
     switch (effect_type) {
     case EffectInfo::AudioEffect:
 //        libvlc_audio_filter_add(p_vlc_instance, (libvlc_audio_filter_names_t)i_effect_filter, vlc_exception);
@@ -70,10 +68,8 @@ void Effect::connectToMediaObject(MediaObject *p_media_object)
     }
 }
 
-void Effect::disconnectFromMediaObject(MediaObject *p_media_object)
+void Effect::handleDisconnectFromMediaObject(MediaObject *p_media_object)
 {
-    SinkNode::disconnectFromMediaObject(p_media_object);
-
     switch (effect_type) {
     case EffectInfo::AudioEffect:
 //        libvlc_audio_filter_remove(p_vlc_instance, (libvlc_audio_filter_names_t)i_effect_filter, vlc_exception);

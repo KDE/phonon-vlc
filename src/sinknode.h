@@ -50,11 +50,11 @@ public:
      * Associates the sink node to the provided media object. The m_mediaObject and m_vlcPlayer
      * attributes are set, and the sink is added to the media object's sinks.
      *
-     * \param mediaObject A VLCMediaObject to connect to.
+     * \param mediaObject The media object to connect to.
      *
      * \see disconnectFromMediaObject()
      */
-    virtual void connectToMediaObject(MediaObject *mediaObject);
+    void connectToMediaObject(MediaObject *mediaObject);
 
     /**
      * Removes this sink from the specified media object's sinks.
@@ -63,19 +63,47 @@ public:
      *
      * \see connectToMediaObject()
      */
-    virtual void disconnectFromMediaObject(MediaObject *mediaObject);
+    void disconnectFromMediaObject(MediaObject *mediaObject);
 
     /**
      * Does nothing. To be reimplemented in child classes.
      */
-    virtual void addToMedia(Media *media);
+    void addToMedia(Media *media);
 
 protected:
+    /**
+     * Handling function for derived classes.
+     * \note This handle is executed *after* the global handle.
+     *       Meaning the SinkNode base will be done handling the connect.
+     * \see connectToMediaObject
+     */
+    virtual void handleConnectToMediaObject(MediaObject *mediaObject) { Q_UNUSED(mediaObject); }
+
+    /**
+     * Handling function for derived classes.
+     * \note This handle is executed *before* the global handle.
+     *       Meaning the SinkNode base will continue handling the disconnect.
+     * \see disconnectFromMediaObject
+     */
+    virtual void handleDisconnectFromMediaObject(MediaObject *mediaObject) { Q_UNUSED(mediaObject); }
+
+    /**
+     * Handling function for derived classes.
+     * \note This handle is executed *after* the global handle.
+     *       Meaning the SinkNode base will be done handling the connect.
+     * \see addToMedia
+     */
+    virtual void handleAddToMedia(Media *media) { Q_UNUSED(media); }
+
+protected:
+    /** Available while connected to a MediaObject (until disconnected) */
     QPointer<MediaObject> m_mediaObject;
+
+    /** Available while connected to a MediaObject (until disconnected) */
     MediaPlayer *m_player;
 };
 
-}
-} // Namespace Phonon::VLC
+} // namespace VLC
+} // namespace Phonon
 
 #endif // PHONON_VLC_SINKNODE_H

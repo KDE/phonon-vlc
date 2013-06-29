@@ -27,10 +27,8 @@
 #include "mediaobject.h"
 #include "mediaplayer.h"
 
-namespace Phonon
-{
-namespace VLC
-{
+namespace Phonon {
+namespace VLC {
 
 SinkNode::SinkNode()
     : m_mediaObject(0)
@@ -54,10 +52,18 @@ void SinkNode::connectToMediaObject(MediaObject *mediaObject)
     m_mediaObject = mediaObject;
     m_player = mediaObject->m_player;
     m_mediaObject->addSink(this);
+
+    // ---> Global handling goes here! Above the derivee handle! <--- //
+
+    handleConnectToMediaObject(mediaObject);
 }
 
 void SinkNode::disconnectFromMediaObject(MediaObject *mediaObject)
 {
+    handleDisconnectFromMediaObject(mediaObject);
+
+    // ---> Global handling goes here! Below the derivee handle! <--- //
+
     if (m_mediaObject != mediaObject) {
         error() << Q_FUNC_INFO << "SinkNode was not connected to mediaObject";
     }
@@ -72,8 +78,10 @@ void SinkNode::disconnectFromMediaObject(MediaObject *mediaObject)
 
 void SinkNode::addToMedia(Media *media)
 {
-    Q_UNUSED(media);
+    // ---> Global handling goes here! Above the derivee handle! <--- //
+
+    handleAddToMedia(media);
 }
 
-}
-} // Namespace Phonon::VLC
+} // namespace VLC
+} // namespace Phonon

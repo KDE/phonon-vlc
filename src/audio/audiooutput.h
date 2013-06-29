@@ -59,14 +59,10 @@ public:
     AudioOutput(QObject *parent);
     ~AudioOutput();
 
-    /// \reimp
-    virtual void connectToMediaObject(MediaObject *mediaObject);
-
-    /// \reimp
-    virtual void disconnectFromMediaObject(MediaObject *mediaObject);
-
-    /// \reimp
-    virtual void addToMedia(Media *media);
+    /** \reimp */
+    void handleConnectToMediaObject(MediaObject *mediaObject);
+    /** \reimp */
+    void handleAddToMedia(Media *media);
 
     /**
      * \return The current volume for this audio output.

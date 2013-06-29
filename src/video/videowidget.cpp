@@ -205,10 +205,8 @@ VideoWidget::~VideoWidget()
         m_surfacePainter->widget = 0; // Lazy delete
 }
 
-void VideoWidget::connectToMediaObject(MediaObject *mediaObject)
+void VideoWidget::handleConnectToMediaObject(MediaObject *mediaObject)
 {
-    SinkNode::connectToMediaObject(mediaObject);
-
     connect(mediaObject, SIGNAL(hasVideoChanged(bool)),
             SLOT(updateVideoSize(bool)));
     connect(mediaObject, SIGNAL(hasVideoChanged(bool)),
@@ -219,18 +217,15 @@ void VideoWidget::connectToMediaObject(MediaObject *mediaObject)
     clearPendingAdjusts();
 }
 
-void VideoWidget::disconnectFromMediaObject(MediaObject *mediaObject)
+void VideoWidget::handleDisconnectFromMediaObject(MediaObject *mediaObject)
 {
-    SinkNode::disconnectFromMediaObject(mediaObject);
     // Undo all connections or path creation->destruction->creation can cause
     // duplicated connections or getting singals from two different MediaObjects.
     disconnect(mediaObject, 0, this, 0);
 }
 
-void VideoWidget::addToMedia(Media *media)
+void VideoWidget::handleAddToMedia(Media *media)
 {
-    SinkNode::addToMedia(media);
-
     media->addOption(":video");
 
     if (!m_surfacePainter) {

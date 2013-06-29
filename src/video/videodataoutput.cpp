@@ -48,21 +48,18 @@ VideoDataOutput::~VideoDataOutput()
 {
 }
 
-void VideoDataOutput::connectToMediaObject(MediaObject *mediaObject)
+void VideoDataOutput::handleConnectToMediaObject(MediaObject *mediaObject)
 {
-    SinkNode::connectToMediaObject(mediaObject);
     setCallbacks(m_player);
 }
 
-void VideoDataOutput::disconnectFromMediaObject(MediaObject *mediaObject)
+void VideoDataOutput::handleDisconnectFromMediaObject(MediaObject *mediaObject)
 {
     unsetCallbacks(m_player);
-    SinkNode::disconnectFromMediaObject(mediaObject);
 }
 
-void VideoDataOutput::addToMedia(Media *media)
+void VideoDataOutput::handleAddToMedia(Media *media)
 {
-    SinkNode::addToMedia(media);
     media->addOption(":video");
 }
 
