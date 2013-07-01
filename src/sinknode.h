@@ -95,7 +95,6 @@ protected:
      */
     virtual void handleAddToMedia(Media *media) { Q_UNUSED(media); }
 
-protected:
     /** Available while connected to a MediaObject (until disconnected) */
     QPointer<MediaObject> m_mediaObject;
 
