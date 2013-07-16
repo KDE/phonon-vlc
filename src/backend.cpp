@@ -167,8 +167,10 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
     case VideoWidgetClass:
         return new VideoWidget(qobject_cast<QWidget *>(parent));
 //    case VolumeFaderEffectClass:
+#ifdef __GNUC__
 #warning VFE crashes and has volume bugs ... deactivated
 //        return new VolumeFaderEffect(parent);
+#endif
     }
 
     warning() << "Backend class" << c << "is not supported by Phonon VLC :(";
