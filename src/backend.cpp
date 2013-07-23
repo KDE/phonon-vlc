@@ -3,7 +3,7 @@
     Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>
     Copyright (C) 2009 Fathi Boudra <fabo@kde.org>
     Copyright (C) 2009-2011 vlc-phonon AUTHORS
-    Copyright (C) 2011 Harald Sitter <sitter@kde.org>
+    Copyright (C) 2011-2013 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -86,19 +86,38 @@ Backend::Backend(QObject *parent, const QVariantList &)
     // Actual libVLC initialisation
     if (LibVLC::init()) {
         debug() << "Using VLC version" << libvlc_get_version();
-        if (!QCoreApplication::applicationName().isEmpty()) {
+        if (!qApp->applicationName().isEmpty()) {
             QString userAgent =
                     QString("%0/%1 (Phonon/%2; Phonon-VLC/%3)").arg(
-                        QCoreApplication::applicationName(),
-                        QCoreApplication::applicationVersion(),
+                        qApp->applicationName(),
+                        qApp->applicationVersion(),
                         PHONON_VERSION_STR,
                         PHONON_VLC_VERSION);
             libvlc_set_user_agent(libvlc,
-                                  QCoreApplication::applicationName().toUtf8().constData(),
+                                  qApp->applicationName().toUtf8().constData(),
                                   userAgent.toUtf8().constData());
         } else {
-            qWarning("WARNING: Setting the user agent for streaming and PulseAudio requires you to set QCoreApplication::applicationName()");
+            qWarning("WARNING: Setting the user agent for streaming and"
+                     " PulseAudio requires you to set QCoreApplication::applicationName()");
         }
+#ifdef __GNUC__
+#warning application name ought to be configurable by the consumer ... new api
+#endif
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 1, 0, 0))
+        if (!qApp->applicationName().isEmpty() && !qApp->applicationVersion().isEmpty()) {
+            const QString id = QString("org.kde.phonon.%1").arg(qApp->applicationName());
+            const QString version = qApp->applicationVersion();
+            const QString icon = qApp->applicationName();
+            libvlc_set_app_id(libvlc,
+                              id.toUtf8().constData(),
+                              version.toUtf8().constData(),
+                              icon.toUtf8().constData());
+        } else if (PulseSupport::getInstance()->isActive()) {
+            qWarning("WARNING: Setting PulseAudio context information requires you"
+                     " to set QCoreApplication::applicationName() and"
+                     " QCoreApplication::applicationVersion()");
+        }
+#endif
     } else {
 #ifdef __GNUC__
 #warning TODO - this error message is about as useful as a cooling unit in the arctic
