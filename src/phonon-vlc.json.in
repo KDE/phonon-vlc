@@ -1,0 +1,9 @@
+{
+    "Name": "Phonon VLC",
+    "Icon": "vlc",
+    "Version": "@PHONON_VLC_VERSION@",
+    "Website": "http://www.videolan.org",
+
+    "InterfaceVersion": 0,
+    "InitialPreference": 10
+}

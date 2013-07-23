@@ -75,10 +75,15 @@ else(WIN32)
 endif(WIN32)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/utils/mime.h.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/utils/mime.h @ONLY)
+               ${CMAKE_CURRENT_BINARY_DIR}/utils/mime.h @ONLY)
 
 if(PHONON_BUILD_PHONON4QT5)
-    message(WARNING "Desktop file and icons are not supported for lack of KCM/KDE Platform Plugin.")
+    # Instead of desktop files we are embedding the information into the plugin itself.
+    # We have no KDE technology to help with finding the actual libraries anyway, so
+    # we need to have the library path anyway.
+    # Also see qtplugin/Q_PLUGIN_METADATA documentation.
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/phonon-vlc.json.in
+                   ${CMAKE_CURRENT_BINARY_DIR}/phonon-vlc.json @ONLY)
 else()
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vlc.desktop.cmake
                    ${CMAKE_CURRENT_BINARY_DIR}/vlc.desktop @ONLY)
