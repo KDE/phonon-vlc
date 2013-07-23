@@ -41,11 +41,11 @@ SinkNode::SinkNode()
 SinkNode::~SinkNode()
 {
     if (m_mediaObject) {
-        disconnectFromMediaObject(m_mediaObject);
+        disconnectPlayer(m_mediaObject);
     }
 }
 
-void SinkNode::connectToMediaObject(MediaObject *mediaObject)
+void SinkNode::connectPlayer(Player *mediaObject)
 {
     if (m_mediaObject) {
         error() << Q_FUNC_INFO << "m_mediaObject already connected";
@@ -56,7 +56,7 @@ void SinkNode::connectToMediaObject(MediaObject *mediaObject)
     m_mediaObject->addSink(this);
 }
 
-void SinkNode::disconnectFromMediaObject(MediaObject *mediaObject)
+void SinkNode::disconnectPlayer(Player *mediaObject)
 {
     if (m_mediaObject != mediaObject) {
         error() << Q_FUNC_INFO << "SinkNode was not connected to mediaObject";

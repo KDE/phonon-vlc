@@ -1,23 +1,23 @@
-/*****************************************************************************
- * VLC backend for the Phonon library                                        *
- * Copyright (C) 2007-2008 Tanguy Krotoff <tkrotoff@gmail.com>               *
- * Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>                *
- * Copyright (C) 2009 Fathi Boudra <fabo@kde.org>                            *
- *                                                                           *
- * This program is free software; you can redistribute it and/or             *
- * modify it under the terms of the GNU Lesser General Public                *
- * License as published by the Free Software Foundation; either              *
- * version 2.1 of the License, or (at your option) any later version.        *
- *                                                                           *
- * This program is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of            *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU         *
- * Lesser General Public License for more details.                           *
- *                                                                           *
- * You should have received a copy of the GNU Lesser General Public          *
- * License along with this package; if not, write to the Free Software       *
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA *
- *****************************************************************************/
+/*
+    Copyright (C) 2007-2008 Tanguy Krotoff <tkrotoff@gmail.com>
+    Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>
+    Copyright (C) 2009 Fathi Boudra <fabo@kde.org>
+    Copyright (C) 2009-2011 vlc-phonon AUTHORS
+    Copyright (C) 2010-2011 Harald Sitter <sitter@kde.org>
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "audiooutput.h"
 
@@ -43,17 +43,20 @@ AudioOutput::~AudioOutput()
 {
 }
 
-void AudioOutput::connectToMediaObject(MediaObject *mediaObject)
+void AudioOutput::connectPlayer(Player *mediaObject)
 {
-    SinkNode::connectToMediaObject(mediaObject);
+    DEBUG_BLOCK;
+    debug() << mediaObject;
+    SinkNode::connectPlayer(mediaObject);
     setOutputDeviceImplementation();
     if (!PulseSupport::getInstance()->isActive())
         applyVolume();
 }
 
-void AudioOutput::disconnectFromMediaObject(MediaObject *mediaObject)
+void AudioOutput::disconnectPlayer(Player *mediaObject)
 {
-    SinkNode::disconnectFromMediaObject(mediaObject);
+    DEBUG_BLOCK;
+    SinkNode::disconnectPlayer(mediaObject);
 }
 
 qreal AudioOutput::volume() const
@@ -74,16 +77,6 @@ void AudioOutput::setVolume(qreal volume)
 int AudioOutput::outputDevice() const
 {
     return m_device.index();
-}
-
-bool AudioOutput::setOutputDevice(int deviceIndex)
-{
-    const AudioOutputDevice device = AudioOutputDevice::fromIndex(deviceIndex);
-    if (!device.isValid()) {
-        error() << Q_FUNC_INFO << "Unable to find the output device with index" << deviceIndex;
-        return false;
-    }
-    return setOutputDevice(device);
 }
 
 bool AudioOutput::setOutputDevice(const AudioOutputDevice &newDevice)
@@ -109,6 +102,8 @@ bool AudioOutput::setOutputDevice(const AudioOutputDevice &newDevice)
 void AudioOutput::setOutputDeviceImplementation()
 {
     Q_ASSERT(m_player);
+    DEBUG_BLOCK;
+    debug() << this;
     if (PulseSupport::getInstance()->isActive()) {
         m_player->setAudioOutput("pulse");
         debug() << "Setting aout to pulse";
@@ -152,5 +147,5 @@ void AudioOutput::applyVolume()
     }
 }
 
-}
-} // Namespace Phonon::VLC
+} // namespace VLC
+} // namespace Phonon

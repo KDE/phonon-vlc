@@ -29,11 +29,12 @@
 #include <vlc/libvlc_version.h>
 #include <vlc/vlc.h>
 
+#include "audio/audiooutput.h"
 #include "utils/debug.h"
 #include "utils/libvlc.h"
 #include "media.h"
 #include "sinknode.h"
-#include "streamreader.h"
+//#include "streamreader.h"
 
 //Time in milliseconds before sending aboutToFinish() signal
 //2 seconds
@@ -42,14 +43,15 @@ static const int ABOUT_TO_FINISH_TIME = 2000;
 namespace Phonon {
 namespace VLC {
 
-MediaObject::MediaObject(QObject *parent)
+Player::Player(QObject *parent)
     : QObject(parent)
-    , m_nextSource(MediaSource(QUrl()))
+    , m_nextSource(Source(QUrl()))
     , m_streamReader(0)
     , m_state(Phonon::StoppedState)
     , m_tickInterval(0)
     , m_transitionTime(0)
     , m_media(0)
+    , m_player(0)
 {
     qRegisterMetaType<QMultiMap<QString, QString> >("QMultiMap<QString, QString>");
 
@@ -71,12 +73,12 @@ MediaObject::MediaObject(QObject *parent)
     resetMembers();
 }
 
-MediaObject::~MediaObject()
+Player::~Player()
 {
     unloadMedia();
 }
 
-void MediaObject::resetMembers()
+void Player::resetMembers()
 {
     // default to -1, so that streams won't break and to comply with the docs (-1 if unknown)
     m_totalTime = -1;
@@ -92,11 +94,9 @@ void MediaObject::resetMembers()
 
     m_buffering = false;
     m_stateAfterBuffering = ErrorState;
-
-    resetMediaController();
 }
 
-void MediaObject::play()
+void Player::play()
 {
     DEBUG_BLOCK;
 
@@ -109,13 +109,13 @@ void MediaObject::play()
         break;
     default:
         setupMedia();
-        if (m_player->play())
-            error() << "libVLC:" << LibVLC::errorMessage();
+        if (m_player->play()){}
+//            error() << "libVLC:" << LibVLC::errorMessage();
         break;
     }
 }
 
-void MediaObject::pause()
+void Player::pause()
 {
     DEBUG_BLOCK;
     switch (m_state) {
@@ -133,16 +133,16 @@ void MediaObject::pause()
     }
 }
 
-void MediaObject::stop()
+void Player::stop()
 {
     DEBUG_BLOCK;
-    if (m_streamReader)
-        m_streamReader->unlock();
-    m_nextSource = MediaSource(QUrl());
+//    if (m_streamReader)
+//        m_streamReader->unlock();
+    m_nextSource = Source(QUrl());
     m_player->stop();
 }
 
-void MediaObject::seek(qint64 milliseconds)
+void Player::seek(qint64 milliseconds)
 {
     DEBUG_BLOCK;
 
@@ -173,7 +173,7 @@ void MediaObject::seek(qint64 milliseconds)
         m_aboutToFinishEmitted = false;
 }
 
-void MediaObject::timeChanged(qint64 time)
+void Player::timeChanged(qint64 time)
 {
     const qint64 totalTime = m_totalTime;
 
@@ -199,7 +199,7 @@ void MediaObject::timeChanged(qint64 time)
     }
 }
 
-void MediaObject::emitTick(qint64 time)
+void Player::emitTick(qint64 time)
 {
     if (m_tickInterval == 0) // Make sure we do not ever emit ticks when deactivated.\]
         return;
@@ -209,33 +209,20 @@ void MediaObject::emitTick(qint64 time)
     }
 }
 
-void MediaObject::loadMedia(const QByteArray &mrl)
+void Player::loadMedia(const QByteArray &mrl)
 {
     DEBUG_BLOCK;
-
-    // Initial state is loading, from which we quickly progress to stopped because
-    // libvlc does not provide feedback on loading and the media does not get loaded
-    // until we play it.
-    // FIXME: libvlc should really allow for this as it can cause unexpected delay
-    // even though the GUI might indicate that playback should start right away.
-    changeState(Phonon::LoadingState);
-
+    changeState(Phonon::StoppedState);
     m_mrl = mrl;
     debug() << "loading encoded:" << m_mrl;
-
-    // We do not have a loading state generally speaking, usually the backend
-    // is exepected to go to loading state and then at some point reach stopped,
-    // at which point playback can be started.
-    // See state enum documentation for more information.
-    changeState(Phonon::StoppedState);
 }
 
-void MediaObject::loadMedia(const QString &mrl)
+void Player::loadMedia(const QString &mrl)
 {
     loadMedia(mrl.toUtf8());
 }
 
-qint32 MediaObject::tickInterval() const
+qint32 Player::tickInterval() const
 {
     return m_tickInterval;
 }
@@ -244,12 +231,12 @@ qint32 MediaObject::tickInterval() const
  * Supports runtime changes.
  * If the user goes to tick(0) we stop the timer, otherwise we fire it up.
  */
-void MediaObject::setTickInterval(qint32 interval)
+void Player::setTickInterval(qint32 interval)
 {
     m_tickInterval = interval;
 }
 
-qint64 MediaObject::currentTime() const
+qint64 Player::currentTime() const
 {
     qint64 time = -1;
 
@@ -260,7 +247,6 @@ qint64 MediaObject::currentTime() const
         time = m_player->time();
         break;
     case Phonon::StoppedState:
-    case Phonon::LoadingState:
         time = 0;
         break;
     case Phonon::ErrorState:
@@ -271,35 +257,35 @@ qint64 MediaObject::currentTime() const
     return time;
 }
 
-Phonon::State MediaObject::state() const
+Phonon::State Player::state() const
 {
     return m_state;
 }
 
-Phonon::ErrorType MediaObject::errorType() const
+Phonon::ErrorType Player::errorType() const
 {
     return Phonon::NormalError;
 }
 
-MediaSource MediaObject::source() const
+Source Player::source() const
 {
     return m_mediaSource;
 }
 
-void MediaObject::setSource(const MediaSource &source)
+void Player::setSource(const Source &source)
 {
     DEBUG_BLOCK;
 
     // Reset previous streamereaders
-    if (m_streamReader) {
-        m_streamReader->unlock();
-        delete m_streamReader;
-        m_streamReader = 0;
-        // For streamreaders we exchanage the player's seekability with the
-        // reader's so here we change it back.
-        // Note: the reader auto-disconnects due to destruction.
-        connect(m_player, SIGNAL(seekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
-    }
+//    if (m_streamReader) {
+//        m_streamReader->unlock();
+//        delete m_streamReader;
+//        m_streamReader = 0;
+//        // For streamreaders we exchanage the player's seekability with the
+//        // reader's so here we change it back.
+//        // Note: the reader auto-disconnects due to destruction.
+//        connect(m_player, SIGNAL(seekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
+//    }
 
     // Reset previous isScreen flag
     m_isScreen = false;
@@ -308,14 +294,14 @@ void MediaObject::setSource(const MediaSource &source)
 
     QByteArray url;
     switch (source.type()) {
-    case MediaSource::Invalid:
+    case Source::Invalid:
         error() << Q_FUNC_INFO << "MediaSource Type is Invalid:" << source.type();
         break;
-    case MediaSource::Empty:
+    case Source::Empty:
         error() << Q_FUNC_INFO << "MediaSource is empty.";
         break;
-    case MediaSource::LocalFile:
-    case MediaSource::Url:
+    case Source::LocalFile:
+    case Source::Url:
         debug() << "MediaSource::Url:" << source.url();
         if (source.url().scheme().isEmpty()) {
             url = "file:///";
@@ -325,7 +311,7 @@ void MediaObject::setSource(const MediaSource &source)
         url += source.url().toEncoded();
         loadMedia(url);
         break;
-    case MediaSource::Disc:
+    case Source::Disc:
         switch (source.discType()) {
         case Phonon::NoDisc:
             error() << Q_FUNC_INFO << "the MediaSource::Disc doesn't specify which one (Phonon::NoDisc)";
@@ -343,7 +329,7 @@ void MediaObject::setSource(const MediaSource &source)
             loadMedia(QLatin1Literal("bluray://") % m_mediaSource.deviceName());
             break;
         }
-    case MediaSource::CaptureDevice: {
+    case Source::CaptureDevice: {
         QByteArray driverName;
         QString deviceName;
 
@@ -388,25 +374,25 @@ void MediaObject::setSource(const MediaSource &source)
         }
         break;
     }
-    case MediaSource::Stream:
-        m_streamReader = new StreamReader(this);
-        // LibVLC refuses to emit seekability as it does a try-and-seek approach
-        // to work around this we exchange the player's seekability signal
-        // for the readers
-        // https://bugs.kde.org/show_bug.cgi?id=293012
-        connect(m_streamReader, SIGNAL(streamSeekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
-        disconnect(m_player, SIGNAL(seekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
-        // Only connect now to avoid seekability detection before we are connected.
-        m_streamReader->connectToSource(source);
-        loadMedia(QByteArray("imem://"));
-        break;
+//    case MediaSource::Stream:
+//        m_streamReader = new StreamReader(this);
+//        // LibVLC refuses to emit seekability as it does a try-and-seek approach
+//        // to work around this we exchange the player's seekability signal
+//        // for the readers
+//        // https://bugs.kde.org/show_bug.cgi?id=293012
+//        connect(m_streamReader, SIGNAL(streamSeekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
+//        disconnect(m_player, SIGNAL(seekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
+//        // Only connect now to avoid seekability detection before we are connected.
+//        m_streamReader->connectToSource(source);
+//        loadMedia(QByteArray("imem://"));
+//        break;b
     }
 
     debug() << "Sending currentSourceChanged";
     emit currentSourceChanged(m_mediaSource);
 }
 
-void MediaObject::setNextSource(const MediaSource &source)
+void Player::setNextSource(const Source &source)
 {
     DEBUG_BLOCK;
     debug() << source.url();
@@ -421,12 +407,12 @@ void MediaObject::setNextSource(const MediaSource &source)
         moveToNext();
 }
 
-qint32 MediaObject::prefinishMark() const
+qint32 Player::prefinishMark() const
 {
     return m_prefinishMark;
 }
 
-void MediaObject::setPrefinishMark(qint32 msecToEnd)
+void Player::setPrefinishMark(qint32 msecToEnd)
 {
     m_prefinishMark = msecToEnd;
     if (currentTime() < totalTime() - m_prefinishMark) {
@@ -435,17 +421,17 @@ void MediaObject::setPrefinishMark(qint32 msecToEnd)
     }
 }
 
-qint32 MediaObject::transitionTime() const
+qint32 Player::transitionTime() const
 {
     return m_transitionTime;
 }
 
-void MediaObject::setTransitionTime(qint32 time)
+void Player::setTransitionTime(qint32 time)
 {
     m_transitionTime = time;
 }
 
-void MediaObject::emitAboutToFinish()
+void Player::emitAboutToFinish()
 {
     if (!m_aboutToFinishEmitted) {
         // Track is about to finish
@@ -455,7 +441,7 @@ void MediaObject::emitAboutToFinish()
 }
 
 // State changes are force queued by libphonon.
-void MediaObject::changeState(Phonon::State newState)
+void Player::changeState(Phonon::State newState)
 {
     DEBUG_BLOCK;
 
@@ -483,21 +469,21 @@ void MediaObject::changeState(Phonon::State newState)
     emit stateChanged(m_state, previousState);
 }
 
-void MediaObject::moveToNextSource()
+void Player::moveToNextSource()
 {
     DEBUG_BLOCK;
 
     setSource(m_nextSource);
     play();
-    m_nextSource = MediaSource(QUrl());
+    m_nextSource = Source(QUrl());
 }
 
-inline bool MediaObject::hasNextTrack()
+inline bool Player::hasNextTrack()
 {
-    return m_nextSource.type() != MediaSource::Invalid && m_nextSource.type() != MediaSource::Empty;
+    return m_nextSource.type() != Source::Invalid && m_nextSource.type() != Source::Empty;
 }
 
-inline void MediaObject::unloadMedia()
+inline void Player::unloadMedia()
 {
     if (m_media) {
         m_media->disconnect(this);
@@ -506,7 +492,7 @@ inline void MediaObject::unloadMedia()
     }
 }
 
-void MediaObject::setupMedia()
+void Player::setupMedia()
 {
     DEBUG_BLOCK;
 
@@ -523,16 +509,16 @@ void MediaObject::setupMedia()
         m_media->addOption(QLatin1String("screen-caching=300"));
     }
 
-    if (source().discType() == Cd && m_currentTitle > 0) {
-        debug() << "setting CDDA track";
-        m_media->addOption(QLatin1String("cdda-track="), QVariant(m_currentTitle));
-    }
+//    if (source().discType() == Cd && m_currentTitle > 0) {
+//        debug() << "setting CDDA track";
+//        m_media->addOption(QLatin1String("cdda-track="), QVariant(m_currentTitle));
+//    }
 
-    if (m_streamReader)
-        // StreamReader is no sink but a source, for this we have no concept right now
-        // also we do not need one since the reader is the only source we have.
-        // Consequently we need to manually tell the StreamReader to attach to the Media.
-        m_streamReader->addToMedia(m_media);
+//    if (m_streamReader)
+//        // StreamReader is no sink but a source, for this we have no concept right now
+//        // also we do not need one since the reader is the only source we have.
+//        // Consequently we need to manually tell the StreamReader to attach to the Media.
+//        m_streamReader->addToMedia(m_media);
 
     foreach (SinkNode *sink, m_sinks) {
         sink->addToMedia(m_media);
@@ -544,35 +530,28 @@ void MediaObject::setupMedia()
     connect(m_media, SIGNAL(metaDataChanged()),
             this, SLOT(updateMetaData()));
 
-    // Update available audio channels/subtitles/angles/chapters/etc...
-    // i.e everything from MediaController
-    // There is no audio channel/subtitle/angle/chapter events inside libvlc
-    // so let's send our own events...
-    // This will reset the GUI
-    resetMediaController();
-
     // Play
     m_player->setMedia(m_media);
 }
 
-QString MediaObject::errorString() const
+QString Player::errorString() const
 {
     return libvlc_errmsg();
 }
 
-bool MediaObject::hasVideo() const
+bool Player::hasVideo() const
 {
     return m_player->hasVideoOutput();
 }
 
-bool MediaObject::isSeekable() const
+bool Player::isSeekable() const
 {
-    if (m_streamReader)
-        return m_streamReader->streamSeekable();
+//    if (m_streamReader)
+//        return m_streamReader->streamSeekable();
     return m_player->isSeekable();
 }
 
-void MediaObject::updateDuration(qint64 newDuration)
+void Player::updateDuration(qint64 newDuration)
 {
     // This here cache is needed because we need to provide -1 as totalTime()
     // for as long as we do not get a proper update through this slot.
@@ -583,7 +562,7 @@ void MediaObject::updateDuration(qint64 newDuration)
     emit totalTimeChanged(m_totalTime);
 }
 
-void MediaObject::updateMetaData()
+void Player::updateMetaData()
 {
     QMultiMap<QString, QString> metaDataMap;
 
@@ -619,18 +598,12 @@ void MediaObject::updateMetaData()
     emit metaDataChanged(metaDataMap);
 }
 
-void MediaObject::updateState(MediaPlayer::State state)
+void Player::updateState(MediaPlayer::State state)
 {
     DEBUG_BLOCK;
     debug() << state;
 
     switch (state) {
-    case MediaPlayer::NoState:
-        changeState(LoadingState);
-        break;
-    case MediaPlayer::OpeningState:
-        changeState(LoadingState);
-        break;
     case MediaPlayer::BufferingState:
         changeState(BufferingState);
         break;
@@ -640,6 +613,8 @@ void MediaObject::updateState(MediaPlayer::State state)
     case MediaPlayer::PausedState:
         changeState(PausedState);
         break;
+    case MediaPlayer::OpeningState:
+    case MediaPlayer::NoState:
     case MediaPlayer::StoppedState:
         changeState(StoppedState);
         break;
@@ -684,7 +659,7 @@ void MediaObject::updateState(MediaPlayer::State state)
     return;
 }
 
-void MediaObject::onHasVideoChanged(bool hasVideo)
+void Player::onHasVideoChanged(bool hasVideo)
 {
     DEBUG_BLOCK;
     if (m_hasVideo != hasVideo) {
@@ -695,21 +670,9 @@ void MediaObject::onHasVideoChanged(bool hasVideo)
         // Otherwise we'd do pointless rescans of mediacontroller stuff.
         // MC and MO are force-reset on media changes anyway.
         return;
-
-    if (hasVideo) {
-        refreshAudioChannels();
-        refreshSubtitles();
-
-        // Get movie chapter count
-        // It is not a title/chapter media if there is no chapter
-        if (m_player->videoChapterCount() > 0) {
-            refreshTitles();
-            refreshChapters(m_player->title());
-        }
-    }
 }
 
-void MediaObject::setBufferStatus(int percent)
+void Player::setBufferStatus(int percent)
 {
     // VLC does not have a buffering state (surprise!) but instead only sends the
     // event (surprise!). Hence we need to simulate the state change.
@@ -737,18 +700,25 @@ void MediaObject::setBufferStatus(int percent)
     }
 }
 
-qint64 MediaObject::totalTime() const
+void Player::addAudioOutput(QObject *audioOutput)
+{
+    DEBUG_BLOCK;
+    debug() << audioOutput;
+    ((AudioOutput *)audioOutput)->connectPlayer(this);
+}
+
+qint64 Player::totalTime() const
 {
     return m_totalTime;
 }
 
-void MediaObject::addSink(SinkNode *node)
+void Player::addSink(SinkNode *node)
 {
     Q_ASSERT(!m_sinks.contains(node));
     m_sinks.append(node);
 }
 
-void MediaObject::removeSink(SinkNode *node)
+void Player::removeSink(SinkNode *node)
 {
     Q_ASSERT(node);
     m_sinks.removeAll(node);

@@ -30,7 +30,7 @@ namespace Phonon {
 namespace VLC {
 
 class Media;
-class MediaObject;
+class Player;
 class MediaPlayer;
 
 /** \brief The sink node is essentialy an output for a media object
@@ -54,7 +54,7 @@ public:
      *
      * \see disconnectFromMediaObject()
      */
-    virtual void connectToMediaObject(MediaObject *mediaObject);
+    virtual void connectPlayer(Player *player);
 
     /**
      * Removes this sink from the specified media object's sinks.
@@ -63,7 +63,7 @@ public:
      *
      * \see connectToMediaObject()
      */
-    virtual void disconnectFromMediaObject(MediaObject *mediaObject);
+    virtual void disconnectPlayer(Player *player);
 
     /**
      * Does nothing. To be reimplemented in child classes.
@@ -71,7 +71,7 @@ public:
     virtual void addToMedia(Media *media);
 
 protected:
-    QPointer<MediaObject> m_mediaObject;
+    QPointer<Player> m_mediaObject;
     MediaPlayer *m_player;
 };
 

@@ -89,9 +89,6 @@ public:
      */
     QObject *createObject(BackendInterface::Class, QObject *parent, const QList<QVariant> &args);
 
-    /// \returns a list of all available mimetypes (hardcoded)
-    QStringList availableMimeTypes() const;
-
     /**
      * Returns a list of indexes for the desired object types. It specifies a list of objects
      * of a particular category that the backend knows about. These indexes can be used with
@@ -110,44 +107,10 @@ public:
      */
     QHash<QByteArray, QVariant> objectDescriptionProperties(ObjectDescriptionType type, int index) const;
 
-    /**
-     * Called when a connection between nodes is about to be changed
-     *
-     * \param objects A set of objects that will be involved in the change
-     */
-    bool startConnectionChange(QSet<QObject *>);
-
-    /**
-     * Connects two media nodes. The sink is informed that it should connect itself to the source.
-     *
-     * \param source The source media node for the connection
-     * \param sink The sink media node for the connection
-     * \return True if the connection was successful
-     */
-    bool connectNodes(QObject *, QObject *);
-
-    /**
-     * Disconnects two previously connected media nodes. It disconnects the sink node from the source node.
-     *
-     * \param source The source node for the disconnection
-     * \param sink The sink node for the disconnection
-     * \return True if the disconnection was successful
-     */
-    bool disconnectNodes(QObject *, QObject *);
-
-    /**
-     * Called after a connection between nodes has been changed
-     *
-     * \param objects Nodes involved in the disconnection
-     */
-    bool endConnectionChange(QSet<QObject *>);
-
 Q_SIGNALS:
     void objectDescriptionChanged(ObjectDescriptionType);
 
 private:
-    mutable QStringList m_supportedMimeTypes;
-
     DeviceManager *m_deviceManager;
     EffectManager *m_effectManager;
 };

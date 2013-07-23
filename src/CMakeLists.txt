@@ -22,29 +22,23 @@ add_definitions(-D_PHONON_BACKEND_VERSION_4_2)
 
 set(phonon_vlc_SRCS
     audio/audiooutput.cpp
-    audio/audiodataoutput.cpp
+#    audio/audiodataoutput.cpp
     backend.cpp
     devicemanager.cpp
-    effect.cpp
-    effectmanager.cpp
+#    effect.cpp
+#    effectmanager.cpp
     media.cpp
-    mediacontroller.cpp
     mediaobject.cpp
     mediaplayer.cpp
     sinknode.cpp
-    streamreader.cpp
+#    streamreader.cpp
 #    video/videodataoutput.cpp
-    video/videographicsobject.cpp
-    video/videowidget.cpp
-    video/videomemorystream.cpp
+#    video/videographicsobject.cpp
+#    video/videowidget.cpp
+#    video/videomemorystream.cpp
     utils/debug.cpp
     utils/libvlc.cpp
 )
-
-if(PHONON_FOUND_EXPERIMENTAL)
-    add_definitions(-DPHONON_EXPERIMENTAL)
-    list(APPEND phonon_vlc_SRCS video/videodataoutput.cpp)
-endif(PHONON_FOUND_EXPERIMENTAL)
 
 if(APPLE)
     list(APPEND phonon_vlc_SRCS
@@ -52,7 +46,7 @@ if(APPLE)
         video/mac/vlcmacwidget.mm)
 endif(APPLE)
 
-automoc4_add_library(phonon_vlc MODULE ${phonon_vlc_SRCS})
+add_library(phonon_vlc MODULE ${phonon_vlc_SRCS})
 qt5_use_modules(phonon_vlc Core Widgets)
 
 set_target_properties(phonon_vlc PROPERTIES PREFIX "")

@@ -19,22 +19,18 @@
     License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PHONON_VLC_MEDIAOBJECT_H
-#define PHONON_VLC_MEDIAOBJECT_H
+#ifndef PHONON_VLC_PLAYER_H
+#define PHONON_VLC_PLAYER_H
 
 #include <QtCore/QObject>
 #include <QtCore/QTimer>
 
 #include <phonon/mediaobjectinterface.h>
-#include <phonon/addoninterface.h>
 
-#include "mediacontroller.h"
 #include "mediaplayer.h"
 
-namespace Phonon
-{
-namespace VLC
-{
+namespace Phonon {
+namespace VLC {
 
 class Media;
 class SinkNode;
@@ -65,10 +61,10 @@ class StreamReader;
  * \see Phonon::MediaObjectInterface
  * \see VLCMediaObject
  */
-class MediaObject : public QObject, public MediaObjectInterface, public MediaController
+class Player : public QObject, public PlayerInterface
 {
     Q_OBJECT
-    Q_INTERFACES(Phonon::MediaObjectInterface Phonon::AddonInterface)
+    Q_INTERFACES(Phonon::PlayerInterface)
     friend class SinkNode;
 
 public:
@@ -78,8 +74,8 @@ public:
      *
      * \param parent A parent for the QObject
      */
-    MediaObject(QObject *parent);
-    ~MediaObject();
+    Player(QObject *parent);
+    ~Player();
 
     /**
      * Reset members (those that need resetting anyway).
@@ -155,7 +151,7 @@ public:
     Phonon::ErrorType errorType() const;
 
     /// \return The current media source for this media object.
-    MediaSource source() const;
+    Source source() const;
 
     /**
      * Sets the current media source for this media object. Depending on the source type,
@@ -174,10 +170,10 @@ public:
      *
      * \see loadMedia()
      */
-    void setSource(const MediaSource &source);
+    void setSource(const Source &source);
 
     /// Sets the media source that will replace the current one, after the playback for it finishes.
-    void setNextSource(const MediaSource &source);
+    void setNextSource(const Source &source);
 
     qint32 prefinishMark() const;
     void setPrefinishMark(qint32 msecToEnd);
@@ -208,7 +204,7 @@ signals:
 
     void aboutToFinish();
     void bufferStatus(int percentFilled);
-    void currentSourceChanged(const MediaSource &newSource);
+    void currentSourceChanged(const Source &newSource);
     void finished();
     void hasVideoChanged(bool b_has_video);
     void metaDataChanged(const QMultiMap<QString, QString> & metaData);
@@ -256,6 +252,8 @@ private slots:
 
     void setBufferStatus(int percent);
 
+    void addAudioOutput(QObject *audioOutput);
+
 private:
     /**
      * This method actually calls the functions needed to begin playing the media.
@@ -300,9 +298,9 @@ private:
      */
     void unloadMedia();
 
-    MediaSource m_nextSource;
+    Source m_nextSource;
 
-    MediaSource m_mediaSource;
+    Source m_mediaSource;
     StreamReader *m_streamReader;
     Phonon::State m_state;
 
@@ -316,6 +314,7 @@ private:
     qint32 m_transitionTime;
 
     Media *m_media;
+    MediaPlayer *m_player;
 
     qint64 m_totalTime;
     QByteArray m_mrl;
@@ -341,4 +340,4 @@ private:
 } // namespace VLC
 } // namespace Phonon
 
-#endif // PHONON_VLC_MEDIAOBJECT_H
+#endif // PHONON_VLC_PLAYER_H

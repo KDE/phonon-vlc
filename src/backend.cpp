@@ -36,17 +36,13 @@
 #include "audio/audiodataoutput.h"
 #include "devicemanager.h"
 #include "effect.h"
-#include "effectmanager.h"
+//#include "effectmanager.h"
 #include "mediaobject.h"
 #include "sinknode.h"
 #include "utils/debug.h"
 #include "utils/libvlc.h"
 #include "utils/mime.h"
-#ifdef PHONON_EXPERIMENTAL
-#include "video/videodataoutput.h"
-#endif
-#include "video/videographicsobject.h"
-#include "video/videowidget.h"
+//#include "video/videowidget.h"
 
 //Q_EXPORT_PLUGIN2(phonon_vlc, Phonon::VLC::Backend)
 
@@ -60,7 +56,7 @@ Backend *Backend::self;
 Backend::Backend(QObject *parent, const QVariantList &)
     : QObject(parent)
     , m_deviceManager(0)
-    , m_effectManager(0)
+//    , m_effectManager(0)
 {
     self = this;
 
@@ -113,17 +109,13 @@ Backend::Backend(QObject *parent, const QVariantList &)
             SIGNAL(objectDescriptionChanged(ObjectDescriptionType)));
 
     m_deviceManager = new DeviceManager(this);
-    m_effectManager = new EffectManager(this);
+//    m_effectManager = new EffectManager(this);
 }
 
 Backend::~Backend()
 {
     if (LibVLC::self)
         delete LibVLC::self;
-    if (GlobalAudioChannels::self)
-        delete GlobalAudioChannels::self;
-    if (GlobalSubtitles::self)
-        delete GlobalSubtitles::self;
     PulseSupport::shutdown();
 }
 
@@ -133,8 +125,8 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
         return 0;
 
     switch (c) {
-    case MediaObjectClass:
-        return new MediaObject(parent);
+    case PlayerClass:
+        return new Player(parent);
     case AudioOutputClass:
         return new AudioOutput(parent);
 #ifdef __GNUC__
@@ -144,28 +136,15 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
 #if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 0, 0, 0))
     // FWIW: the case is inside the if because that gives clear indication which
     // frontend objects are not supported!
-    case AudioDataOutputClass:
-        return new AudioDataOutput(parent);
+//    case AudioDataOutputClass:
+//        return new AudioDataOubtput(parent);
 #endif
-#ifdef PHONON_EXPERIMENTAL
-    case VideoDataOutputClass:
-        return new VideoDataOutput(parent);
-#endif
-    case VideoGraphicsObjectClass:
-        return new VideoGraphicsObject(parent);
-    case VideoWidgetClass:
-        return new VideoWidget(qobject_cast<QWidget *>(parent));
+//    case VideoWidgetClass:
+//        return new VideoWidget(qobject_cast<QWidget *>(parent));
     }
 
     warning() << "Backend class" << c << "is not supported by Phonon VLC :(";
     return 0;
-}
-
-QStringList Backend::availableMimeTypes() const
-{
-    if (m_supportedMimeTypes.isEmpty())
-        const_cast<Backend *>(this)->m_supportedMimeTypes = mimeTypeList();
-    return m_supportedMimeTypes;
 }
 
 QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const
@@ -173,27 +152,27 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const
     QList<int> list;
 
     switch (type) {
-    case Phonon::AudioChannelType: {
-        list << GlobalAudioChannels::instance()->globalIndexes();
-    }
-    break;
-    case Phonon::AudioOutputDeviceType:
-    case Phonon::AudioCaptureDeviceType:
-    case Phonon::VideoCaptureDeviceType: {
-        return deviceManager()->deviceIds(type);
-    }
-    break;
-    case Phonon::EffectType: {
-        QList<EffectInfo *> effectList = effectManager()->effects();
-        for (int eff = 0; eff < effectList.size(); ++eff) {
-            list.append(eff);
-        }
-    }
-    break;
-    case Phonon::SubtitleType: {
-        list << GlobalSubtitles::instance()->globalIndexes();
-    }
-    break;
+//     case Phonon::AudioChannelType: {
+//         list << GlobalAudioChannels::instance()->globalIndexes();
+//     }
+//     break;
+//     case Phonon::AudioOutputDeviceType:
+//     case Phonon::AudioCaptureDeviceType:
+//     case Phonon::VideoCaptureDeviceType: {
+//         return deviceManager()->deviceIds(type);
+//     }
+//     break;
+//    case Phonon::EffectType: {
+//        QList<EffectInfo *> effectList = effectManager()->effects();
+//        for (int eff = 0; eff < effectList.size(); ++eff) {
+//            list.append(eff);
+//        }
+//    }
+//     break;
+//     case Phonon::SubtitleType: {
+//         list << GlobalSubtitles::instance()->globalIndexes();
+//     }
+//     break;
     }
 
     return list;
@@ -204,11 +183,6 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
     QHash<QByteArray, QVariant> ret;
 
     switch (type) {
-    case Phonon::AudioChannelType: {
-        const AudioChannelDescription description = GlobalAudioChannels::instance()->fromIndex(index);
-        ret.insert("name", description.name());
-        ret.insert("description", description.description());
-    }
     break;
     case Phonon::AudioOutputDeviceType:
     case Phonon::AudioCaptureDeviceType:
@@ -217,99 +191,21 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
         return deviceManager()->deviceProperties(index);
     }
     break;
-    case Phonon::EffectType: {
-        QList<EffectInfo *> effectList = effectManager()->effects();
-        if (index >= 0 && index <= effectList.size()) {
-            const EffectInfo *effect = effectList[ index ];
-            ret.insert("name", effect->name());
-            ret.insert("description", effect->description());
-            ret.insert("author", effect->author());
-        } else {
-            Q_ASSERT(1); // Since we use list position as ID, this should not happen
-        }
-    }
-    break;
-    case Phonon::SubtitleType: {
-        const SubtitleDescription description = GlobalSubtitles::instance()->fromIndex(index);
-        ret.insert("name", description.name());
-        ret.insert("description", description.description());
-        ret.insert("type", description.property("type"));
-    }
-    break;
+//    case Phonon::EffectType: {
+//        QList<EffectInfo *> effectList = effectManager()->effects();
+//        if (index >= 0 && index <= effectList.size()) {
+//            const EffectInfo *effect = effectList[ index ];
+//            ret.insert("name", effect->name());
+//            ret.insert("description", effect->description());
+//            ret.insert("author", effect->author());
+//        } else {
+//            Q_ASSERT(1); // Since we use list position as ID, this should not happen
+//        }
+//    }
+//     break;
     }
 
     return ret;
-}
-
-bool Backend::startConnectionChange(QSet<QObject *> objects)
-{
-    //FIXME
-    foreach(QObject * object, objects) {
-        debug() << "Object:" << object->metaObject()->className();
-    }
-
-    // There is nothing we can do but hope the connection changes will not take too long
-    // so that buffers would underrun
-    // But we should be pretty safe the way xine works by not doing anything here.
-    return true;
-}
-
-bool Backend::connectNodes(QObject *source, QObject *sink)
-{
-    debug() << "Backend connected" << source->metaObject()->className() << "to" << sink->metaObject()->className();
-
-    SinkNode *sinkNode = dynamic_cast<SinkNode *>(sink);
-    if (sinkNode) {
-        MediaObject *mediaObject = qobject_cast<MediaObject *>(source);
-        if (mediaObject) {
-            // Connect the SinkNode to a MediaObject
-            sinkNode->connectToMediaObject(mediaObject);
-            return true;
-        }
-
-        /*
-        Effect *effect = qobject_cast<Effect *>(source);
-        if (effect) {
-            // FIXME connect the effect
-            return true;
-        }
-        */
-    }
-
-    warning() << "Linking" << source->metaObject()->className() << "to" << sink->metaObject()->className() << "failed";
-
-    return false;
-}
-
-bool Backend::disconnectNodes(QObject *source, QObject *sink)
-{
-    SinkNode *sinkNode = dynamic_cast<SinkNode *>(sink);
-    if (sinkNode) {
-        MediaObject *const mediaObject = qobject_cast<MediaObject *>(source);
-        if (mediaObject) {
-            // Disconnect the SinkNode from a MediaObject
-            sinkNode->disconnectFromMediaObject(mediaObject);
-            return true;
-        }
-
-        /*
-        Effect *effect = qobject_cast<Effect *>(source);
-        if (effect) {
-            // FIXME disconnect the effect
-            return true;
-        }
-        */
-    }
-
-    return false;
-}
-
-bool Backend::endConnectionChange(QSet<QObject *> objects)
-{
-    foreach(QObject *object, objects) {
-        debug() << "Object:" << object->metaObject()->className();
-    }
-    return true;
 }
 
 DeviceManager *Backend::deviceManager() const
@@ -317,10 +213,10 @@ DeviceManager *Backend::deviceManager() const
     return m_deviceManager;
 }
 
-EffectManager *Backend::effectManager() const
-{
-    return m_effectManager;
-}
+//EffectManager *Backend::effectManager() const
+//{
+//    return m_effectManager;
+//}
 
 } // namespace VLC
 } // namespace Phonon
