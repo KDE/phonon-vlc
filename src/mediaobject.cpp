@@ -578,7 +578,7 @@ void MediaObject::updateDuration(qint64 newDuration)
     // This here cache is needed because we need to provide -1 as totalTime()
     // for as long as we do not get a proper update through this slot.
     // VLC reports -1 with no media but 0 if it does not know the duration, so
-    // apps that assume 0 = unkown get screwed if they query too early.
+    // apps that assume 0 = unknown get screwed if they query too early.
     // http://bugs.tomahawk-player.org/browse/TWK-1029
     m_totalTime = newDuration;
     emit totalTimeChanged(m_totalTime);
@@ -714,7 +714,7 @@ void MediaObject::setBufferStatus(int percent)
 {
     // VLC does not have a buffering state (surprise!) but instead only sends the
     // event (surprise!). Hence we need to simulate the state change.
-    // Problem with BufferingState is that it is actually concurent to Playing or Paused
+    // Problem with BufferingState is that it is actually concurrent to Playing or Paused
     // meaning that while you are buffering you can also pause, thus triggering
     // a state change to paused. To handle this we let updateState change the
     // state accordingly (as we need to allow the UI to update itself, and
