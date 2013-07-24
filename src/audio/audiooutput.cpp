@@ -54,6 +54,10 @@ void AudioOutput::handleConnectToMediaObject(MediaObject *mediaObject)
 void AudioOutput::handleAddToMedia(Media *media)
 {
     media->addOption(":audio");
+    PulseSupport *pulse = PulseSupport::getInstance();
+    if (pulse && pulse->isActive()) {
+        pulse->setupStreamEnvironment(m_streamUuid);
+    }
 }
 
 qreal AudioOutput::volume() const
@@ -86,6 +90,7 @@ bool AudioOutput::setOutputDevice(int deviceIndex)
     return setOutputDevice(device);
 }
 
+#if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 2, 0))
 bool AudioOutput::setOutputDevice(const AudioOutputDevice &newDevice)
 {
     debug() << Q_FUNC_INFO;
@@ -105,6 +110,16 @@ bool AudioOutput::setOutputDevice(const AudioOutputDevice &newDevice)
 
     return true;
 }
+#endif
+
+#if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 6, 50))
+void AudioOutput::setStreamUuid(QString uuid)
+{
+    qDebug() << Q_FUNC_INFO;
+    qDebug() << uuid;
+    m_streamUuid = uuid;
+}
+#endif
 
 void AudioOutput::setOutputDeviceImplementation()
 {

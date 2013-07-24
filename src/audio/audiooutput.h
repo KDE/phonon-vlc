@@ -101,6 +101,9 @@ public:
     bool setOutputDevice(const AudioOutputDevice &newDevice);
 #endif
 
+#if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 6, 50))
+    void setStreamUuid(QString uuid);
+#endif
 
 signals:
     void volumeChanged(qreal volume);
@@ -121,6 +124,7 @@ private:
 
     qreal m_volume;
     AudioOutputDevice m_device;
+    QString m_streamUuid;
 };
 
 } // namespace VLC
