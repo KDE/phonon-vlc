@@ -59,7 +59,7 @@ class StreamReader : public QObject, public Phonon::StreamInterface
     Q_OBJECT
     Q_INTERFACES(Phonon::StreamInterface)
 public:
-    StreamReader(MediaObject *parent);
+    explicit StreamReader(MediaObject *parent);
     ~StreamReader();
 
     void addToMedia(Media *media);

@@ -63,7 +63,7 @@ public:
      * The available audio channels are registered. These are:
      * \li Left \li Right \li Center \li LeftSurround \li RightSurround \li Subwoofer
      */
-    AudioDataOutput(QObject *parent);
+    explicit AudioDataOutput(QObject *parent);
     ~AudioDataOutput();
 
     Phonon::AudioDataOutput *frontendObject() const

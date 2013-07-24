@@ -42,7 +42,7 @@ class VideoGraphicsObject : public QObject,
     Q_OBJECT
     Q_INTERFACES(Phonon::VideoGraphicsObjectInterface)
 public:
-    VideoGraphicsObject(QObject *parent = 0);
+    explicit VideoGraphicsObject(QObject *parent = 0);
     virtual ~VideoGraphicsObject();
 
     virtual void connectToMediaObject(MediaObject *mediaObject);

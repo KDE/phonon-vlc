@@ -25,7 +25,7 @@
 class VlcMacWidget : public QMacCocoaViewContainer
 {
 public:
-    VlcMacWidget(QWidget *parent = 0);
+    explicit VlcMacWidget(QWidget *parent = 0);
 };
 
 

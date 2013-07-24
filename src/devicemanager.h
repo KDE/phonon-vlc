@@ -88,7 +88,7 @@ public:
     /**
      * Constructs a device manager and immediately updates the devices.
      */
-    DeviceManager(Backend *parent);
+    explicit DeviceManager(Backend *parent);
 
     /**
      * Clears all the devices before destroying.

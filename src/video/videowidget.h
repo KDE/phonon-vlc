@@ -55,7 +55,7 @@ public:
      * Constructs a new VideoWidget with the given parent. The video settings members
      * are set to their default values.
      */
-    VideoWidget(QWidget *parent);
+    explicit VideoWidget(QWidget *parent);
 
     /**
      * Death to the VideoWidget!

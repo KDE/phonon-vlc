@@ -147,7 +147,7 @@ namespace Debug
     class Block
     {
     public:
-        Block( const char *name );
+        explicit Block( const char *name );
         ~Block();
 
     private:

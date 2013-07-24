@@ -40,7 +40,7 @@
 class VString
 {
 public:
-    VString(char *vlcString) : m_vlcString(vlcString) {}
+    explicit VString(char *vlcString) : m_vlcString(vlcString) {}
     ~VString()
     {
         libvlc_free(m_vlcString);

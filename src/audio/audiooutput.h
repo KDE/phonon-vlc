@@ -56,7 +56,7 @@ public:
      * \param p_back Parent backend
      * \param p_parent A parent object
      */
-    AudioOutput(QObject *parent);
+    explicit AudioOutput(QObject *parent);
     ~AudioOutput();
 
     /** \reimp */

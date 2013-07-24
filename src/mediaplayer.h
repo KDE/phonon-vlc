@@ -46,7 +46,7 @@ public:
         ErrorState
     };
 
-    MediaPlayer(QObject *parent = 0);
+    explicit MediaPlayer(QObject *parent = 0);
     ~MediaPlayer();
 
     inline libvlc_media_player_t *libvlc_media_player() const { return m_player; }

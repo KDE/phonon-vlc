@@ -78,7 +78,7 @@ public:
      *
      * \param parent A parent for the QObject
      */
-    MediaObject(QObject *parent);
+    explicit MediaObject(QObject *parent);
     ~MediaObject();
 
     /**
