@@ -1,0 +1,2 @@
+SKIP /build
+SKIP /src/vlc.desktop.cmake
