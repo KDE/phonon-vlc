@@ -35,7 +35,7 @@
 #endif
 
 // Platform specific macros
-#ifdef _WIN32
+#ifdef _WIN32 // krazy:exclude=cpp we really want to check a compiler feature here :P
 #define __PRETTY_FUNCTION__ __FUNCTION__
 #endif
 #ifdef __SUNPRO_CC
