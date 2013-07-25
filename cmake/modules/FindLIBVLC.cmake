@@ -1,7 +1,10 @@
-
 # CMake module to search for LIBVLC (VLC library)
-# Authors: Rohit Yadav <rohityadav89@gmail.com>
-#          Harald Sitter <apachelogger@ubuntu.com>
+#
+# Copyright (C) 2011-2012, Harald Sitter <sitter@kde.org>
+# Copyright (C) 2010, Rohit Yadav <rohityadav89@gmail.com>
+#
+# Redistribution and use is allowed according to the terms of the BSD license.
+# For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 #
 # If it's found it sets LIBVLC_FOUND to TRUE
 # and following variables are set:
@@ -89,4 +92,3 @@ else (LIBVLC_FOUND)
         message(FATAL_ERROR "Could not find LibVLC")
     endif (LIBVLC_FIND_REQUIRED)
 endif (LIBVLC_FOUND)
-
