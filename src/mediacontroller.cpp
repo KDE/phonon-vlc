@@ -313,9 +313,6 @@ void MediaController::setCurrentTitle(int title)
 
     switch (source().discType()) {
     case Cd:
-#ifdef __GNUC__
-#warning use media subitem to set track of audiocd
-#endif
         m_player->setCdTrack(title);
         return;
     case Dvd:
