@@ -93,6 +93,7 @@ Comment[sr@ijekavianlatin]=VLC kao pozadina Phonona
 Comment[sr@latin]=VLC kao pozadina Phonona
 Comment[sv]=Phonon VLC-gränssnitt
 Comment[tr]=Phonon VLC arkaucu
+Comment[ug]=Phonon VLC ئارقا ئۇچى
 Comment[uk]=Модуль VLC Phonon
 Comment[x-test]=xxPhonon VLC backendxx
 Comment[zh_CN]= Phonon VLC 后端
