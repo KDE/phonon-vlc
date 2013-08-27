@@ -30,6 +30,7 @@
 #include <vlc/vlc.h>
 
 #include "audio/audiooutput.h"
+#include "video/videowidget.h"
 #include "utils/debug.h"
 #include "utils/libvlc.h"
 #include "media.h"
@@ -706,6 +707,13 @@ void Player::addAudioOutput(QObject *audioOutput)
     DEBUG_BLOCK;
     debug() << audioOutput;
     ((AudioOutput *)audioOutput)->connectPlayer(this);
+}
+
+void Player::addVideoOutput(QObject *videoOutput)
+{
+    DEBUG_BLOCK;
+    debug() << videoOutput;
+    ((VideoWidget *)videoOutput)->connectPlayer(this);
 }
 
 qint64 Player::totalTime() const

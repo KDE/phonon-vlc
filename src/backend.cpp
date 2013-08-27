@@ -43,7 +43,7 @@
 #include "utils/debug.h"
 #include "utils/libvlc.h"
 #include "utils/mime.h"
-//#include "video/videowidget.h"
+#include "video/videowidget.h"
 
 namespace Phonon {
 namespace VLC {
@@ -151,8 +151,8 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
 //    case AudioDataOutputClass:
 //        return new AudioDataOubtput(parent);
 #endif
-//    case VideoWidgetClass:
-//        return new VideoWidget(qobject_cast<QWidget *>(parent));
+    case VideoWidgetClass:
+        return new VideoWidget(qobject_cast<QWidget *>(parent));
 #ifndef PHONON_NO_GRAPHICSVIEW
 #endif
 //    case VolumeFaderEffectClass:

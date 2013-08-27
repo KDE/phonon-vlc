@@ -33,12 +33,10 @@ typedef VlcMacWidget BaseWidget;
 typedef QWidget BaseWidget;
 #endif
 
-#include "sinknode.h"
+#include "connector.h"
 
 namespace Phonon {
 namespace VLC {
-
-class SurfacePainter;
 
 /** \brief Implements the Phonon VideoWidget MediaNode, responsible for displaying video
  *
@@ -46,10 +44,10 @@ class SurfacePainter;
  * It is connected to a media object that provides the video source. Methods to control
  * video settings such as brightness or contrast are provided.
  */
-class VideoWidget : public BaseWidget, public SinkNode, public VideoWidgetInterface44
+class VideoWidget : public BaseWidget, public Connector, public VideoWidgetInterface
 {
     Q_OBJECT
-    Q_INTERFACES(Phonon::VideoWidgetInterface44)
+    Q_INTERFACES(Phonon::VideoWidgetInterface)
 public:
     /**
      * Constructs a new VideoWidget with the given parent. The video settings members
@@ -62,22 +60,10 @@ public:
      */
     ~VideoWidget();
 
-    /**
-     * Connects the VideoWidget to a media object by setting the video widget
-     * window system identifier of the media object to that of the owned private
-     * video widget. It also connects the signal from the mediaObject regarding
-     * a resize of the video.
-     *
-     * If the mediaObject was connected to another VideoWidget, the connection is
-     * lost.
-     *
-     * \see MediaObject
-     * \param mediaObject What media object to connect to
-     * \reimp
-     */
-    void handleConnectToMediaObject(MediaObject *mediaObject);
     /** \reimp */
-    void handleDisconnectFromMediaObject(MediaObject *mediaObject);
+    void handleConnectPlayer(Player *player);
+    /** \reimp */
+    void handleDisconnectPlayer(Player *player);
     /** \reimp */
     void handleAddToMedia(Media *media);
 
@@ -154,8 +140,6 @@ public:
     /// \reimp
     QSize sizeHint() const;
 
-    void setVisible(bool visible);
-
 private slots:
     /// Updates the sizeHint to match the native size of the video.
     /// \param hasVideo \c true when there is a video, \c false otherwise
@@ -173,10 +157,6 @@ private slots:
      * Clears all pending video adjusts (hue, brightness etc.).
      */
     void clearPendingAdjusts();
-
-protected:
-    /// \reimp
-    void paintEvent(QPaintEvent *event);
 
 private:
     /**
@@ -238,8 +218,6 @@ private:
     qreal m_contrast;
     qreal m_hue;
     qreal m_saturation;
-
-    SurfacePainter *m_surfacePainter;
 };
 
 } // namespace VLC

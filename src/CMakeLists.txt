@@ -18,16 +18,6 @@ if (MSVC)
         endif (KDEWIN_FOUND)
 endif (MSVC)
 
-if(${PHONON_VERSION} VERSION_GREATER "4.6.49") # Pre-release 4.7 starts at 4.6.50
-    message("Building against Phonon 4.7 API")
-    add_definitions(-DPHONON_BACKEND_VERSION_4_7)
-elseif(${PHONON_VERSION} VERSION_GREATER "4.1.99")
-    message("Building against Phonon 4.2 API")
-    add_definitions(-DPHONON_BACKEND_VERSION_4_2)
-else()
-    message("Building against Phonon 4.0 API")
-endif()
-
 set(phonon_vlc_SRCS
     audio/audiooutput.cpp
 #    audio/audiodataoutput.cpp
@@ -43,7 +33,7 @@ set(phonon_vlc_SRCS
 #    streamreader.cpp
 #    video/videodataoutput.cpp
 #    video/videographicsobject.cpp
-#    video/videowidget.cpp
+    video/videowidget.cpp
 #    video/videomemorystream.cpp
     utils/debug.cpp
     utils/libvlc.cpp

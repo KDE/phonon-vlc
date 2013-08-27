@@ -253,6 +253,7 @@ private slots:
     void setBufferStatus(int percent);
 
     void addAudioOutput(QObject *audioOutput);
+    void addVideoOutput(QObject *videoOutput);
 
 private:
     /**
