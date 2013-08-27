@@ -2,7 +2,7 @@
     Copyright (C) 2007-2008 Tanguy Krotoff <tkrotoff@gmail.com>
     Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>
     Copyright (C) 2009 Fathi Boudra <fabo@kde.org>
-    Copyright (C) 2009-2010 vlc-phonon AUTHORS
+    Copyright (C) 2009-2010 vlc-phonon AUTHORS <kde-multimedia@kde.org>
     Copyright (C) 2011 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
@@ -230,7 +230,8 @@ void DeviceManager::updateDeviceList()
                       << QByteArray("alsa")
                       << QByteArray("oss")
                       << QByteArray("jack")
-                      << QByteArray("aout_directx") // Windows
+                      << QByteArray("aout_directx") // Windows up to VLC 2.0
+                      << QByteArray("directsound") // Windows from VLC 2.1 upwards
                       << QByteArray("auhal"); // Mac
     foreach (const QByteArray &soundSystem, knownSoundSystems) {
         if (!audioOutBackends.contains(soundSystem)) {
@@ -255,7 +256,12 @@ void DeviceManager::updateDeviceList()
         // libVLC gives no devices for some sound systems, like OSS
         if (deviceCount == 0) {
             debug() << "manually injecting sound system" << soundSystem;
-            DeviceInfo device(QString::fromUtf8(soundSystem), true);
+            // NOTE: Do not mark manually injected devices as advanced.
+            //       libphonon filters advanced devices from the default
+            //       selection which on systems such as OSX or Windows can
+            //       lead to an empty device list as the injected device is
+            //       the only available one.
+            DeviceInfo device(QString::fromUtf8(soundSystem), false);
             device.addAccess(DeviceAccess(soundSystem, ""));
             device.setCapabilities(DeviceInfo::AudioOutput);
             newDeviceList.append(device);

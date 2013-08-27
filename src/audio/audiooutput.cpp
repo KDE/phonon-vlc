@@ -29,6 +29,7 @@
 #include "utils/debug.h"
 #include "devicemanager.h"
 #include "mediaobject.h"
+#include "media.h"
 
 namespace Phonon {
 namespace VLC {
@@ -43,20 +44,22 @@ AudioOutput::~AudioOutput()
 {
 }
 
-void AudioOutput::connectPlayer(Player *mediaObject)
+void AudioOutput::handleConnectPlayer(Player *mediaObject)
 {
     DEBUG_BLOCK;
-    debug() << mediaObject;
-    SinkNode::connectPlayer(mediaObject);
     setOutputDeviceImplementation();
     if (!PulseSupport::getInstance()->isActive())
         applyVolume();
 }
 
-void AudioOutput::disconnectPlayer(Player *mediaObject)
+void AudioOutput::handleAddToMedia(Media *media)
 {
-    DEBUG_BLOCK;
-    SinkNode::disconnectPlayer(mediaObject);
+    media->addOption(":audio");
+    PulseSupport *pulse = PulseSupport::getInstance();
+    if (pulse && pulse->isActive()) {
+#warning phonon master
+//        pulse->setupStreamEnvironment(m_streamUuid);
+    }
 }
 
 qreal AudioOutput::volume() const
@@ -66,7 +69,7 @@ qreal AudioOutput::volume() const
 
 void AudioOutput::setVolume(qreal volume)
 {
-    if (m_player) {
+    if (m_vlcPlayer) {
         debug() << "async setting of volume to" << volume;
         m_volume = volume;
         applyVolume();
@@ -79,6 +82,7 @@ int AudioOutput::outputDevice() const
     return m_device.index();
 }
 
+#if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 2, 0))
 bool AudioOutput::setOutputDevice(const AudioOutputDevice &newDevice)
 {
     debug() << Q_FUNC_INFO;
@@ -98,14 +102,24 @@ bool AudioOutput::setOutputDevice(const AudioOutputDevice &newDevice)
 
     return true;
 }
+#endif
+
+#if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 6, 50))
+void AudioOutput::setStreamUuid(QString uuid)
+{
+    qDebug() << Q_FUNC_INFO;
+    qDebug() << uuid;
+    m_streamUuid = uuid;
+}
+#endif
 
 void AudioOutput::setOutputDeviceImplementation()
 {
-    Q_ASSERT(m_player);
+    Q_ASSERT(m_vlcPlayer);
     DEBUG_BLOCK;
     debug() << this;
     if (PulseSupport::getInstance()->isActive()) {
-        m_player->setAudioOutput("pulse");
+        m_vlcPlayer->setAudioOutput("pulse");
         debug() << "Setting aout to pulse";
         return;
     }
@@ -126,22 +140,22 @@ void AudioOutput::setOutputDeviceImplementation()
 
     QByteArray soundSystem = firstDeviceAccess.first;
     debug() << "Setting output soundsystem to" << soundSystem;
-    m_player->setAudioOutput(soundSystem);
+    m_vlcPlayer->setAudioOutput(soundSystem);
 
     QByteArray deviceName = firstDeviceAccess.second.toLatin1();
     if (!deviceName.isEmpty()) {
         // print the name as possibly messed up by toLatin1() to see conversion problems
         debug() << "Setting output device to" << deviceName << '(' << m_device.property("name") << ')';
-        m_player->setAudioOutputDevice(soundSystem, deviceName);
+        m_vlcPlayer->setAudioOutputDevice(soundSystem, deviceName);
     }
 }
 
 void AudioOutput::applyVolume()
 {
-    if (m_player) {
-        const int preVolume = m_player->audioVolume();
+    if (m_vlcPlayer) {
+        const int preVolume = m_vlcPlayer->audioVolume();
         const int newVolume = m_volume * 100;
-        m_player->setAudioVolume(newVolume);
+        m_vlcPlayer->setAudioVolume(newVolume);
 
         debug() << "Volume changed from" << preVolume << "to" << newVolume;
     }

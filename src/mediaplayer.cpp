@@ -50,7 +50,9 @@ namespace VLC {
 MediaPlayer::MediaPlayer(QObject *parent) :
     QObject(parent),
     m_player(libvlc_media_player_new(libvlc)),
-    m_doingPausedPlay(false)
+    m_doingPausedPlay(false),
+    m_fadeAmount(1.0f),
+    m_volume(75)
 {
     Q_ASSERT(m_player);
 
@@ -303,6 +305,33 @@ QDebug operator<<(QDebug dbg, const MediaPlayer::State &s)
     dbg.nospace() << "State(" << qPrintable(name) << ")";
     return dbg.space();
 }
+
+void MediaPlayer::setAudioFade(qreal fade)
+{
+    m_fadeAmount = fade;
+    setVolumeInternal();
+}
+
+void MediaPlayer::setAudioVolume(int volume)
+{
+    m_volume = volume;
+    setVolumeInternal();
+}
+
+void MediaPlayer::setVolumeInternal()
+{
+    libvlc_audio_set_volume(m_player, m_volume * m_fadeAmount);
+}
+
+void MediaPlayer::setCdTrack(int track)
+{
+    libvlc_media_player_stop(m_player);
+    m_media->setCdTrack(track);
+    libvlc_media_player_set_media(m_player, *m_media);
+    libvlc_media_player_play(m_player);
+}
+
+
 
 } // namespace VLC
 } // namespace Phonon

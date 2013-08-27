@@ -3,7 +3,7 @@
     Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>
     Copyright (C) 2009 Fathi Boudra <fabo@kde.org>
     Copyright (C) 2010 Ben Cooksley <sourtooth@gmail.com>
-    Copyright (C) 2009-2011 vlc-phonon AUTHORS
+    Copyright (C) 2009-2011 vlc-phonon AUTHORS <kde-multimedia@kde.org>
     Copyright (C) 2010-2011 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@
 
 #include <QtCore/QStringBuilder>
 #include <QtCore/QUrl>
-#include <QDir>
+#include <QtCore/QDir>
 
 #include <vlc/libvlc_version.h>
 #include <vlc/vlc.h>
@@ -329,6 +329,7 @@ void Player::setSource(const Source &source)
             loadMedia(QLatin1Literal("bluray://") % m_mediaSource.deviceName());
             break;
         }
+        break;
     case Source::CaptureDevice: {
         QByteArray driverName;
         QString deviceName;
@@ -556,7 +557,7 @@ void Player::updateDuration(qint64 newDuration)
     // This here cache is needed because we need to provide -1 as totalTime()
     // for as long as we do not get a proper update through this slot.
     // VLC reports -1 with no media but 0 if it does not know the duration, so
-    // apps that assume 0 = unkown get screwed if they query too early.
+    // apps that assume 0 = unknown get screwed if they query too early.
     // http://bugs.tomahawk-player.org/browse/TWK-1029
     m_totalTime = newDuration;
     emit totalTimeChanged(m_totalTime);
@@ -676,7 +677,7 @@ void Player::setBufferStatus(int percent)
 {
     // VLC does not have a buffering state (surprise!) but instead only sends the
     // event (surprise!). Hence we need to simulate the state change.
-    // Problem with BufferingState is that it is actually concurent to Playing or Paused
+    // Problem with BufferingState is that it is actually concurrent to Playing or Paused
     // meaning that while you are buffering you can also pause, thus triggering
     // a state change to paused. To handle this we let updateState change the
     // state accordingly (as we need to allow the UI to update itself, and

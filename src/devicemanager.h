@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2009-2010 vlc-phonon AUTHORS
+    Copyright (C) 2009-2010 vlc-phonon AUTHORS <kde-multimedia@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -88,7 +88,7 @@ public:
     /**
      * Constructs a device manager and immediately updates the devices.
      */
-    DeviceManager(Backend *parent);
+    explicit DeviceManager(Backend *parent);
 
     /**
      * Clears all the devices before destroying.

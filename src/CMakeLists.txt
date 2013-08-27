@@ -18,11 +18,20 @@ if (MSVC)
         endif (KDEWIN_FOUND)
 endif (MSVC)
 
-add_definitions(-D_PHONON_BACKEND_VERSION_4_2)
+if(${PHONON_VERSION} VERSION_GREATER "4.6.49") # Pre-release 4.7 starts at 4.6.50
+    message("Building against Phonon 4.7 API")
+    add_definitions(-DPHONON_BACKEND_VERSION_4_7)
+elseif(${PHONON_VERSION} VERSION_GREATER "4.1.99")
+    message("Building against Phonon 4.2 API")
+    add_definitions(-DPHONON_BACKEND_VERSION_4_2)
+else()
+    message("Building against Phonon 4.0 API")
+endif()
 
 set(phonon_vlc_SRCS
     audio/audiooutput.cpp
 #    audio/audiodataoutput.cpp
+#    audio/volumefadereffect.cpp
     backend.cpp
     devicemanager.cpp
 #    effect.cpp
@@ -63,11 +72,11 @@ else(WIN32)
 endif(WIN32)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/utils/mime.h.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/utils/mime.h @ONLY)
+               ${CMAKE_CURRENT_BINARY_DIR}/utils/mime.h @ONLY)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vlc.desktop.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/vlc.desktop @ONLY)
-message(WARNING "Desktop file and icons are not supported for lack of KCM/KDE Platform Plugin.")
-#install(FILES ${CMAKE_CURRENT_BINARY_DIR}/vlc.desktop
-#     DESTINATION ${SERVICES_INSTALL_DIR}/phononbackends)
-
+# Instead of desktop files we are embedding the information into the plugin itself.
+# We have no KDE technology to help with finding the actual libraries anyway, so
+# we need to have the library path anyway.
+# Also see qtplugin/Q_PLUGIN_METADATA documentation.
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/phonon-vlc.json.in
+               ${CMAKE_CURRENT_BINARY_DIR}/phonon-vlc.json @ONLY)

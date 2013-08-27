@@ -2,7 +2,7 @@
     Copyright (C) 2007-2008 Tanguy Krotoff <tkrotoff@gmail.com>
     Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>
     Copyright (C) 2009 Fathi Boudra <fabo@kde.org>
-    Copyright (C) 2009-2011 vlc-phonon AUTHORS
+    Copyright (C) 2009-2011 vlc-phonon AUTHORS <kde-multimedia@kde.org>
     Copyright (C) 2011 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
@@ -87,7 +87,7 @@ public:
      * \warning Currently it doesn't add any effects, everything is disabled.
      * \see EffectInfo
      */
-    EffectManager(QObject *parent = 0);
+    explicit EffectManager(QObject *parent = 0);
 
     /// Deletes all the effects from the lists and destroys the effect manager.
     ~EffectManager();

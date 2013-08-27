@@ -63,9 +63,8 @@ void AudioDataOutput::setDataSize(int size)
     m_dataSize = size;
 }
 
-void AudioDataOutput::addToMedia(Media *media)
+void AudioDataOutput::handleAddToMedia(Media *media)
 {
-
     media->addOption(QString(":sout=#duplicate{dst=display,dst='transcode{vcodec=none,acodec=s16l,samplerate=%1}"
                               ":smem{audio-prerender-callback=%2,"
                                     "audio-postrender-callback=%3,"

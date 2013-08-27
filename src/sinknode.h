@@ -1,25 +1,19 @@
-/*****************************************************************************
- * libVLC backend for the Phonon library                                     *
- *                                                                           *
- * Copyright (C) 2007-2008 Tanguy Krotoff <tkrotoff@gmail.com>               *
- * Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>                *
- * Copyright (C) 2009 Fathi Boudra <fabo@kde.org>                            *
- * Copyright (C) 2009-2010 vlc-phonon AUTHORS                                *
- *                                                                           *
- * This program is free software; you can redistribute it and/or             *
- * modify it under the terms of the GNU Lesser General Public                *
- * License as published by the Free Software Foundation; either              *
- * version 2.1 of the License, or (at your option) any later version.        *
- *                                                                           *
- * This program is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of            *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU         *
- * Lesser General Public License for more details.                           *
- *                                                                           *
- * You should have received a copy of the GNU Lesser General Public          *
- * License along with this package; if not, write to the Free Software       *
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA *
- *****************************************************************************/
+/*
+    Copyright (C) 2013 Harald Sitter <sitter@kde.org>
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #ifndef PHONON_VLC_SINKNODE_H
 #define PHONON_VLC_SINKNODE_H
@@ -46,36 +40,47 @@ public:
     SinkNode();
     virtual ~SinkNode();
 
-    /**
-     * Associates the sink node to the provided media object. The m_mediaObject and m_vlcPlayer
-     * attributes are set, and the sink is added to the media object's sinks.
-     *
-     * \param mediaObject A VLCMediaObject to connect to.
-     *
-     * \see disconnectFromMediaObject()
-     */
-    virtual void connectPlayer(Player *player);
-
-    /**
-     * Removes this sink from the specified media object's sinks.
-     *
-     * \param mediaObject The media object to disconnect from
-     *
-     * \see connectToMediaObject()
-     */
-    virtual void disconnectPlayer(Player *player);
+    void connectPlayer(Player *player);
+    void disconnectPlayer(Player *player);
 
     /**
      * Does nothing. To be reimplemented in child classes.
      */
-    virtual void addToMedia(Media *media);
+    void addToMedia(Media *media);
 
 protected:
-    QPointer<Player> m_mediaObject;
-    MediaPlayer *m_player;
+    /**
+     * Handling function for derived classes.
+     * \note This handle is executed *after* the global handle.
+     *       Meaning the SinkNode base will be done handling the connect.
+     * \see connectPlayer
+     */
+    virtual void handleConnectPlayer(Player *player) { Q_UNUSED(player); }
+
+    /**
+     * Handling function for derived classes.
+     * \note This handle is executed *before* the global handle.
+     *       Meaning the SinkNode base will continue handling the disconnect.
+     * \see disconnectPlayer
+     */
+    virtual void handleDisconnectPlayer(Player *player) { Q_UNUSED(player); }
+
+    /**
+     * Handling function for derived classes.
+     * \note This handle is executed *after* the global handle.
+     *       Meaning the SinkNode base will be done handling the connect.
+     * \see addToMedia
+     */
+    virtual void handleAddToMedia(Media *media) { Q_UNUSED(media); }
+
+    /** Available while connected to a MediaObject (until disconnected) */
+    Player *m_player;
+
+    /** Available while connected to a MediaObject (until disconnected) */
+    MediaPlayer *m_vlcPlayer;
 };
 
-}
-} // Namespace Phonon::VLC
+} // namespace VLC
+} // namespace Phonon
 
 #endif // PHONON_VLC_SINKNODE_H

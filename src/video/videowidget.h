@@ -2,7 +2,7 @@
     Copyright (C) 2007-2008 Tanguy Krotoff <tkrotoff@gmail.com>
     Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>
     Copyright (C) 2009 Fathi Boudra <fabo@kde.org>
-    Copyright (C) 2009-2011 vlc-phonon AUTHORS
+    Copyright (C) 2009-2011 vlc-phonon AUTHORS <kde-multimedia@kde.org>
     Copyright (C) 2011-2012 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@
 #ifndef PHONON_VLC_VIDEOWIDGET_H
 #define PHONON_VLC_VIDEOWIDGET_H
 
-#include <QtWidgets/QWidget>
+#include <QWidget>
 
 #include <phonon/videowidgetinterface.h>
 
@@ -55,7 +55,7 @@ public:
      * Constructs a new VideoWidget with the given parent. The video settings members
      * are set to their default values.
      */
-    VideoWidget(QWidget *parent);
+    explicit VideoWidget(QWidget *parent);
 
     /**
      * Death to the VideoWidget!
@@ -73,14 +73,13 @@ public:
      *
      * \see MediaObject
      * \param mediaObject What media object to connect to
+     * \reimp
      */
-    void connectToMediaObject(MediaObject *mediaObject);
-
-    /// \reimp
-    void disconnectFromMediaObject(MediaObject *mediaObject);
-
-    /// \reimp
-    void addToMedia(Media *media);
+    void handleConnectToMediaObject(MediaObject *mediaObject);
+    /** \reimp */
+    void handleDisconnectFromMediaObject(MediaObject *mediaObject);
+    /** \reimp */
+    void handleAddToMedia(Media *media);
 
     /**
      * \return The aspect ratio previously set for the video widget

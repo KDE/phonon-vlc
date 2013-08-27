@@ -54,14 +54,14 @@ public:
      * \param p_back Parent backend
      * \param p_parent A parent object
      */
-    AudioOutput(QObject *parent);
+    explicit AudioOutput(QObject *parent);
     ~AudioOutput();
 
-    /// \reimp
-    virtual void connectPlayer(Player *mediaObject);
+    /** \reimp */
+    void handleConnectPlayer(Player *mediaObject);
 
-    /// \reimp
-    virtual void disconnectPlayer(Player *mediaObject);
+    /** \reimp */
+    void handleAddToMedia(Media *media);
 
     /**
      * \return The current volume for this audio output.
@@ -87,6 +87,9 @@ public:
      * \return \c false if failed
      */
     bool setOutputDevice(const AudioOutputDevice &newDevice);
+#if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 6, 50))
+    void setStreamUuid(QString uuid);
+#endif
 
 signals:
     void volumeChanged(qreal volume);
@@ -107,6 +110,7 @@ private:
 
     qreal m_volume;
     AudioOutputDevice m_device;
+    QString m_streamUuid;
 };
 
 } // namespace VLC

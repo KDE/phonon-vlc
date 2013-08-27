@@ -35,7 +35,7 @@
 #endif
 
 // Platform specific macros
-#ifdef _WIN32
+#ifdef _WIN32 // krazy:exclude=cpp we really want to check a compiler feature here :P
 #define __PRETTY_FUNCTION__ __FUNCTION__
 #endif
 #ifdef __SUNPRO_CC
@@ -147,7 +147,7 @@ namespace Debug
     class Block
     {
     public:
-        Block( const char *name );
+        explicit Block( const char *name );
         ~Block();
 
     private:

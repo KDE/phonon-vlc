@@ -57,6 +57,8 @@ public:
 
     QString meta(libvlc_meta_t meta);
 
+    void setCdTrack(int track);
+
 signals:
     void durationChanged(qint64 duration);
     void metaDataChanged();
@@ -66,6 +68,7 @@ private:
 
     libvlc_media_t *m_media;
     libvlc_state_t m_state;
+    QByteArray m_mrl;
 };
 
 } // namespace VLC
