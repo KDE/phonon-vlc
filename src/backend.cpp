@@ -45,10 +45,8 @@
 #include "utils/mime.h"
 //#include "video/videowidget.h"
 
-namespace Phonon
-{
-namespace VLC
-{
+namespace Phonon {
+namespace VLC {
 
 Backend *Backend::self;
 
@@ -58,14 +56,6 @@ Backend::Backend(QObject *parent, const QVariantList &)
 //    , m_effectManager(0)
 {
     self = this;
-
-    // Backend information properties
-    setProperty("identifier",     QLatin1String("phonon_vlc"));
-    setProperty("backendName",    QLatin1String("VLC"));
-    setProperty("backendComment", QLatin1String("VLC backend for Phonon"));
-    setProperty("backendVersion", QLatin1String(PHONON_VLC_VERSION));
-    setProperty("backendIcon",    QLatin1String("vlc"));
-    setProperty("backendWebsite", QLatin1String("https://projects.kde.org/projects/kdesupport/phonon/phonon-vlc"));
 
     // Check if we should enable debug output
     int debugLevel = qgetenv("PHONON_BACKEND_DEBUG").toInt();
