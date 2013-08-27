@@ -33,7 +33,7 @@ namespace Phonon {
 namespace VLC {
 
 class Media;
-class SinkNode;
+class Connector;
 class StreamReader;
 
 /** \brief Implementation for the most important class in Phonon
@@ -65,7 +65,7 @@ class Player : public QObject, public PlayerInterface
 {
     Q_OBJECT
     Q_INTERFACES(Phonon::PlayerInterface)
-    friend class SinkNode;
+    friend class Connector;
 
 public:
     /**
@@ -114,10 +114,10 @@ public:
      * \see playInternal()
      * \see SinkNode::addToMedia()
      */
-    void addSink(SinkNode *node);
+    void attach(Connector *connector);
 
     /// Removes a sink from this media object.
-    void removeSink(SinkNode *node);
+    void remove(Connector *connector);
 
     /**
      * Pushes a seek command to the SeekStack for this media object. The SeekStack then
@@ -319,7 +319,7 @@ private:
     qint64 m_totalTime;
     QByteArray m_mrl;
     QMultiMap<QString, QString> m_vlcMetaData;
-    QList<SinkNode *> m_sinks;
+    QList<Connector *> m_attachments;
 
     bool m_hasVideo;
     bool m_isScreen;

@@ -33,7 +33,7 @@
 #include "utils/debug.h"
 #include "utils/libvlc.h"
 #include "media.h"
-#include "sinknode.h"
+#include "connector.h"
 //#include "streamreader.h"
 
 //Time in milliseconds before sending aboutToFinish() signal
@@ -521,7 +521,7 @@ void Player::setupMedia()
 //        // Consequently we need to manually tell the StreamReader to attach to the Media.
 //        m_streamReader->addToMedia(m_media);
 
-    foreach (SinkNode *sink, m_sinks) {
+    foreach (Connector *sink, m_attachments) {
         sink->addToMedia(m_media);
     }
 
@@ -713,16 +713,16 @@ qint64 Player::totalTime() const
     return m_totalTime;
 }
 
-void Player::addSink(SinkNode *node)
+void Player::attach(Connector *connector)
 {
-    Q_ASSERT(!m_sinks.contains(node));
-    m_sinks.append(node);
+    Q_ASSERT(!m_attachments.contains(connector));
+    m_attachments.append(connector);
 }
 
-void Player::removeSink(SinkNode *node)
+void Player::remove(Connector *connector)
 {
-    Q_ASSERT(node);
-    m_sinks.removeAll(node);
+    Q_ASSERT(connector);
+    m_attachments.removeAll(connector);
 }
 
 } // namespace VLC

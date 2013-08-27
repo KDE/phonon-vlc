@@ -39,12 +39,11 @@
 //#include "effect.h"
 //#include "effectmanager.h"
 #include "mediaobject.h"
-#include "sinknode.h"
+#include "connector.h"
 #include "utils/debug.h"
 #include "utils/libvlc.h"
 #include "utils/mime.h"
 //#include "video/videowidget.h"
-
 
 namespace Phonon
 {

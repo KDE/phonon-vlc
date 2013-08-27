@@ -33,13 +33,13 @@ set(phonon_vlc_SRCS
 #    audio/audiodataoutput.cpp
 #    audio/volumefadereffect.cpp
     backend.cpp
+    connector.cpp
     devicemanager.cpp
 #    effect.cpp
 #    effectmanager.cpp
     media.cpp
     mediaobject.cpp
     mediaplayer.cpp
-    sinknode.cpp
 #    streamreader.cpp
 #    video/videodataoutput.cpp
 #    video/videographicsobject.cpp

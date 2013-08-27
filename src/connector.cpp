@@ -15,7 +15,7 @@
     License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "sinknode.h"
+#include "connector.h"
 
 #include "utils/debug.h"
 #include "mediaobject.h"
@@ -24,57 +24,68 @@
 namespace Phonon {
 namespace VLC {
 
-SinkNode::SinkNode()
+Connector::Connector()
     : m_player(0)
     , m_vlcPlayer(0)
 {
 }
 
-SinkNode::~SinkNode()
+Connector::~Connector()
 {
-    if (m_player) {
+    if (m_player)
         disconnectPlayer(m_player);
-    }
 }
 
-void SinkNode::connectPlayer(Player *player)
+void Connector::connectPlayer(Player *player)
 {
-    if (m_player) {
-        error() << Q_FUNC_INFO << "m_mediaObject already connected";
-    }
+    if (m_player)
+        error() << Q_FUNC_INFO << "Already connected to a Player.";
 
     m_player = player;
     m_vlcPlayer = player->m_player;
-    m_player->addSink(this);
+    m_player->attach(this);
 
-    // ---> Global handling goes here! Above the derivee handle! <--- //
+    // ---> Global handling goes here! ***Above*** the derivee handle! <--- //
 
     handleConnectPlayer(player);
 }
 
-void SinkNode::disconnectPlayer(Player *player)
+void Connector::disconnectPlayer(Player *player)
 {
     handleDisconnectPlayer(player);
 
-    // ---> Global handling goes here! Below the derivee handle! <--- //
+    // ---> Global handling goes here! ***Below*** the derivee handle! <--- //
 
-    if (m_player != player) {
-        error() << Q_FUNC_INFO << "SinkNode was not connected to mediaObject";
-    }
+    if (m_player != player)
+        error() << Q_FUNC_INFO << "Was not connected to the Player it is being disconnected from.";
 
-    if (m_player) {
-        m_player->removeSink(this);
-    }
+    if (m_player)
+        m_player->remove(this);
 
     m_player = 0;
     m_vlcPlayer = 0;
 }
 
-void SinkNode::addToMedia(Media *media)
+void Connector::addToMedia(Media *media)
 {
-    // ---> Global handling goes here! Above the derivee handle! <--- //
+    // ---> Global handling goes here! ***Above*** the derivee handle! <--- //
 
     handleAddToMedia(media);
+}
+
+void Connector::handleConnectPlayer(Player *player)
+{
+    Q_UNUSED(player);
+}
+
+void Connector::handleDisconnectPlayer(Player *player)
+{
+    Q_UNUSED(player);
+}
+
+void Connector::handleAddToMedia(Media *media)
+{
+    Q_UNUSED(media);
 }
 
 } // namespace VLC

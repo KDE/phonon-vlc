@@ -15,10 +15,8 @@
     License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PHONON_VLC_SINKNODE_H
-#define PHONON_VLC_SINKNODE_H
-
-#include <QPointer>
+#ifndef PHONON_VLC_CONNECTOR_H
+#define PHONON_VLC_CONNECTOR_H
 
 namespace Phonon {
 namespace VLC {
@@ -27,25 +25,14 @@ class Media;
 class Player;
 class MediaPlayer;
 
-/** \brief The sink node is essentialy an output for a media object
- *
- * This class handles connections for the sink to a media object. It remembers
- * the media object and the libVLC media player associated with it.
- *
- * \see MediaObject
- */
-class SinkNode
+class Connector
 {
 public:
-    SinkNode();
-    virtual ~SinkNode();
+    Connector();
+    virtual ~Connector();
 
     void connectPlayer(Player *player);
     void disconnectPlayer(Player *player);
-
-    /**
-     * Does nothing. To be reimplemented in child classes.
-     */
     void addToMedia(Media *media);
 
 protected:
@@ -55,7 +42,7 @@ protected:
      *       Meaning the SinkNode base will be done handling the connect.
      * \see connectPlayer
      */
-    virtual void handleConnectPlayer(Player *player) { Q_UNUSED(player); }
+    virtual void handleConnectPlayer(Player *player);
 
     /**
      * Handling function for derived classes.
@@ -63,7 +50,7 @@ protected:
      *       Meaning the SinkNode base will continue handling the disconnect.
      * \see disconnectPlayer
      */
-    virtual void handleDisconnectPlayer(Player *player) { Q_UNUSED(player); }
+    virtual void handleDisconnectPlayer(Player *player);
 
     /**
      * Handling function for derived classes.
@@ -71,7 +58,7 @@ protected:
      *       Meaning the SinkNode base will be done handling the connect.
      * \see addToMedia
      */
-    virtual void handleAddToMedia(Media *media) { Q_UNUSED(media); }
+    virtual void handleAddToMedia(Media *media);
 
     /** Available while connected to a MediaObject (until disconnected) */
     Player *m_player;
@@ -83,4 +70,4 @@ protected:
 } // namespace VLC
 } // namespace Phonon
 
-#endif // PHONON_VLC_SINKNODE_H
+#endif // PHONON_VLC_CONNECTOR_H

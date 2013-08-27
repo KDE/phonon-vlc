@@ -31,7 +31,7 @@
 #include <phonon/audiodataoutput.h>
 #include <phonon/audiodataoutputinterface.h>
 
-#include "sinknode.h"
+#include "connector.h"
 
 namespace Phonon {
 namespace VLC {
@@ -53,7 +53,7 @@ namespace VLC {
  *
  * \author Martin Sandsmark <sandsmark@samfundet.no>
  */
-class AudioDataOutput : public QObject, public SinkNode, public AudioDataOutputInterface
+class AudioDataOutput : public QObject, public Connector, public AudioDataOutputInterface
 {
     Q_OBJECT
     Q_INTERFACES(Phonon::AudioDataOutputInterface)
