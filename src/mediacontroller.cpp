@@ -91,8 +91,6 @@ QVariant MediaController::interfaceCall(Interface iface, int i_command, const QL
             }
             setCurrentChapter(arguments.first().toInt());
             return true;
-        default:
-            error() << Q_FUNC_INFO << "unsupported AddonInterface::ChapterInterface command:" << i_command;
         }
         break;
     case AddonInterface::TitleInterface:
@@ -117,8 +115,6 @@ QVariant MediaController::interfaceCall(Interface iface, int i_command, const QL
             }
             setAutoplayTitles(arguments.first().toBool());
             return true;
-        default:
-            error() << Q_FUNC_INFO << "unsupported AddonInterface::TitleInterface command:" << i_command;
         }
         break;
     case AddonInterface::AngleInterface:
@@ -137,8 +133,6 @@ QVariant MediaController::interfaceCall(Interface iface, int i_command, const QL
             }
             setCurrentSubtitle(arguments.first().value<SubtitleDescription>());
             return true;
-        default:
-            error() << Q_FUNC_INFO << "unsupported AddonInterface::SubtitleInterface command:" << i_command;
         }
         break;
     case AddonInterface::AudioChannelInterface:
@@ -154,12 +148,8 @@ QVariant MediaController::interfaceCall(Interface iface, int i_command, const QL
             }
             setCurrentAudioChannel(arguments.first().value<AudioChannelDescription>());
             return true;
-        default:
-            error() << Q_FUNC_INFO << "unsupported AddonInterface::AudioChannelInterface command:" << i_command;
         }
         break;
-    default:
-        error() << Q_FUNC_INFO << "unsupported AddonInterface::Interface:" << iface;
     }
 
     return QVariant();
