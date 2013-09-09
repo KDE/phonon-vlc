@@ -272,12 +272,9 @@ void MediaController::refreshSubtitles()
 
     const int currentSubtitleId = m_player->subtitle();
 
-    int idCount = 0;
     VLC_FOREACH_TRACK(it, m_player->videoSubtitleDescription()) {
-        // LibVLC's internal ID is broken, so we simply count up as internally
-        // the setter will simply go by position in list anyway.
-        GlobalSubtitles::instance()->add(this, idCount, QString::fromUtf8(it->psz_name), "");
-        if (idCount == currentSubtitleId) {
+        GlobalSubtitles::instance()->add(this, it->i_id, QString::fromUtf8(it->psz_name), "");
+        if (it->i_id == currentSubtitleId) {
 #ifdef __GNUC__
 #warning GlobalDescriptionContainer does not allow reverse resolution from local to descriptor!
 #endif
@@ -288,8 +285,6 @@ void MediaController::refreshSubtitles()
                 }
             }
         }
-
-        ++idCount;
     }
 
     emit availableSubtitlesChanged();
