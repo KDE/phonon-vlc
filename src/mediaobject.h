@@ -256,6 +256,9 @@ private slots:
 
     void setBufferStatus(int percent);
 
+    /** Refreshes all MediaController descriptors if Video is present. */
+    void refreshDescriptors();
+
 private:
     /**
      * This method actually calls the functions needed to begin playing the media.

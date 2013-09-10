@@ -164,7 +164,7 @@ bool MediaPlayer::setSubtitle(int subtitle)
 
 bool MediaPlayer::setSubtitle(const QString &file)
 {
-    return libvlc_video_set_subtitle_file(m_player, file.toLatin1().data()) == 0;
+    return libvlc_video_set_subtitle_file(m_player, file.toUtf8().data()) == 1;
 }
 
 void MediaPlayer::setTitle(int title)

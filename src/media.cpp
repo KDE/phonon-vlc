@@ -58,7 +58,7 @@ Media::~Media()
 void Media::addOption(const QString &option)
 {
     libvlc_media_add_option_flag(m_media,
-                                 qPrintable(option),
+                                 option.toUtf8().data(),
                                  libvlc_media_option_trusted);
 }
 

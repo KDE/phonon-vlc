@@ -25,6 +25,10 @@
 #include <phonon/MediaSource>
 #include <phonon/ObjectDescription>
 
+#include <QtGui/QFont>
+
+class QTimer;
+
 namespace Phonon {
 namespace VLC {
 
@@ -82,9 +86,16 @@ protected:
 
     // Subtitle
     void setCurrentSubtitle(const Phonon::SubtitleDescription &subtitle);
+    void setCurrentSubtitleFile(const QUrl &url);
     QList<Phonon::SubtitleDescription> availableSubtitles() const;
     Phonon::SubtitleDescription currentSubtitle() const;
     void refreshSubtitles();
+    bool subtitleAutodetect() const;
+    void setSubtitleAutodetect(bool enabled);
+    QString subtitleEncoding() const;
+    void setSubtitleEncoding(const QString &encoding);
+    QFont subtitleFont() const;
+    void setSubtitleFont(const QFont &font);
 
     // Chapter
     void setCurrentChapter(int chapterNumber);
@@ -126,8 +137,15 @@ protected:
 
     bool m_autoPlayTitles;
 
+    bool m_subtitleAutodetect;
+    QString m_subtitleEncoding;
+    bool m_subtitleFontChanged;
+    QFont m_subtitleFont;
+
     // MediaPlayer
     MediaPlayer *m_player;
+
+    QTimer *m_refreshTimer;
 };
 
 } // namespace VLC

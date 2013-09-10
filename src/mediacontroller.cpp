@@ -22,6 +22,8 @@
 
 #include <phonon/GlobalDescriptionContainer>
 
+#include <QTimer>
+
 #include "utils/debug.h"
 #include "utils/libvlc.h"
 #include "mediaplayer.h"
@@ -34,7 +36,11 @@ namespace VLC {
 #endif
 
 MediaController::MediaController()
-    : m_player(0)
+    : m_subtitleAutodetect(true)
+    , m_subtitleEncoding("UTF-8")
+    , m_subtitleFontChanged(false)
+    , m_player(0)
+    , m_refreshTimer(new QTimer(dynamic_cast<QObject *>(this)))
 {
     GlobalSubtitles::instance()->register_(this);
     GlobalAudioChannels::instance()->register_(this);
@@ -133,6 +139,39 @@ QVariant MediaController::interfaceCall(Interface iface, int i_command, const QL
             }
             setCurrentSubtitle(arguments.first().value<SubtitleDescription>());
             return true;
+        case AddonInterface::setCurrentSubtitleFile:
+            if (arguments.isEmpty() || !arguments.first().canConvert<QUrl>()) {
+                error() << Q_FUNC_INFO << " arguments invalid";
+                return false;
+            }
+            setCurrentSubtitleFile(arguments.first().value<QUrl>());
+        case AddonInterface::subtitleAutodetect:
+            return QVariant::fromValue(subtitleAutodetect());
+        case AddonInterface::setSubtitleAutodetect:
+            if (arguments.isEmpty() || !arguments.first().canConvert<bool>()) {
+                error() << Q_FUNC_INFO << " arguments invalid";
+                return false;
+            }
+            setSubtitleAutodetect(arguments.first().value<bool>());
+            return true;
+        case AddonInterface::subtitleEncoding:
+            return subtitleEncoding();
+        case AddonInterface::setSubtitleEncoding:
+            if (arguments.isEmpty() || !arguments.first().canConvert<QString>()) {
+                error() << Q_FUNC_INFO << " arguments invalid";
+                return false;
+            }
+            setSubtitleEncoding(arguments.first().value<QString>());
+            return true;
+        case AddonInterface::subtitleFont:
+            return subtitleFont();
+        case AddonInterface::setSubtitleFont:
+            if (arguments.isEmpty() || !arguments.first().canConvert<QFont>()) {
+                error() << Q_FUNC_INFO << " arguments invalid";
+                return false;
+            }
+            setSubtitleFont(arguments.first().value<QFont>());
+            return true;
         }
         break;
     case AddonInterface::AudioChannelInterface:
@@ -151,6 +190,8 @@ QVariant MediaController::interfaceCall(Interface iface, int i_command, const QL
         }
         break;
     }
+
+    error() << Q_FUNC_INFO << "unsupported AddonInterface::Interface:" << iface;
 
     return QVariant();
 }
@@ -232,7 +273,10 @@ void MediaController::refreshAudioChannels()
 // -------------------------------- Subtitle -------------------------------- //
 void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &subtitle)
 {
+    DEBUG_BLOCK;
     QString type = subtitle.property("type").toString();
+
+    debug() << subtitle;
 
     if (type == "file") {
         QString filename = subtitle.property("name").toString();
@@ -248,11 +292,30 @@ void MediaController::setCurrentSubtitle(const Phonon::SubtitleDescription &subt
         }
     } else {
         const int localIndex = GlobalSubtitles::instance()->localIdFor(this, subtitle.index());
+        debug () << "localid" << localIndex;
         if (!m_player->setSubtitle(localIndex))
             error() << "libVLC:" << LibVLC::errorMessage();
         else
             m_currentSubtitle = subtitle;
     }
+}
+
+void MediaController::setCurrentSubtitleFile(const QUrl &url)
+{
+    const QString file = url.toLocalFile();
+    if (!m_player->setSubtitle(file))
+        error() << "libVLC failed to set subtitle file:" << LibVLC::errorMessage();
+#warning report upstream wish
+    // Unfortunately the addition of SPUs does not trigger an event in the
+    // VLC mediaplayer, yet the actual addition to the descriptor is async.
+    // So for the time being our best shot at getting an up-to-date list of SPUs
+    // is shooting in the dark and hoping we hit something.
+    // Refresha after 1, 2 and 5 seconds. If we have no updated list after 5
+    // seconds we are out of luck.
+    QObject *mediaObject = dynamic_cast<QObject *>(this); // MediaObject : QObject, MediaController
+    m_refreshTimer->singleShot(1 * 1000, mediaObject, SLOT(refreshDescriptors()));
+    m_refreshTimer->singleShot(2 * 1000, mediaObject, SLOT(refreshDescriptors()));
+    m_refreshTimer->singleShot(5 * 1000, mediaObject, SLOT(refreshDescriptors()));
 }
 
 QList<Phonon::SubtitleDescription> MediaController::availableSubtitles() const
@@ -273,6 +336,7 @@ void MediaController::refreshSubtitles()
     const int currentSubtitleId = m_player->subtitle();
 
     VLC_FOREACH_TRACK(it, m_player->videoSubtitleDescription()) {
+        debug() << "found subtitle" << it->psz_name << "[" << it->i_id << "]";
         GlobalSubtitles::instance()->add(this, it->i_id, QString::fromUtf8(it->psz_name), "");
         if (it->i_id == currentSubtitleId) {
 #ifdef __GNUC__
@@ -288,6 +352,37 @@ void MediaController::refreshSubtitles()
     }
 
     emit availableSubtitlesChanged();
+}
+
+bool MediaController::subtitleAutodetect() const
+{
+    return m_subtitleAutodetect;
+}
+
+void MediaController::setSubtitleAutodetect(bool enabled)
+{
+    m_subtitleAutodetect = enabled;
+}
+
+QString MediaController::subtitleEncoding() const
+{
+    return m_subtitleEncoding;
+}
+
+void MediaController::setSubtitleEncoding(const QString &encoding)
+{
+    m_subtitleEncoding = encoding;
+}
+
+QFont MediaController::subtitleFont() const
+{
+    return m_subtitleFont;
+}
+
+void MediaController::setSubtitleFont(const QFont &font)
+{
+    m_subtitleFontChanged = true;
+    m_subtitleFont = font;
 }
 
 // --------------------------------- Title ---------------------------------- //

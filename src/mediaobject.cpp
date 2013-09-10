@@ -22,9 +22,9 @@
 
 #include "mediaobject.h"
 
+#include <QtCore/QDir>
 #include <QtCore/QStringBuilder>
 #include <QtCore/QUrl>
-#include <QtCore/QDir>
 
 #include <vlc/libvlc_version.h>
 #include <vlc/vlc.h>
@@ -67,6 +67,7 @@ MediaObject::MediaObject(QObject *parent)
 
     // Internal Signals.
     connect(this, SIGNAL(moveToNext()), SLOT(moveToNextSource()));
+    connect(m_refreshTimer, SIGNAL(timeout()), this, SLOT(refreshDescriptors()));
 
     resetMembers();
 }
@@ -535,6 +536,25 @@ void MediaObject::setupMedia()
         // Consequently we need to manually tell the StreamReader to attach to the Media.
         m_streamReader->addToMedia(m_media);
 
+    if (!m_subtitleAutodetect)
+        m_media->addOption(QLatin1String(":no-sub-autodetect-file"));
+
+    if (m_subtitleEncoding != QLatin1String("UTF-8")) // utf8 is phonon default, so let vlc handle it
+        m_media->addOption(QLatin1String(":subsdec-encoding="), m_subtitleEncoding);
+
+    if (!m_subtitleFontChanged) // Update font settings
+        m_subtitleFont = QFont();
+
+#warning freetype module is not working as expected - font api not working
+    // BUG: VLC's freetype module doesn't pick up per-media options
+    // vlc -vvvv --freetype-font="Comic Sans MS" multiple_sub_sample.mkv :freetype-font=Arial
+    m_media->addOption(QLatin1String(":freetype-font="), m_subtitleFont.family());
+    m_media->addOption(QLatin1String(":freetype-fontsize="), m_subtitleFont.pointSize());
+    if (m_subtitleFont.bold())
+        m_media->addOption(QLatin1String(":freetype-bold"));
+    else
+        m_media->addOption(QLatin1String(":no-freetype-bold"));
+
     foreach (SinkNode *sink, m_sinks) {
         sink->addToMedia(m_media);
     }
@@ -697,17 +717,7 @@ void MediaObject::onHasVideoChanged(bool hasVideo)
         // MC and MO are force-reset on media changes anyway.
         return;
 
-    if (hasVideo) {
-        refreshAudioChannels();
-        refreshSubtitles();
-
-        // Get movie chapter count
-        // It is not a title/chapter media if there is no chapter
-        if (m_player->videoChapterCount() > 0) {
-            refreshTitles();
-            refreshChapters(m_player->title());
-        }
-    }
+    refreshDescriptors();
 }
 
 void MediaObject::setBufferStatus(int percent)
@@ -735,6 +745,21 @@ void MediaObject::setBufferStatus(int percent)
     if (percent >= 100) { // http://trac.videolan.org/vlc/ticket/5277
         m_buffering = false;
         changeState(m_stateAfterBuffering);
+    }
+}
+
+void MediaObject::refreshDescriptors()
+{
+    if (hasVideo()) {
+        refreshAudioChannels();
+        refreshSubtitles();
+
+        // Get movie chapter count
+        // It is not a title/chapter media if there is no chapter
+        if (m_player->videoChapterCount() > 0) {
+            refreshTitles();
+            refreshChapters(m_player->title());
+        }
     }
 }
 
