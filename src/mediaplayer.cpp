@@ -331,7 +331,12 @@ void MediaPlayer::setCdTrack(int track)
     libvlc_media_player_play(m_player);
 }
 
-
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 2, 0, 0))
+void MediaPlayer::setEqualizer(libvlc_equalizer_t *equalizer)
+{
+    libvlc_media_player_set_equalizer(m_player, equalizer);
+}
+#endif
 
 } // namespace VLC
 } // namespace Phonon

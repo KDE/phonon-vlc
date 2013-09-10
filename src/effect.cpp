@@ -33,17 +33,17 @@ Effect::Effect(EffectManager *p_em, int i_effectId, QObject *p_parent)
     : QObject(p_parent)
     , SinkNode()
 {
-    p_effectManager = p_em;
-    const QList<EffectInfo *> effects = p_effectManager->effects();
+//    p_effectManager = p_em;
+//    const QList<EffectInfo> effects = p_effectManager->effects();
 
-    if (i_effectId >= 0 && i_effectId < effects.size()) {
-        i_effect_filter = effects[ i_effectId ]->filter();
-        effect_type = effects[ i_effectId ]->type();
-        setupEffectParams();
-    } else {
-        // effect ID out of range
-        Q_ASSERT(0);
-    }
+//    if (i_effectId >= 0 && i_effectId < effects.size()) {
+//        i_effect_filter = effects[ i_effectId ]->filter();
+//        effect_type = effects[ i_effectId ]->type();
+//        setupEffectParams();
+//    } else {
+//        // effect ID out of range
+//        Q_ASSERT(0);
+//    }
 }
 
 Effect::~Effect()

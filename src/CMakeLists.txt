@@ -49,6 +49,10 @@ set(phonon_vlc_SRCS
     utils/libvlc.cpp
 )
 
+if(${LIBVLC_VERSION} VERSION_GREATER "2.2.0" OR ${LIBVLC_VERSION} VERSION_EQUAL "2.2.0")
+    list(APPEND phonon_vlc_SRCS equalizereffect.cpp)
+endif()
+
 if(NOT PHONON_NO_GRAPHICSVIEW)
     list(APPEND phonon_vlc_SRCS video/videographicsobject.cpp)
 else()

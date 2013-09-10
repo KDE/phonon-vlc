@@ -21,6 +21,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QSize>
 
+#include <vlc/libvlc_version.h>
 #include <vlc/vlc.h>
 
 class QImage;
@@ -159,6 +160,10 @@ public:
     bool setAudioTrack(int track);
 
     void setCdTrack(int track);
+
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 2, 0, 0))
+    void setEqualizer(libvlc_equalizer_t *equalizer);
+#endif
    
 signals:
     void lengthChanged(qint64 length);

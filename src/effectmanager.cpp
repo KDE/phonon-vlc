@@ -21,8 +21,12 @@
 
 #include "effectmanager.h"
 
-#include <vlc/libvlc.h>
+#include <vlc/vlc.h>
 #include <vlc/libvlc_version.h>
+
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 2, 0, 0))
+#include "equalizereffect.h"
+#endif
 
 #include "utils/debug.h"
 #include "utils/libvlc.h"
@@ -50,9 +54,7 @@ EffectManager::EffectManager(QObject *parent)
 
 EffectManager::~EffectManager()
 {
-    qDeleteAll(m_audioEffectList);
     m_audioEffectList.clear();
-    qDeleteAll(m_videoEffectList);
     m_videoEffectList.clear();
 
     // EffectsList holds the same pointers as audio and video, so qDeleteAll on
@@ -60,19 +62,26 @@ EffectManager::~EffectManager()
     m_effectList.clear();
 }
 
-const QList<EffectInfo *> EffectManager::audioEffects() const
+const QList<EffectInfo> EffectManager::audioEffects() const
 {
     return m_audioEffectList;
 }
 
-const QList<EffectInfo *> EffectManager::videoEffects() const
+const QList<EffectInfo> EffectManager::videoEffects() const
 {
     return m_videoEffectList;
 }
 
-const QList<EffectInfo *> EffectManager::effects() const
+const QList<EffectInfo> EffectManager::effects() const
 {
     return m_effectList;
+}
+
+QObject *EffectManager::createEffect(int id, QObject *parent)
+{
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 2, 0, 0))
+    return new EqualizerEffect(parent);
+#endif
 }
 
 void EffectManager::updateEffects()
@@ -83,23 +92,36 @@ void EffectManager::updateEffects()
     m_audioEffectList.clear();
     m_videoEffectList.clear();
 
-    int moduleCount = -1;
-    VLC_FOREACH_MODULE(module, libvlc_audio_filter_list_get(libvlc)) {
-        m_audioEffectList.append(new EffectInfo(module->psz_longname,
-                                                module->psz_help,
-                                                QString(),
-                                                ++moduleCount,
-                                                EffectInfo::AudioEffect));
-    }
+    // Generic effect activation etc is entirely kaput and equalizer has specific
+    // API anyway, so we simply manually insert it \o/
 
-    moduleCount = -1;
-    VLC_FOREACH_MODULE(module, libvlc_video_filter_list_get(libvlc)) {
-        m_videoEffectList.append(new EffectInfo(module->psz_longname,
-                                                module->psz_help,
-                                                QString(),
-                                                ++moduleCount,
-                                                EffectInfo::VideoEffect));
-    }
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 2, 0, 0))
+    const QString eqName = QString("equalizer-%1bands").arg(QString::number(libvlc_audio_equalizer_get_band_count()));
+    m_audioEffectList.append(EffectInfo(
+                                 eqName,
+                                 QString(""),
+                                 QString(""),
+                                 0,
+                                 EffectInfo::AudioEffect));
+#endif
+
+//    int moduleCount = -1;
+//    VLC_FOREACH_MODULE(module, libvlc_audio_filter_list_get(libvlc)) {
+//        m_audioEffectList.append(new EffectInfo(module->psz_longname,
+//                                                module->psz_help,
+//                                                QString(),
+//                                                ++moduleCount,
+//                                                EffectInfo::AudioEffect));
+//    }
+
+//    moduleCount = -1;
+//    VLC_FOREACH_MODULE(module, libvlc_video_filter_list_get(libvlc)) {
+//        m_videoEffectList.append(new EffectInfo(module->psz_longname,
+//                                                module->psz_help,
+//                                                QString(),
+//                                                ++moduleCount,
+//                                                EffectInfo::VideoEffect));
+//    }
 
     m_effectList.append(m_audioEffectList);
     m_effectList.append(m_videoEffectList);

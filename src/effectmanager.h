@@ -64,11 +64,11 @@ public:
     }
 
 private:
-    const QString m_name;
-    const QString m_description;
-    const QString m_author;
-    const int m_filter;
-    const Type m_type;
+    QString m_name;
+    QString m_description;
+    QString m_author;
+    int m_filter;
+    Type m_type;
 };
 
 /** \brief Manages a list of effects.
@@ -93,21 +93,23 @@ public:
     ~EffectManager();
 
     /// Returns a list of available audio effects
-    const QList<EffectInfo *> audioEffects() const;
+    const QList<EffectInfo> audioEffects() const;
 
     /// Returns a list of available video effects
-    const QList<EffectInfo *> videoEffects() const;
+    const QList<EffectInfo> videoEffects() const;
 
     /// Returns a list of available effects
-    const QList<EffectInfo *> effects() const;
+    const QList<EffectInfo> effects() const;
+
+    QObject *createEffect(int id, QObject *parent);
 
 private:
     /// Generates the aggegated list of effects from both video and audio
     void updateEffects();
 
-    QList<EffectInfo *> m_effectList;
-    QList<EffectInfo *> m_audioEffectList;
-    QList<EffectInfo *> m_videoEffectList;
+    QList<EffectInfo> m_effectList;
+    QList<EffectInfo> m_audioEffectList;
+    QList<EffectInfo> m_videoEffectList;
     bool m_equalizerEnabled;
 };
 

@@ -38,6 +38,7 @@
 #include "devicemanager.h"
 #include "effect.h"
 #include "effectmanager.h"
+#include "equalizereffect.h"
 #include "mediaobject.h"
 #include "sinknode.h"
 #include "utils/debug.h"
@@ -155,7 +156,7 @@ Backend::~Backend()
     PulseSupport::shutdown();
 }
 
-QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const QList<QVariant> &/*args*/)
+QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const QList<QVariant> &args)
 {
     if (!LibVLC::self || !libvlc)
         return 0;
@@ -183,6 +184,8 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
     case VideoGraphicsObjectClass:
         return new VideoGraphicsObject(parent);
 #endif
+    case EffectClass:
+        return effectManager()->createEffect(args[0].toInt(), parent);
     case VideoWidgetClass:
         return new VideoWidget(qobject_cast<QWidget *>(parent));
 //    case VolumeFaderEffectClass:
@@ -219,7 +222,7 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const
     }
     break;
     case Phonon::EffectType: {
-        QList<EffectInfo *> effectList = effectManager()->effects();
+        QList<EffectInfo> effectList = effectManager()->effects();
         for (int eff = 0; eff < effectList.size(); ++eff) {
             list.append(eff);
         }
@@ -253,12 +256,12 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
     }
     break;
     case Phonon::EffectType: {
-        QList<EffectInfo *> effectList = effectManager()->effects();
+        const QList<EffectInfo> effectList = effectManager()->effects();
         if (index >= 0 && index <= effectList.size()) {
-            const EffectInfo *effect = effectList[ index ];
-            ret.insert("name", effect->name());
-            ret.insert("description", effect->description());
-            ret.insert("author", effect->author());
+            const EffectInfo &effect = effectList.at(index);
+            ret.insert("name", effect.name());
+            ret.insert("description", effect.description());
+            ret.insert("author", effect.author());
         } else {
             Q_ASSERT(1); // Since we use list position as ID, this should not happen
         }
