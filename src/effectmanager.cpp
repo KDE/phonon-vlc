@@ -82,6 +82,7 @@ QObject *EffectManager::createEffect(int id, QObject *parent)
 #if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 2, 0, 0))
     return new EqualizerEffect(parent);
 #endif
+    return 0;
 }
 
 void EffectManager::updateEffects()
