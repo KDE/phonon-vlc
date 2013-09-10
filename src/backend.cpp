@@ -38,7 +38,6 @@
 #include "devicemanager.h"
 #include "effect.h"
 #include "effectmanager.h"
-#include "equalizereffect.h"
 #include "mediaobject.h"
 #include "sinknode.h"
 #include "utils/debug.h"
