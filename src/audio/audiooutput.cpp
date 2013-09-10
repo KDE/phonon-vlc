@@ -114,8 +114,6 @@ bool AudioOutput::setOutputDevice(const AudioOutputDevice &newDevice)
 #if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 6, 50))
 void AudioOutput::setStreamUuid(QString uuid)
 {
-    qDebug() << Q_FUNC_INFO;
-    qDebug() << uuid;
     m_streamUuid = uuid;
 }
 #endif
