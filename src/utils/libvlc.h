@@ -134,11 +134,7 @@ private:
      */
     LibVLC();
 
-#if defined(Q_OS_UNIX)
-     static bool libGreaterThan(const QString &lhs, const QString &rhs);
-#endif // defined(Q_OS_UNIX)
-
-     libvlc_instance_t *m_vlcInstance;
+    libvlc_instance_t *m_vlcInstance;
 };
 
 #endif // LIBVLC_H
