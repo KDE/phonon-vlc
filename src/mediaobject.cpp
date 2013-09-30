@@ -750,16 +750,15 @@ void MediaObject::setBufferStatus(int percent)
 
 void MediaObject::refreshDescriptors()
 {
+    if (m_player->titleCount() > 0)
+        refreshTitles();
+
     if (hasVideo()) {
         refreshAudioChannels();
         refreshSubtitles();
 
-        // Get movie chapter count
-        // It is not a title/chapter media if there is no chapter
-        if (m_player->videoChapterCount() > 0) {
-            refreshTitles();
+        if (m_player->videoChapterCount() > 0)
             refreshChapters(m_player->title());
-        }
     }
 }
 

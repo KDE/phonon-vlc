@@ -431,7 +431,7 @@ void MediaController::refreshTitles()
 {
     m_availableTitles = 0;
 
-    VLC_FOREACH_TRACK(it, m_player->videoTitleDescription()) {
+    VLC_FOREACH_TRACK(it, m_player->titleDescription()) {
         ++m_availableTitles;
         emit availableTitlesChanged(m_availableTitles);
     }

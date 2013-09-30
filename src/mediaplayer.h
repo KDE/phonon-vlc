@@ -110,7 +110,10 @@ public:
     int title() const
     { return libvlc_media_player_get_title(m_player); }
 
-    libvlc_track_description_t *videoTitleDescription() const
+    int titleCount() const
+    { return libvlc_media_player_get_title_count(m_player); }
+
+    libvlc_track_description_t *titleDescription() const
     { return libvlc_video_get_title_description(m_player); }
 
     void setTitle(int title);
