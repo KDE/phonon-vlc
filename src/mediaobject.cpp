@@ -642,6 +642,28 @@ void MediaObject::updateState(MediaPlayer::State state)
 {
     DEBUG_BLOCK;
     debug() << state;
+    debug() << "attempted autoplay?" << m_attemptingAutoplay;
+
+#warning report upstream: lack of track information on cdda-trakc specific media
+    if (m_attemptingAutoplay) {
+        switch (state) {
+        case MediaPlayer::PlayingState:
+        case MediaPlayer::PausedState:
+            m_attemptingAutoplay = false;
+            break;
+        case MediaPlayer::ErrorState:
+            debug() << "autoplay failed, must be end of media.";
+            // The error should not be reflected to the consumer. So we swap it
+            // for finished() which is actually what is happening here.
+            // Or so we think ;)
+            state = MediaPlayer::EndedState;
+            --m_currentTitle;
+            break;
+        default:
+            debug() << "not handling as part of autplay:" << state;
+            break;
+        }
+    }
 
     switch (state) {
     case MediaPlayer::NoState:
@@ -663,9 +685,14 @@ void MediaObject::updateState(MediaPlayer::State state)
         changeState(StoppedState);
         break;
     case MediaPlayer::EndedState:
-        if (hasNextTrack())
+        if (hasNextTrack()) {
             moveToNextSource();
-        else {
+        } else if (source().discType() == Cd && m_autoPlayTitles && !m_attemptingAutoplay) {
+            debug() << "trying to simulate autoplay";
+            m_attemptingAutoplay = true;
+            m_player->setCdTrack(++m_currentTitle);
+        } else {
+            m_attemptingAutoplay = false;
             emitAboutToFinish();
             emit finished();
             changeState(StoppedState);

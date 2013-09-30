@@ -41,6 +41,7 @@ MediaController::MediaController()
     , m_subtitleFontChanged(false)
     , m_player(0)
     , m_refreshTimer(new QTimer(dynamic_cast<QObject *>(this)))
+    , m_attemptingAutoplay(false)
 {
     GlobalSubtitles::instance()->register_(this);
     GlobalAudioChannels::instance()->register_(this);
@@ -218,6 +219,8 @@ void MediaController::resetMembers()
 
     m_currentTitle = 1;
     m_availableTitles = 0;
+
+    m_attemptingAutoplay = false;
 }
 
 // ----------------------------- Audio Channel ------------------------------ //

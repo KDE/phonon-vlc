@@ -146,6 +146,8 @@ protected:
     MediaPlayer *m_player;
 
     QTimer *m_refreshTimer;
+
+    bool m_attemptingAutoplay;
 };
 
 } // namespace VLC
