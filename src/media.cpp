@@ -98,11 +98,8 @@ void Media::event_cb(const libvlc_event_t *event, void *opaque)
 
 void Media::setCdTrack(int track)
 {
-    libvlc_media_release(m_media);
-    m_media = libvlc_media_new_location(libvlc, m_mrl.constData());
     addOption(QLatin1String(":cdda-track="), QVariant(track));
 }
-
 
 } // namespace VLC
 } // namespace Phonon
