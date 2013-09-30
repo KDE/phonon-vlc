@@ -218,8 +218,6 @@ void MediaController::resetMembers()
 
     m_currentTitle = 1;
     m_availableTitles = 0;
-
-    m_autoPlayTitles = false;
 }
 
 // ----------------------------- Audio Channel ------------------------------ //
