@@ -525,10 +525,8 @@ void MediaObject::setupMedia()
         m_media->addOption(QLatin1String("screen-caching=300"));
     }
 
-    if (source().discType() == Cd && m_currentTitle > 0) {
-        debug() << "setting CDDA track";
-        m_media->addOption(QLatin1String(":cdda-track="), QVariant(m_currentTitle));
-    }
+    if (source().discType() == Cd && m_currentTitle > 0)
+        m_media->setCdTrack(m_currentTitle);
 
     if (m_streamReader)
         // StreamReader is no sink but a source, for this we have no concept right now

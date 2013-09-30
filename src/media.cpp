@@ -21,6 +21,7 @@
 
 #include <vlc/vlc.h>
 
+#include "utils/debug.h"
 #include "utils/libvlc.h"
 #include "utils/vstring.h"
 
@@ -98,6 +99,7 @@ void Media::event_cb(const libvlc_event_t *event, void *opaque)
 
 void Media::setCdTrack(int track)
 {
+    debug() << "setting CDDA track" << track;
     addOption(QLatin1String(":cdda-track="), QVariant(track));
 }
 
