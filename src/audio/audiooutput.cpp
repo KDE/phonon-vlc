@@ -145,7 +145,7 @@ void AudioOutput::setOutputDeviceImplementation()
     QByteArray deviceName = firstDeviceAccess.second.toLatin1();
     if (!deviceName.isEmpty()) {
         // print the name as possibly messed up by toLatin1() to see conversion problems
-        debug() << "Setting output device to" << deviceName << '(' << m_device.property("name") << ')';
+        debug() << "Setting output device to" << deviceName << '(' << m_device.name() << ')';
         m_vlcPlayer->setAudioOutputDevice(soundSystem, deviceName);
     }
 }

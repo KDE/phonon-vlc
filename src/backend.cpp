@@ -175,11 +175,11 @@ QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const
 //         list << GlobalAudioChannels::instance()->globalIndexes();
 //     }
 //     break;
-//     case Phonon::AudioOutputDeviceType:
-//     case Phonon::AudioCaptureDeviceType:
-//     case Phonon::VideoCaptureDeviceType: {
-//         return deviceManager()->deviceIds(type);
-//     }
+     case Phonon::AudioOutputDeviceType:
+     case Phonon::AudioCaptureDeviceType:
+     case Phonon::VideoCaptureDeviceType: {
+         return deviceManager()->deviceIds(type);
+     }
 //     break;
 //    case Phonon::EffectType: {
 //        QList<EffectInfo *> effectList = effectManager()->effects();
@@ -202,7 +202,6 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
     QHash<QByteArray, QVariant> ret;
 
     switch (type) {
-    break;
     case Phonon::AudioOutputDeviceType:
     case Phonon::AudioCaptureDeviceType:
     case Phonon::VideoCaptureDeviceType: {
