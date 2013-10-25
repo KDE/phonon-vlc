@@ -25,7 +25,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QTimer>
 
-#include <phonon/mediaobjectinterface.h>
+#include <phonon/playerinterface.h>
 
 #include "mediaplayer.h"
 
