@@ -107,6 +107,8 @@ public:
      */
     QHash<QByteArray, QVariant> objectDescriptionProperties(ObjectDescriptionType type, int index) const;
 
+    QList<AudioOutputDevice> audioOutputDevices() const;
+
 Q_SIGNALS:
     void objectDescriptionChanged(ObjectDescriptionType);
 

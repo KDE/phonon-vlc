@@ -111,6 +111,7 @@ DeviceManager::DeviceManager(Backend *parent)
     : QObject(parent)
     , m_backend(parent)
 {
+    DEBUG_BLOCK;
     Q_ASSERT(parent);
     updateDeviceList();
 }
@@ -176,6 +177,21 @@ QHash<QByteArray, QVariant> DeviceManager::deviceProperties(int id)
     return properties;
 }
 
+QList<AudioOutputDevice> DeviceManager::audioOutputDevies()
+{
+    QList<AudioOutputDevice> devices;
+
+    qDebug() << "DEVICES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << m_devices.count();
+    foreach (const DeviceInfo &device, m_devices) {
+        if (device.capabilities() & DeviceInfo::AudioOutput)
+#warning not all properties of DeviceInfo are implemented in AOD
+#warning availability not in ctor
+            devices.append(AudioOutputDevice(device.id(), device.name(), device.description()));
+    }
+
+    return devices;
+}
+
 const DeviceInfo *DeviceManager::device(int id) const
 {
     for (int i = 0; i < m_devices.size(); i ++) {
@@ -201,6 +217,7 @@ static QList<QByteArray> vlcAudioOutBackends()
 
 void DeviceManager::updateDeviceList()
 {
+    DEBUG_BLOCK;
     QList<DeviceInfo> newDeviceList;
 
     if (!LibVLC::self || !libvlc)

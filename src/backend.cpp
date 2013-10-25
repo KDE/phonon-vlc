@@ -226,6 +226,11 @@ QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescripti
     return ret;
 }
 
+QList<AudioOutputDevice> Backend::audioOutputDevices() const
+{
+    return m_deviceManager->audioOutputDevies();
+}
+
 DeviceManager *Backend::deviceManager() const
 {
     return m_deviceManager;

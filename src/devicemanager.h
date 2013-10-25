@@ -115,6 +115,8 @@ public:
      */
     QHash<QByteArray, QVariant> deviceProperties(int id);
 
+    QList<AudioOutputDevice> audioOutputDevies();
+
     /**
      * \param id The identifier for the device
      * \return Pointer to DeviceInfo, or NULL if the id is invalid
