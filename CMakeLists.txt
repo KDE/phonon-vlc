@@ -22,14 +22,6 @@ add_definitions(${QT_DEFINITIONS})
 
 include_directories(${PHONON_INCLUDES} ${QT_INCLUDES} ${LIBVLC_INCLUDE_DIR} ${LIBVLC_INCLUDE_DIR}/vlc/plugins)
 
-message(AUTHOR_WARNING "Manually taking /usr/include out of includes to ensure /usr/include/phonon is not picked.")
-get_directory_property(TMP_INCS INCLUDE_DIRECTORIES)
-list(REMOVE_ITEM TMP_INCS "/usr/include")
-set_directory_properties(PROPERTIES INCLUDE_DIRECTORIES "")
-foreach(t ${TMP_INCS})
-    include_directories(${t})
-endforeach()
-
 set(PHONON_VLC_MAJOR_VERSION "4")
 set(PHONON_VLC_MINOR_VERSION "50")
 set(PHONON_VLC_PATCH_VERSION "0")
