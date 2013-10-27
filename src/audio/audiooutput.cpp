@@ -21,8 +21,6 @@
 
 #include "audiooutput.h"
 
-#include <phonon/pulsesupport.h>
-
 #include <vlc/vlc.h>
 
 #include "backend.h"
@@ -48,18 +46,12 @@ void AudioOutput::handleConnectPlayer(Player *mediaObject)
 {
     DEBUG_BLOCK;
     setOutputDeviceImplementation();
-    if (!PulseSupport::getInstance()->isActive())
-        applyVolume();
+    applyVolume();
 }
 
 void AudioOutput::handleAddToMedia(Media *media)
 {
     media->addOption(":audio");
-    PulseSupport *pulse = PulseSupport::getInstance();
-    if (pulse && pulse->isActive()) {
-#warning phonon master
-//        pulse->setupStreamEnvironment(m_streamUuid);
-    }
 }
 
 qreal AudioOutput::volume() const
@@ -118,11 +110,11 @@ void AudioOutput::setOutputDeviceImplementation()
     Q_ASSERT(m_vlcPlayer);
     DEBUG_BLOCK;
     debug() << this;
-    if (PulseSupport::getInstance()->isActive()) {
-        m_vlcPlayer->setAudioOutput("pulse");
-        debug() << "Setting aout to pulse";
-        return;
-    }
+
+#warning forcing pulse ... because I can.
+    m_vlcPlayer->setAudioOutput("pulse");
+    return;
+
 
     const QVariant dalProperty = m_device.property("deviceAccessList");
     if (!dalProperty.isValid()) {

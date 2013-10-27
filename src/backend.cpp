@@ -28,8 +28,6 @@
 #include <QMessageBox>
 
 #include <phonon/GlobalDescriptionContainer>
-#include <phonon/pulsesupport.h>
-
 #include <vlc/libvlc_version.h>
 
 #include "audio/audiooutput.h"
@@ -92,10 +90,6 @@ Backend::Backend(QObject *parent, const QVariantList &)
                               id.toUtf8().constData(),
                               version.toUtf8().constData(),
                               icon.toUtf8().constData());
-        } else if (PulseSupport::getInstance()->isActive()) {
-            qWarning("WARNING: Setting PulseAudio context information requires you"
-                     " to set QCoreApplication::applicationName() and"
-                     " QCoreApplication::applicationVersion()");
         }
 #endif
     } else {
@@ -114,12 +108,6 @@ Backend::Backend(QObject *parent, const QVariantList &)
         fatal() << "Phonon::VLC::vlcInit: Failed to initialize VLC";
     }
 
-    // Initialise PulseAudio support
-    PulseSupport *pulse = PulseSupport::getInstance();
-    pulse->enable();
-    connect(pulse, SIGNAL(objectDescriptionChanged(ObjectDescriptionType)),
-            SIGNAL(objectDescriptionChanged(ObjectDescriptionType)));
-
     m_deviceManager = new DeviceManager(this);
 //    m_effectManager = new EffectManager(this);
 }
@@ -128,7 +116,6 @@ Backend::~Backend()
 {
     if (LibVLC::self)
         delete LibVLC::self;
-    PulseSupport::shutdown();
 }
 
 QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const QList<QVariant> &/*args*/)
