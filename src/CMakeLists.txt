@@ -80,11 +80,7 @@ target_link_libraries(phonon_vlc
     ${LIBVLC_LIBRARY}
 )
 
-if(WIN32)
-    install(TARGETS phonon_vlc DESTINATION bin/phonon_backend)
-else(WIN32)
-    install(TARGETS phonon_vlc DESTINATION ${PLUGIN_INSTALL_DIR}/plugins/phonon_backend)
-endif(WIN32)
+install(TARGETS phonon_vlc DESTINATION ${BACKEND_INSTALL_DIR})
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/utils/mime.h.cmake
                ${CMAKE_CURRENT_BINARY_DIR}/utils/mime.h @ONLY)
