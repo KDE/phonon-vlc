@@ -34,7 +34,8 @@ set(phonon_vlc_SRCS
 #    video/videodataoutput.cpp
 #    video/videographicsobject.cpp
     video/videowidget.cpp
-#    video/videomemorystream.cpp
+    video/videosurfaceoutput.cpp
+    video/videomemorystream.cpp
     utils/debug.cpp
     utils/libvlc.cpp
 )

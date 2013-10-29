@@ -37,6 +37,13 @@
 #include "connector.h"
 //#include "streamreader.h"
 
+
+
+
+#include "video/videosurfaceoutput.h"
+
+
+
 //Time in milliseconds before sending aboutToFinish() signal
 //2 seconds
 static const int ABOUT_TO_FINISH_TIME = 2000;
@@ -713,7 +720,10 @@ void Player::addVideoOutput(QObject *videoOutput)
 {
     DEBUG_BLOCK;
     debug() << videoOutput;
-    ((VideoWidget *)videoOutput)->connectPlayer(this);
+    if (dynamic_cast<VideoWidget *>(videoOutput))
+        dynamic_cast<VideoWidget *>(videoOutput)->connectPlayer(this);
+    if (dynamic_cast<VideoSurfaceOutput *>(videoOutput))
+        dynamic_cast<VideoSurfaceOutput *>(videoOutput)->connectPlayer(this);
 }
 
 qint64 Player::totalTime() const
