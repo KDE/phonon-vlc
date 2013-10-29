@@ -35,6 +35,13 @@
 #include "connector.h"
 //#include "streamreader.h"
 
+
+
+
+#include "video/videosurfaceoutput.h"
+
+
+
 //Time in milliseconds before sending aboutToFinish() signal
 //2 seconds
 static const int ABOUT_TO_FINISH_TIME = 2000;

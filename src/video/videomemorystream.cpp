@@ -95,6 +95,7 @@ unsigned VideoMemoryStream::setPitchAndLines(const vlc_chroma_description_t *des
 
 void VideoMemoryStream::setCallbacks(MediaPlayer *player)
 {
+    qDebug() << Q_FUNC_INFO;
     libvlc_video_set_callbacks(player->libvlc_media_player(),
                                lockCallbackInternal,
                                unlockCallbackInternal,

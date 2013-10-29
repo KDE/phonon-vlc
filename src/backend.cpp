@@ -43,6 +43,11 @@
 #include "utils/mime.h"
 #include "video/videowidget.h"
 
+
+#include "video/videosurfaceoutput.h"
+
+
+
 namespace Phonon {
 namespace VLC {
 
@@ -57,7 +62,7 @@ Backend::Backend(QObject *parent, const QVariantList &)
 
     // Check if we should enable debug output
     int debugLevel = qgetenv("PHONON_BACKEND_DEBUG").toInt();
-    if (debugLevel > 3) // 3 is maximum
+//    if (debugLevel > 3)/// 3 is maximum
         debugLevel = 3;
     Debug::setMinimumDebugLevel((Debug::DebugLevel)((int) Debug::DEBUG_NONE - 1 - debugLevel));
 
@@ -125,6 +130,8 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
     if (!LibVLC::self || !libvlc)
         return 0;
 
+    qDebug() << Q_FUNC_INFO << c << VideoSurfaceOutputClass;
+
     switch (c) {
     case PlayerClass:
         return new Player(parent);
@@ -149,6 +156,8 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
 #warning VFE crashes and has volume bugs ... deactivated
 //        return new VolumeFaderEffect(parent);
 #endif
+    case VideoSurfaceOutputClass:
+        return new VideoSurfaceOutput;
     }
 
     warning() << "Backend class" << c << "is not supported by Phonon VLC :(";
