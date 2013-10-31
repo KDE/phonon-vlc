@@ -7,7 +7,7 @@ X-KDE-PhononBackendInfo-InterfaceVersion=1
 X-KDE-PhononBackendInfo-Version=@PHONON_VLC_VERSION@
 X-KDE-PhononBackendInfo-Website=http://www.videolan.org/
 Icon=vlc
-InitialPreference=10
+InitialPreference=20
 
 Name=VLC
 Name[bg]=VLC
