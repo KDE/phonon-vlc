@@ -45,6 +45,7 @@ AudioOutput::~AudioOutput()
 
 void AudioOutput::handleConnectToMediaObject(MediaObject *mediaObject)
 {
+    Q_UNUSED(mediaObject);
     setOutputDeviceImplementation();
     if (!PulseSupport::getInstance()->isActive())
         applyVolume();

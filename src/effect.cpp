@@ -33,6 +33,8 @@ Effect::Effect(EffectManager *p_em, int i_effectId, QObject *p_parent)
     : QObject(p_parent)
     , SinkNode()
 {
+    Q_UNUSED(p_em);
+    Q_UNUSED(i_effectId);
 //    p_effectManager = p_em;
 //    const QList<EffectInfo> effects = p_effectManager->effects();
 
@@ -51,7 +53,7 @@ Effect::~Effect()
     parameterList.clear();
 }
 
-void Effect::handleConnectToMediaObject(MediaObject *p_media_object)
+void Effect::handleConnectToMediaObject(MediaObject *)
 {
     switch (effect_type) {
     case EffectInfo::AudioEffect:
@@ -65,7 +67,7 @@ void Effect::handleConnectToMediaObject(MediaObject *p_media_object)
     }
 }
 
-void Effect::handleDisconnectFromMediaObject(MediaObject *p_media_object)
+void Effect::handleDisconnectFromMediaObject(MediaObject *)
 {
     switch (effect_type) {
     case EffectInfo::AudioEffect:

@@ -120,7 +120,7 @@ Backend::Backend(QObject *parent, const QVariantList &)
 #endif
     } else {
 #ifdef __GNUC__
-#warning TODO - this error message is about as useful as a cooling unit in the arctic
+    #warning TODO - this error message is as useful as a knife at a gun fight
 #endif
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
@@ -165,13 +165,9 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
         return new MediaObject(parent);
     case AudioOutputClass:
         return new AudioOutput(parent);
-#ifdef __GNUC__
-#warning using sout in VLC2 breaks libvlcs vout functions, see vlc bug 6992
-// https://trac.videolan.org/vlc/ticket/6992
-#endif
 #if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 0, 0, 0))
-    // FWIW: the case is inside the if because that gives clear indication which
-    // frontend objects are not supported!
+    // Broken >= 2.0
+    // https://trac.videolan.org/vlc/ticket/6992
     case AudioDataOutputClass:
         return new AudioDataOutput(parent);
 #endif

@@ -50,11 +50,13 @@ VideoDataOutput::~VideoDataOutput()
 
 void VideoDataOutput::handleConnectToMediaObject(MediaObject *mediaObject)
 {
+    Q_UNUSED(mediaObject);
     setCallbacks(m_player);
 }
 
 void VideoDataOutput::handleDisconnectFromMediaObject(MediaObject *mediaObject)
 {
+    Q_UNUSED(mediaObject);
     unsetCallbacks(m_player);
 }
 

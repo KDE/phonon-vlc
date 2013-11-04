@@ -79,8 +79,11 @@ const QList<EffectInfo> EffectManager::effects() const
 
 QObject *EffectManager::createEffect(int id, QObject *parent)
 {
+    Q_UNUSED(id);
 #if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 2, 0, 0))
     return new EqualizerEffect(parent);
+#else
+    Q_UNUSED(parent);
 #endif
     return 0;
 }

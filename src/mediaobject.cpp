@@ -548,6 +548,7 @@ void MediaObject::setupMedia()
 #endif
     // BUG: VLC's freetype module doesn't pick up per-media options
     // vlc -vvvv --freetype-font="Comic Sans MS" multiple_sub_sample.mkv :freetype-font=Arial
+    // https://trac.videolan.org/vlc/ticket/9797
     m_media->addOption(QLatin1String(":freetype-font="), m_subtitleFont.family());
     m_media->addOption(QLatin1String(":freetype-fontsize="), m_subtitleFont.pointSize());
     if (m_subtitleFont.bold())
@@ -646,9 +647,6 @@ void MediaObject::updateState(MediaPlayer::State state)
     debug() << state;
     debug() << "attempted autoplay?" << m_attemptingAutoplay;
 
-#ifdef __GNUC__
-#warning report upstream: lack of track information on cdda-trakc specific media
-#endif
     if (m_attemptingAutoplay) {
         switch (state) {
         case MediaPlayer::PlayingState:
