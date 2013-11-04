@@ -543,7 +543,9 @@ void MediaObject::setupMedia()
     if (!m_subtitleFontChanged) // Update font settings
         m_subtitleFont = QFont();
 
+#ifdef __GNUC__
 #warning freetype module is not working as expected - font api not working
+#endif
     // BUG: VLC's freetype module doesn't pick up per-media options
     // vlc -vvvv --freetype-font="Comic Sans MS" multiple_sub_sample.mkv :freetype-font=Arial
     m_media->addOption(QLatin1String(":freetype-font="), m_subtitleFont.family());
@@ -644,7 +646,9 @@ void MediaObject::updateState(MediaPlayer::State state)
     debug() << state;
     debug() << "attempted autoplay?" << m_attemptingAutoplay;
 
+#ifdef __GNUC__
 #warning report upstream: lack of track information on cdda-trakc specific media
+#endif
     if (m_attemptingAutoplay) {
         switch (state) {
         case MediaPlayer::PlayingState:

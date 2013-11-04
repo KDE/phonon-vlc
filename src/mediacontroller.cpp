@@ -306,7 +306,9 @@ void MediaController::setCurrentSubtitleFile(const QUrl &url)
     const QString file = url.toLocalFile();
     if (!m_player->setSubtitle(file))
         error() << "libVLC failed to set subtitle file:" << LibVLC::errorMessage();
+#ifdef __GNUC__
 #warning report upstream wish
+#endif
     // Unfortunately the addition of SPUs does not trigger an event in the
     // VLC mediaplayer, yet the actual addition to the descriptor is async.
     // So for the time being our best shot at getting an up-to-date list of SPUs
