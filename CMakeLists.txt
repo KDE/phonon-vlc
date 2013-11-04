@@ -8,15 +8,16 @@ find_package(Phonon REQUIRED)
 macro_ensure_version("4.7.0" ${PHONON_VERSION} PHONON_FOUND)
 macro_log_feature(PHONON_FOUND "Phonon" "Core Library" "git://anongit.kde.org/phonon.git" TRUE "4.7.0")
 
+# LibVLC
+find_package(LIBVLC REQUIRED)
+macro_ensure_version("2.0.1" ${LIBVLC_VERSION} LIBVLC_FOUND)
+macro_log_feature(LIBVLC_FOUND "LibVLC" "VLC C API Library" "git://git.videolan.org/vlc.git" TRUE "2.0.1")
+
 if(PHONON_FOUND_EXPERIMENTAL)
   add_definitions(-DPHONON_EXPERIMENTAL)
 else(PHONON_FOUND_EXPERIMENTAL)
   add_definitions(-DPHONON_VLC_NO_EXPERIMENTAL)
 endif(PHONON_FOUND_EXPERIMENTAL)
-
-# libVLC
-set(LIBVLC_MIN_VERSION "2.0.1")
-find_package(LIBVLC REQUIRED)
 
 add_definitions(${QT_DEFINITIONS})
 
