@@ -32,3 +32,5 @@ add_definitions(-DPHONON_VLC_VERSION="${PHONON_VLC_VERSION}")
 include(MimeTypes.cmake)
 
 add_subdirectory(src)
+
+macro_display_feature_log()
