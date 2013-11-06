@@ -26,6 +26,8 @@
 #include <QtCore/QTimer>
 
 #include <phonon/playerinterface.h>
+#warning included for MetaData maybe move to inteface instead
+#include <phonon/phononnamespace.h>
 
 #include "mediaplayer.h"
 
@@ -207,7 +209,7 @@ signals:
     void currentSourceChanged(const Source &newSource);
     void finished();
     void hasVideoChanged(bool b_has_video);
-    void metaDataChanged(const QMultiMap<QString, QString> & metaData);
+    void metaDataChanged(QMultiMap<MetaData, QString> metaData) Q_DECL_OVERRIDE Q_DECL_FINAL;
     void prefinishMarkReached(qint32 msecToEnd);
     void seekableChanged(bool seekable);
     void stateChanged(Phonon::State newState, Phonon::State oldState);
@@ -319,7 +321,7 @@ private:
 
     qint64 m_totalTime;
     QByteArray m_mrl;
-    QMultiMap<QString, QString> m_vlcMetaData;
+    QMultiMap<MetaData, QString> m_vlcMetaData;
     QList<Connector *> m_attachments;
 
     bool m_hasVideo;

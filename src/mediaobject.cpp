@@ -566,7 +566,7 @@ void Player::updateDuration(qint64 newDuration)
 
 void Player::updateMetaData()
 {
-    QMultiMap<QString, QString> metaDataMap;
+    QMultiMap<MetaData, QString> metaDataMap;
 
     const QString artist = m_media->meta(libvlc_meta_Artist);
     const QString title = m_media->meta(libvlc_meta_Title);
@@ -575,21 +575,22 @@ void Player::updateMetaData()
     // Streams sometimes have the artist and title munged in nowplaying.
     // With ALBUM = Title and TITLE = NowPlaying it will still show up nicely in Amarok.
     if (artist.isEmpty() && !nowPlaying.isEmpty()) {
-        metaDataMap.insert(QLatin1String("ALBUM"), title);
-        metaDataMap.insert(QLatin1String("TITLE"), nowPlaying);
+        metaDataMap.insert(AlbumMetaData, title);
+        metaDataMap.insert(TitleMetaData, nowPlaying);
     } else {
-        metaDataMap.insert(QLatin1String("ALBUM"), m_media->meta(libvlc_meta_Album));
-        metaDataMap.insert(QLatin1String("TITLE"), title);
+        metaDataMap.insert(AlbumMetaData, m_media->meta(libvlc_meta_Album));
+        metaDataMap.insert(TitleMetaData, title);
     }
 
-    metaDataMap.insert(QLatin1String("ARTIST"), artist);
-    metaDataMap.insert(QLatin1String("DATE"), m_media->meta(libvlc_meta_Date));
-    metaDataMap.insert(QLatin1String("GENRE"), m_media->meta(libvlc_meta_Genre));
-    metaDataMap.insert(QLatin1String("TRACKNUMBER"), m_media->meta(libvlc_meta_TrackNumber));
-    metaDataMap.insert(QLatin1String("DESCRIPTION"), m_media->meta(libvlc_meta_Description));
-    metaDataMap.insert(QLatin1String("COPYRIGHT"), m_media->meta(libvlc_meta_Copyright));
-    metaDataMap.insert(QLatin1String("URL"), m_media->meta(libvlc_meta_URL));
-    metaDataMap.insert(QLatin1String("ENCODEDBY"), m_media->meta(libvlc_meta_EncodedBy));
+    metaDataMap.insert(ArtistMetaData, artist);
+    metaDataMap.insert(DateMetaData, m_media->meta(libvlc_meta_Date));
+    metaDataMap.insert(GenreMetaData, m_media->meta(libvlc_meta_Genre));
+    metaDataMap.insert(TracknumberMetaData, m_media->meta(libvlc_meta_TrackNumber));
+    metaDataMap.insert(DescriptionMetaData, m_media->meta(libvlc_meta_Description));
+#warning some metadata missing
+//    metaDataMap.insert(MetaData::, m_media->meta(libvlc_meta_Copyright));
+//    metaDataMap.insert(QLatin1String("URL"), m_media->meta(libvlc_meta_URL));
+//    metaDataMap.insert(QLatin1String("ENCODEDBY"), m_media->meta(libvlc_meta_EncodedBy));
 
     if (metaDataMap == m_vlcMetaData) {
         // No need to issue any change, the data is the same
