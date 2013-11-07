@@ -568,6 +568,26 @@ void Player::updateMetaData()
 {
     QMultiMap<MetaData, QString> metaDataMap;
 
+    QMap<QString, QString> metaMap;
+    metaMap["libvlc_meta_Title"] = m_media->meta(libvlc_meta_Title);
+    metaMap["libvlc_meta_Artist"] = m_media->meta(libvlc_meta_Artist);
+    metaMap["libvlc_meta_Genre"] = m_media->meta(libvlc_meta_Genre);
+    metaMap["libvlc_meta_Copyright"] = m_media->meta(libvlc_meta_Copyright);
+    metaMap["libvlc_meta_Album"] = m_media->meta(libvlc_meta_Album);
+    metaMap["libvlc_meta_TrackNumber"] = m_media->meta(libvlc_meta_TrackNumber);
+    metaMap["libvlc_meta_Description"] = m_media->meta(libvlc_meta_Description);
+    metaMap["libvlc_meta_Rating"] = m_media->meta(libvlc_meta_Rating);
+    metaMap["libvlc_meta_Date"] = m_media->meta(libvlc_meta_Date);
+    metaMap["libvlc_meta_Setting"] = m_media->meta(libvlc_meta_Setting);
+    metaMap["libvlc_meta_URL"] = m_media->meta(libvlc_meta_URL);
+    metaMap["libvlc_meta_Language"] = m_media->meta(libvlc_meta_Language);
+    metaMap["libvlc_meta_NowPlaying"] = m_media->meta(libvlc_meta_NowPlaying);
+    metaMap["libvlc_meta_Publisher"] = m_media->meta(libvlc_meta_Publisher);
+    metaMap["libvlc_meta_EncodedBy"] = m_media->meta(libvlc_meta_EncodedBy);
+    metaMap["libvlc_meta_ArtworkURL"] = m_media->meta(libvlc_meta_ArtworkURL);
+    metaMap["libvlc_meta_TrackID"] = m_media->meta(libvlc_meta_TrackID);
+    qDebug() << "VLC MetaData:" << metaMap;
+
     const QString artist = m_media->meta(libvlc_meta_Artist);
     const QString title = m_media->meta(libvlc_meta_Title);
     const QString nowPlaying = m_media->meta(libvlc_meta_NowPlaying);
