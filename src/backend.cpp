@@ -83,6 +83,8 @@ Backend::Backend(QObject *parent, const QVariantList &)
         debugLevel = 3;
     Debug::setMinimumDebugLevel((Debug::DebugLevel)((int) Debug::DEBUG_NONE - 1 - debugLevel));
 
+    debug() << "Constructing Phonon-VLC Version" << PHONON_VLC_VERSION;
+
     // Actual libVLC initialisation
     if (LibVLC::init()) {
         debug() << "Using VLC version" << libvlc_get_version();
