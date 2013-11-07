@@ -92,8 +92,8 @@ public:
 #endif
 
 signals:
-    void volumeChanged(qreal volume);
-    void audioDeviceFailed();
+    void volumeChanged(qreal volume) Q_DECL_OVERRIDE Q_DECL_FINAL;
+    void audioDeviceFailed() Q_DECL_OVERRIDE Q_DECL_FINAL;
 
 private slots:
     /**
