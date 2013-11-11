@@ -38,7 +38,6 @@ public:
     enum State {
         NoState = 0,
         OpeningState,
-        BufferingState,
         PlayingState,
         PausedState,
         StoppedState,

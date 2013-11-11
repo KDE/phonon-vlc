@@ -336,7 +336,6 @@ private:
 
     int m_timesVideoChecked;
 
-    bool m_buffering;
     Phonon::State m_stateAfterBuffering;
 };
 

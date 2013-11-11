@@ -92,9 +92,6 @@ void Player::resetMembers()
     m_lastTick = 0;
 
     m_timesVideoChecked = 0;
-
-    m_buffering = false;
-    m_stateAfterBuffering = ErrorState;
 }
 
 void Player::play()
@@ -120,7 +117,6 @@ void Player::pause()
 {
     DEBUG_BLOCK;
     switch (m_state) {
-    case BufferingState:
     case PlayingState:
         m_player->pause();
         break;
@@ -150,7 +146,6 @@ void Player::seek(qint64 milliseconds)
     switch (m_state) {
     case PlayingState:
     case PausedState:
-    case BufferingState:
         break;
     default:
         // Seeking while not being in a playingish state is cached for later.
@@ -180,14 +175,13 @@ void Player::timeChanged(qint64 time)
 
     switch (m_state) {
     case PlayingState:
-    case BufferingState:
     case PausedState:
         emitTick(time);
     default:
         break;
     }
 
-    if (m_state == PlayingState || m_state == BufferingState) { // Buffering is concurrent
+    if (m_state == PlayingState) {
         if (time >= totalTime - m_prefinishMark) {
             if (!m_prefinishEmitted) {
                 m_prefinishEmitted = true;
@@ -243,15 +237,11 @@ qint64 Player::currentTime() const
 
     switch (state()) {
     case Phonon::PausedState:
-    case Phonon::BufferingState:
     case Phonon::PlayingState:
         time = m_player->time();
         break;
     case Phonon::StoppedState:
         time = 0;
-        break;
-    case Phonon::ErrorState:
-        time = -1;
         break;
     }
 
@@ -568,25 +558,24 @@ void Player::updateMetaData()
 {
     QMultiMap<MetaData, QString> metaDataMap;
 
-    QMap<QString, QString> metaMap;
-    metaMap["libvlc_meta_Title"] = m_media->meta(libvlc_meta_Title);
-    metaMap["libvlc_meta_Artist"] = m_media->meta(libvlc_meta_Artist);
-    metaMap["libvlc_meta_Genre"] = m_media->meta(libvlc_meta_Genre);
-    metaMap["libvlc_meta_Copyright"] = m_media->meta(libvlc_meta_Copyright);
-    metaMap["libvlc_meta_Album"] = m_media->meta(libvlc_meta_Album);
-    metaMap["libvlc_meta_TrackNumber"] = m_media->meta(libvlc_meta_TrackNumber);
-    metaMap["libvlc_meta_Description"] = m_media->meta(libvlc_meta_Description);
-    metaMap["libvlc_meta_Rating"] = m_media->meta(libvlc_meta_Rating);
-    metaMap["libvlc_meta_Date"] = m_media->meta(libvlc_meta_Date);
-    metaMap["libvlc_meta_Setting"] = m_media->meta(libvlc_meta_Setting);
-    metaMap["libvlc_meta_URL"] = m_media->meta(libvlc_meta_URL);
-    metaMap["libvlc_meta_Language"] = m_media->meta(libvlc_meta_Language);
-    metaMap["libvlc_meta_NowPlaying"] = m_media->meta(libvlc_meta_NowPlaying);
-    metaMap["libvlc_meta_Publisher"] = m_media->meta(libvlc_meta_Publisher);
-    metaMap["libvlc_meta_EncodedBy"] = m_media->meta(libvlc_meta_EncodedBy);
-    metaMap["libvlc_meta_ArtworkURL"] = m_media->meta(libvlc_meta_ArtworkURL);
-    metaMap["libvlc_meta_TrackID"] = m_media->meta(libvlc_meta_TrackID);
-    qDebug() << "VLC MetaData:" << metaMap;
+    qDebug() << "VLC MetaData:";
+    qDebug() << "    libvlc_meta_Title ->" << m_media->meta(libvlc_meta_Title);
+    qDebug() << "    libvlc_meta_Artist ->" << m_media->meta(libvlc_meta_Artist);
+    qDebug() << "    libvlc_meta_Genre ->" << m_media->meta(libvlc_meta_Genre);
+    qDebug() << "    libvlc_meta_Copyright ->" << m_media->meta(libvlc_meta_Copyright);
+    qDebug() << "    libvlc_meta_Album ->" << m_media->meta(libvlc_meta_Album);
+    qDebug() << "    libvlc_meta_TrackNumber ->" << m_media->meta(libvlc_meta_TrackNumber);
+    qDebug() << "    libvlc_meta_Description ->" << m_media->meta(libvlc_meta_Description);
+    qDebug() << "    libvlc_meta_Rating ->" << m_media->meta(libvlc_meta_Rating);
+    qDebug() << "    libvlc_meta_Date ->" << m_media->meta(libvlc_meta_Date);
+    qDebug() << "    libvlc_meta_Setting ->" << m_media->meta(libvlc_meta_Setting);
+    qDebug() << "    libvlc_meta_URL ->" << m_media->meta(libvlc_meta_URL);
+    qDebug() << "    libvlc_meta_Language ->" << m_media->meta(libvlc_meta_Language);
+    qDebug() << "    libvlc_meta_NowPlaying ->" << m_media->meta(libvlc_meta_NowPlaying);
+    qDebug() << "    libvlc_meta_Publisher ->" << m_media->meta(libvlc_meta_Publisher);
+    qDebug() << "    libvlc_meta_EncodedBy ->" << m_media->meta(libvlc_meta_EncodedBy);
+    qDebug() << "    libvlc_meta_ArtworkURL ->" << m_media->meta(libvlc_meta_ArtworkURL);
+    qDebug() << "    libvlc_meta_TrackID ->" << m_media->meta(libvlc_meta_TrackID);
 
     const QString artist = m_media->meta(libvlc_meta_Artist);
     const QString title = m_media->meta(libvlc_meta_Title);
@@ -627,9 +616,6 @@ void Player::updateState(MediaPlayer::State state)
     debug() << state;
 
     switch (state) {
-    case MediaPlayer::BufferingState:
-        changeState(BufferingState);
-        break;
     case MediaPlayer::PlayingState:
         changeState(PlayingState);
         break;
@@ -650,33 +636,12 @@ void Player::updateState(MediaPlayer::State state)
             changeState(StoppedState);
         }
         break;
-    case MediaPlayer::ErrorState:
-        debug() << errorString();
-        emitAboutToFinish();
-        emit finished();
-        changeState(ErrorState);
-        break;
-    }
-
-    if (m_buffering) {
-        switch (state) {
-        case MediaPlayer::BufferingState:
-            break;
-        case MediaPlayer::PlayingState:
-            debug() << "Restoring buffering state after state change to Playing";
-            changeState(BufferingState);
-            m_stateAfterBuffering = PlayingState;
-            break;
-        case MediaPlayer::PausedState:
-            debug() << "Restoring buffering state after state change to Paused";
-            changeState(BufferingState);
-            m_stateAfterBuffering = PausedState;
-            break;
-        default:
-            debug() << "Buffering aborted!";
-            m_buffering = false;
-            break;
-        }
+//    case MediaPlayer::ErrorState:
+//        debug() << errorString();
+//        emitAboutToFinish();
+//        emit finished();
+//        changeState(ErrorState);
+//        break;
     }
 
     return;
@@ -697,30 +662,9 @@ void Player::onHasVideoChanged(bool hasVideo)
 
 void Player::setBufferStatus(int percent)
 {
-    // VLC does not have a buffering state (surprise!) but instead only sends the
-    // event (surprise!). Hence we need to simulate the state change.
-    // Problem with BufferingState is that it is actually concurrent to Playing or Paused
-    // meaning that while you are buffering you can also pause, thus triggering
-    // a state change to paused. To handle this we let updateState change the
-    // state accordingly (as we need to allow the UI to update itself, and
-    // immediately after that we change back to buffering again.
-    // This loop can only be interrupted by a state change to !Playing & !Paused
-    // or by reaching a 100 % buffer caching (i.e. full cache).
-
-    m_buffering = true;
-    if (m_state != BufferingState) {
-        m_stateAfterBuffering = m_state;
-        changeState(BufferingState);
-    }
-
+#warning vlc has no buffering end event, so this at least needs frontend documentation that 100=end, or special handling
+// http://trac.videolan.org/vlc/ticket/5277
     emit bufferStatus(percent);
-
-    // Transit to actual state only after emission so the signal is still
-    // delivered while in BufferingState.
-    if (percent >= 100) { // http://trac.videolan.org/vlc/ticket/5277
-        m_buffering = false;
-        changeState(m_stateAfterBuffering);
-    }
 }
 
 void Player::addAudioOutput(QObject *audioOutput)

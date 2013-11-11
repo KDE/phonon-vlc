@@ -283,9 +283,6 @@ QDebug operator<<(QDebug dbg, const MediaPlayer::State &s)
     case MediaPlayer::OpeningState:
         name = QLatin1String("MediaPlayer::OpeningState");
         break;
-    case MediaPlayer::BufferingState:
-        name = QLatin1String("MediaPlayer::BufferingState");
-        break;
     case MediaPlayer::PlayingState:
         name = QLatin1String("MediaPlayer::PlayingState");
         break;
