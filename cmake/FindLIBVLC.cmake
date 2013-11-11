@@ -67,7 +67,21 @@ find_library(LIBVLCCORE_LIBRARY NAMES vlccore libvlccore)
 
 set(LIBVLC_VERSION ${PC_LIBVLC_VERSION})
 if (NOT LIBVLC_VERSION)
-# TODO: implement means to detect version on windows (vlc --version && regex? ... ultimately we would get it from a header though...)
+    file(READ "${LIBVLC_INCLUDE_DIR}/vlc/libvlc_version.h" _libvlc_version_h)
+
+    string(REGEX MATCH "# define LIBVLC_VERSION_MAJOR +\\(([0-9])\\)" _dummy "${_libvlc_version_h}")
+    set(_version_major "${CMAKE_MATCH_1}")
+
+    string(REGEX MATCH "# define LIBVLC_VERSION_MINOR +\\(([0-9])\\)" _dummy "${_libvlc_version_h}")
+    set(_version_minor "${CMAKE_MATCH_1}")
+
+    string(REGEX MATCH "# define LIBVLC_VERSION_REVISION +\\(([0-9])\\)" _dummy "${_libvlc_version_h}")
+    set(_version_revision "${CMAKE_MATCH_1}")
+
+    # Optionally, one could also parse LIBVLC_VERSION_EXTRA, but it does not
+    # seem to be used by libvlc.pc.
+
+    set(LIBVLC_VERSION "${_version_major}.${_version_minor}.${_version_revision}")
 endif (NOT LIBVLC_VERSION)
 
 if (LIBVLC_INCLUDE_DIR AND LIBVLC_LIBRARY AND LIBVLCCORE_LIBRARY)
