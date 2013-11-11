@@ -54,10 +54,12 @@ void AudioOutput::handleConnectToMediaObject(MediaObject *mediaObject)
 void AudioOutput::handleAddToMedia(Media *media)
 {
     media->addOption(":audio");
+#if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 6, 50))
     PulseSupport *pulse = PulseSupport::getInstance();
     if (pulse && pulse->isActive()) {
         pulse->setupStreamEnvironment(m_streamUuid);
     }
+#endif
 }
 
 qreal AudioOutput::volume() const
