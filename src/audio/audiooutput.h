@@ -25,6 +25,7 @@
 #include <QtCore/QObject>
 
 #include <phonon/audiooutputinterface.h>
+#include <phonon/phononversion.h>
 
 #include "connector.h"
 
