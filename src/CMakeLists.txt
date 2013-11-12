@@ -20,13 +20,17 @@ endif (MSVC)
 
 if(${PHONON_VERSION} VERSION_GREATER "4.6.49") # Pre-release 4.7 starts at 4.6.50
     message(STATUS "Building against Phonon 4.7 API")
-    add_definitions(-DPHONON_BACKEND_VERSION_4_7)
+    set(BACKEND_VERSION_DEFINE -DPHONON_BACKEND_VERSION_4_7)
 elseif(${PHONON_VERSION} VERSION_GREATER "4.1.99")
     message(STATUS "Building against Phonon 4.2 API")
-    add_definitions(-DPHONON_BACKEND_VERSION_4_2)
+    set(BACKEND_VERSION_DEFINE -DPHONON_BACKEND_VERSION_4_2)
 else()
     message(STATUS "Building against Phonon 4.0 API")
+    set(BACKEND_VERSION_DEFINE)
 endif()
+
+add_definitions(${BACKEND_VERSION_DEFINE})
+set(AUTOMOC_MOC_OPTIONS ${BACKEND_VERSION_DEFINE})
 
 set(phonon_vlc_SRCS
     audio/audiooutput.cpp
@@ -73,7 +77,10 @@ endif(APPLE)
 automoc4_add_library(phonon_vlc MODULE ${phonon_vlc_SRCS})
 qt5_use_modules(phonon_vlc Core Widgets)
 
-set_target_properties(phonon_vlc PROPERTIES PREFIX "")
+set_target_properties(phonon_vlc PROPERTIES
+    PREFIX ""
+    AUTOMOC_MOC_OPTIONS ${AUTOMOC_MOC_OPTIONS}
+)
 target_link_libraries(phonon_vlc
     ${PHONON_LIBRARY}
     ${LIBVLCCORE_LIBRARY}
