@@ -29,8 +29,6 @@
 #include <vlc/libvlc_version.h>
 #include <vlc/vlc.h>
 
-#include "audio/audiooutput.h"
-#include "video/videowidget.h"
 #include "utils/debug.h"
 #include "utils/libvlc.h"
 #include "media.h"
@@ -667,18 +665,11 @@ void Player::setBufferStatus(int percent)
     emit bufferStatus(percent);
 }
 
-void Player::addAudioOutput(QObject *audioOutput)
+void Player::addOutput(QObject *output)
 {
     DEBUG_BLOCK;
-    debug() << audioOutput;
-    ((AudioOutput *)audioOutput)->connectPlayer(this);
-}
-
-void Player::addVideoOutput(QObject *videoOutput)
-{
-    DEBUG_BLOCK;
-    debug() << videoOutput;
-    ((VideoWidget *)videoOutput)->connectPlayer(this);
+    debug() << output;
+    ((Connector *)output)->connectPlayer(this);
 }
 
 qint64 Player::totalTime() const
