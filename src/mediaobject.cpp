@@ -672,8 +672,8 @@ void Player::addOutput(QObject *output)
     Connector *connector = dynamic_cast<Connector *>(output);
     if (connector)
         connector->connectPlayer(this);
-    warning() << "Output does not seem to be a Connector.";
-    return;
+    else
+        warning() << "Output does not seem to be a Connector.";
 }
 
 qint64 Player::totalTime() const
