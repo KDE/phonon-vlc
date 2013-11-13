@@ -594,7 +594,7 @@ void Player::updateMetaData()
     metaDataMap.insert(ArtistMetaData, artist);
     metaDataMap.insert(DateMetaData, m_media->meta(libvlc_meta_Date));
     metaDataMap.insert(GenreMetaData, m_media->meta(libvlc_meta_Genre));
-    metaDataMap.insert(TracknumberMetaData, m_media->meta(libvlc_meta_TrackNumber));
+    metaDataMap.insert(TrackNumberMetaData, m_media->meta(libvlc_meta_TrackNumber));
     metaDataMap.insert(DescriptionMetaData, m_media->meta(libvlc_meta_Description));
 #warning some metadata missing
 //    metaDataMap.insert(MetaData::, m_media->meta(libvlc_meta_Copyright));
