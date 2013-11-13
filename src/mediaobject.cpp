@@ -669,7 +669,11 @@ void Player::addOutput(QObject *output)
 {
     DEBUG_BLOCK;
     debug() << output;
-    ((Connector *)output)->connectPlayer(this);
+    Connector *connector = dynamic_cast<Connector *>(output);
+    if (connector)
+        connector->connectPlayer(this);
+    warning() << "Output does not seem to be a Connector.";
+    return;
 }
 
 qint64 Player::totalTime() const
