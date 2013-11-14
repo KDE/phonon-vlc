@@ -379,7 +379,7 @@ void Player::setSource(const Source &source)
 //    }
 
     debug() << "Sending currentSourceChanged";
-    emit currentSourceChanged(m_mediaSource);
+    emit sourceChanged(m_mediaSource);
 }
 
 void Player::setNextSource(const Source &source)

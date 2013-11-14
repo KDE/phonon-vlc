@@ -159,7 +159,7 @@ public:
     /**
      * Sets the current media source for this media object. Depending on the source type,
      * the media object loads the specified media. The MRL is passed to loadMedia(), if the media
-     * is not a stream. The currentSourceChanged() signal
+     * is not a stream. The sourceChanged() signal
      * is emitted.
      *
      * Supported media source types:
@@ -207,7 +207,7 @@ signals:
 
     void aboutToFinish();
     void bufferStatus(int percentFilled);
-    void currentSourceChanged(const Source &newSource);
+    void sourceChanged(const Source &newSource);
     void finished();
     void hasVideoChanged(bool b_has_video);
     void metaDataChanged(QMultiMap<MetaData, QString> metaData) Q_DECL_OVERRIDE Q_DECL_FINAL;
