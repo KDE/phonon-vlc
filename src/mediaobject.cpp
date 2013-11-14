@@ -60,11 +60,11 @@ Player::Player(QObject *parent)
 
     // Player signals.
     connect(m_player, SIGNAL(seekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
-    connect(m_player, SIGNAL(timeChanged(qint64)), this, SLOT(timeChanged(qint64)));
+    connect(m_player, SIGNAL(onTimeChanged(qint64)), this, SLOT(onTimeChanged(qint64)));
     connect(m_player, SIGNAL(stateChanged(MediaPlayer::State)), this, SLOT(updateState(MediaPlayer::State)));
     connect(m_player, SIGNAL(hasVideoChanged(bool)), this, SLOT(onHasVideoChanged(bool)));
     connect(m_player, SIGNAL(bufferChanged(int)), this, SLOT(setBufferStatus(int)));
-    connect(m_player, SIGNAL(timeChanged(qint64)), this, SLOT(timeChanged(qint64)));
+    connect(m_player, SIGNAL(onTimeChanged(qint64)), this, SLOT(onTimeChanged(qint64)));
 
     // Internal Signals.
     connect(this, SIGNAL(moveToNext()), SLOT(moveToNextSource()));
@@ -155,26 +155,26 @@ void Player::seek(qint64 milliseconds)
 
     m_player->setTime(milliseconds);
 
-    const qint64 time = currentTime();
+    const qint64 _time = time();
     const qint64 total = totalTime();
 
     // Reset last tick marker so we emit time even after seeking
-    if (time < m_lastTick)
-        m_lastTick = time;
-    if (time < total - m_prefinishMark)
+    if (_time < m_lastTick)
+        m_lastTick = _time;
+    if (_time < total - m_prefinishMark)
         m_prefinishEmitted = false;
-    if (time < total - ABOUT_TO_FINISH_TIME)
+    if (_time < total - ABOUT_TO_FINISH_TIME)
         m_aboutToFinishEmitted = false;
 }
 
-void Player::timeChanged(qint64 time)
+void Player::onTimeChanged(qint64 time)
 {
     const qint64 totalTime = m_totalTime;
 
     switch (m_state) {
     case PlayingState:
     case PausedState:
-        emitTick(time);
+        emitTimeChange(time);
     default:
         break;
     }
@@ -192,13 +192,13 @@ void Player::timeChanged(qint64 time)
     }
 }
 
-void Player::emitTick(qint64 time)
+void Player::emitTimeChange(qint64 time)
 {
-    if (m_tickInterval == 0) // Make sure we do not ever emit ticks when deactivated.\]
+    if (m_tickInterval == 0) // Make sure we do not ever emit ticks when deactivated.
         return;
     if (time + m_tickInterval >= m_lastTick) {
         m_lastTick = time;
-        emit tick(time);
+        emit timeChanged(time);
     }
 }
 
@@ -229,7 +229,7 @@ void Player::setTickInterval(qint32 interval)
     m_tickInterval = interval;
 }
 
-qint64 Player::currentTime() const
+qint64 Player::time() const
 {
     qint64 time = -1;
 
@@ -405,7 +405,7 @@ qint32 Player::prefinishMark() const
 void Player::setPrefinishMark(qint32 msecToEnd)
 {
     m_prefinishMark = msecToEnd;
-    if (currentTime() < totalTime() - m_prefinishMark) {
+    if (time() < totalTime() - m_prefinishMark) {
         // Not about to finish
         m_prefinishEmitted = false;
     }

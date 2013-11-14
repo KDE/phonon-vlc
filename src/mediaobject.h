@@ -145,7 +145,7 @@ public:
      * If the current state is stopped or loading, 0 is returned.
      * If the current state is error or unknown, -1 is returned.
      */
-    qint64 currentTime() const;
+    qint64 time() const;
 
     /// \return The current state for this media object.
     Phonon::State state() const;
@@ -214,7 +214,7 @@ signals:
     void prefinishMarkReached(qint32 msecToEnd);
     void seekableChanged(bool seekable);
     void stateChanged(Phonon::State newState, Phonon::State oldState);
-    void tick(qint64 time);
+    void timeChanged(qint64 time);
     void totalTimeChanged(qint64 newTotalTime);
 
     void moveToNext();
@@ -232,8 +232,8 @@ private slots:
      *
      * \param currentTime The current play time for the media, in miliseconds.
      */
-    void timeChanged(qint64 time);
-    void emitTick(qint64 time);
+    void onTimeChanged(qint64 time);
+    void emitTimeChange(qint64 time);
 
     /**
      * If the next media source is valid, the current source is replaced and playback is commenced.
