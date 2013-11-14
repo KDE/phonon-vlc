@@ -282,15 +282,15 @@ void Player::setSource(const Source &source)
     m_mediaSource = source;
 
     QByteArray url;
-    switch (source.type()) {
-    case Source::Invalid:
-        error() << Q_FUNC_INFO << "MediaSource Type is Invalid:" << source.type();
-        break;
-    case Source::Empty:
-        error() << Q_FUNC_INFO << "MediaSource is empty.";
-        break;
-    case Source::LocalFile:
-    case Source::Url:
+//    switch (source.type()) {
+//    case Source::Invalid:
+//        error() << Q_FUNC_INFO << "MediaSource Type is Invalid:" << source.type();
+//        break;
+//    case Source::Empty:
+//        error() << Q_FUNC_INFO << "MediaSource is empty.";
+//        break;
+//    case Source::LocalFile:
+//    case Source::Url:
         debug() << "MediaSource::Url:" << source.url();
         if (source.url().scheme().isEmpty()) {
             url = "file:///";
@@ -299,71 +299,71 @@ void Player::setSource(const Source &source)
         }
         url += source.url().toEncoded();
         loadMedia(url);
-        break;
-    case Source::Disc:
-        switch (source.discType()) {
-        case Phonon::NoDisc:
-            error() << Q_FUNC_INFO << "the MediaSource::Disc doesn't specify which one (Phonon::NoDisc)";
-            return;
-        case Phonon::Cd:
-            loadMedia(QLatin1Literal("cdda://") % m_mediaSource.deviceName());
-            break;
-        case Phonon::Dvd:
-            loadMedia(QLatin1Literal("dvd://") % m_mediaSource.deviceName());
-            break;
-        case Phonon::Vcd:
-            loadMedia(QLatin1Literal("vcd://") % m_mediaSource.deviceName());
-            break;
-        case Phonon::BluRay:
-            loadMedia(QLatin1Literal("bluray://") % m_mediaSource.deviceName());
-            break;
-        }
-        break;
-    case Source::CaptureDevice: {
-        QByteArray driverName;
-        QString deviceName;
+//        break;
+//    case Source::Disc:
+//        switch (source.discType()) {
+//        case Phonon::NoDisc:
+//            error() << Q_FUNC_INFO << "the MediaSource::Disc doesn't specify which one (Phonon::NoDisc)";
+//            return;
+//        case Phonon::Cd:
+//            loadMedia(QLatin1Literal("cdda://") % m_mediaSource.deviceName());
+//            break;
+//        case Phonon::Dvd:
+//            loadMedia(QLatin1Literal("dvd://") % m_mediaSource.deviceName());
+//            break;
+//        case Phonon::Vcd:
+//            loadMedia(QLatin1Literal("vcd://") % m_mediaSource.deviceName());
+//            break;
+//        case Phonon::BluRay:
+//            loadMedia(QLatin1Literal("bluray://") % m_mediaSource.deviceName());
+//            break;
+//        }
+//        break;
+//    case Source::CaptureDevice: {
+//        QByteArray driverName;
+//        QString deviceName;
 
-        if (source.deviceAccessList().isEmpty()) {
-            error() << Q_FUNC_INFO << "No device access list for this capture device";
-            break;
-        }
+//        if (source.deviceAccessList().isEmpty()) {
+//            error() << Q_FUNC_INFO << "No device access list for this capture device";
+//            break;
+//        }
 
-        // TODO try every device in the access list until it works, not just the first one
-        driverName = source.deviceAccessList().first().first;
-        deviceName = source.deviceAccessList().first().second;
+//        // TODO try every device in the access list until it works, not just the first one
+//        driverName = source.deviceAccessList().first().first;
+//        deviceName = source.deviceAccessList().first().second;
 
-        if (driverName == QByteArray("v4l2")) {
-            loadMedia(QLatin1Literal("v4l2://") % deviceName);
-        } else if (driverName == QByteArray("alsa")) {
-            /*
-             * Replace "default" and "plughw" and "x-phonon" with "hw" for capture device names, because
-             * VLC does not want to open them when using default instead of hw.
-             * plughw also does not work.
-             *
-             * TODO investigate what happens
-             */
-            if (deviceName.startsWith(QLatin1String("default"))) {
-                deviceName.replace(0, 7, "hw");
-            }
-            if (deviceName.startsWith(QLatin1String("plughw"))) {
-                deviceName.replace(0, 6, "hw");
-            }
-            if (deviceName.startsWith(QLatin1String("x-phonon"))) {
-                deviceName.replace(0, 8, "hw");
-            }
+//        if (driverName == QByteArray("v4l2")) {
+//            loadMedia(QLatin1Literal("v4l2://") % deviceName);
+//        } else if (driverName == QByteArray("alsa")) {
+//            /*
+//             * Replace "default" and "plughw" and "x-phonon" with "hw" for capture device names, because
+//             * VLC does not want to open them when using default instead of hw.
+//             * plughw also does not work.
+//             *
+//             * TODO investigate what happens
+//             */
+//            if (deviceName.startsWith(QLatin1String("default"))) {
+//                deviceName.replace(0, 7, "hw");
+//            }
+//            if (deviceName.startsWith(QLatin1String("plughw"))) {
+//                deviceName.replace(0, 6, "hw");
+//            }
+//            if (deviceName.startsWith(QLatin1String("x-phonon"))) {
+//                deviceName.replace(0, 8, "hw");
+//            }
 
-            loadMedia(QLatin1Literal("alsa://") % deviceName);
-        } else if (driverName == "screen") {
-            loadMedia(QLatin1Literal("screen://") % deviceName);
+//            loadMedia(QLatin1Literal("alsa://") % deviceName);
+//        } else if (driverName == "screen") {
+//            loadMedia(QLatin1Literal("screen://") % deviceName);
 
-            // Set the isScreen flag needed to add extra options in playInternal
-            m_isScreen = true;
-        } else {
-            error() << Q_FUNC_INFO << "Unsupported MediaSource::CaptureDevice:" << driverName;
-            break;
-        }
-        break;
-    }
+//            // Set the isScreen flag needed to add extra options in playInternal
+//            m_isScreen = true;
+//        } else {
+//            error() << Q_FUNC_INFO << "Unsupported MediaSource::CaptureDevice:" << driverName;
+//            break;
+//        }
+//        break;
+//    }
 //    case MediaSource::Stream:
 //        m_streamReader = new StreamReader(this);
 //        // LibVLC refuses to emit seekability as it does a try-and-seek approach
@@ -376,7 +376,7 @@ void Player::setSource(const Source &source)
 //        m_streamReader->connectToSource(source);
 //        loadMedia(QByteArray("imem://"));
 //        break;b
-    }
+//    }
 
     debug() << "Sending currentSourceChanged";
     emit currentSourceChanged(m_mediaSource);
@@ -470,7 +470,9 @@ void Player::moveToNextSource()
 
 inline bool Player::hasNextTrack()
 {
-    return m_nextSource.type() != Source::Invalid && m_nextSource.type() != Source::Empty;
+    return false;
+#warning not backed
+//    return m_nextSource.type() != Source::Invalid && m_nextSource.type() != Source::Empty;
 }
 
 inline void Player::unloadMedia()

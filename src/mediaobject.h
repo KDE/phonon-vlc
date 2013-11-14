@@ -22,6 +22,7 @@
 #ifndef PHONON_VLC_PLAYER_H
 #define PHONON_VLC_PLAYER_H
 
+#include <QtCore/QMultiMap>
 #include <QtCore/QObject>
 #include <QtCore/QTimer>
 
