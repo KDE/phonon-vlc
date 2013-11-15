@@ -114,32 +114,6 @@ void AudioOutput::setOutputDeviceImplementation()
 #warning forcing pulse ... because I can.
     m_vlcPlayer->setAudioOutput("pulse");
     return;
-
-
-    const QVariant dalProperty = m_device.property("deviceAccessList");
-    if (!dalProperty.isValid()) {
-        error() << "Device" << m_device.property("name") << "has no access list";
-        return;
-    }
-    const DeviceAccessList deviceAccessList = dalProperty.value<DeviceAccessList>();
-    if (deviceAccessList.isEmpty()) {
-        error() << "Device" << m_device.property("name") << "has an empty access list";
-        return;
-    }
-
-    // ### we're not trying the whole access list (could mean same device on different soundsystems)
-    const DeviceAccess &firstDeviceAccess = deviceAccessList.first();
-
-    QByteArray soundSystem = firstDeviceAccess.first;
-    debug() << "Setting output soundsystem to" << soundSystem;
-    m_vlcPlayer->setAudioOutput(soundSystem);
-
-    QByteArray deviceName = firstDeviceAccess.second.toLatin1();
-    if (!deviceName.isEmpty()) {
-        // print the name as possibly messed up by toLatin1() to see conversion problems
-        debug() << "Setting output device to" << deviceName << '(' << m_device.name() << ')';
-        m_vlcPlayer->setAudioOutputDevice(soundSystem, deviceName);
-    }
 }
 
 void AudioOutput::applyVolume()

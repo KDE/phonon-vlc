@@ -49,6 +49,7 @@ public:
     // VLC internally only uses UTF8!
     QString toQString() { return QString::fromUtf8(m_vlcString); }
     operator QString() { return toQString(); }
+    const char *const_data() const { return m_vlcString; }
 
 private:
     VString() {}

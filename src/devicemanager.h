@@ -44,6 +44,16 @@ public:
         AudioCapture    = 0x0002,
         VideoCapture    = 0x0004
     };
+    enum SoundSystem {
+        UnknownSoundSystem = 0,
+        Pulse,
+        Alsa,
+        Oss,
+        Jack,
+        Aout_DirectX,
+        DirectSound,
+        Auhal
+    };
 public:
     /**
      * Constructs a device info object and sets it's device identifiers.
@@ -55,8 +65,9 @@ public:
     const QString& description() const;
     bool isAdvanced() const;
     void setAdvanced(bool advanced);
-    const DeviceAccessList& accessList() const;
-    void addAccess(const DeviceAccess &access);
+    SoundSystem soundSystem() const;
+    QByteArray deviceName() const;
+    void setAccessInfo(SoundSystem soundSystem, const QByteArray &deviceName);
     quint16 capabilities() const;
     void setCapabilities(quint16 cap);
 
@@ -65,7 +76,8 @@ private:
     QString m_name;
     QString m_description;
     bool m_isAdvanced;
-    DeviceAccessList m_accessList;
+    SoundSystem m_soundSystem;
+    QByteArray m_deviceName;
     quint16 m_capabilities;
 };
 
@@ -137,10 +149,12 @@ public slots:
 
 private:
     static bool listContainsDevice(const QList<DeviceInfo> &list, int id);
+    DeviceInfo::SoundSystem soundSystemFromName(const QByteArray &name);
 
 private:
     Backend *m_backend;
     QList<DeviceInfo> m_devices;
+    QMap<DeviceInfo::SoundSystem, QByteArray> m_knownSoundSystems;
 };
 }
 } // namespace Phonon::VLC
