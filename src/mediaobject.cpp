@@ -281,16 +281,11 @@ void Player::setSource(const Source &source)
 
     m_mediaSource = source;
 
-    QByteArray url;
-//    switch (source.type()) {
-//    case Source::Invalid:
-//        error() << Q_FUNC_INFO << "MediaSource Type is Invalid:" << source.type();
-//        break;
-//    case Source::Empty:
-//        error() << Q_FUNC_INFO << "MediaSource is empty.";
-//        break;
-//    case Source::LocalFile:
-//    case Source::Url:
+    if (!source.url().isEmpty()) {
+        /*
+         * Source specified by URL
+         */
+        QByteArray url;
         debug() << "MediaSource::Url:" << source.url();
         if (source.url().scheme().isEmpty()) {
             url = "file:///";
@@ -299,72 +294,35 @@ void Player::setSource(const Source &source)
         }
         url += source.url().toEncoded();
         loadMedia(url);
-//        break;
-//    case Source::Disc:
-//        switch (source.discType()) {
-//        case Phonon::NoDisc:
-//            error() << Q_FUNC_INFO << "the MediaSource::Disc doesn't specify which one (Phonon::NoDisc)";
-//            return;
-//        case Phonon::Cd:
-//            loadMedia(QLatin1Literal("cdda://") % m_mediaSource.deviceName());
-//            break;
-//        case Phonon::Dvd:
-//            loadMedia(QLatin1Literal("dvd://") % m_mediaSource.deviceName());
-//            break;
-//        case Phonon::Vcd:
-//            loadMedia(QLatin1Literal("vcd://") % m_mediaSource.deviceName());
-//            break;
-//        case Phonon::BluRay:
-//            loadMedia(QLatin1Literal("bluray://") % m_mediaSource.deviceName());
-//            break;
-//        }
-//        break;
-//    case Source::CaptureDevice: {
-//        QByteArray driverName;
-//        QString deviceName;
-
-//        if (source.deviceAccessList().isEmpty()) {
-//            error() << Q_FUNC_INFO << "No device access list for this capture device";
-//            break;
-//        }
-
-//        // TODO try every device in the access list until it works, not just the first one
-//        driverName = source.deviceAccessList().first().first;
-//        deviceName = source.deviceAccessList().first().second;
-
-//        if (driverName == QByteArray("v4l2")) {
-//            loadMedia(QLatin1Literal("v4l2://") % deviceName);
-//        } else if (driverName == QByteArray("alsa")) {
-//            /*
-//             * Replace "default" and "plughw" and "x-phonon" with "hw" for capture device names, because
-//             * VLC does not want to open them when using default instead of hw.
-//             * plughw also does not work.
-//             *
-//             * TODO investigate what happens
-//             */
-//            if (deviceName.startsWith(QLatin1String("default"))) {
-//                deviceName.replace(0, 7, "hw");
-//            }
-//            if (deviceName.startsWith(QLatin1String("plughw"))) {
-//                deviceName.replace(0, 6, "hw");
-//            }
-//            if (deviceName.startsWith(QLatin1String("x-phonon"))) {
-//                deviceName.replace(0, 8, "hw");
-//            }
-
-//            loadMedia(QLatin1Literal("alsa://") % deviceName);
-//        } else if (driverName == "screen") {
-//            loadMedia(QLatin1Literal("screen://") % deviceName);
-
-//            // Set the isScreen flag needed to add extra options in playInternal
-//            m_isScreen = true;
-//        } else {
-//            error() << Q_FUNC_INFO << "Unsupported MediaSource::CaptureDevice:" << driverName;
-//            break;
-//        }
-//        break;
-//    }
-//    case MediaSource::Stream:
+    } else if (source.deviceType() != Source::NoDevice) {
+        /*
+         * Source specified by device
+         */
+        switch (source.deviceType()) {
+        case Source::AudioCd:
+            loadMedia(QLatin1Literal("cdda://") % source.deviceName());
+            break;
+        case Source::VideoCd:
+            loadMedia(QLatin1Literal("vcd://") % source.deviceName());
+            break;
+        case Source::Dvd:
+            loadMedia(QLatin1Literal("dvd://") % source.deviceName());
+            break;
+        case Source::BluRay:
+            loadMedia(QLatin1Literal("bluray://") % source.deviceName());
+            break;
+        case Source::AudioCapture:
+        case Source::VideoCapture:
+            // TODO (tweaking of Phonon::Source needed)
+            error() << Q_FUNC_INFO << "Capture not yet implemented by Phonon-VLC";
+            break;
+        default:
+            error() << Q_FUNC_INFO << "Source device type not yet implemented by Phonon-VLC";
+        }
+    } else if (source.stream()) {
+        /*
+         * Source specified by stream
+         */
 //        m_streamReader = new StreamReader(this);
 //        // LibVLC refuses to emit seekability as it does a try-and-seek approach
 //        // to work around this we exchange the player's seekability signal
@@ -375,8 +333,9 @@ void Player::setSource(const Source &source)
 //        // Only connect now to avoid seekability detection before we are connected.
 //        m_streamReader->connectToSource(source);
 //        loadMedia(QByteArray("imem://"));
-//        break;b
-//    }
+    } else {
+        error() << Q_FUNC_INFO << "Source empty or source type not yet implemented by Phonon-VLC";
+    }
 
     debug() << "Sending currentSourceChanged";
     emit sourceChanged(m_mediaSource);
