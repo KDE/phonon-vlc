@@ -60,11 +60,10 @@ Player::Player(QObject *parent)
 
     // Player signals.
     connect(m_player, SIGNAL(seekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
-    connect(m_player, SIGNAL(onTimeChanged(qint64)), this, SLOT(onTimeChanged(qint64)));
+    connect(m_player, SIGNAL(timeChanged(qint64)), this, SLOT(onTimeChanged(qint64)));
     connect(m_player, SIGNAL(stateChanged(MediaPlayer::State)), this, SLOT(updateState(MediaPlayer::State)));
     connect(m_player, SIGNAL(hasVideoChanged(bool)), this, SLOT(onHasVideoChanged(bool)));
     connect(m_player, SIGNAL(bufferChanged(int)), this, SLOT(setBufferStatus(int)));
-    connect(m_player, SIGNAL(onTimeChanged(qint64)), this, SLOT(onTimeChanged(qint64)));
 
     // Internal Signals.
     connect(this, SIGNAL(moveToNext()), SLOT(moveToNextSource()));
