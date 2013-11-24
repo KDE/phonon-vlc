@@ -2,7 +2,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 add_definitions(-DPHONON_LIB_INSTALL_DIR="${LIB_INSTALL_DIR}")
 
-if (MSVC)
+if (MSVC OR (WIN32 AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel"))
     set (CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX}/share/apps/cmake/modules)
     find_package(KDEWin)
         if (KDEWIN_FOUND)
@@ -16,7 +16,7 @@ if (MSVC)
                 message (FATAL_ERROR "You don't have stdint.h and inttypes.h\n\t get them from  http://code.google.com/p/baseutils/source/browse/#svn/trunk/msvc,\n\t or get kdewin http://websvn.kde.org/trunk/kdesupport/kdewin/")
             endif ( NOT HAVE_STDINT AND NOT HAVE_INTTYPES )
         endif (KDEWIN_FOUND)
-endif (MSVC)
+endif (MSVC OR (WIN32 AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel"))
 
 if(${PHONON_VERSION} VERSION_GREATER "4.6.49") # Pre-release 4.7 starts at 4.6.50
     message(STATUS "Building against Phonon 4.7 API")
