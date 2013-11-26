@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QMutex>
+#include <QSet>
 
 #include <phonon/videosurfaceinterface.h>
 
@@ -14,8 +15,8 @@ namespace VLC {
 
 class VideoSurfaceOutput : public QObject,
                            public VideoSurfaceOutputInterface,
-                           public VideoMemoryStream,
-                           public Connector
+                           public Connector,
+                           public VideoMemoryStream
 {
     Q_OBJECT
     Q_INTERFACES(Phonon::VideoSurfaceOutputInterface)
@@ -51,8 +52,12 @@ signals:
     virtual void frameReady() Q_DECL_OVERRIDE;
 
 private:
+    VideoFrame *createFrame();
+
     QMutex m_mutex;
 
+    QSet<VideoFrame *> m_frameSet;
+    VideoFrame *m_presentFrame;
     VideoFrame m_frame;
 };
 

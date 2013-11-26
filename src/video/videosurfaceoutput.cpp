@@ -6,11 +6,14 @@
 
 #include <stdio.h>
 
+//#define MULTIFRAME
+
 namespace Phonon {
 namespace VLC {
 
 VideoSurfaceOutput::VideoSurfaceOutput(QObject *parent) :
     QObject(parent)
+  , m_presentFrame(new VideoFrame)
 {
     DEBUG_BLOCK;
 }
@@ -56,7 +59,11 @@ void VideoSurfaceOutput::unlock()
 
 const VideoFrame *VideoSurfaceOutput::frame() const
 {
+#ifdef MULTIFRAME
+    return m_presentFrame;
+#else
     return &m_frame;
+#endif
 }
 
 void *VideoSurfaceOutput::lockCallback(void **planes)
@@ -64,17 +71,20 @@ void *VideoSurfaceOutput::lockCallback(void **planes)
     DEBUG_BLOCK;
     debug() << this;
 
-//    if (!tryLock())
-//        return 0;
+#ifdef MULTIFRAME
+    VideoFrame *frame = createFrame();
+#else
     lock();
+    VideoFrame *frame = &m_frame;
+#endif
 
-    debug() <<  m_frame.planeCount;
-    for (unsigned int i = 0; i < m_frame.planeCount; ++i) {
-        planes[i] = reinterpret_cast<void *>(m_frame.plane[i].data());
+    debug() << frame->planeCount;
+    for (unsigned int i = 0; i < frame->planeCount; ++i) {
+        planes[i] = reinterpret_cast<void *>(frame->plane[i].data());
     }
     debug() << planes[0];
 
-    return 0; // There is only one buffer, so no need to identify it.
+    return frame; // There is only one buffer, so no need to identify it.
 }
 
 void VideoSurfaceOutput::unlockCallback(void *picture, void * const *planes)
@@ -83,13 +93,26 @@ void VideoSurfaceOutput::unlockCallback(void *picture, void * const *planes)
     Q_UNUSED(planes);
     DEBUG_BLOCK;
     debug() << this;
+    VideoFrame *frame = (VideoFrame *)picture;
+
+//     m_frame.format = VideoFrame::Format_RGB32;
+//    frame->format = VideoFrame::Format_I420;
+    frame->format = VideoFrame::Format_YV12;
+
+#ifdef MULTIFRAME
+    lock();
+    Q_ASSERT(m_frameSet.contains(frame));
+    qDebug() << m_frameSet.size();
+    m_frameSet.remove(frame);
+    if (m_presentFrame)
+        delete m_presentFrame;
+    m_presentFrame = frame;
+#endif
+    unlock();
+
     // To avoid thread polution do not call frameReady directly, but via the
     // event loop.
-//     m_frame.format = VideoFrame::Format_RGB32;
-    m_frame.format = VideoFrame::Format_I420;
-    unlock();
     QMetaObject::invokeMethod(this, "frameReady", Qt::QueuedConnection);
-
 }
 
 void VideoSurfaceOutput::displayCallback(void *picture)
@@ -114,11 +137,11 @@ unsigned VideoSurfaceOutput::formatCallback(char *chroma, unsigned *width, unsig
 //         qstrcpy(chroma, "RV32");
 //         chromaDesc = vlc_fourcc_GetChromaDescription(VLC_CODEC_RGB32);
 
-//        qstrcpy(chroma, "YV12");
-//        chromaDesc = vlc_fourcc_GetChromaDescription(VLC_CODEC_YV12);
+        qstrcpy(chroma, "YV12");
+        chromaDesc = vlc_fourcc_GetChromaDescription(VLC_CODEC_YV12);
 
-       qstrcpy(chroma, "I420");
-       chromaDesc = vlc_fourcc_GetChromaDescription(VLC_CODEC_I420);
+//       qstrcpy(chroma, "I420");
+//       chromaDesc = vlc_fourcc_GetChromaDescription(VLC_CODEC_I420);
 
         Q_ASSERT(chromaDesc);
 
@@ -145,6 +168,26 @@ void VideoSurfaceOutput::formatCleanUpCallback()
 {
     DEBUG_BLOCK;
 #warning reset not present in the api
+}
+
+VideoFrame *VideoSurfaceOutput::createFrame()
+{
+    VideoFrame *frame = new VideoFrame;
+    frame->format = m_frame.format;
+    frame->width = m_frame.width;
+    frame->height = m_frame.height;
+    frame->planeCount = m_frame.planeCount;
+    for (unsigned int i = 0; i < frame->planeCount; ++i) {
+        frame->pitch[i] = m_frame.pitch[i];
+        frame->lines[i] = m_frame.lines[i];
+        frame->plane[i].resize(m_frame.plane[i].size());
+        frame->plane[i].fill('a');
+        qDebug() << "plane" << i << "pitch/lines" << frame->pitch[i] << "/" << frame->lines[i] << "size" << frame->plane[i].size();
+     }
+    lock();
+    m_frameSet.insert(frame);
+    unlock();
+    return frame;
 }
 
 } // namespace VLC
