@@ -255,7 +255,7 @@ private slots:
 
     void setBufferStatus(int percent);
 
-    void addOutput(QObject *audioOutput) Q_DECL_OVERRIDE Q_DECL_FINAL;
+    bool addOutput(QObject *audioOutput) Q_DECL_OVERRIDE Q_DECL_FINAL;
 
 private:
     /**

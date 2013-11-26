@@ -193,6 +193,7 @@ void Player::onTimeChanged(qint64 time)
 
 void Player::emitTimeChange(qint64 time)
 {
+    DEBUG_BLOCK;
     if (m_tickInterval == 0) // Make sure we do not ever emit ticks when deactivated.
         return;
     if (time + m_tickInterval >= m_lastTick) {
@@ -625,15 +626,18 @@ void Player::setBufferStatus(int percent)
     emit bufferStatus(percent);
 }
 
-void Player::addOutput(QObject *output)
+bool Player::addOutput(QObject *output)
 {
     DEBUG_BLOCK;
     debug() << output;
     Connector *connector = dynamic_cast<Connector *>(output);
-    if (connector)
+    if (connector) {
         connector->connectPlayer(this);
-    else
+        return true;
+    } else {
         warning() << "Output does not seem to be a Connector.";
+        return false;
+    }
 }
 
 qint64 Player::totalTime() const
