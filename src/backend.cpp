@@ -90,6 +90,8 @@ Backend::Backend(QObject *parent, const QVariantList &)
                               id.toUtf8().constData(),
                               version.toUtf8().constData(),
                               icon.toUtf8().constData());
+            // Additional properties ad-hoc setup is not supported as of right now.
+            // https://trac.videolan.org/vlc/ticket/9989
         }
 #endif
     } else {
