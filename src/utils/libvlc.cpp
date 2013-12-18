@@ -26,6 +26,8 @@
 #include <QtCore/QStringBuilder>
 #include <QtCore/QVarLengthArray>
 
+#include <phonon/pulsesupport.h>
+
 #include <vlc/libvlc.h>
 #include <vlc/libvlc_version.h>
 
@@ -99,6 +101,12 @@ bool LibVLC::init()
 #endif
     args << "--no-audio";
     args << "--no-video";
+    // 6 seconds disk read buffer (up from vlc 2.1 default of 300ms) when using alsa, prevents most buffer underruns
+    // when the disk is very busy. We expect the pulse buffer after decoding to solve the same problem.
+    Phonon::PulseSupport *pulse = Phonon::PulseSupport::getInstance();
+    if (!pulse || !pulse->isActive()) {
+        args << "--file-caching=6000";
+    }
 
     // Build const char* array
     QVarLengthArray<const char *, 64> vlcArgs(args.size());
