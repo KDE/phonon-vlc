@@ -49,6 +49,7 @@ namespace VLC {
 
 MediaPlayer::MediaPlayer(QObject *parent)
     : QObject(parent)
+    , m_media(0)
     , m_player(libvlc_media_player_new(libvlc))
     , m_doingPausedPlay(false)
     , m_volume(75)
@@ -332,6 +333,8 @@ void MediaPlayer::setVolumeInternal()
 
 void MediaPlayer::setCdTrack(int track)
 {
+    if (!m_media)
+        return;
     libvlc_media_player_stop(m_player);
     m_media->setCdTrack(track);
     libvlc_media_player_set_media(m_player, *m_media);
