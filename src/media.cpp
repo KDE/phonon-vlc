@@ -52,8 +52,10 @@ Media::Media(const QByteArray &mrl, QObject *parent) :
 
 Media::~Media()
 {
-    if (m_media)
+    if (m_media) {
         libvlc_media_release(m_media);
+        m_media = 0;
+    }
 }
 
 void Media::addOption(const QString &option)
