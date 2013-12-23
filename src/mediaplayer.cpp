@@ -333,6 +333,8 @@ void MediaPlayer::setVolumeInternal()
 
 void MediaPlayer::setCdTrack(int track)
 {
+    if (!m_media)
+        return;
     libvlc_media_player_stop(m_player);
     m_media->setCdTrack(track);
     libvlc_media_player_set_media(m_player, *m_media);
