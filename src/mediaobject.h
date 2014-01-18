@@ -28,7 +28,7 @@
 
 #include <phonon/playerinterface.h>
 #warning included for MetaData maybe move to inteface instead
-#include <phonon/phononnamespace.h>
+#include <phonon/phononglobal.h>
 
 #include "mediaplayer.h"
 

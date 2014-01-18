@@ -75,10 +75,7 @@ public:
      */
     void setVolume(qreal volume);
 
-    /**
-     * \return The index of the current audio output device from the list obtained from the backend object.
-     */
-    int outputDevice() const;
+    AudioOutputDevice outputDevice() const;
 
     /**
      * Sets the current output device for this audio output.

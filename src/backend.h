@@ -89,28 +89,14 @@ public:
      */
     QObject *createObject(BackendInterface::Class, QObject *parent, const QList<QVariant> &args);
 
-    /**
-     * Returns a list of indexes for the desired object types. It specifies a list of objects
-     * of a particular category that the backend knows about. These indexes can be used with
-     * objectDescriptionProperties() to get the properties of a particular object.
-     *
-     * \param type The type of objects for the list
-     */
-    QList<int> objectDescriptionIndexes(ObjectDescriptionType type) const;
-
-    /**
-     * Returns a list of properties for a particular object of the desired category.
-     *
-     * \param type The type of object for the index
-     * \param index The index for the object of the desired type
-     * \return The property list. If the object is inexistent, an empty list is returned.
-     */
-    QHash<QByteArray, QVariant> objectDescriptionProperties(ObjectDescriptionType type, int index) const;
-
     QList<AudioOutputDevice> audioOutputDevices() const Q_DECL_OVERRIDE Q_DECL_FINAL;
+    QList<AudioCaptureDevice> audioCaptureDevices() const Q_DECL_OVERRIDE Q_DECL_FINAL;
+    QList<VideoCaptureDevice> videoCaptureDevices() const Q_DECL_OVERRIDE Q_DECL_FINAL;
 
 Q_SIGNALS:
-    void objectDescriptionChanged(ObjectDescriptionType);
+    void audioOutputDevicesChanged();
+    void audioCaptureDevicesChanged();
+    void videoCaptureDevicesChanged();
 
 private:
     DeviceManager *m_deviceManager;

@@ -69,9 +69,9 @@ void AudioOutput::setVolume(qreal volume)
     }
 }
 
-int AudioOutput::outputDevice() const
+AudioOutputDevice AudioOutput::outputDevice() const
 {
-    return m_device.index();
+    return m_device;
 }
 
 #if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 2, 0))

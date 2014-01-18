@@ -164,69 +164,19 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
     return 0;
 }
 
-QList<int> Backend::objectDescriptionIndexes(ObjectDescriptionType type) const
-{
-    QList<int> list;
-
-    switch (type) {
-//     case Phonon::AudioChannelType: {
-//         list << GlobalAudioChannels::instance()->globalIndexes();
-//     }
-//     break;
-     case Phonon::AudioOutputDeviceType:
-     case Phonon::AudioCaptureDeviceType:
-     case Phonon::VideoCaptureDeviceType: {
-         return deviceManager()->deviceIds(type);
-     }
-//     break;
-//    case Phonon::EffectType: {
-//        QList<EffectInfo *> effectList = effectManager()->effects();
-//        for (int eff = 0; eff < effectList.size(); ++eff) {
-//            list.append(eff);
-//        }
-//    }
-//     break;
-//     case Phonon::SubtitleType: {
-//         list << GlobalSubtitles::instance()->globalIndexes();
-//     }
-//     break;
-    }
-
-    return list;
-}
-
-QHash<QByteArray, QVariant> Backend::objectDescriptionProperties(ObjectDescriptionType type, int index) const
-{
-    QHash<QByteArray, QVariant> ret;
-
-    switch (type) {
-    case Phonon::AudioOutputDeviceType:
-    case Phonon::AudioCaptureDeviceType:
-    case Phonon::VideoCaptureDeviceType: {
-        // Index should be unique, even for different categories
-        return deviceManager()->deviceProperties(index);
-    }
-    break;
-//    case Phonon::EffectType: {
-//        QList<EffectInfo *> effectList = effectManager()->effects();
-//        if (index >= 0 && index <= effectList.size()) {
-//            const EffectInfo *effect = effectList[ index ];
-//            ret.insert("name", effect->name());
-//            ret.insert("description", effect->description());
-//            ret.insert("author", effect->author());
-//        } else {
-//            Q_ASSERT(1); // Since we use list position as ID, this should not happen
-//        }
-//    }
-//     break;
-    }
-
-    return ret;
-}
-
 QList<AudioOutputDevice> Backend::audioOutputDevices() const
 {
-    return m_deviceManager->audioOutputDevies();
+    return m_deviceManager->audioOutputDevices();
+}
+
+QList<AudioCaptureDevice> Backend::audioCaptureDevices() const
+{
+    return m_deviceManager->audioCaptureDevices();
+}
+
+QList<VideoCaptureDevice> Backend::videoCaptureDevices() const
+{
+    return m_deviceManager->videoCaptureDevices();
 }
 
 DeviceManager *Backend::deviceManager() const

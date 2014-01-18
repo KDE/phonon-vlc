@@ -107,27 +107,9 @@ public:
      */
     virtual ~DeviceManager();
 
-    /**
-     * \param type Only devices with a capability of this type are returned
-     * The following are supported:
-     * \li AudioOutputDeviceType
-     * \li AudioCaptureDeviceType
-     * \li VideoCaptureDeviceType
-     *
-     * \return A list of device identifiers that have capabilities that
-     * match the desired type
-     *
-     * \note The capture devices are temporarily not implemented / removed
-     */
-    QList<int> deviceIds(ObjectDescriptionType type);
-
-    /**
-     * \param id The identifier for the device
-     * \return Object description properties for a device
-     */
-    QHash<QByteArray, QVariant> deviceProperties(int id);
-
-    QList<AudioOutputDevice> audioOutputDevies();
+    QList<AudioOutputDevice> audioOutputDevices();
+    QList<AudioCaptureDevice> audioCaptureDevices();
+    QList<VideoCaptureDevice> videoCaptureDevices();
 
     /**
      * \param id The identifier for the device

@@ -131,75 +131,31 @@ DeviceManager::~DeviceManager()
 {
 }
 
-QList<int> DeviceManager::deviceIds(ObjectDescriptionType type)
-{
-    DeviceInfo::Capability capability = DeviceInfo::None;
-    switch (type) {
-    case Phonon::AudioOutputDeviceType:
-        capability = DeviceInfo::AudioOutput;
-        break;
-    case Phonon::AudioCaptureDeviceType:
-        capability = DeviceInfo::AudioCapture;
-        break;
-    case Phonon::VideoCaptureDeviceType:
-        capability = DeviceInfo::VideoCapture;
-        break;
-    default: ;
-    }
-
-    QList<int> ids;
-    foreach (const DeviceInfo &device, m_devices) {
-        if (device.capabilities() & capability)
-            ids.append(device.id());
-    }
-
-    return ids;
-}
-
-QHash<QByteArray, QVariant> DeviceManager::deviceProperties(int id)
-{
-    QHash<QByteArray, QVariant> properties;
-
-    foreach (const DeviceInfo &device, m_devices) {
-        if (device.id() == id) {
-            properties.insert("name", device.name());
-            properties.insert("description", device.description());
-            properties.insert("isAdvanced", device.isAdvanced());
-            properties.insert("discovererIcon", "vlc");
-
-            if (device.capabilities() & DeviceInfo::AudioOutput) {
-                properties.insert("icon", QLatin1String("audio-card"));
-            }
-
-            if (device.capabilities() & DeviceInfo::AudioCapture) {
-                properties.insert("hasaudio", true);
-                properties.insert("icon", QLatin1String("audio-input-microphone"));
-            }
-
-            if (device.capabilities() & DeviceInfo::VideoCapture) {
-                properties.insert("hasvideo", true);
-                properties.insert("icon", QLatin1String("camera-web"));
-            }
-            break;
-        }
-    }
-
-    return properties;
-}
-
-QList<AudioOutputDevice> DeviceManager::audioOutputDevies()
+QList<AudioOutputDevice> DeviceManager::audioOutputDevices()
 {
     QList<AudioOutputDevice> devices;
 
-    qDebug() << "DEVICES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << m_devices.count();
+    qDebug() << Q_FUNC_INFO << "Audio output device count:" << m_devices.count();
     foreach (const DeviceInfo &device, m_devices) {
         if (device.capabilities() & DeviceInfo::AudioOutput)
 #warning not all properties of DeviceInfo are implemented in AOD
 #warning availability not in ctor
-            devices.append(AudioOutputDevice(device.id(), device.name(), device.description()));
+            devices.append(AudioOutputDevice(device.name(), device.description()));
     }
 
     return devices;
+}
+
+QList<AudioCaptureDevice> DeviceManager::audioCaptureDevices()
+{
+    // TODO
+    return QList<AudioCaptureDevice>();
+}
+
+QList<VideoCaptureDevice> DeviceManager::videoCaptureDevices()
+{
+    // TODO
+    return QList<VideoCaptureDevice>();
 }
 
 const DeviceInfo *DeviceManager::device(int id) const
