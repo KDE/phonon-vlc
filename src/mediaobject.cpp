@@ -490,7 +490,15 @@ void MediaObject::moveToNextSource()
     DEBUG_BLOCK;
 
     setSource(m_nextSource);
-    play();
+
+    // The consumer may set an invalid source as final source to force a
+    // queued stop, regardless of how fast the consumer is at actually calling
+    // stop. Such a source must not cause an actual move (moving ~= state
+    // changes towards playing) but instead we only set the source to reflect
+    // that we got the setNextSource call.
+    if (hasNextTrack())
+        play();
+
     m_nextSource = MediaSource(QUrl());
 }
 
