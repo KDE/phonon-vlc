@@ -22,7 +22,7 @@
 #ifndef Phonon_VLC_BACKEND_H
 #define Phonon_VLC_BACKEND_H
 
-#include <QtCore/QStringList>
+#include <QStringList>
 
 #include <phonon/objectdescription.h>
 #include <phonon/backendinterface.h>

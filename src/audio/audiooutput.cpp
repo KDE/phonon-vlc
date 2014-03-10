@@ -80,7 +80,7 @@ bool AudioOutput::setOutputDevice(const AudioOutputDevice &newDevice)
     debug() << Q_FUNC_INFO;
 
     if (!newDevice.isValid()) {
-        error() << "Invalid audio output device";
+        warning() << "Invalid audio output device";
         return false;
     }
 
@@ -99,8 +99,7 @@ bool AudioOutput::setOutputDevice(const AudioOutputDevice &newDevice)
 #if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 6, 50))
 void AudioOutput::setStreamUuid(QString uuid)
 {
-    qDebug() << Q_FUNC_INFO;
-    qDebug() << uuid;
+    debug() << uuid;
     m_streamUuid = uuid;
 }
 #endif

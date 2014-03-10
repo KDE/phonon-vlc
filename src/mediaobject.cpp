@@ -524,24 +524,24 @@ void Player::updateMetaData()
 {
     QMultiMap<MetaData, QString> metaDataMap;
 
-    qDebug() << "VLC MetaData:";
-    qDebug() << "    libvlc_meta_Title ->" << m_media->meta(libvlc_meta_Title);
-    qDebug() << "    libvlc_meta_Artist ->" << m_media->meta(libvlc_meta_Artist);
-    qDebug() << "    libvlc_meta_Genre ->" << m_media->meta(libvlc_meta_Genre);
-    qDebug() << "    libvlc_meta_Copyright ->" << m_media->meta(libvlc_meta_Copyright);
-    qDebug() << "    libvlc_meta_Album ->" << m_media->meta(libvlc_meta_Album);
-    qDebug() << "    libvlc_meta_TrackNumber ->" << m_media->meta(libvlc_meta_TrackNumber);
-    qDebug() << "    libvlc_meta_Description ->" << m_media->meta(libvlc_meta_Description);
-    qDebug() << "    libvlc_meta_Rating ->" << m_media->meta(libvlc_meta_Rating);
-    qDebug() << "    libvlc_meta_Date ->" << m_media->meta(libvlc_meta_Date);
-    qDebug() << "    libvlc_meta_Setting ->" << m_media->meta(libvlc_meta_Setting);
-    qDebug() << "    libvlc_meta_URL ->" << m_media->meta(libvlc_meta_URL);
-    qDebug() << "    libvlc_meta_Language ->" << m_media->meta(libvlc_meta_Language);
-    qDebug() << "    libvlc_meta_NowPlaying ->" << m_media->meta(libvlc_meta_NowPlaying);
-    qDebug() << "    libvlc_meta_Publisher ->" << m_media->meta(libvlc_meta_Publisher);
-    qDebug() << "    libvlc_meta_EncodedBy ->" << m_media->meta(libvlc_meta_EncodedBy);
-    qDebug() << "    libvlc_meta_ArtworkURL ->" << m_media->meta(libvlc_meta_ArtworkURL);
-    qDebug() << "    libvlc_meta_TrackID ->" << m_media->meta(libvlc_meta_TrackID);
+    debug() << "VLC MetaData:";
+    debug() << "    libvlc_meta_Title ->" << m_media->meta(libvlc_meta_Title);
+    debug() << "    libvlc_meta_Artist ->" << m_media->meta(libvlc_meta_Artist);
+    debug() << "    libvlc_meta_Genre ->" << m_media->meta(libvlc_meta_Genre);
+    debug() << "    libvlc_meta_Copyright ->" << m_media->meta(libvlc_meta_Copyright);
+    debug() << "    libvlc_meta_Album ->" << m_media->meta(libvlc_meta_Album);
+    debug() << "    libvlc_meta_TrackNumber ->" << m_media->meta(libvlc_meta_TrackNumber);
+    debug() << "    libvlc_meta_Description ->" << m_media->meta(libvlc_meta_Description);
+    debug() << "    libvlc_meta_Rating ->" << m_media->meta(libvlc_meta_Rating);
+    debug() << "    libvlc_meta_Date ->" << m_media->meta(libvlc_meta_Date);
+    debug() << "    libvlc_meta_Setting ->" << m_media->meta(libvlc_meta_Setting);
+    debug() << "    libvlc_meta_URL ->" << m_media->meta(libvlc_meta_URL);
+    debug() << "    libvlc_meta_Language ->" << m_media->meta(libvlc_meta_Language);
+    debug() << "    libvlc_meta_NowPlaying ->" << m_media->meta(libvlc_meta_NowPlaying);
+    debug() << "    libvlc_meta_Publisher ->" << m_media->meta(libvlc_meta_Publisher);
+    debug() << "    libvlc_meta_EncodedBy ->" << m_media->meta(libvlc_meta_EncodedBy);
+    debug() << "    libvlc_meta_ArtworkURL ->" << m_media->meta(libvlc_meta_ArtworkURL);
+    debug() << "    libvlc_meta_TrackID ->" << m_media->meta(libvlc_meta_TrackID);
 
     const QString artist = m_media->meta(libvlc_meta_Artist);
     const QString title = m_media->meta(libvlc_meta_Title);

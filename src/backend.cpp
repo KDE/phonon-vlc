@@ -60,12 +60,6 @@ Backend::Backend(QObject *parent, const QVariantList &)
 {
     self = this;
 
-    // Check if we should enable debug output
-    int debugLevel = qgetenv("PHONON_BACKEND_DEBUG").toInt();
-//    if (debugLevel > 3)/// 3 is maximum
-        debugLevel = 3;
-    Debug::setMinimumDebugLevel((Debug::DebugLevel)((int) Debug::DEBUG_NONE - 1 - debugLevel));
-
     // Actual libVLC initialisation
     if (LibVLC::init()) {
         debug() << "Using VLC version" << libvlc_get_version();
@@ -80,8 +74,8 @@ Backend::Backend(QObject *parent, const QVariantList &)
                                   qApp->applicationName().toUtf8().constData(),
                                   userAgent.toUtf8().constData());
         } else {
-            qWarning("WARNING: Setting the user agent for streaming and"
-                     " PulseAudio requires you to set QCoreApplication::applicationName()");
+            warning() << "WARNING: Setting the user agent for streaming and"
+                         " PulseAudio requires you to set QCoreApplication::applicationName()";
         }
 #ifdef __GNUC__
 #warning application name ought to be configurable by the consumer ... new api
@@ -130,7 +124,7 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
     if (!LibVLC::self || !libvlc)
         return 0;
 
-    qDebug() << Q_FUNC_INFO << c << VideoSurfaceOutputClass;
+    debug() << c << VideoSurfaceOutputClass;
 
     switch (c) {
     case PlayerClass:
