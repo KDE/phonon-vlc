@@ -17,4 +17,4 @@
 
 #include "debug.h"
 
-Q_LOGGING_CATEGORY(PHONON_BACKEND_VLC, "phonon.vlc")
+Q_LOGGING_CATEGORY(PHONON_BACKEND_VLC, "phonon.backend")

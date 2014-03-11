@@ -29,4 +29,9 @@ inline QDebug warning() { return qCWarning(PHONON_BACKEND_VLC); }
 inline QDebug error()   { return warning(); }
 inline QDebug fatal()   { return qCCritical(PHONON_BACKEND_VLC); }
 
+#define pDebug() qCDebug(PHONON_BACKEND_VLC)
+#define pWarning() qCWarning(PHONON_BACKEND_VLC)
+#define pCritical() qCCritical(PHONON_BACKEND_VLC)
+#define pFatal qFatal
+
 #endif // PHONON_DEBUG_H
