@@ -24,6 +24,7 @@
 #include <vlc/libvlc_version.h>
 
 struct libvlc_instance_t;
+struct vlc_log_t;
 
 /**
  * Convenience macro accessing the vlc_instance_t via LibVLC::self.
@@ -137,6 +138,9 @@ private:
 #if defined(Q_OS_UNIX)
      static bool libGreaterThan(const QString &lhs, const QString &rhs);
 #endif // defined(Q_OS_UNIX)
+
+     static void log(void *data, int level, const vlc_log_t *ctx,
+                     const char *fmt, va_list args);
 
      libvlc_instance_t *m_vlcInstance;
 };

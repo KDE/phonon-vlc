@@ -21,6 +21,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
+#include <QtCore/QLoggingCategory>
 #include <QtCore/QSettings>
 #include <QtCore/QString>
 #include <QtCore/QStringBuilder>
@@ -32,6 +33,11 @@
 #include "debug.h"
 
 LibVLC *LibVLC::self;
+
+// The subsystem debugging (libvlc) is using a separate category to allow
+// filtering of the subsystem and the backend independently.
+Q_DECLARE_LOGGING_CATEGORY(LIBVLC_DEBUG_CATEGORY)
+Q_LOGGING_CATEGORY(LIBVLC_DEBUG_CATEGORY, "phonon.subsystem")
 
 LibVLC::LibVLC()
     : m_vlcInstance(0)
@@ -57,23 +63,6 @@ bool LibVLC::init()
     if (QFile::exists(configFileName)) {
         args << QByteArray("--config=").append(QFile::encodeName(configFileName));
         args << "--no-ignore-config";
-    }
-
-    int debugLevel = qgetenv("PHONON_SUBSYSTEM_DEBUG").toInt();
-    if (debugLevel > 0) {
-        args << QByteArray("--verbose=").append(QString::number(debugLevel));
-        args << QByteArray("--extraintf=logger");
-#ifdef Q_WS_WIN
-        QDir logFilePath(QString(qgetenv("APPDATA")).append("/vlc"));
-#else
-        QDir logFilePath(QDir::homePath().append("/.vlc"));
-#endif //Q_WS_WIN
-        logFilePath.mkdir("log");
-        const QString logFile = logFilePath.path()
-                .append("/log/vlc-log-")
-                .append(QString::number(qApp->applicationPid()))
-                .append(".txt");
-        args << QByteArray("--logfile=").append(QFile::encodeName(QDir::toNativeSeparators(logFile)));
     }
 
     args << "--no-media-library";
@@ -106,9 +95,12 @@ bool LibVLC::init()
     // Create and initialize a libvlc instance (it should be done only once)
     self->m_vlcInstance = libvlc_new(vlcArgs.size(), vlcArgs.constData());
     if (!self->m_vlcInstance) {
-        fatal() << "libVLC: could not initialize";
+        pFatal("libVLC: could not initialize");
         return false;
     }
+#warning subsystem debug forced off
+    QLoggingCategory::setFilterRules(QStringLiteral("phonon.subsystem=false"));
+    libvlc_log_set(self->m_vlcInstance, &LibVLC::log, self);
     return true;
 }
 
@@ -156,3 +148,28 @@ bool LibVLC::libGreaterThan(const QString &lhs, const QString &rhs)
     return true;
 }
 #endif
+
+void LibVLC::log(void */*data*/, int _level, const vlc_log_t */*ctx*/,
+                 const char *fmt, va_list args)
+{
+    // QDebug and friends do not have explicit va_lists handling, so pass the
+    // information through QString and get a const char * out of it.
+    QString qstr;
+    qstr.vsprintf(fmt, args);
+    const QByteArray &data = qstr.toUtf8();
+    const char *str = data.constData();
+
+    const libvlc_log_level level = (libvlc_log_level)_level;
+    switch (level) {
+    case LIBVLC_DEBUG:
+        qCDebug(LIBVLC_DEBUG_CATEGORY) << str;
+        break;
+    case LIBVLC_NOTICE:
+    case LIBVLC_WARNING:
+        qCWarning(LIBVLC_DEBUG_CATEGORY) << str;
+        break;
+    case LIBVLC_ERROR:
+        qCCritical(LIBVLC_DEBUG_CATEGORY) << str;
+        break;
+    }
+}
