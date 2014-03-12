@@ -1,5 +1,6 @@
 /*
     Copyright (C) 2011-2012 vlc-phonon AUTHORS <kde-multimedia@kde.org>
+    Copyright (C) 2013-2014 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -21,7 +22,6 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
-#include <QtCore/QLoggingCategory>
 #include <QtCore/QSettings>
 #include <QtCore/QString>
 #include <QtCore/QStringBuilder>
@@ -32,12 +32,22 @@
 
 #include "debug.h"
 
-LibVLC *LibVLC::self;
+// VLC 2.0.8 (as shipped in just about all 2013 distro versions) does
+// not support libvlc_log_set, which is needed for QDebug based logging of
+// libvlc output. To ensure that the backend builds on those, make the log_set
+// support optional.
+// This ought to be removable sometime around mid-2014.
+#define VLC_HAS_LOG_SET (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 1, 0, 0))
 
+#if VLC_HAS_LOG_SET
+#include <QtCore/QLoggingCategory>
 // The subsystem debugging (libvlc) is using a separate category to allow
 // filtering of the subsystem and the backend independently.
 Q_DECLARE_LOGGING_CATEGORY(LIBVLC_DEBUG_CATEGORY)
 Q_LOGGING_CATEGORY(LIBVLC_DEBUG_CATEGORY, "phonon.subsystem")
+#endif
+
+LibVLC *LibVLC::self;
 
 LibVLC::LibVLC()
     : m_vlcInstance(0)
@@ -65,6 +75,25 @@ bool LibVLC::init()
         args << "--no-ignore-config";
     }
 
+#warning drop direct logging when VLC 2.1 is widely adopted
+#if !VLC_HAS_LOG_SET
+    int debugLevel = qgetenv("PHONON_SUBSYSTEM_DEBUG").toInt();
+    if (debugLevel > 0) {
+        args << QByteArray("--verbose=").append(QString::number(debugLevel));
+        args << QByteArray("--extraintf=logger");
+#ifdef Q_WS_WIN
+        QDir logFilePath(QString(qgetenv("APPDATA")).append("/vlc"));
+#else
+        QDir logFilePath(QDir::homePath().append("/.vlc"));
+#endif //Q_WS_WIN
+        logFilePath.mkdir("log");
+        const QString logFile = logFilePath.path()
+                .append("/log/vlc-log-")
+                .append(QString::number(qApp->applicationPid()))
+                .append(".txt");
+        args << QByteArray("--logfile=").append(QFile::encodeName(QDir::toNativeSeparators(logFile)));
+    }
+#endif
     args << "--no-media-library";
     args << "--no-osd";
     args << "--no-stats";
@@ -98,9 +127,11 @@ bool LibVLC::init()
         pFatal("libVLC: could not initialize");
         return false;
     }
+#if VLC_HAS_LOG_SET
 #warning subsystem debug forced off
     QLoggingCategory::setFilterRules(QStringLiteral("phonon.subsystem=false"));
     libvlc_log_set(self->m_vlcInstance, &LibVLC::log, self);
+#endif
     return true;
 }
 
@@ -152,6 +183,9 @@ bool LibVLC::libGreaterThan(const QString &lhs, const QString &rhs)
 void LibVLC::log(void */*data*/, int _level, const vlc_log_t */*ctx*/,
                  const char *fmt, va_list args)
 {
+#if VLC_HAS_LOG_SET
+    QLoggingCategory::setFilterRules(QStringLiteral("phonon.subsystem=false"));
+
     // QDebug and friends do not have explicit va_lists handling, so pass the
     // information through QString and get a const char * out of it.
     QString qstr;
@@ -172,4 +206,5 @@ void LibVLC::log(void */*data*/, int _level, const vlc_log_t */*ctx*/,
         qCCritical(LIBVLC_DEBUG_CATEGORY) << str;
         break;
     }
+#endif
 }
