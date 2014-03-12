@@ -131,33 +131,6 @@ DeviceManager::~DeviceManager()
 {
 }
 
-QList<AudioOutputDevice> DeviceManager::audioOutputDevices()
-{
-    QList<AudioOutputDevice> devices;
-
-    qDebug() << Q_FUNC_INFO << "Audio output device count:" << m_devices.count();
-    foreach (const DeviceInfo &device, m_devices) {
-        if (device.capabilities() & DeviceInfo::AudioOutput)
-#warning not all properties of DeviceInfo are implemented in AOD
-#warning availability not in ctor
-            devices.append(AudioOutputDevice(device.name(), device.description()));
-    }
-
-    return devices;
-}
-
-QList<AudioCaptureDevice> DeviceManager::audioCaptureDevices()
-{
-    // TODO
-    return QList<AudioCaptureDevice>();
-}
-
-QList<VideoCaptureDevice> DeviceManager::videoCaptureDevices()
-{
-    // TODO
-    return QList<VideoCaptureDevice>();
-}
-
 const DeviceInfo *DeviceManager::device(int id) const
 {
     for (int i = 0; i < m_devices.size(); i ++) {

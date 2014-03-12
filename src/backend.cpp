@@ -139,7 +139,7 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
     // FWIW: the case is inside the if because that gives clear indication which
     // frontend objects are not supported!
 //    case AudioDataOutputClass:
-//        return new AudioDataOubtput(parent);
+//        return new AudioDataOutput(parent);
 #endif
     case VideoWidgetClass:
         return new VideoWidget(qobject_cast<QWidget *>(parent));
@@ -156,26 +156,6 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
 
     warning() << "Backend class" << c << "is not supported by Phonon VLC :(";
     return 0;
-}
-
-QList<AudioOutputDevice> Backend::audioOutputDevices() const
-{
-    return m_deviceManager->audioOutputDevices();
-}
-
-QList<AudioCaptureDevice> Backend::audioCaptureDevices() const
-{
-    return m_deviceManager->audioCaptureDevices();
-}
-
-QList<VideoCaptureDevice> Backend::videoCaptureDevices() const
-{
-    return m_deviceManager->videoCaptureDevices();
-}
-
-DeviceManager *Backend::deviceManager() const
-{
-    return m_deviceManager;
 }
 
 //EffectManager *Backend::effectManager() const

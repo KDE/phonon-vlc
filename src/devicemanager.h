@@ -18,14 +18,11 @@
 #ifndef Phonon_VLC_DEVICEMANAGER_H
 #define Phonon_VLC_DEVICEMANAGER_H
 
+#include <QtCore/QMap>
 #include <QtCore/QObject>
 
-#include <phonon/ObjectDescription>
-
-namespace Phonon
-{
-namespace VLC
-{
+namespace Phonon {
+namespace VLC {
 
 class Backend;
 
@@ -106,10 +103,6 @@ public:
      * Clears all the devices before destroying.
      */
     virtual ~DeviceManager();
-
-    QList<AudioOutputDevice> audioOutputDevices();
-    QList<AudioCaptureDevice> audioCaptureDevices();
-    QList<VideoCaptureDevice> videoCaptureDevices();
 
     /**
      * \param id The identifier for the device

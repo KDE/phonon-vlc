@@ -47,7 +47,6 @@ class AudioOutput : public QObject, public Connector, public AudioOutputInterfac
 {
     Q_OBJECT
     Q_INTERFACES(Phonon::AudioOutputInterface)
-
 public:
     /**
      * Creates an AudioOutput with the given backend object. The volume is set to 1.0
@@ -75,23 +74,8 @@ public:
      */
     void setVolume(qreal volume);
 
-    AudioOutputDevice outputDevice() const;
-
-    /**
-     * Sets the current output device for this audio output.
-     *
-     * \param device The device to set; it should be valid and contain an usable deviceAccessList property
-     * \return \c true if succeeded, or no change was made
-     * \return \c false if failed
-     */
-    bool setOutputDevice(const AudioOutputDevice &newDevice);
-#if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 6, 50))
-    void setStreamUuid(QString uuid);
-#endif
-
 signals:
     void volumeChanged(qreal volume) Q_DECL_OVERRIDE Q_DECL_FINAL;
-    void audioDeviceFailed() Q_DECL_OVERRIDE Q_DECL_FINAL;
 
 private slots:
     /**
@@ -107,7 +91,6 @@ private:
     void setOutputDeviceImplementation();
 
     qreal m_volume;
-    AudioOutputDevice m_device;
     QString m_streamUuid;
 };
 

@@ -89,15 +89,6 @@ public:
      */
     QObject *createObject(BackendInterface::Class, QObject *parent, const QList<QVariant> &args);
 
-    QList<AudioOutputDevice> audioOutputDevices() const Q_DECL_OVERRIDE Q_DECL_FINAL;
-    QList<AudioCaptureDevice> audioCaptureDevices() const Q_DECL_OVERRIDE Q_DECL_FINAL;
-    QList<VideoCaptureDevice> videoCaptureDevices() const Q_DECL_OVERRIDE Q_DECL_FINAL;
-
-Q_SIGNALS:
-    void audioOutputDevicesChanged();
-    void audioCaptureDevicesChanged();
-    void videoCaptureDevicesChanged();
-
 private:
     DeviceManager *m_deviceManager;
     EffectManager *m_effectManager;

@@ -25,7 +25,6 @@
 
 #include "backend.h"
 #include "utils/debug.h"
-#include "devicemanager.h"
 #include "mediaobject.h"
 #include "media.h"
 
@@ -68,41 +67,6 @@ void AudioOutput::setVolume(qreal volume)
         emit volumeChanged(m_volume);
     }
 }
-
-AudioOutputDevice AudioOutput::outputDevice() const
-{
-    return m_device;
-}
-
-#if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 2, 0))
-bool AudioOutput::setOutputDevice(const AudioOutputDevice &newDevice)
-{
-    debug() << Q_FUNC_INFO;
-
-    if (!newDevice.isValid()) {
-        warning() << "Invalid audio output device";
-        return false;
-    }
-
-    if (newDevice == m_device)
-        return true;
-
-    m_device = newDevice;
-    if (m_player) {
-        setOutputDeviceImplementation();
-    }
-
-    return true;
-}
-#endif
-
-#if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 6, 50))
-void AudioOutput::setStreamUuid(QString uuid)
-{
-    debug() << uuid;
-    m_streamUuid = uuid;
-}
-#endif
 
 void AudioOutput::setOutputDeviceImplementation()
 {
