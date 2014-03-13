@@ -16,6 +16,9 @@ find_package(Phonon5 4.50.0 CONFIG REQUIRED)
 message(WARNING "libvlc finder does not work terribly well with compound finding")
 find_package(LIBVLC 2.0.1 REQUIRED)
 
+list(APPEND CMAKE_MODULE_PATH ${PHONON_MODULE_DIR})
+include(PhononUninstall)
+
 ################################################################################
 
 include_directories(${PHONON_INCLUDES} ${QT_INCLUDES} ${LIBVLC_INCLUDE_DIR} ${LIBVLC_INCLUDE_DIR}/vlc/plugins)
