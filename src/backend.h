@@ -24,7 +24,6 @@
 
 #include <QStringList>
 
-#include <phonon/objectdescription.h>
 #include <phonon/backendinterface.h>
 
 class LibVLC;
