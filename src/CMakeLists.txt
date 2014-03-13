@@ -51,7 +51,7 @@ qt5_use_modules(phonon_vlc Core Widgets)
 
 set_target_properties(phonon_vlc PROPERTIES PREFIX "")
 target_link_libraries(phonon_vlc
-    ${PHONON_LIBRARY}
+    Phonon::Core
     ${LIBVLCCORE_LIBRARY}
     ${LIBVLC_LIBRARY}
 )
@@ -59,7 +59,7 @@ target_link_libraries(phonon_vlc
 if(WIN32)
     install(TARGETS phonon_vlc DESTINATION bin/phonon_backend)
 else(WIN32)
-    install(TARGETS phonon_vlc DESTINATION ${PLUGIN_INSTALL_DIR}/plugins/phonon_backend)
+    install(TARGETS phonon_vlc DESTINATION ${PHONON_PLUGIN_INSTALL_DIR})
 endif(WIN32)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/utils/mime.h.cmake

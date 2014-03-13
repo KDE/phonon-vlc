@@ -68,7 +68,7 @@ Backend::Backend(QObject *parent, const QVariantList &)
                     QString("%0/%1 (Phonon/%2; Phonon-VLC/%3)").arg(
                         qApp->applicationName(),
                         qApp->applicationVersion(),
-                        PHONON_VERSION_STR,
+                        phononVersion(),
                         PHONON_VLC_VERSION);
             libvlc_set_user_agent(libvlc,
                                   qApp->applicationName().toUtf8().constData(),

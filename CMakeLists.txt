@@ -1,24 +1,22 @@
 project(Phonon5VLC)
 
-cmake_minimum_required(VERSION 2.6.2 FATAL_ERROR)
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 
-# Phonon
-find_package(Phonon REQUIRED)
-macro_ensure_version("4.6.61" ${PHONON_VERSION} PHONON_FOUND)
-macro_log_feature(PHONON_FOUND "Phonon" "Core Library" "git://anongit.kde.org/phonon.git" TRUE "4.6.61")
+set(CMAKE_AUTOMOC ON)
 
-if(PHONON_FOUND_EXPERIMENTAL)
-  add_definitions(-DPHONON_EXPERIMENTAL)
-else(PHONON_FOUND_EXPERIMENTAL)
-  add_definitions(-DPHONON_VLC_NO_EXPERIMENTAL)
-endif(PHONON_FOUND_EXPERIMENTAL)
+find_package(ECM 0.0.11 REQUIRED NO_MODULE)
+set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-# libVLC
-set(LIBVLC_MIN_VERSION "2.0.1")
-find_package(LIBVLC REQUIRED)
+################################# Requirements #################################
 
-add_definitions(${QT_DEFINITIONS})
+include(FeatureSummary)
+include(GNUInstallDirs)
+
+find_package(Phonon5 4.50.0 CONFIG REQUIRED)
+message(WARNING "libvlc finder does not work terribly well with compound finding")
+find_package(LIBVLC 2.0.1 REQUIRED)
+
+################################################################################
 
 include_directories(${PHONON_INCLUDES} ${QT_INCLUDES} ${LIBVLC_INCLUDE_DIR} ${LIBVLC_INCLUDE_DIR}/vlc/plugins)
 
@@ -32,3 +30,5 @@ add_definitions(-DPHONON_VLC_VERSION="${PHONON_VLC_VERSION}")
 include(MimeTypes.cmake)
 
 add_subdirectory(src)
+
+feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
