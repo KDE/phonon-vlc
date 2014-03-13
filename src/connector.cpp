@@ -17,9 +17,9 @@
 
 #include "connector.h"
 
+#include "player.h"
 #include "utils/debug.h"
 #include "utils/mediaplayer.h"
-#include "mediaobject.h"
 
 namespace Phonon {
 namespace VLC {

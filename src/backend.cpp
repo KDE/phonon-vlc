@@ -37,7 +37,7 @@
 #include "devicemanager.h"
 //#include "effect.h"
 //#include "effectmanager.h"
-#include "mediaobject.h"
+#include "player.h"
 #include "utils/debug.h"
 #include "utils/libvlc.h"
 #include "utils/mime.h"

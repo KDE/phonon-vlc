@@ -27,7 +27,7 @@ set(phonon_vlc_SRCS
     connector.cpp
 #    effect.cpp
 #    effectmanager.cpp
-    mediaobject.cpp
+    player.cpp
 #    streamreader.cpp
 #    video/videodataoutput.cpp
 #    video/videographicsobject.cpp

@@ -1,6 +1,6 @@
 #include "videosurfaceoutput.h"
 
-#include "mediaobject.h"
+#include "player.h"
 #include "utils/debug.h"
 #include "utils/media.h"
 
