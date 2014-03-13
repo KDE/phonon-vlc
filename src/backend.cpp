@@ -42,10 +42,7 @@
 #include "utils/mime.h"
 #include "video/videowidget.h"
 
-
 #include "video/videosurfaceoutput.h"
-
-
 
 namespace Phonon {
 namespace VLC {

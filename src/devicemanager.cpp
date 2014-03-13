@@ -28,10 +28,8 @@
 #include "utils/libvlc.h"
 #include "utils/vstring.h"
 
-namespace Phonon
-{
-namespace VLC
-{
+namespace Phonon {
+namespace VLC {
 
 /*
  * Device Info
