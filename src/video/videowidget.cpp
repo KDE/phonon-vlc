@@ -125,7 +125,7 @@ void VideoWidget::setAspectRatio(Phonon::VideoWidget::AspectRatio aspect)
         m_vlcPlayer->setVideoAspectRatio("16:9");
         return;
     }
-    warning() << "The aspect ratio" << aspect << "is not supported by Phonon VLC.";
+    pWarning() << "The aspect ratio" << aspect << "is not supported by Phonon VLC.";
 }
 
 Phonon::VideoWidget::ScaleMode VideoWidget::scaleMode() const
@@ -141,7 +141,7 @@ void VideoWidget::setScaleMode(Phonon::VideoWidget::ScaleMode scale)
     m_scaleMode = scale;
     switch (m_scaleMode) {
     }
-    warning() << "The scale mode" << scale << "is not supported by Phonon VLC.";
+    pWarning() << "The scale mode" << scale << "is not supported by Phonon VLC.";
 }
 
 qreal VideoWidget::brightness() const
@@ -294,12 +294,12 @@ bool VideoWidget::enableFilterAdjust(bool adjust)
     // Need to check for MO here, because we can get called before a VOut is actually
     // around in which case we just ignore this.
     if (!m_player || !m_player->hasVideo()) {
-        debug() << "no mo or no video!!!";
+        pDebug() << "no mo or no video!!!";
         return false;
     }
     if ((!m_filterAdjustActivated && adjust) ||
             (m_filterAdjustActivated && !adjust)) {
-        debug() << "adjust: " << adjust;
+        pDebug() << "adjust: " << adjust;
         m_vlcPlayer->setVideoAdjust(libvlc_adjust_Enable, static_cast<int>(adjust));
         m_filterAdjustActivated = adjust;
     }

@@ -61,7 +61,7 @@ qreal AudioOutput::volume() const
 void AudioOutput::setVolume(qreal volume)
 {
     if (m_vlcPlayer) {
-        debug() << "async setting of volume to" << volume;
+        pDebug() << "async setting of volume to" << volume;
         m_volume = volume;
         applyVolume();
         emit volumeChanged(m_volume);
@@ -72,7 +72,7 @@ void AudioOutput::setOutputDeviceImplementation()
 {
     Q_ASSERT(m_vlcPlayer);
     DEBUG_BLOCK;
-    debug() << this;
+    pDebug() << this;
 
 #warning forcing pulse ... because I can.
     m_vlcPlayer->setAudioOutput("pulse");
@@ -86,7 +86,7 @@ void AudioOutput::applyVolume()
         const int newVolume = m_volume * 100;
         m_vlcPlayer->setAudioVolume(newVolume);
 
-        debug() << "Volume changed from" << preVolume << "to" << newVolume;
+        pDebug() << "Volume changed from" << preVolume << "to" << newVolume;
     }
 }
 

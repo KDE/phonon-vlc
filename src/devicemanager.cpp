@@ -179,7 +179,7 @@ void DeviceManager::updateDeviceList()
 
     foreach (const QByteArray &soundSystemName, m_knownSoundSystems.values()) {
         if (!audioOutBackends.contains(soundSystemName)) {
-            debug() << "Sound system" << soundSystemName << "not supported by libvlc";
+            pDebug() << "Sound system" << soundSystemName << "not supported by libvlc";
             continue;
         }
 
@@ -189,7 +189,7 @@ void DeviceManager::updateDeviceList()
             VString idName(libvlc_audio_output_device_id(libvlc, soundSystemName, i));
             VString longName(libvlc_audio_output_device_longname(libvlc, soundSystemName, i));
 
-            debug() << "found device" << soundSystemName << idName << longName;
+            pDebug() << "found device" << soundSystemName << idName << longName;
 
             DeviceInfo device(longName, true);
             device.setAccessInfo(soundSystemFromName(soundSystemName), idName.const_data());
@@ -199,7 +199,7 @@ void DeviceManager::updateDeviceList()
 
         // libVLC gives no devices for some sound systems, like OSS
         if (deviceCount == 0) {
-            debug() << "manually injecting sound system" << soundSystemName;
+            pDebug() << "manually injecting sound system" << soundSystemName;
             // NOTE: Do not mark manually injected devices as advanced.
             //       libphonon filters advanced devices from the default
             //       selection which on systems such as OSX or Windows can
@@ -226,7 +226,7 @@ void DeviceManager::updateDeviceList()
             m_devices.append(newDeviceList[i]);
             emit deviceAdded(id);
 
-            debug() << "Added backend device" << newDeviceList[i].name();
+            pDebug() << "Added backend device" << newDeviceList[i].name();
         }
     }
 

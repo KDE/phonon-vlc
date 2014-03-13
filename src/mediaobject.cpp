@@ -63,7 +63,7 @@ Player::Player(QObject *parent)
 
     m_player = new MediaPlayer(this);
     if (!m_player->libvlc_media_player())
-        error() << "libVLC:" << LibVLC::errorMessage();
+        pCritical() << "libVLC:" << LibVLC::errorMessage();
 
     // Player signals.
     connect(m_player, SIGNAL(seekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));
@@ -112,7 +112,7 @@ void Player::play()
     default:
         setupMedia();
         if (m_player->play()){}
-//            error() << "libVLC:" << LibVLC::errorMessage();
+//            pCritical() << "libVLC:" << LibVLC::errorMessage();
         break;
     }
 }
@@ -127,7 +127,7 @@ void Player::pause()
     case PausedState:
         return;
     default:
-        debug() << "doing paused play";
+        pDebug() << "doing paused play";
         setupMedia();
         m_player->pausedPlay();
         break;
@@ -157,7 +157,7 @@ void Player::seek(qint64 milliseconds)
         return;
     }
 
-    debug() << "seeking" << milliseconds << "msec";
+    pDebug() << "seeking" << milliseconds << "msec";
 
     m_player->setTime(milliseconds);
 
@@ -214,7 +214,7 @@ void Player::loadMedia(const QByteArray &mrl)
     DEBUG_BLOCK;
     changeState(Phonon::StoppedState);
     m_mrl = mrl;
-    debug() << "loading encoded:" << m_mrl;
+    pDebug() << "loading encoded:" << m_mrl;
 }
 
 void Player::loadMedia(const QString &mrl)
@@ -293,7 +293,7 @@ void Player::setSource(const Source &source)
          * Source specified by URL
          */
         QByteArray url;
-        debug() << "MediaSource::Url:" << source.url();
+        pDebug() << "MediaSource::Url:" << source.url();
         if (source.url().scheme().isEmpty()) {
             url = "file:///";
             if (source.url().isRelative())
@@ -321,10 +321,10 @@ void Player::setSource(const Source &source)
         case Source::AudioCapture:
         case Source::VideoCapture:
             // TODO (tweaking of Phonon::Source needed)
-            error() << Q_FUNC_INFO << "Capture not yet implemented by Phonon-VLC";
+            pCritical() << Q_FUNC_INFO << "Capture not yet implemented by Phonon-VLC";
             break;
         default:
-            error() << Q_FUNC_INFO << "Source device type not yet implemented by Phonon-VLC";
+            pCritical() << Q_FUNC_INFO << "Source device type not yet implemented by Phonon-VLC";
         }
     } else if (source.stream()) {
         /*
@@ -341,17 +341,17 @@ void Player::setSource(const Source &source)
 //        m_streamReader->connectToSource(source);
 //        loadMedia(QByteArray("imem://"));
     } else {
-        error() << Q_FUNC_INFO << "Source empty or source type not yet implemented by Phonon-VLC";
+        pCritical() << Q_FUNC_INFO << "Source empty or source type not yet implemented by Phonon-VLC";
     }
 
-    debug() << "Sending currentSourceChanged";
+    pDebug() << "Sending currentSourceChanged";
     emit sourceChanged(m_mediaSource);
 }
 
 void Player::setNextSource(const Source &source)
 {
     DEBUG_BLOCK;
-    debug() << source.url();
+    pDebug() << source.url();
     m_nextSource = source;
     // This function is not ever called by the consumer but only libphonon.
     // Furthermore libphonon only calls this function in its aboutToFinish slot,
@@ -405,7 +405,7 @@ void Player::changeState(Phonon::State newState)
     if (newState == m_state)
         return;
 
-    debug() << m_state << "-->" << newState;
+    pDebug() << m_state << "-->" << newState;
 
 #ifdef __GNUC__
 #warning do we actually need m_seekpoint? if a consumer seeks before playing state that is their problem?!
@@ -460,7 +460,7 @@ void Player::setupMedia()
     // Create a media with the given MRL
     m_media = new Media(m_mrl, this);
     if (!m_media)
-        error() << "libVLC:" << LibVLC::errorMessage();
+        pCritical() << "libVLC:" << LibVLC::errorMessage();
 
     if (m_isScreen) {
         m_media->addOption(QLatin1String("screen-fps=24.0"));
@@ -468,7 +468,7 @@ void Player::setupMedia()
     }
 
 //    if (source().discType() == Cd && m_currentTitle > 0) {
-//        debug() << "setting CDDA track";
+//        pDebug() << "setting CDDA track";
 //        m_media->addOption(QLatin1String("cdda-track="), QVariant(m_currentTitle));
 //    }
 
@@ -524,24 +524,24 @@ void Player::updateMetaData()
 {
     QMultiMap<MetaData, QString> metaDataMap;
 
-    debug() << "VLC MetaData:";
-    debug() << "    libvlc_meta_Title ->" << m_media->meta(libvlc_meta_Title);
-    debug() << "    libvlc_meta_Artist ->" << m_media->meta(libvlc_meta_Artist);
-    debug() << "    libvlc_meta_Genre ->" << m_media->meta(libvlc_meta_Genre);
-    debug() << "    libvlc_meta_Copyright ->" << m_media->meta(libvlc_meta_Copyright);
-    debug() << "    libvlc_meta_Album ->" << m_media->meta(libvlc_meta_Album);
-    debug() << "    libvlc_meta_TrackNumber ->" << m_media->meta(libvlc_meta_TrackNumber);
-    debug() << "    libvlc_meta_Description ->" << m_media->meta(libvlc_meta_Description);
-    debug() << "    libvlc_meta_Rating ->" << m_media->meta(libvlc_meta_Rating);
-    debug() << "    libvlc_meta_Date ->" << m_media->meta(libvlc_meta_Date);
-    debug() << "    libvlc_meta_Setting ->" << m_media->meta(libvlc_meta_Setting);
-    debug() << "    libvlc_meta_URL ->" << m_media->meta(libvlc_meta_URL);
-    debug() << "    libvlc_meta_Language ->" << m_media->meta(libvlc_meta_Language);
-    debug() << "    libvlc_meta_NowPlaying ->" << m_media->meta(libvlc_meta_NowPlaying);
-    debug() << "    libvlc_meta_Publisher ->" << m_media->meta(libvlc_meta_Publisher);
-    debug() << "    libvlc_meta_EncodedBy ->" << m_media->meta(libvlc_meta_EncodedBy);
-    debug() << "    libvlc_meta_ArtworkURL ->" << m_media->meta(libvlc_meta_ArtworkURL);
-    debug() << "    libvlc_meta_TrackID ->" << m_media->meta(libvlc_meta_TrackID);
+    pDebug() << "VLC MetaData:";
+    pDebug() << "    libvlc_meta_Title ->" << m_media->meta(libvlc_meta_Title);
+    pDebug() << "    libvlc_meta_Artist ->" << m_media->meta(libvlc_meta_Artist);
+    pDebug() << "    libvlc_meta_Genre ->" << m_media->meta(libvlc_meta_Genre);
+    pDebug() << "    libvlc_meta_Copyright ->" << m_media->meta(libvlc_meta_Copyright);
+    pDebug() << "    libvlc_meta_Album ->" << m_media->meta(libvlc_meta_Album);
+    pDebug() << "    libvlc_meta_TrackNumber ->" << m_media->meta(libvlc_meta_TrackNumber);
+    pDebug() << "    libvlc_meta_Description ->" << m_media->meta(libvlc_meta_Description);
+    pDebug() << "    libvlc_meta_Rating ->" << m_media->meta(libvlc_meta_Rating);
+    pDebug() << "    libvlc_meta_Date ->" << m_media->meta(libvlc_meta_Date);
+    pDebug() << "    libvlc_meta_Setting ->" << m_media->meta(libvlc_meta_Setting);
+    pDebug() << "    libvlc_meta_URL ->" << m_media->meta(libvlc_meta_URL);
+    pDebug() << "    libvlc_meta_Language ->" << m_media->meta(libvlc_meta_Language);
+    pDebug() << "    libvlc_meta_NowPlaying ->" << m_media->meta(libvlc_meta_NowPlaying);
+    pDebug() << "    libvlc_meta_Publisher ->" << m_media->meta(libvlc_meta_Publisher);
+    pDebug() << "    libvlc_meta_EncodedBy ->" << m_media->meta(libvlc_meta_EncodedBy);
+    pDebug() << "    libvlc_meta_ArtworkURL ->" << m_media->meta(libvlc_meta_ArtworkURL);
+    pDebug() << "    libvlc_meta_TrackID ->" << m_media->meta(libvlc_meta_TrackID);
 
     const QString artist = m_media->meta(libvlc_meta_Artist);
     const QString title = m_media->meta(libvlc_meta_Title);
@@ -579,7 +579,7 @@ void Player::updateMetaData()
 void Player::updateState(MediaPlayer::State state)
 {
     DEBUG_BLOCK;
-    debug() << state;
+    pDebug() << state;
 
     switch (state) {
     case MediaPlayer::PlayingState:
@@ -603,7 +603,7 @@ void Player::updateState(MediaPlayer::State state)
         }
         break;
 //    case MediaPlayer::ErrorState:
-//        debug() << errorString();
+//        pDebug() << errorString();
 //        emitAboutToFinish();
 //        emit finished();
 //        changeState(ErrorState);
@@ -636,13 +636,13 @@ void Player::setBufferStatus(int percent)
 bool Player::addOutput(QObject *output)
 {
     DEBUG_BLOCK;
-    debug() << output;
+    pDebug() << output;
     Connector *connector = dynamic_cast<Connector *>(output);
     if (connector) {
         connector->connectPlayer(this);
         return true;
     } else {
-        warning() << "Output does not seem to be a Connector.";
+        pWarning() << "Output does not seem to be a Connector.";
         return false;
     }
 }

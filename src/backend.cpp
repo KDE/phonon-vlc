@@ -62,7 +62,7 @@ Backend::Backend(QObject *parent, const QVariantList &)
 
     // Actual libVLC initialisation
     if (LibVLC::init()) {
-        debug() << "Using VLC version" << libvlc_get_version();
+        pDebug() << "Using VLC version" << libvlc_get_version();
         if (!qApp->applicationName().isEmpty()) {
             QString userAgent =
                     QString("%0/%1 (Phonon/%2; Phonon-VLC/%3)").arg(
@@ -74,7 +74,7 @@ Backend::Backend(QObject *parent, const QVariantList &)
                                   qApp->applicationName().toUtf8().constData(),
                                   userAgent.toUtf8().constData());
         } else {
-            warning() << "WARNING: Setting the user agent for streaming and"
+            pWarning() << "WARNING: Setting the user agent for streaming and"
                          " PulseAudio requires you to set QCoreApplication::applicationName()";
         }
 #ifdef __GNUC__
@@ -106,7 +106,7 @@ Backend::Backend(QObject *parent, const QVariantList &)
                        " please report a bug with your distributor."));
         msg.setDetailedText(LibVLC::errorMessage());
         msg.exec();
-        fatal() << "Phonon::VLC::vlcInit: Failed to initialize VLC";
+        pFatal("Phonon::VLC::vlcInit: Failed to initialize VLC");
     }
 
     m_deviceManager = new DeviceManager(this);
@@ -124,7 +124,7 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
     if (!LibVLC::self || !libvlc)
         return 0;
 
-    debug() << c << VideoSurfaceOutputClass;
+    pDebug() << c << VideoSurfaceOutputClass;
 
     switch (c) {
     case PlayerClass:
@@ -154,7 +154,7 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
         return new VideoSurfaceOutput;
     }
 
-    warning() << "Backend class" << c << "is not supported by Phonon VLC :(";
+    pWarning() << "Backend class" << c << "is not supported by Phonon VLC :(";
     return 0;
 }
 

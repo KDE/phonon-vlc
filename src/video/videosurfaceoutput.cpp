@@ -69,7 +69,7 @@ const VideoFrame *VideoSurfaceOutput::frame() const
 void *VideoSurfaceOutput::lockCallback(void **planes)
 {
     DEBUG_BLOCK;
-    debug() << this;
+    pDebug() << this;
 
 #ifdef MULTIFRAME
     VideoFrame *frame = createFrame();
@@ -78,11 +78,11 @@ void *VideoSurfaceOutput::lockCallback(void **planes)
     VideoFrame *frame = &m_frame;
 #endif
 
-    debug() << frame->planeCount;
+    pDebug() << frame->planeCount;
     for (unsigned int i = 0; i < frame->planeCount; ++i) {
         planes[i] = reinterpret_cast<void *>(frame->plane[i].data());
     }
-    debug() << planes[0];
+    pDebug() << planes[0];
 
     return frame; // There is only one buffer, so no need to identify it.
 }
@@ -92,7 +92,7 @@ void VideoSurfaceOutput::unlockCallback(void *picture, void * const *planes)
     Q_UNUSED(picture);
     Q_UNUSED(planes);
     DEBUG_BLOCK;
-    debug() << this;
+    pDebug() << this;
     VideoFrame *frame = (VideoFrame *)picture;
 
 //     m_frame.format = VideoFrame::Format_RGB32;
@@ -102,7 +102,7 @@ void VideoSurfaceOutput::unlockCallback(void *picture, void * const *planes)
 #ifdef MULTIFRAME
     lock();
     Q_ASSERT(m_frameSet.contains(frame));
-    qDebug() << m_frameSet.size();
+    qpDebug() << m_frameSet.size();
     m_frameSet.remove(frame);
     if (m_presentFrame)
         delete m_presentFrame;
@@ -125,7 +125,7 @@ unsigned VideoSurfaceOutput::formatCallback(char *chroma, unsigned *width, unsig
 {
 #warning forcing YUV
     DEBUG_BLOCK;
-        debug() << "Format:"
+        pDebug() << "Format:"
                 << "chroma:" << chroma
                 << "width:" << *width
                 << "height:" << *height
@@ -145,12 +145,12 @@ unsigned VideoSurfaceOutput::formatCallback(char *chroma, unsigned *width, unsig
 
         Q_ASSERT(chromaDesc);
 
-        debug() << m_frame.format;
+        pDebug() << m_frame.format;
         m_frame.width = *width;
         m_frame.height = *height;
         m_frame.planeCount = chromaDesc->plane_count;
 
-        debug() << chroma;
+        pDebug() << chroma;
         const unsigned int bufferSize = setPitchAndLines(chromaDesc,
                                                          *width, *height,
                                                          pitches, lines,
@@ -182,7 +182,7 @@ VideoFrame *VideoSurfaceOutput::createFrame()
         frame->lines[i] = m_frame.lines[i];
         frame->plane[i].resize(m_frame.plane[i].size());
         frame->plane[i].fill('a');
-        qDebug() << "plane" << i << "pitch/lines" << frame->pitch[i] << "/" << frame->lines[i] << "size" << frame->plane[i].size();
+        pDebug() << "plane" << i << "pitch/lines" << frame->pitch[i] << "/" << frame->lines[i] << "size" << frame->plane[i].size();
      }
     lock();
     m_frameSet.insert(frame);

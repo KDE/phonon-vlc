@@ -39,7 +39,7 @@ Connector::~Connector()
 void Connector::connectPlayer(Player *player)
 {
     if (m_player)
-        error() << Q_FUNC_INFO << "Already connected to a Player.";
+        pCritical() << Q_FUNC_INFO << "Already connected to a Player.";
 
     m_player = player;
     m_vlcPlayer = player->m_player;
@@ -57,7 +57,7 @@ void Connector::disconnectPlayer(Player *player)
     // ---> Global handling goes here! ***Below*** the derivee handle! <--- //
 
     if (m_player != player)
-        error() << Q_FUNC_INFO << "Was not connected to the Player it is being disconnected from.";
+        pCritical() << Q_FUNC_INFO << "Was not connected to the Player it is being disconnected from.";
 
     if (m_player)
         m_player->remove(this);

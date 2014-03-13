@@ -22,12 +22,8 @@
 
 Q_DECLARE_LOGGING_CATEGORY(PHONON_BACKEND_VLC)
 
+// FIXME: do something with debug_block or drop it
 #define DEBUG_BLOCK
-// FIXME: these tend to clash with gcc weeeh - cannot be defines because of that
-inline QDebug debug()   { return qCDebug(PHONON_BACKEND_VLC); }
-inline QDebug warning() { return qCWarning(PHONON_BACKEND_VLC); }
-inline QDebug error()   { return warning(); }
-inline QDebug fatal()   { return qCCritical(PHONON_BACKEND_VLC); }
 
 #define pDebug() qCDebug(PHONON_BACKEND_VLC)
 #define pWarning() qCWarning(PHONON_BACKEND_VLC)
