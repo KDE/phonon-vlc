@@ -29,10 +29,10 @@
 #include <vlc/libvlc_version.h>
 #include <vlc/vlc.h>
 
+#include "connector.h"
 #include "utils/debug.h"
 #include "utils/libvlc.h"
-#include "media.h"
-#include "connector.h"
+#include "utils/media.h"
 //#include "streamreader.h"
 
 

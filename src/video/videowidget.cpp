@@ -27,8 +27,8 @@
 #include <vlc/vlc.h>
 
 #include "utils/debug.h"
+#include "utils/media.h"
 #include "mediaobject.h"
-#include "media.h"
 
 namespace Phonon {
 namespace VLC {

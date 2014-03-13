@@ -30,7 +30,7 @@
 #warning included for MetaData maybe move to inteface instead
 #include <phonon/phononglobal.h>
 
-#include "mediaplayer.h"
+#include "utils/mediaplayer.h"
 
 namespace Phonon {
 namespace VLC {

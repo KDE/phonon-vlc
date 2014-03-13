@@ -23,13 +23,11 @@ set(phonon_vlc_SRCS
 #    audio/audiodataoutput.cpp
 #    audio/volumefadereffect.cpp
     backend.cpp
-    connector.cpp
     devicemanager.cpp
+    connector.cpp
 #    effect.cpp
 #    effectmanager.cpp
-    media.cpp
     mediaobject.cpp
-    mediaplayer.cpp
 #    streamreader.cpp
 #    video/videodataoutput.cpp
 #    video/videographicsobject.cpp
@@ -37,7 +35,12 @@ set(phonon_vlc_SRCS
     video/videosurfaceoutput.cpp
     video/videomemorystream.cpp
     utils/debug.cpp
+    utils/media.cpp
+    utils/mediaplayer.cpp
     utils/libvlc.cpp
+
+    # QTC Compat
+    utils/vstring.h
 )
 
 if(APPLE)

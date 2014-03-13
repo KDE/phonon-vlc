@@ -17,9 +17,9 @@
 
 #include "videomemorystream.h"
 
-#include "mediaplayer.h"
-//#include "utils/qDebug.h"
 #include <QDebug>
+
+#include "utils/mediaplayer.h"
 
 namespace Phonon {
 namespace VLC {

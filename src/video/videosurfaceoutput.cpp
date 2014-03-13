@@ -2,7 +2,7 @@
 
 #include "mediaobject.h"
 #include "utils/debug.h"
-#include "media.h"
+#include "utils/media.h"
 
 #include <stdio.h>
 
