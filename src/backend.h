@@ -3,7 +3,7 @@
     Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>
     Copyright (C) 2009 Fathi Boudra <fabo@kde.org>
     Copyright (C) 2009-2011 vlc-phonon AUTHORS <kde-multimedia@kde.org>
-    Copyright (C) 2011 Harald Sitter <sitter@kde.org>
+    Copyright (C) 2011-2014 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -19,8 +19,8 @@
     License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef Phonon_VLC_BACKEND_H
-#define Phonon_VLC_BACKEND_H
+#ifndef PHONON_VLC_BACKEND_H
+#define PHONON_VLC_BACKEND_H
 
 #include <QStringList>
 
@@ -28,10 +28,9 @@
 
 class LibVLC;
 
-namespace Phonon
-{
-namespace VLC
-{
+namespace Phonon {
+namespace VLC {
+
 class DeviceManager;
 class EffectManager;
 
@@ -48,13 +47,11 @@ class EffectManager;
  * This class also provides information about the devices and effects that the backend supports.
  * These are audio output devices, audio capture devices, video capture devices, effects.
  */
-
 class Backend : public QObject, public BackendInterface
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.kde.phonon.vlc" FILE "phonon-vlc.json")
     Q_INTERFACES(Phonon::BackendInterface)
-
 public:
     /**
      * Instance. Since there is no backend instance without actual Backend object
@@ -69,13 +66,13 @@ public:
      *
      * \param parent A parent object for the backend (passed to the QObject constructor)
      */
-    explicit Backend(QObject *parent = 0, const QVariantList & = QVariantList());
-    virtual ~Backend();
+    Backend(QObject *parent = 0, const QVariantList & = QVariantList());
+    ~Backend();
 
-    /// \return The device manager that is associated with this backend object
+    /** \return The device manager that is associated with this backend object. */
     DeviceManager *deviceManager() const;
 
-    /// \return The effect manager that is associated with this backend object.
+    /** \return The effect manager that is associated with this backend object. */
     EffectManager *effectManager() const;
 
     /**
@@ -96,4 +93,4 @@ private:
 } // namespace VLC
 } // namespace Phonon
 
-#endif // Phonon_VLC_BACKEND_H
+#endif // PHONON_VLC_BACKEND_H
