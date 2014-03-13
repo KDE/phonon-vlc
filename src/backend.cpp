@@ -27,7 +27,6 @@
 #include <QtCore/QVariant>
 #include <QMessageBox>
 
-#include <phonon/GlobalDescriptionContainer>
 #include <vlc/libvlc_version.h>
 
 #include "audio/audiooutput.h"
