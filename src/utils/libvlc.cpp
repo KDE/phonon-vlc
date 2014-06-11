@@ -83,7 +83,9 @@ bool LibVLC::init()
     // Replaced by API call, see MediaPlayer::MediaPlayer.
     args << "--no-video-title-show";
 #endif
+#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 2, 0, 0))
     args << "--album-art=0";
+#endif
     // By default VLC will put a picture-in-picture when making a snapshot.
     // This is unexpected behaviour for us, so we force it off.
     args << "--no-snapshot-preview";
