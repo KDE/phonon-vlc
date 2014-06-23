@@ -234,7 +234,7 @@ void VideoWidget::handleAddToMedia(Media *media)
 #elif defined(Q_OS_UNIX)
         m_player->setXWindow(winId());
 #elif defined(Q_OS_WIN)
-        m_player->setHwnd(winId());
+        m_player->setHwnd((HWND)winId());
 #endif
     }
 }
