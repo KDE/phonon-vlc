@@ -292,15 +292,10 @@ void Player::setSource(const Source &source)
         /*
          * Source specified by URL
          */
-        QByteArray url;
+        QUrl url = source.url();
+        url = QUrl(QDir::currentPath()).resolved(url);
         pDebug() << "MediaSource::Url:" << source.url();
-        if (source.url().scheme().isEmpty()) {
-            url = "file:///";
-            if (source.url().isRelative())
-                url.append(QFile::encodeName(QDir::currentPath()) + '/');
-        }
-        url += source.url().toEncoded();
-        loadMedia(url);
+        loadMedia(url.toEncoded());
     } else if (source.deviceType() != Source::NoDevice) {
         /*
          * Source specified by device
