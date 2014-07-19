@@ -68,7 +68,7 @@ public:
     void pausedPlay();
     void resume();
     void togglePause();
-    void stop();
+    Q_INVOKABLE void stop();
 
     qint64 length() const;
     qint64 time() const;
@@ -167,7 +167,7 @@ public:
 #if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 2, 0, 0))
     void setEqualizer(libvlc_equalizer_t *equalizer);
 #endif
-   
+
 signals:
     void lengthChanged(qint64 length);
     void seekableChanged(bool seekable);

@@ -243,7 +243,19 @@ void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
         // Intercept state change and apply pausing once playing.
         if (that->m_doingPausedPlay) {
             that->m_doingPausedPlay = false;
-            that->pause();
+            // VLC internally will call stop if a player can not be paused, this
+            // can lead to deadlocks as stop is partially blocking, to avoid this
+            // we explicitly do a queued stop whenever a player can not be paused.
+            // In those situations pausedplay capability can not be provided, so
+            // applications wanting to do pausedplay will need to handle it anyway
+            // as faking a paused state when there is none would be a very code
+            // intense workaround asking for weird abstraction leakage.
+            // See kde bug 337604.
+            if (libvlc_media_player_can_pause(that->m_player)) {
+                that->pause();
+            } else {
+                QMetaObject::invokeMethod(that, "stop", Qt::QueuedConnection);
+            }
         } else
             P_EMIT_STATE(PlayingState);
         break;
