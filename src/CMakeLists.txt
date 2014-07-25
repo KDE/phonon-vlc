@@ -23,7 +23,6 @@ set(phonon_vlc_SRCS
 #    audio/audiodataoutput.cpp
 #    audio/volumefadereffect.cpp
     backend.cpp
-    devicemanager.cpp
     connector.cpp
 #    effect.cpp
 #    effectmanager.cpp

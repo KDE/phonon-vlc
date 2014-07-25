@@ -31,7 +31,6 @@ class LibVLC;
 namespace Phonon {
 namespace VLC {
 
-class DeviceManager;
 class EffectManager;
 
 /** \brief Backend class for Phonon-VLC.
@@ -69,9 +68,6 @@ public:
     Backend(QObject *parent = 0, const QVariantList & = QVariantList());
     ~Backend();
 
-    /** \return The device manager that is associated with this backend object. */
-    DeviceManager *deviceManager() const;
-
     /** \return The effect manager that is associated with this backend object. */
     EffectManager *effectManager() const;
 
@@ -86,7 +82,6 @@ public:
     QObject *createObject(BackendInterface::Class, QObject *parent, const QList<QVariant> &args);
 
 private:
-    DeviceManager *m_deviceManager;
     EffectManager *m_effectManager;
 };
 

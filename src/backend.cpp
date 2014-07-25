@@ -33,7 +33,6 @@
 //#include "audio/audiodataoutput.h"
 //#include "audio/volumefadereffect.h"
 #include "connector.h"
-#include "devicemanager.h"
 //#include "effect.h"
 //#include "effectmanager.h"
 #include "player.h"
@@ -51,7 +50,6 @@ Backend *Backend::self;
 
 Backend::Backend(QObject *parent, const QVariantList &)
     : QObject(parent)
-    , m_deviceManager(0)
 //    , m_effectManager(0)
 {
     self = this;
@@ -105,7 +103,6 @@ Backend::Backend(QObject *parent, const QVariantList &)
         pFatal("Phonon::VLC::vlcInit: Failed to initialize VLC");
     }
 
-    m_deviceManager = new DeviceManager(this);
 //    m_effectManager = new EffectManager(this);
 }
 
