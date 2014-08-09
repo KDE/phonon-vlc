@@ -63,7 +63,7 @@ bool LibVLC::init()
 
     int debugLevel = qgetenv("PHONON_SUBSYSTEM_DEBUG").toInt();
     if (debugLevel > 0) {
-        args << QByteArray("--verbose=").append(QString::number(debugLevel));
+        args << QByteArray("--verbose=").append(QByteArray::number(debugLevel));
         args << QByteArray("--extraintf=logger");
 #ifdef Q_WS_WIN
         QDir logFilePath(QString(qgetenv("APPDATA")).append("/vlc"));
