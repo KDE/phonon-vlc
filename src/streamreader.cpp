@@ -109,7 +109,7 @@ int StreamReader::readDoneCallback(void *data, const char *cookie,
     Q_UNUSED(data);
     Q_UNUSED(cookie);
     Q_UNUSED(bufferSize);
-    delete static_cast<char *>(buffer);
+    delete[] static_cast<char *>(buffer);
     return 0;
 }
 
