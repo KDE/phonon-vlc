@@ -126,7 +126,19 @@ void AudioOutput::setStreamUuid(QString uuid)
 void AudioOutput::setOutputDeviceImplementation()
 {
     Q_ASSERT(m_player);
-    if (PulseSupport::getInstance()->isActive()) {
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 2, 0, 0))
+    // VLC 2.2 has the PulseSupport overrides always disabled because of
+    // incompatibility. Also see backend.cpp for more detals.
+    // To get access to the correct activity state we need to temporarily
+    // enable pulse and then disable it again. This is necessary because isActive
+    // is in fact isActive&isEnabled.............
+    PulseSupport::getInstance()->enable(true);
+    const bool pulseActive = PulseSupport::getInstance()->isActive();
+    PulseSupport::getInstance()->enable(false);
+#else
+    const bool pulseActive = PulseSupport::getInstance()->isActive();
+#endif
+    if (pulseActive) {
         m_player->setAudioOutput("pulse");
         debug() << "Setting aout to pulse";
         return;
