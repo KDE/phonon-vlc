@@ -106,7 +106,10 @@ Backend::Backend(QObject *parent, const QVariantList &)
 #warning application name ought to be configurable by the consumer ... new api
 #endif
 #if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 1, 0, 0))
-        if (!qApp->applicationName().isEmpty() && !qApp->applicationVersion().isEmpty()) {
+        PulseSupport::getInstance()->enable(true);
+        const bool pulseActive = PulseSupport::getInstance()->isActive();
+        PulseSupport::getInstance()->enable(false);
+        if (!qApp->applicationName().isEmpty()) {
             const QString id = QString("org.kde.phonon.%1").arg(qApp->applicationName());
             const QString version = qApp->applicationVersion();
             const QString icon = qApp->applicationName();
@@ -114,7 +117,7 @@ Backend::Backend(QObject *parent, const QVariantList &)
                               id.toUtf8().constData(),
                               version.toUtf8().constData(),
                               icon.toUtf8().constData());
-        } else if (PulseSupport::getInstance()->isActive()) {
+        } else if (pulseActive) {
             qWarning("WARNING: Setting PulseAudio context information requires you"
                      " to set QCoreApplication::applicationName() and"
                      " QCoreApplication::applicationVersion()");
