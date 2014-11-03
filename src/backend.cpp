@@ -21,11 +21,16 @@
 
 #include "backend.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QLatin1Literal>
-#include <QtCore/QtPlugin>
-#include <QtCore/QVariant>
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+#include <QApplication>
+#else
+#include <QGuiApplication>
+#endif
+#include <QIcon>
+#include <QLatin1Literal>
 #include <QMessageBox>
+#include <QtPlugin>
+#include <QVariant>
 
 #include <phonon/GlobalDescriptionContainer>
 #include <phonon/pulsesupport.h>
@@ -102,9 +107,6 @@ Backend::Backend(QObject *parent, const QVariantList &)
             qWarning("WARNING: Setting the user agent for streaming and"
                      " PulseAudio requires you to set QCoreApplication::applicationName()");
         }
-#ifdef __GNUC__
-#warning application name ought to be configurable by the consumer ... new api
-#endif
 #if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 1, 0, 0))
         PulseSupport::getInstance()->enable(true);
         const bool pulseActive = PulseSupport::getInstance()->isActive();
@@ -112,16 +114,28 @@ Backend::Backend(QObject *parent, const QVariantList &)
         if (!qApp->applicationName().isEmpty()) {
             const QString id = QString("org.kde.phonon.%1").arg(qApp->applicationName());
             const QString version = qApp->applicationVersion();
-            const QString icon = qApp->applicationName();
+            QString icon;
+#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
+            if (!qApp->windowIcon().isNull()){
+                // Try to get the fromTheme() name of the QIcon.
+                icon = qApp->windowIcon().name();
+            }
+#endif
+            if (icon.isEmpty()) {
+                // If we failed to get a proper icon name, use the appname instead.
+                icon = qApp->applicationName().toLower();
+            }
             libvlc_set_app_id(libvlc,
                               id.toUtf8().constData(),
                               version.toUtf8().constData(),
                               icon.toUtf8().constData());
         } else if (pulseActive) {
             qWarning("WARNING: Setting PulseAudio context information requires you"
-                     " to set QCoreApplication::applicationName() and"
-                     " QCoreApplication::applicationVersion()");
+                     " to set QCoreApplication::applicationName(),"
+                     " QCoreApplication::applicationVersion() and"
+                     " QGuiApplication::windowIcon().");
         }
+
 #endif
     } else {
 #ifdef __GNUC__
