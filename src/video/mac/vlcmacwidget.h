@@ -18,7 +18,7 @@
 #ifndef VLCMACWIDGET_H
 #define VLCMACWIDGET_H
 
-#include <QtGui/QMacCocoaViewContainer>
+#include <QMacCocoaViewContainer>
 
 #import <qmaccocoaviewcontainer_mac.h>
 
