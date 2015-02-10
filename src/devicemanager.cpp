@@ -256,6 +256,8 @@ void DeviceManager::updateDeviceList()
             info.addAccess(DeviceAccess(soundSystem, idName));
             info.setCapabilities(DeviceInfo::AudioOutput);
             newDeviceList.append(info);
+
+            hasDevices = true;
         }
 
         if (!hasDevices) {
