@@ -319,8 +319,11 @@ void MediaObject::setSource(const MediaSource &source)
     case MediaSource::Url:
         debug() << "MediaSource::Url:" << source.url();
         if (source.url().scheme().isEmpty()) {
-            url = "file:///";
-            if (source.url().isRelative())
+            url = "file://";
+            // QUrl considers url.scheme.isEmpty() == url.isRelative(), 
+            // so to be sure the url is not actually absolute we just
+            // check the first character
+            if (!source.url().toString().startsWith('/'))
                 url.append(QFile::encodeName(QDir::currentPath()) + '/');
         }
         url += source.url().toEncoded();
