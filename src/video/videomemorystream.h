@@ -18,6 +18,7 @@
 #ifndef PHONON_VLC_VIDEOMEMORYSTREAM_H
 #define PHONON_VLC_VIDEOMEMORYSTREAM_H
 
+#include <vlc/plugins/vlc_common.h>
 #include <vlc/plugins/vlc_fourcc.h>
 
 namespace Phonon {
