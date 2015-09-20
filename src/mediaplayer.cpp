@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2011-2012 Harald Sitter <sitter@kde.org>
+    Copyright (C) 2011-2015 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -80,6 +80,13 @@ MediaPlayer::MediaPlayer(QObject *parent)
         libvlc_MediaPlayerSnapshotTaken,
         libvlc_MediaPlayerLengthChanged,
         libvlc_MediaPlayerVout
+    #if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 2, 2, 0))
+        , libvlc_MediaPlayerCorked,
+        libvlc_MediaPlayerUncorked,
+        libvlc_MediaPlayerMuted,
+        libvlc_MediaPlayerUnmuted,
+        libvlc_MediaPlayerAudioVolume
+    #endif
     };
     const int eventCount = sizeof(events) / sizeof(*events);
     for (int i = 0; i < eventCount; ++i) {
@@ -279,6 +286,32 @@ void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
         break;
     case libvlc_MediaPlayerMediaChanged:
         break;
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 2, 2, 0))
+    case libvlc_MediaPlayerCorked:
+        that->pause();
+        break;
+    case libvlc_MediaPlayerUncorked:
+        that->play();
+        break;
+    case libvlc_MediaPlayerMuted:
+        QMetaObject::invokeMethod(
+                    that, "mutedChanged",
+                    Qt::QueuedConnection,
+                    Q_ARG(bool, true));
+        break;
+    case libvlc_MediaPlayerUnmuted:
+        QMetaObject::invokeMethod(
+                    that, "mutedChanged",
+                    Qt::QueuedConnection,
+                    Q_ARG(bool, false));
+        break;
+    case libvlc_MediaPlayerAudioVolume:
+        QMetaObject::invokeMethod(
+                    that, "volumeChanged",
+                    Qt::QueuedConnection,
+                    Q_ARG(float, event->u.media_player_audio_volume.volume));
+        break;
+#endif
     case libvlc_MediaPlayerForward:
     case libvlc_MediaPlayerBackward:
     case libvlc_MediaPlayerPositionChanged:

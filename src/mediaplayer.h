@@ -178,6 +178,9 @@ signals:
     /** Emitted when the vout availability has changed */
     void hasVideoChanged(bool hasVideo);
 
+    void mutedChanged(bool mute);
+    void volumeChanged(float volume);
+
 private:
     static void event_cb(const libvlc_event_t *event, void *opaque);
     void setVolumeInternal();

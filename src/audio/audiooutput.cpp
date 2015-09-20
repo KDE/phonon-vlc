@@ -2,7 +2,7 @@
     Copyright (C) 2007-2008 Tanguy Krotoff <tkrotoff@gmail.com>
     Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>
     Copyright (C) 2009 Fathi Boudra <fabo@kde.org>
-    Copyright (C) 2013 Harald Sitter <sitter@kde.org>
+    Copyright (C) 2013-2015 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -47,8 +47,16 @@ void AudioOutput::handleConnectToMediaObject(MediaObject *mediaObject)
 {
     Q_UNUSED(mediaObject);
     setOutputDeviceImplementation();
-    if (!PulseSupport::getInstance()->isActive())
+    if (!PulseSupport::getInstance()->isActive()) {
+        connect(m_player, &MediaPlayer::mutedChanged, [=](bool mute) {
+            mute ? emit volumeChanged(0.0) : emit volumeChanged(volume());
+        });
+        connect(m_player, &MediaPlayer::volumeChanged, [=](float volume) {
+            m_volume = volume;
+            emit volumeChanged(volume);
+        });
         applyVolume();
+    }
 }
 
 void AudioOutput::handleAddToMedia(Media *media)
@@ -71,9 +79,13 @@ void AudioOutput::setVolume(qreal volume)
 {
     if (m_player) {
         debug() << "async setting of volume to" << volume;
+#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 2, 2, 0))
         m_volume = volume;
+#endif
         applyVolume();
+#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 2, 2, 0))
         emit volumeChanged(m_volume);
+#endif
     }
 }
 
