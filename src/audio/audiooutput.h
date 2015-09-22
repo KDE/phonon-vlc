@@ -112,6 +112,9 @@ private slots:
      */
     void applyVolume();
 
+    void onMutedChanged(bool mute);
+    void onVolumeChanged(float volume);
+
 private:
     /**
      * We can only really set the output device once we have a libvlc_media_player, which comes

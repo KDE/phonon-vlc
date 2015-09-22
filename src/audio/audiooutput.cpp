@@ -48,13 +48,10 @@ void AudioOutput::handleConnectToMediaObject(MediaObject *mediaObject)
     Q_UNUSED(mediaObject);
     setOutputDeviceImplementation();
     if (!PulseSupport::getInstance()->isActive()) {
-        connect(m_player, &MediaPlayer::mutedChanged, [=](bool mute) {
-            mute ? emit volumeChanged(0.0) : emit volumeChanged(volume());
-        });
-        connect(m_player, &MediaPlayer::volumeChanged, [=](float volume) {
-            m_volume = volume;
-            emit volumeChanged(volume);
-        });
+        connect(m_player, SIGNAL(mutedChanged(bool)),
+                this, SLOT(onMutedChanged(bool)));
+        connect(m_player, SIGNAL(volumeChanged(float)),
+                this, SLOT(onVolumeChanged(float)));
         applyVolume();
     }
 }
@@ -191,6 +188,17 @@ void AudioOutput::applyVolume()
 
         debug() << "Volume changed from" << preVolume << "to" << newVolume;
     }
+}
+
+void AudioOutput::onMutedChanged(bool mute)
+{
+    mute ? emit volumeChanged(0.0) : emit volumeChanged(volume());
+}
+
+void AudioOutput::onVolumeChanged(float volume)
+{
+    m_volume = volume;
+    emit volumeChanged(volume);
 }
 
 }
