@@ -105,6 +105,7 @@ public:
 signals:
     void volumeChanged(qreal volume);
     void audioDeviceFailed();
+    void mutedChanged(bool mute);
 
 private slots:
     /**

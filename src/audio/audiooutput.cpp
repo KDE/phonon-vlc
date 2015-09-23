@@ -192,7 +192,10 @@ void AudioOutput::applyVolume()
 
 void AudioOutput::onMutedChanged(bool mute)
 {
+    emit mutedChanged(mute);
+#if (PHONON_VERSION < PHONON_VERSION_CHECK(4, 8, 51))
     mute ? emit volumeChanged(0.0) : emit volumeChanged(volume());
+#endif
 }
 
 void AudioOutput::onVolumeChanged(float volume)
