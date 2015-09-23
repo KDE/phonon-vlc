@@ -76,10 +76,9 @@ void AudioOutput::setVolume(qreal volume)
 {
     if (m_player) {
         debug() << "async setting of volume to" << volume;
-#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 2, 2, 0))
         m_volume = volume;
-#endif
         applyVolume();
+
 #if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 2, 2, 0))
         emit volumeChanged(m_volume);
 #endif
@@ -205,7 +204,7 @@ void AudioOutput::onMutedChanged(bool mute)
 
 void AudioOutput::onVolumeChanged(float volume)
 {
-    m_volume = volume / 100;
+    m_volume = volume;
     emit volumeChanged(volume);
 }
 
