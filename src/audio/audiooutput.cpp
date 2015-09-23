@@ -205,7 +205,7 @@ void AudioOutput::onMutedChanged(bool mute)
 
 void AudioOutput::onVolumeChanged(float volume)
 {
-    m_volume = volume;
+    m_volume = volume / 100;
     emit volumeChanged(volume);
 }
 
