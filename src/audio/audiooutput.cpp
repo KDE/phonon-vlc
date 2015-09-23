@@ -186,6 +186,11 @@ void AudioOutput::applyVolume()
         const int newVolume = m_volume * 100;
         m_player->setAudioVolume(newVolume);
 
+#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 2, 2, 0))
+        onMutedChanged(m_volume == 0.0);
+        onVolumeChanged(newVolume);
+#endif
+
         debug() << "Volume changed from" << preVolume << "to" << newVolume;
     }
 }
