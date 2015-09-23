@@ -103,7 +103,7 @@ Backend::Backend(QObject *parent, const QVariantList &)
             qWarning("WARNING: Setting the user agent for streaming and"
                      " PulseAudio requires you to set QCoreApplication::applicationName()");
         }
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 1, 0, 0))
+
         PulseSupport::getInstance()->enable(true);
         const bool pulseActive = PulseSupport::getInstance()->isActive();
         PulseSupport::getInstance()->enable(false);
@@ -131,8 +131,6 @@ Backend::Backend(QObject *parent, const QVariantList &)
                      " QCoreApplication::applicationVersion() and"
                      " QGuiApplication::windowIcon().");
         }
-
-#endif
     } else {
 #ifdef __GNUC__
     #warning TODO - this error message is as useful as a knife at a gun fight

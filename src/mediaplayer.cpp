@@ -96,9 +96,7 @@ MediaPlayer::MediaPlayer(QObject *parent)
     // Deactivate video title overlay (i.e. name of the video displaying
     // at start. Since 2.1 that is handled via the API which in general is more
     // reliable than setting it via libvlc_new (or so I have been told....)
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 1, 0, 0))
     libvlc_media_player_set_video_title_display(m_player, libvlc_position_disable, 0);
-#endif
 }
 
 MediaPlayer::~MediaPlayer()

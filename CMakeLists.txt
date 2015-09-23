@@ -10,8 +10,8 @@ macro_log_feature(PHONON_FOUND "Phonon" "Core Library" "git://anongit.kde.org/ph
 
 # LibVLC
 find_package(LIBVLC REQUIRED)
-macro_ensure_version("2.0.1" ${LIBVLC_VERSION} LIBVLC_FOUND)
-macro_log_feature(LIBVLC_FOUND "LibVLC" "VLC C API Library" "git://git.videolan.org/vlc.git" TRUE "2.0.1")
+macro_ensure_version("2.1.0" ${LIBVLC_VERSION} LIBVLC_FOUND)
+macro_log_feature(LIBVLC_FOUND "LibVLC" "VLC C API Library" "git://git.videolan.org/vlc.git" TRUE "2.1.0")
 
 if(PHONON_FOUND_EXPERIMENTAL)
   add_definitions(-DPHONON_EXPERIMENTAL)
