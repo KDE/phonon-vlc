@@ -138,6 +138,15 @@ public:
     /// \param volume new volume
     void setAudioVolume(int volume);
 
+    /// \return mutness
+    bool mute() const;
+
+    /**
+     * Mutes
+     * @param mute whether to mute or unmute
+     */
+    void setMute(bool mute);
+
     /// Set the fade percentage, between 0 (muted) and 1.0 (no fade)
     void setAudioFade(qreal fade);
 

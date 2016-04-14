@@ -369,6 +369,16 @@ void MediaPlayer::setAudioVolume(int volume)
     setVolumeInternal();
 }
 
+bool MediaPlayer::mute() const
+{
+    return libvlc_audio_get_mute(m_player);
+}
+
+void MediaPlayer::setMute(bool mute)
+{
+    libvlc_audio_set_mute(m_player, mute);
+}
+
 void MediaPlayer::setVolumeInternal()
 {
     libvlc_audio_set_volume(m_player, m_volume * m_fadeAmount);
