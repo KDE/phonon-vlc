@@ -36,6 +36,7 @@ namespace VLC {
 AudioOutput::AudioOutput(QObject *parent)
     : QObject(parent),
       m_volume(1.0)
+    , m_muted(false)
 {
 }
 
@@ -83,6 +84,16 @@ void AudioOutput::setVolume(qreal volume)
         emit volumeChanged(m_volume);
 #endif
     }
+}
+
+void AudioOutput::setMuted(bool mute)
+{
+    if (mute == m_player->mute()) {
+        // Make sure we actually have propagated the mutness into the frontend.
+        onMutedChanged(mute);
+        return;
+    }
+    m_player->setMute(mute);
 }
 
 int AudioOutput::outputDevice() const
@@ -196,8 +207,11 @@ void AudioOutput::applyVolume()
 
 void AudioOutput::onMutedChanged(bool mute)
 {
+    m_muted = mute;
     emit mutedChanged(mute);
 #if (PHONON_VERSION < PHONON_VERSION_CHECK(4, 8, 51))
+    // Previously we had no interface signal to communicate mutness, so instead
+    // emit volume.
     mute ? emit volumeChanged(0.0) : emit volumeChanged(volume());
 #endif
 }

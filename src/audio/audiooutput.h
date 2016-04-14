@@ -102,6 +102,10 @@ public:
     void setStreamUuid(QString uuid);
 #endif
 
+#if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 8, 50))
+    void setMuted(bool mute);
+#endif
+
 signals:
     void volumeChanged(qreal volume);
     void audioDeviceFailed();
@@ -124,6 +128,7 @@ private:
     void setOutputDeviceImplementation();
 
     qreal m_volume;
+    bool m_muted;
     AudioOutputDevice m_device;
     QString m_streamUuid;
 };
