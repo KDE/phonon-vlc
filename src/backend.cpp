@@ -149,7 +149,7 @@ Backend::Backend(QObject *parent, const QVariantList &)
 
     // Initialise PulseAudio support
     PulseSupport *pulse = PulseSupport::getInstance();
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 2, 0, 0))
+#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 2, 2, 0))
     // VLC 2.2 changed the stream creation order around internally which breaks
     // the Pulseaudio hijacking. Since VLC upstream doesn't feel like giving us
     // any more property control we now consider this feature unsupported. As
@@ -157,8 +157,6 @@ Backend::Backend(QObject *parent, const QVariantList &)
     pulse->enable(true);
     connect(pulse, SIGNAL(objectDescriptionChanged(ObjectDescriptionType)),
             SIGNAL(objectDescriptionChanged(ObjectDescriptionType)));
-#else
-    pulse->enable(false);
 #endif
 
     m_deviceManager = new DeviceManager(this);

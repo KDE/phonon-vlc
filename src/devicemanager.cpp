@@ -209,12 +209,19 @@ void DeviceManager::updateDeviceList()
     QList<QByteArray> audioOutBackends = vlcAudioOutBackends();
 
     PulseSupport *pulse = PulseSupport::getInstance();
+#if (PHONON_VERSION < PHONON_VERSION_CHECK(4, 8, 51))
     if (pulse && pulse->isActive()) {
+#else
+    if (pulse && pulse->isUsable()) {
+#endif
         if (audioOutBackends.contains("pulse")) {
             DeviceInfo defaultAudioOutputDevice(tr("Default"), false);
             defaultAudioOutputDevice.setCapabilities(DeviceInfo::AudioOutput);
             defaultAudioOutputDevice.addAccess(DeviceAccess("pulse", "default"));
             newDeviceList.append(defaultAudioOutputDevice);
+#if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 8, 51))
+            pulse->request(true);
+#endif
             return;
         } else {
             pulse->enable(false);
