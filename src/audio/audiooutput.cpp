@@ -86,6 +86,7 @@ void AudioOutput::setVolume(qreal volume)
     }
 }
 
+#if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 8, 50))
 void AudioOutput::setMuted(bool mute)
 {
     if (mute == m_player->mute()) {
@@ -95,6 +96,7 @@ void AudioOutput::setMuted(bool mute)
     }
     m_player->setMute(mute);
 }
+#endif
 
 int AudioOutput::outputDevice() const
 {
