@@ -4,95 +4,147 @@
 # For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 
 set(PHONON_VLC_MIME_TYPES
+    application/mpeg4-iod
+    application/mpeg4-muxcodetable
+    application/mxf
     application/ogg
-    application/x-ogg
+    application/ram
+    application/sdp
+    application/vnd.apple.mpegurl
+    application/vnd.ms-asf
+    application/vnd.ms-wpl
     application/vnd.rn-realmedia
-    application/x-annodex
-    application/x-flash-video
-    application/x-quicktimeplayer
+    application/vnd.rn-realmedia-vbr
+    application/x-extension-m4a
     application/x-extension-mp4
-    audio/168sv
+    application/x-flac
+    application/x-flash-video
+    application/x-matroska
+    application/x-ogg
+    application/x-quicktime-media-link
+    application/x-quicktimeplayer
+    application/x-shockwave-flash
+    application/xspf+xml
     audio/3gpp
     audio/3gpp2
-    audio/8svx
-    audio/aiff
+    audio/AMR
+    audio/AMR-WB
+    audio/aac
+    audio/ac3
     audio/amr
     audio/amr-wb
     audio/basic
+    audio/dv
+    audio/eac3
+    audio/flac
+    audio/m4a
+    audio/midi
+    audio/mp1
+    audio/mp2
     audio/mp3
     audio/mp4
-    audio/midi
     audio/mpeg
-    audio/mpeg2
-    audio/mpeg3
-    audio/prs.sid
+    audio/mpegurl
+    audio/mpg
+    audio/ogg
+    audio/opus
+    audio/scpls
+    audio/vnd.dolby.heaac.1
+    audio/vnd.dolby.heaac.2
+    audio/vnd.dolby.mlp
+    audio/vnd.dts
+    audio/vnd.dts.hd
     audio/vnd.rn-realaudio
-    audio/vnd.rn-realmedia
     audio/wav
     audio/webm
-    audio/x-16sv
-    audio/x-8svx
+    audio/x-aac
     audio/x-aiff
-    audio/x-basic
+    audio/x-ape
+    audio/x-flac
+    audio/x-gsm
     audio/x-it
     audio/x-m4a
     audio/x-matroska
     audio/x-mod
+    audio/x-mp1
+    audio/x-mp2
     audio/x-mp3
     audio/x-mpeg
-    audio/x-mpeg2
-    audio/x-mpeg3
     audio/x-mpegurl
+    audio/x-mpg
+    audio/x-ms-asf
+    audio/x-ms-asx
+    audio/x-ms-wax
     audio/x-ms-wma
-    audio/x-ogg
+    audio/x-musepack
     audio/x-pn-aiff
     audio/x-pn-au
+    audio/x-pn-realaudio
     audio/x-pn-realaudio-plugin
     audio/x-pn-wav
     audio/x-pn-windows-acm
     audio/x-real-audio
     audio/x-realaudio
     audio/x-s3m
-    audio/x-speex+ogg
+    audio/x-scpls
+    audio/x-shorten
+    audio/x-speex
+    audio/x-tta
+    audio/x-vorbis
     audio/x-vorbis+ogg
     audio/x-wav
+    audio/x-wavpack
     audio/x-xm
-    image/ilbm
-    image/png
-    image/x-ilbm
-    image/x-png
+    image/vnd.rn-realpix
+    misc/ultravox
+    text/google-video-pointer
+    text/x-google-video-pointer
+    video/3gp
     video/3gpp
     video/3gpp2
-    video/anim
-    video/avi
     video/divx
+    video/dv
+    video/fli
     video/flv
-    video/mkv
-    video/mng
+    video/mp2t
     video/mp4
+    video/mp4v-es
     video/mpeg
     video/mpeg-system
-    video/mpg
     video/msvideo
     video/ogg
     video/quicktime
+    video/vnd.divx
+    video/vnd.mpegurl
+    video/vnd.rn-realvideo
     video/webm
     video/x-anim
-    video/x-flic
+    video/x-avi
+    video/x-flc
+    video/x-fli
     video/x-flv
-    video/x-matroska
-    video/x-mng
     video/x-m4v
+    video/x-matroska
     video/x-mpeg
     video/x-mpeg-system
+    video/x-mpeg2
     video/x-ms-asf
-    video/x-ms-wma
+    video/x-ms-asf-plugin
+    video/x-ms-asx
+    video/x-ms-wm
     video/x-ms-wmv
+    video/x-ms-wmx
     video/x-ms-wvx
     video/x-msvideo
-    video/x-quicktime
-    audio/x-flac
-    audio/x-ape
+    video/x-nsv
+    video/x-ogm+ogg
+    video/x-theora
+    video/x-theora+ogg
+    x-content/audio-cdda
+    x-content/audio-player
+    x-content/video-dvd
+    x-content/video-svcd
+    x-content/video-vcd
 )
 
 macro(CREATE_C_ARRAY var list)
