@@ -37,12 +37,35 @@ AudioOutput::AudioOutput(QObject *parent)
     : QObject(parent),
       m_volume(1.0)
     , m_muted(false)
+    , m_category(Phonon::NoCategory)
 {
 }
 
 AudioOutput::~AudioOutput()
 {
 }
+
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(3, 0, 0, 0))
+static categoryToRole(Category category)
+{
+    switch(category) {
+    case NoCategory:
+        return libvlc_role_None;
+    case NotificationCategory:
+        return liblvc_role_Notification;
+    case MusicCategory:
+        return libvlc_role_Music;
+    case VideoCategory:
+        return libvlc_role_Video;
+    case CommunicationCategory:
+        return libvlc_role_Communication;
+    case GameCategory:
+        return libvlc_role_Game;
+    case AccessibilityCategory:
+        return libvlc_role_Accessibility;
+    }
+}
+#endif
 
 void AudioOutput::handleConnectToMediaObject(MediaObject *mediaObject)
 {
@@ -55,6 +78,9 @@ void AudioOutput::handleConnectToMediaObject(MediaObject *mediaObject)
                 this, SLOT(onVolumeChanged(float)));
         applyVolume();
     }
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(3, 0, 0, 0))
+    libvlc_media_player_set_role(m_player, categoryToRole(m_category));
+#endif
 }
 
 void AudioOutput::handleAddToMedia(Media *media)
@@ -97,6 +123,11 @@ void AudioOutput::setMuted(bool mute)
     m_player->setMute(mute);
 }
 #endif
+
+void AudioOutput::setCategory(Category category)
+{
+    m_category = category;
+}
 
 int AudioOutput::outputDevice() const
 {

@@ -106,6 +106,8 @@ public:
     void setMuted(bool mute);
 #endif
 
+    virtual void setCategory(Phonon::Category category);
+
 signals:
     void volumeChanged(qreal volume);
     void audioDeviceFailed();
@@ -131,6 +133,7 @@ private:
     bool m_muted;
     AudioOutputDevice m_device;
     QString m_streamUuid;
+    Category m_category;
 };
 
 } // namespace VLC
