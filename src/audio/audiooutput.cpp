@@ -46,7 +46,7 @@ AudioOutput::~AudioOutput()
 }
 
 #if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(3, 0, 0, 0))
-static categoryToRole(Category category)
+static libvlc_media_player_role categoryToRole(Category category)
 {
     switch(category) {
     case NoCategory:
@@ -64,6 +64,7 @@ static categoryToRole(Category category)
     case AccessibilityCategory:
         return libvlc_role_Accessibility;
     }
+    return libvlc_role_None;
 }
 #endif
 
@@ -79,7 +80,7 @@ void AudioOutput::handleConnectToMediaObject(MediaObject *mediaObject)
         applyVolume();
     }
 #if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(3, 0, 0, 0))
-    libvlc_media_player_set_role(m_player, categoryToRole(m_category));
+    libvlc_media_player_set_role(*m_player, categoryToRole(m_category));
 #endif
 }
 
