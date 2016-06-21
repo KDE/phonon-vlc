@@ -203,7 +203,7 @@ void DeviceManager::updateDeviceList()
 {
     QList<DeviceInfo> newDeviceList;
 
-    if (!LibVLC::self || !libvlc)
+    if (!LibVLC::self || !pvlc_libvlc)
         return;
 
     QList<QByteArray> audioOutBackends = vlcAudioOutBackends();
@@ -252,7 +252,7 @@ void DeviceManager::updateDeviceList()
         bool hasDevices = false;
         VLC_FOREACH(audio_output_device,
                     device,
-                    libvlc_audio_output_device_list_get(libvlc, soundSystem),
+                    libvlc_audio_output_device_list_get(pvlc_libvlc, soundSystem),
                     libvlc_audio_output_device_list_release) {
             QString idName = QString::fromUtf8(device->psz_device);
             QString longName = QString::fromUtf8(device->psz_description);
@@ -275,11 +275,11 @@ void DeviceManager::updateDeviceList()
             newDeviceList.append(info);
         }
 #else
-        const int deviceCount = libvlc_audio_output_device_count(libvlc, soundSystem);
+        const int deviceCount = libvlc_audio_output_device_count(pvlc_libvlc, soundSystem);
 
         for (int i = 0; i < deviceCount; i++) {
             VString idName(libvlc_audio_output_device_id(libvlc, soundSystem, i));
-            VString longName(libvlc_audio_output_device_longname(libvlc, soundSystem, i));
+            VString longName(libvlc_audio_output_device_longname(pvlc_libvlc, soundSystem, i));
 
             debug() << "found device" << soundSystem << idName << longName;
 
