@@ -30,7 +30,7 @@ struct libvlc_instance_t;
  * Please note that init() must have been called whenever using this, as no
  * checking of self is conducted (i.e. can be null).
  */
-#define libvlc LibVLC::self->vlc()
+#define pvlc_libvlc LibVLC::self->vlc()
 
 /**
  * Foreach loop macro for VLC descriptions.
@@ -50,7 +50,7 @@ struct libvlc_instance_t;
 
 // This foreach expects only a type and variable because getter and releaser are generic.
 // Also the type is in short form i.e. libvlc_foo_t would be foo.
-#define VLC_FOREACH_LIST(type, variable) VLC_FOREACH(type, variable, libvlc_##type##_list_get(libvlc), libvlc_##type##_list_release)
+#define VLC_FOREACH_LIST(type, variable) VLC_FOREACH(type, variable, libvlc_##type##_list_get(pvlc_libvlc), libvlc_##type##_list_release)
 
 // These foreach expect no type because the type is generic, they do however
 // expect a getter to allow usage with our wrapper classes and since the getter

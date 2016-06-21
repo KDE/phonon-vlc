@@ -96,7 +96,7 @@ Backend::Backend(QObject *parent, const QVariantList &)
                         qApp->applicationVersion(),
                         PHONON_VERSION_STR,
                         PHONON_VLC_VERSION);
-            libvlc_set_user_agent(libvlc,
+            libvlc_set_user_agent(pvlc_libvlc,
                                   qApp->applicationName().toUtf8().constData(),
                                   userAgent.toUtf8().constData());
         } else {
@@ -121,7 +121,7 @@ Backend::Backend(QObject *parent, const QVariantList &)
                 // If we failed to get a proper icon name, use the appname instead.
                 icon = qApp->applicationName().toLower();
             }
-            libvlc_set_app_id(libvlc,
+            libvlc_set_app_id(pvlc_libvlc,
                               id.toUtf8().constData(),
                               version.toUtf8().constData(),
                               icon.toUtf8().constData());
@@ -176,7 +176,7 @@ Backend::~Backend()
 
 QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const QList<QVariant> &args)
 {
-    if (!LibVLC::self || !libvlc)
+    if (!LibVLC::self || !pvlc_libvlc)
         return 0;
 
     switch (c) {

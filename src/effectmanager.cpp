@@ -46,7 +46,7 @@ EffectInfo::EffectInfo(const QString &name, const QString &description,
 EffectManager::EffectManager(QObject *parent)
     : QObject(parent)
 {
-    if (!libvlc)
+    if (!pvlc_libvlc)
         return;
 
     updateEffects();
