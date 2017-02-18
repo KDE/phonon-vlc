@@ -25,17 +25,15 @@ VlcMacWidget::VlcMacWidget(QWidget *parent) : QMacCocoaViewContainer(0, parent)
 {
     // Many Cocoa objects create temporary autorelease objects,
     // so create a pool to catch them.
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    @autoreleasepool {
+        VideoView *videoView = [[VideoView alloc] init];
 
-    VideoView *videoView = [[VideoView alloc] init];
+        this->setCocoaView(videoView);
 
-    this->setCocoaView(videoView);
-
-    // Release our reference, since our super class takes ownership and we
-    // don't need it anymore.
-    [videoView release];
-
-    // Clean up our pool as we no longer need it.
-    [pool release];
-
+        // Release our reference, since our super class takes ownership and we
+        // don't need it anymore (except with Qt 5.8.0 because of a regression).
+        if (strcmp(qVersion(), "5.8.0")) {
+            [videoView release];
+        }
+    }
 }
