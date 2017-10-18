@@ -52,7 +52,7 @@ static libvlc_media_player_role categoryToRole(Category category)
     case NoCategory:
         return libvlc_role_None;
     case NotificationCategory:
-        return liblvc_role_Notification;
+        return libvlc_role_Notification;
     case MusicCategory:
         return libvlc_role_Music;
     case VideoCategory:
