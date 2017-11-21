@@ -10,5 +10,13 @@ Icon=vlc
 InitialPreference=20
 
 Name=VLC
+Name[ca]=VLC
+Name[ca@valencia]=VLC
+Name[nl]=VLC
+Name[x-test]=xxVLCxx
 
 Comment=Phonon VLC backend
+Comment[ca]=Dorsal del VLC pel Phonon
+Comment[ca@valencia]=Dorsal del VLC pel Phonon
+Comment[nl]=VLC-backend van Phonon
+Comment[x-test]=xxPhonon VLC backendxx
