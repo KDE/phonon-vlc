@@ -16,6 +16,7 @@ Name[es]=VLC
 Name[fr]=VLC
 Name[nl]=VLC
 Name[sk]=VLC
+Name[uk]=VLC
 Name[x-test]=xxVLCxx
 
 Comment=Phonon VLC backend
@@ -25,4 +26,5 @@ Comment[es]=Motor VLC para Phonon
 Comment[fr]=Module VLC pour Phonon
 Comment[nl]=VLC-backend van Phonon
 Comment[sk]=Backend Phonon VLC
+Comment[uk]=Модуль VLC Phonon
 Comment[x-test]=xxPhonon VLC backendxx
