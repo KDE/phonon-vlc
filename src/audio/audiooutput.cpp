@@ -35,7 +35,7 @@ namespace VLC {
 
 AudioOutput::AudioOutput(QObject *parent)
     : QObject(parent)
-    , m_volume(1.0)
+    , m_volume(0.75)
     , m_muted(false)
     , m_category(Phonon::NoCategory)
 {
