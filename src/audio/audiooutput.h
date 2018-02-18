@@ -130,6 +130,8 @@ private:
     void setOutputDeviceImplementation();
 
     qreal m_volume;
+    // Set after first setVolume to indicate volume was set manually.
+    bool m_explicitVolume;
     bool m_muted;
     AudioOutputDevice m_device;
     QString m_streamUuid;

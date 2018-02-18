@@ -2,7 +2,7 @@
     Copyright (C) 2007-2008 Tanguy Krotoff <tkrotoff@gmail.com>
     Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>
     Copyright (C) 2009 Fathi Boudra <fabo@kde.org>
-    Copyright (C) 2013-2015 Harald Sitter <sitter@kde.org>
+    Copyright (C) 2013-2018 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -36,6 +36,7 @@ namespace VLC {
 AudioOutput::AudioOutput(QObject *parent)
     : QObject(parent)
     , m_volume(0.75)
+    , m_explicitVolume(false)
     , m_muted(false)
     , m_category(Phonon::NoCategory)
 {
@@ -73,6 +74,7 @@ void AudioOutput::handleConnectToMediaObject(MediaObject *mediaObject)
     Q_UNUSED(mediaObject);
     setOutputDeviceImplementation();
     if (!PulseSupport::getInstance()->isActive()) {
+        // Rely on libvlc for updates if PASupport is not active
         connect(m_player, SIGNAL(mutedChanged(bool)),
                 this, SLOT(onMutedChanged(bool)));
         connect(m_player, SIGNAL(volumeChanged(float)),
@@ -105,6 +107,7 @@ void AudioOutput::setVolume(qreal volume)
     if (m_player) {
         debug() << "async setting of volume to" << volume;
         m_volume = volume;
+        m_explicitVolume = true;
         applyVolume();
 
 #if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 2, 2, 0))
@@ -225,7 +228,7 @@ void AudioOutput::setOutputDeviceImplementation()
 
 void AudioOutput::applyVolume()
 {
-    if (m_player) {
+    if (m_player && m_explicitVolume) {
         const int preVolume = m_player->audioVolume();
         const int newVolume = m_volume * 100;
         m_player->setAudioVolume(newVolume);
