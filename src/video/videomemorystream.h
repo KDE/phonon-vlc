@@ -18,6 +18,16 @@
 #ifndef PHONON_VLC_VIDEOMEMORYSTREAM_H
 #define PHONON_VLC_VIDEOMEMORYSTREAM_H
 
+// VLC 3.0 uses the restrict keyword. restrict is not a thing in C++, so
+// depending on the compiler you use an extension keyword or drop it entirely.
+#if defined(Q_CC_GNU)
+#define restrict __restrict__
+#elif defined(Q_CC_MSVC)
+#define restrict __restrict
+#else
+#define restrict
+#endif
+
 #include <vlc/plugins/vlc_common.h>
 #include <vlc/plugins/vlc_fourcc.h>
 
@@ -31,7 +41,7 @@ class VideoMemoryStream
 public:
     explicit VideoMemoryStream();
     virtual ~VideoMemoryStream();
-    
+
     /**
      * @returns overall buffersize needed
      */
