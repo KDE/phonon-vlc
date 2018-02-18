@@ -595,7 +595,11 @@ QString MediaObject::errorString() const
 
 bool MediaObject::hasVideo() const
 {
-    return m_player->hasVideoOutput();
+    // Cached: sometimes 4.0.0-dev sends the vout event but then
+    // has_vout is still false. Guard against this by simply always reporting
+    // the last hasVideoChanged value. If that is off we can still drop into
+    // libvlc in case it changed meanwhile.
+    return m_hasVideo || m_player->hasVideoOutput();
 }
 
 bool MediaObject::isSeekable() const
@@ -749,11 +753,12 @@ void MediaObject::onHasVideoChanged(bool hasVideo)
     if (m_hasVideo != hasVideo) {
         m_hasVideo = hasVideo;
         emit hasVideoChanged(m_hasVideo);
-    } else
+    } else {
         // We can simply return if we are have the appropriate caching already.
         // Otherwise we'd do pointless rescans of mediacontroller stuff.
         // MC and MO are force-reset on media changes anyway.
         return;
+    }
 
     refreshDescriptors();
 }
