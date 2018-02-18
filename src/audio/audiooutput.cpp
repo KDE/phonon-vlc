@@ -34,8 +34,8 @@ namespace Phonon {
 namespace VLC {
 
 AudioOutput::AudioOutput(QObject *parent)
-    : QObject(parent),
-      m_volume(1.0)
+    : QObject(parent)
+    , m_volume(1.0)
     , m_muted(false)
     , m_category(Phonon::NoCategory)
 {
