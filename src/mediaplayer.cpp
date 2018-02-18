@@ -277,10 +277,11 @@ void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
         P_EMIT_STATE(ErrorState);
         break;
     case libvlc_MediaPlayerVout:
-        if (event->u.media_player_vout.new_count > 0)
+        if (event->u.media_player_vout.new_count > 0) {
             P_EMIT_HAS_VIDEO(true);
-        else
+        } else {
             P_EMIT_HAS_VIDEO(false);
+        }
         break;
     case libvlc_MediaPlayerMediaChanged:
         break;

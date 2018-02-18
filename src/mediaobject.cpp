@@ -320,7 +320,7 @@ void MediaObject::setSource(const MediaSource &source)
         debug() << "MediaSource::Url:" << source.url();
         if (source.url().scheme().isEmpty()) {
             url = "file://";
-            // QUrl considers url.scheme.isEmpty() == url.isRelative(), 
+            // QUrl considers url.scheme.isEmpty() == url.isRelative(),
             // so to be sure the url is not actually absolute we just
             // check the first character
             if (!source.url().toString().startsWith('/'))
