@@ -248,7 +248,7 @@ void MediaController::refreshAudioChannels()
 {
     GlobalAudioChannels::instance()->clearListFor(this);
 
-    const int currentChannelId = m_player->subtitle();
+    const int currentChannelId = m_player->audioTrack();
 
     int idCount = 0;
     VLC_FOREACH_TRACK(it, m_player->audioTrackDescription()) {
