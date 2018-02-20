@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2011-2015 Harald Sitter <sitter@kde.org>
+    Copyright (C) 2011-2018 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -177,7 +177,14 @@ bool MediaPlayer::setSubtitle(int subtitle)
 
 bool MediaPlayer::setSubtitle(const QString &file)
 {
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(3, 0, 0, 0))
+    return libvlc_media_player_add_slave(m_player,
+                                         libvlc_media_slave_type_subtitle,
+                                         file.toUtf8().data(),
+                                         true) == 0;
+#else
     return libvlc_video_set_subtitle_file(m_player, file.toUtf8().data()) == 1;
+#endif
 }
 
 void MediaPlayer::setTitle(int title)
