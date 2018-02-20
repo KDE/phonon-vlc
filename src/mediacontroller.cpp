@@ -252,8 +252,12 @@ void MediaController::refreshAudioChannels()
 
     int idCount = 0;
     VLC_FOREACH_TRACK(it, m_player->audioTrackDescription()) {
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(3, 0, 0, 0))
+        idCount= it->i_id;
+#else
         // LibVLC's internal ID is broken, so we simply count up as internally
         // the setter will simply go by position in list anyway.
+#endif
         GlobalAudioChannels::instance()->add(this, idCount, QString::fromUtf8(it->psz_name), "");
         if (idCount == currentChannelId) {
 #ifdef __GNUC__
