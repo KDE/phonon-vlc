@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2011 Harald Sitter <sitter@kde.org>
+    Copyright (C) 2011-2018 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -18,8 +18,9 @@
 #ifndef PHONON_VLC_MEDIAPLAYER_H
 #define PHONON_VLC_MEDIAPLAYER_H
 
-#include <QtCore/QObject>
-#include <QtCore/QSize>
+#include <QObject>
+#include <QSharedPointer>
+#include <QSize>
 
 #include <vlc/libvlc_version.h>
 #include <vlc/vlc.h>
@@ -31,6 +32,41 @@ namespace Phonon {
 namespace VLC {
 
 class Media;
+
+template<class VLCArray>
+class Descriptions
+{
+public:
+    typedef void (*ReleaseFunction) (VLCArray**, unsigned int) ;
+
+    Descriptions(VLCArray **data,
+              unsigned int size,
+              ReleaseFunction release)
+        : m_release(release)
+        , m_data(data)
+        , m_size(size)
+    {
+    }
+
+    ~Descriptions()
+    {
+        m_release(m_data, m_size);
+    }
+
+    unsigned int size() const { return m_size; }
+
+private:
+    ReleaseFunction m_release;
+
+    VLCArray **m_data;
+    unsigned int m_size;
+};
+
+typedef Descriptions<libvlc_title_description_t> TitleDescriptions;
+typedef QSharedPointer<const TitleDescriptions> SharedTitleDescriptions;
+
+typedef Descriptions<libvlc_chapter_description_t> ChapterDescriptions;
+typedef QSharedPointer<ChapterDescriptions> SharedChapterDescriptions;
 
 class MediaPlayer : public QObject
 {
@@ -113,16 +149,44 @@ public:
     int titleCount() const
     { return libvlc_media_player_get_title_count(m_player); }
 
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(3, 0, 0, 0))
+    SharedTitleDescriptions titleDescription() const
+    {
+        libvlc_title_description_t **data;
+        unsigned int size =
+                libvlc_media_player_get_full_title_descriptions(m_player, &data);
+        return SharedTitleDescriptions(
+                    new TitleDescriptions(
+                        data, size,
+                        &libvlc_title_descriptions_release)
+                    );
+    }
+#else // deprecated
     libvlc_track_description_t *titleDescription() const
     { return libvlc_video_get_title_description(m_player); }
+#endif
 
     void setTitle(int title);
 
     int videoChapterCount() const
     { return libvlc_media_player_get_chapter_count(m_player); }
 
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(3, 0, 0, 0))
+    SharedChapterDescriptions videoChapterDescription(int title) const
+    {
+        libvlc_chapter_description_t **data;
+        unsigned int size =
+            libvlc_media_player_get_full_chapter_descriptions(m_player, title, &data);
+        return SharedChapterDescriptions(
+                    new ChapterDescriptions(
+                        data, size,
+                        &libvlc_chapter_descriptions_release)
+                    );
+    }
+#else // deprecated
     libvlc_track_description_t *videoChapterDescription(int title) const
     { return libvlc_video_get_chapter_description(m_player, title); }
+#endif
 
     void setChapter(int chapter);
 
