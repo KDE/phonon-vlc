@@ -72,6 +72,7 @@ void EqualizerEffect::setParameterValue(const EffectParameter &parameter,
 
 void EqualizerEffect::handleConnectToMediaObject(MediaObject *mediaObject)
 {
+    Q_UNUSED(mediaObject);
     m_player->setEqualizer(m_equalizer);
 }
 

@@ -147,13 +147,14 @@ Backend::Backend(QObject *parent, const QVariantList &)
         fatal() << "Phonon::VLC::vlcInit: Failed to initialize VLC";
     }
 
-    // Initialise PulseAudio support
-    PulseSupport *pulse = PulseSupport::getInstance();
 #if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 2, 2, 0))
     // VLC 2.2 changed the stream creation order around internally which breaks
     // the Pulseaudio hijacking. Since VLC upstream doesn't feel like giving us
     // any more property control we now consider this feature unsupported. As
     // such whatever properties VLC sets will be what pulse knows about us.
+
+    // Initialise PulseAudio support
+    PulseSupport *pulse = PulseSupport::getInstance();
     pulse->enable(true);
     connect(pulse, SIGNAL(objectDescriptionChanged(ObjectDescriptionType)),
             SIGNAL(objectDescriptionChanged(ObjectDescriptionType)));
