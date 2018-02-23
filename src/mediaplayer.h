@@ -62,11 +62,13 @@ private:
     unsigned int m_size;
 };
 
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(3, 0, 0, 0))
 typedef Descriptions<libvlc_title_description_t> TitleDescriptions;
 typedef QSharedPointer<const TitleDescriptions> SharedTitleDescriptions;
 
 typedef Descriptions<libvlc_chapter_description_t> ChapterDescriptions;
 typedef QSharedPointer<ChapterDescriptions> SharedChapterDescriptions;
+#endif
 
 class MediaPlayer : public QObject
 {
