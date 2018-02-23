@@ -15,6 +15,7 @@ set(PHONON_VLC_MIME_TYPES
     application/vnd.ms-wpl
     application/vnd.rn-realmedia
     application/vnd.rn-realmedia-vbr
+    application/x-cd-image
     application/x-extension-m4a
     application/x-extension-mp4
     application/x-flac
@@ -31,8 +32,6 @@ set(PHONON_VLC_MIME_TYPES
     audio/AMR-WB
     audio/aac
     audio/ac3
-    audio/amr
-    audio/amr-wb
     audio/basic
     audio/dv
     audio/eac3
@@ -55,9 +54,11 @@ set(PHONON_VLC_MIME_TYPES
     audio/vnd.dts
     audio/vnd.dts.hd
     audio/vnd.rn-realaudio
+    audio/vorbis
     audio/wav
     audio/webm
     audio/x-aac
+    audio/x-adpcm
     audio/x-aiff
     audio/x-ape
     audio/x-flac
@@ -102,6 +103,7 @@ set(PHONON_VLC_MIME_TYPES
     video/3gp
     video/3gpp
     video/3gpp2
+    video/avi
     video/divx
     video/dv
     video/fli
@@ -137,6 +139,7 @@ set(PHONON_VLC_MIME_TYPES
     video/x-ms-wvx
     video/x-msvideo
     video/x-nsv
+    video/x-ogm
     video/x-ogm+ogg
     video/x-theora
     video/x-theora+ogg
