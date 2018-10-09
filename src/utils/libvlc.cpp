@@ -90,6 +90,10 @@ bool LibVLC::init()
     args << "--no-xlib";
     // Do not preload services discovery modules, we don't use them.
     args << "--services-discovery=''";
+    // The application is meant to manage this. Also, using the builtin
+    // inhibitor may cause problems on shutdown if VLC tries to uninhibit too
+    // late in the application lifecycle.
+    args << "--no-disable-screensaver";
     // Allow multiple starts (one gets to wonder whether that makes a difference).
 #if !defined(Q_OS_MAC) && (defined(Q_OS_WIN) || !defined(PHONON_NO_DBUS))
     args << "--no-one-instance";
