@@ -1,6 +1,6 @@
 # CMake module to search for LIBVLC (VLC library)
 #
-# Copyright (C) 2011-2012, Harald Sitter <sitter@kde.org>
+# Copyright (C) 2011-2018, Harald Sitter <sitter@kde.org>
 # Copyright (C) 2010, Rohit Yadav <rohityadav89@gmail.com>
 #
 # Redistribution and use is allowed according to the terms of the BSD license.
@@ -94,15 +94,13 @@ if (LIBVLC_VERSION STRLESS "${LIBVLC_MIN_VERSION}")
 #     set(LIBVLC_FOUND FALSE)
 endif (LIBVLC_VERSION STRLESS "${LIBVLC_MIN_VERSION}")
 
-if (LIBVLC_FOUND)
-    if (NOT LIBVLC_FIND_QUIETLY)
-        message(STATUS "Found LibVLC include-dir path: ${LIBVLC_INCLUDE_DIR}")
-        message(STATUS "Found LibVLC library path:${LIBVLC_LIBRARY}")
-        message(STATUS "Found LibVLCcore library path:${LIBVLCCORE_LIBRARY}")
-        message(STATUS "Found LibVLC version: ${LIBVLC_VERSION} (searched for: ${LIBVLC_MIN_VERSION})")
-    endif (NOT LIBVLC_FIND_QUIETLY)
-else (LIBVLC_FOUND)
-    if (LIBVLC_FIND_REQUIRED)
-        message(FATAL_ERROR "Could not find LibVLC")
-    endif (LIBVLC_FIND_REQUIRED)
-endif (LIBVLC_FOUND)
+if (NOT LIBVLC_FIND_QUIETLY)
+    message(STATUS "Found LibVLC include-dir path: ${LIBVLC_INCLUDE_DIR}")
+    message(STATUS "Found LibVLC library path:${LIBVLC_LIBRARY}")
+    message(STATUS "Found LibVLCcore library path:${LIBVLCCORE_LIBRARY}")
+    message(STATUS "Found LibVLC version: ${LIBVLC_VERSION} (searched for: ${LIBVLC_MIN_VERSION})")
+endif (NOT LIBVLC_FIND_QUIETLY)
+
+if (NOT LIBVLC_FOUND AND LIBVLC_FIND_REQUIRED)
+    message(FATAL_ERROR "Could not find LibVLC/LibVLCcore")
+endif ()
