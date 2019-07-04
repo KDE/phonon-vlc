@@ -80,6 +80,10 @@ if(APPLE)
         video/mac/vlcmacwidget.mm)
 endif(APPLE)
 
+if(ECM_FOUND)
+    ecm_create_qm_loader(phonon_vlc_SRCS phonon_vlc_qt)
+endif()
+
 automoc4_add_library(phonon_vlc MODULE ${phonon_vlc_SRCS})
 qt5_use_modules(phonon_vlc Core Widgets)
 

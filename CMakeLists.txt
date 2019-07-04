@@ -8,6 +8,10 @@ find_package(Phonon REQUIRED)
 macro_ensure_version("4.7.0" ${PHONON_VERSION} PHONON_FOUND)
 macro_log_feature(PHONON_FOUND "Phonon" "Core Library" "git://anongit.kde.org/phonon.git" TRUE "4.7.0")
 
+if(ECM_FOUND)
+    include(ECMPoQmTools)
+endif()
+
 # LibVLC
 find_package(LIBVLC REQUIRED)
 macro_ensure_version("2.1.0" ${LIBVLC_VERSION} LIBVLC_FOUND)
@@ -33,5 +37,9 @@ add_definitions(-DPHONON_VLC_VERSION="${PHONON_VLC_VERSION}")
 include(MimeTypes.cmake)
 
 add_subdirectory(src)
+
+if(ECM_FOUND AND IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/po")
+    ecm_install_po_files_as_qm(po)
+endif()
 
 macro_display_feature_log()
