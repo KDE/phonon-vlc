@@ -36,6 +36,7 @@ Name[sr@latin]=VLC
 Name[sv]=VLC
 Name[uk]=VLC
 Name[x-test]=xxVLCxx
+Name[zh_CN]=VLC
 
 Comment=Phonon VLC backend
 Comment[ca]=Dorsal del VLC pel Phonon
@@ -64,3 +65,4 @@ Comment[sr@latin]=VLC kao pozadina Phonona
 Comment[sv]=Phonon VLC-gränssnitt
 Comment[uk]=Модуль VLC Phonon
 Comment[x-test]=xxPhonon VLC backendxx
+Comment[zh_CN]= Phonon VLC 后端
