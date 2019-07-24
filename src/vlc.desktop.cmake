@@ -60,6 +60,7 @@ Name[zh_CN]=VLC
 Name[zh_TW]=VLC
 
 Comment=Phonon VLC backend
+Comment[ast]=Backend de VLC pa Phonon
 Comment[bg]=Ядро VLC за Phonon
 Comment[bs]=VLC kao pozadina za Phonon
 Comment[ca]=Dorsal del VLC pel Phonon
