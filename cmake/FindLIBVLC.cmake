@@ -101,6 +101,18 @@ if (NOT LIBVLC_FIND_QUIETLY)
     message(STATUS "Found LibVLC version: ${LIBVLC_VERSION} (searched for: ${LIBVLC_MIN_VERSION})")
 endif (NOT LIBVLC_FIND_QUIETLY)
 
-if (NOT LIBVLC_FOUND AND LIBVLC_FIND_REQUIRED)
-    message(FATAL_ERROR "Could not find LibVLC/LibVLCcore")
-endif ()
+if(LIBVLC_FOUND AND NOT TARGET LibVLC::LibVLC)
+    add_library(LibVLC::LibVLC UNKNOWN IMPORTED)
+    set_target_properties(LibVLC::LibVLC PROPERTIES
+        IMPORTED_LOCATION "${LIBVLC_LIBRARY}"
+        INTERFACE_INCLUDE_DIRECTORIES "${LIBVLC_INCLUDE_DIR}"
+    )
+endif()
+
+if(LIBVLC_FOUND AND NOT TARGET LibVLC::Core)
+    add_library(LibVLC::Core UNKNOWN IMPORTED)
+    set_target_properties(LibVLC::Core PROPERTIES
+        IMPORTED_LOCATION "${LIBVLCCORE_LIBRARY}"
+        INTERFACE_INCLUDE_DIRECTORIES "${LIBVLC_INCLUDE_DIR}"
+    )
+endif()
