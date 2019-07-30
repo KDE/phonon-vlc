@@ -36,6 +36,7 @@
 #include "audio/audiooutput.h"
 #include "audio/audiodataoutput.h"
 #include "audio/volumefadereffect.h"
+#include "config.h"
 #include "devicemanager.h"
 #include "effect.h"
 #include "effectmanager.h"

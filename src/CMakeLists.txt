@@ -1,7 +1,3 @@
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
-
-add_definitions(-DPHONON_LIB_INSTALL_DIR="${LIB_INSTALL_DIR}")
-
 if (MSVC OR (WIN32 AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel"))
     set (CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX}/share/apps/cmake/modules)
     find_package(KDEWin)
@@ -18,25 +14,15 @@ if (MSVC OR (WIN32 AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel"))
         endif (KDEWIN_FOUND)
 endif (MSVC OR (WIN32 AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel"))
 
+# NB: This is evaluated in the build system because the phonon headers
+# change behavior based on the defines, meaning the defines must already be set
+# by the time the headers are pre-processed!
 if(${PHONON_VERSION} VERSION_GREATER "4.9.50")
     message(STATUS "Building against Phonon 4.10 API")
     set(BACKEND_VERSION_DEFINE -DPHONON_BACKEND_VERSION_4_10)
-elseif(${PHONON_VERSION} VERSION_GREATER "4.8.50")
-    message(STATUS "Building against Phonon 4.9 API")
-    set(BACKEND_VERSION_DEFINE -DPHONON_BACKEND_VERSION_4_9)
-elseif(${PHONON_VERSION} VERSION_GREATER "4.6.50")
-    message(STATUS "Building against Phonon 4.7 API")
-    set(BACKEND_VERSION_DEFINE -DPHONON_BACKEND_VERSION_4_7)
-elseif(${PHONON_VERSION} VERSION_GREATER "4.1.99")
-    message(STATUS "Building against Phonon 4.2 API")
-    set(BACKEND_VERSION_DEFINE -DPHONON_BACKEND_VERSION_4_2)
-else()
-    message(STATUS "Building against Phonon 4.0 API")
-    set(BACKEND_VERSION_DEFINE)
+# Older not supported because backend doesn't build with older cmake rigging anwyay.
 endif()
-
-add_definitions(${BACKEND_VERSION_DEFINE})
-set(AUTOMOC_MOC_OPTIONS ${BACKEND_VERSION_DEFINE})
+add_definitions(${BACKEND_VERSION_DEFINE}) # also automatically used for moc
 
 set(phonon_vlc_SRCS
     audio/audiooutput.cpp
@@ -59,60 +45,55 @@ set(phonon_vlc_SRCS
     utils/libvlc.cpp
 )
 
-if(${LIBVLC_VERSION} VERSION_GREATER "2.2.0" OR ${LIBVLC_VERSION} VERSION_EQUAL "2.2.0")
+if(NOT ${LIBVLC_VERSION} VERSION_LESS "2.2.0")
     list(APPEND phonon_vlc_SRCS equalizereffect.cpp)
 endif()
 
 if(NOT PHONON_NO_GRAPHICSVIEW)
     list(APPEND phonon_vlc_SRCS video/videographicsobject.cpp)
-else()
-    add_definitions(-DPHONON_NO_GRAPHICSVIEW)
 endif()
 
-if(PHONON_FOUND_EXPERIMENTAL)
-    add_definitions(-DPHONON_EXPERIMENTAL)
+if(PHONON_EXPERIMENTAL)
     list(APPEND phonon_vlc_SRCS video/videodataoutput.cpp)
-endif(PHONON_FOUND_EXPERIMENTAL)
+endif()
 
 if(APPLE)
     list(APPEND phonon_vlc_SRCS
         video/mac/nsvideoview.mm
         video/mac/vlcmacwidget.mm)
-endif(APPLE)
-
-if(ECM_FOUND)
-    ecm_create_qm_loader(phonon_vlc_SRCS phonon_vlc_qt)
 endif()
 
-automoc4_add_library(phonon_vlc MODULE ${phonon_vlc_SRCS})
-qt5_use_modules(phonon_vlc Core Widgets)
+ecm_create_qm_loader(phonon_vlc_SRCS phonon_vlc_qt)
+add_library(phonon_vlc MODULE ${phonon_vlc_SRCS})
 
-set_target_properties(phonon_vlc PROPERTIES
-    PREFIX ""
-    AUTOMOC_MOC_OPTIONS ${AUTOMOC_MOC_OPTIONS}
+target_include_directories(phonon_vlc
+    PRIVATE
+        # Extra include. We use some internal stuff for easy chroma conversion.
+        ${LIBVLC_INCLUDE_DIR}/vlc/plugins
 )
+
 target_link_libraries(phonon_vlc
-    ${PHONON_LIBRARY}
-    ${LIBVLCCORE_LIBRARY}
-    ${LIBVLC_LIBRARY}
+    Phonon::phonon4qt5
+    Qt5::Core
+    Qt5::Widgets
+    LibVLC::Core
+    LibVLC::LibVLC
 )
+if(PHONON_EXPERIMENTAL)
+    target_link_libraries(phonon_vlc Phonon::phonon4qt5experimental)
+endif()
 
-install(TARGETS phonon_vlc DESTINATION ${BACKEND_INSTALL_DIR})
+install(TARGETS phonon_vlc DESTINATION ${PHONON_BACKEND_DIR})
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
+               ${CMAKE_CURRENT_BINARY_DIR}/config.h @ONLY)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/utils/mime.h.cmake
                ${CMAKE_CURRENT_BINARY_DIR}/utils/mime.h @ONLY)
 
-if(PHONON_BUILD_PHONON4QT5)
-    # Instead of desktop files we are embedding the information into the plugin itself.
-    # We have no KDE technology to help with finding the actual libraries anyway, so
-    # we need to have the library path anyway.
-    # Also see qtplugin/Q_PLUGIN_METADATA documentation.
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/phonon-vlc.json.in
-                   ${CMAKE_CURRENT_BINARY_DIR}/phonon-vlc.json @ONLY)
-else()
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vlc.desktop.cmake
-                   ${CMAKE_CURRENT_BINARY_DIR}/vlc.desktop @ONLY)
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/vlc.desktop
-            DESTINATION ${SERVICES_INSTALL_DIR}/phononbackends)
-endif()
-
+# Instead of desktop files we are embedding the information into the plugin itself.
+# We have no KDE technology to help with finding the actual libraries anyway, so
+# we need to have the library path anyway.
+# Also see qtplugin/Q_PLUGIN_METADATA documentation.
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/phonon-vlc.json.in
+                ${CMAKE_CURRENT_BINARY_DIR}/phonon-vlc.json @ONLY)
