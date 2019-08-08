@@ -39,7 +39,7 @@ Name[x-test]=xxVLCxx
 Name[zh_CN]=VLC
 
 Comment=Phonon VLC backend
-Comment[ca]=Dorsal del VLC pel Phonon
+Comment[ca]=Dorsal del VLC per al Phonon
 Comment[ca@valencia]=Dorsal del VLC pel Phonon
 Comment[cs]=Podpůrná vrstva VLC
 Comment[de]=Phonon-Treiber für VLC
