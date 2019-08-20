@@ -48,9 +48,6 @@
 #ifdef PHONON_EXPERIMENTAL
 #include "video/videodataoutput.h"
 #endif
-#ifndef PHONON_NO_GRAPHICSVIEW
-#include "video/videographicsobject.h"
-#endif
 #include "video/videowidget.h"
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
@@ -196,10 +193,8 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
     case VideoDataOutputClass:
         return new VideoDataOutput(parent);
 #endif
-#ifndef PHONON_NO_GRAPHICSVIEW
     case VideoGraphicsObjectClass:
-        return new VideoGraphicsObject(parent);
-#endif
+        return nullptr; // No longer supported
     case EffectClass:
         return effectManager()->createEffect(args[0].toInt(), parent);
     case VideoWidgetClass:

@@ -22,7 +22,6 @@
 // that requires vis-a-vis compiler support though :(
 
 #cmakedefine PHONON_VLC_VERSION "@PHONON_VLC_VERSION@"
-#cmakedefine PHONON_NO_GRAPHICSVIEW
 #cmakedefine PHONON_EXPERIMENTAL
 
 #endif // PHONON_VLC_CONFIG_H

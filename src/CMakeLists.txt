@@ -49,10 +49,6 @@ if(NOT ${LIBVLC_VERSION} VERSION_LESS "2.2.0")
     list(APPEND phonon_vlc_SRCS equalizereffect.cpp)
 endif()
 
-if(NOT PHONON_NO_GRAPHICSVIEW)
-    list(APPEND phonon_vlc_SRCS video/videographicsobject.cpp)
-endif()
-
 if(PHONON_EXPERIMENTAL)
     list(APPEND phonon_vlc_SRCS video/videodataoutput.cpp)
 endif()
