@@ -50,10 +50,6 @@
 #endif
 #include "video/videowidget.h"
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-Q_EXPORT_PLUGIN2(phonon_vlc, Phonon::VLC::Backend)
-#endif
-
 namespace Phonon
 {
 namespace VLC
@@ -109,12 +105,10 @@ Backend::Backend(QObject *parent, const QVariantList &)
             const QString id = QString("org.kde.phonon.%1").arg(qApp->applicationName());
             const QString version = qApp->applicationVersion();
             QString icon;
-#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
             if (!qApp->windowIcon().isNull()){
                 // Try to get the fromTheme() name of the QIcon.
                 icon = qApp->windowIcon().name();
             }
-#endif
             if (icon.isEmpty()) {
                 // If we failed to get a proper icon name, use the appname instead.
                 icon = qApp->applicationName().toLower();

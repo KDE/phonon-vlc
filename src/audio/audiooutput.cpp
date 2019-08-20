@@ -89,12 +89,10 @@ void AudioOutput::handleConnectToMediaObject(MediaObject *mediaObject)
 void AudioOutput::handleAddToMedia(Media *media)
 {
     media->addOption(":audio");
-#if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 6, 50))
     PulseSupport *pulse = PulseSupport::getInstance();
     if (pulse && pulse->isActive()) {
         pulse->setupStreamEnvironment(m_streamUuid);
     }
-#endif
 }
 
 qreal AudioOutput::volume() const
@@ -116,7 +114,6 @@ void AudioOutput::setVolume(qreal volume)
     }
 }
 
-#if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 8, 50))
 void AudioOutput::setMuted(bool mute)
 {
     if (mute == m_player->mute()) {
@@ -126,7 +123,6 @@ void AudioOutput::setMuted(bool mute)
     }
     m_player->setMute(mute);
 }
-#endif
 
 void AudioOutput::setCategory(Category category)
 {
@@ -148,7 +144,6 @@ bool AudioOutput::setOutputDevice(int deviceIndex)
     return setOutputDevice(device);
 }
 
-#if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 2, 0))
 bool AudioOutput::setOutputDevice(const AudioOutputDevice &newDevice)
 {
     debug() << Q_FUNC_INFO;
@@ -168,16 +163,13 @@ bool AudioOutput::setOutputDevice(const AudioOutputDevice &newDevice)
 
     return true;
 }
-#endif
 
-#if (PHONON_VERSION >= PHONON_VERSION_CHECK(4, 6, 50))
 void AudioOutput::setStreamUuid(QString uuid)
 {
     DEBUG_BLOCK;
     debug() << uuid;
     m_streamUuid = uuid;
 }
-#endif
 
 void AudioOutput::setOutputDeviceImplementation()
 {
@@ -246,11 +238,6 @@ void AudioOutput::onMutedChanged(bool mute)
 {
     m_muted = mute;
     emit mutedChanged(mute);
-#if (PHONON_VERSION < PHONON_VERSION_CHECK(4, 8, 51))
-    // Previously we had no interface signal to communicate mutness, so instead
-    // emit volume.
-    mute ? emit volumeChanged(0.0) : emit volumeChanged(volume());
-#endif
 }
 
 void AudioOutput::onVolumeChanged(float volume)
