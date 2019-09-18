@@ -3,7 +3,7 @@
     Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>
     Copyright (C) 2009 Fathi Boudra <fabo@kde.org>
     Copyright (C) 2009-2011 vlc-phonon AUTHORS <kde-multimedia@kde.org>
-    Copyright (C) 2011-2012 Harald Sitter <sitter@kde.org>
+    Copyright (C) 2011-2019 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -218,6 +218,11 @@ private:
      * \return The snapshot of the current video frame.
      */
     QImage snapshot() const;
+
+    /**
+     * Enables the mighty surface painter (qpaints frames).
+     */
+    void enableSurfacePainter();
 
     /**
      * Pending video adjusts the application tried to set before we actually
