@@ -220,7 +220,7 @@ void VideoWidget::handleConnectToMediaObject(MediaObject *mediaObject)
 void VideoWidget::handleDisconnectFromMediaObject(MediaObject *mediaObject)
 {
     // Undo all connections or path creation->destruction->creation can cause
-    // duplicated connections or getting singals from two different MediaObjects.
+    // duplicated connections or getting signals from two different MediaObjects.
     disconnect(mediaObject, 0, this, 0);
 }
 
