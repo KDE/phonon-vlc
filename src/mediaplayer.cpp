@@ -142,7 +142,14 @@ void MediaPlayer::togglePause()
 void MediaPlayer::stop()
 {
     m_doingPausedPlay = false;
+#ifdef __GNUC__
+#warning changed to stop_async does this have impliciations
+#endif
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(4, 0, 0, 0))
+    libvlc_media_player_stop_async(m_player);
+#else
     libvlc_media_player_stop(m_player);
+#endif
 }
 
 qint64 MediaPlayer::length() const
@@ -157,7 +164,11 @@ qint64 MediaPlayer::time() const
 
 void MediaPlayer::setTime(qint64 newTime)
 {
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(4, 0, 0, 0))
+    libvlc_media_player_set_time(m_player, newTime, false /* not fast, but precise */);
+#else
     libvlc_media_player_set_time(m_player, newTime);
+#endif
 }
 
 bool MediaPlayer::isSeekable() const
@@ -326,7 +337,7 @@ void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
     case libvlc_MediaPlayerSnapshotTaken: // Snapshot call is sync, so this is useless.
     default:
         break;
-        QString msg = QString("Unknown event: ") + QString(libvlc_event_type_name(event->type));
+        QString msg = QString("Unknown event: ") + QString::number(event->type);
         Q_ASSERT_X(false, "event_cb", qPrintable(msg));
         break;
     }
@@ -396,7 +407,14 @@ void MediaPlayer::setCdTrack(int track)
 {
     if (!m_media)
         return;
+#ifdef __GNUC__
+#warning changed to stop_async does this have impliciations
+#endif
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(4, 0, 0, 0))
+    libvlc_media_player_stop_async(m_player);
+#else
     libvlc_media_player_stop(m_player);
+#endif
     m_media->setCdTrack(track);
     libvlc_media_player_set_media(m_player, *m_media);
     libvlc_media_player_play(m_player);

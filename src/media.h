@@ -23,6 +23,11 @@
 #include <QtCore/QVariant>
 
 #include <vlc/libvlc.h>
+#include <vlc/libvlc_version.h>
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(4, 0, 0, 0))
+// Bit of a work around. media.h requires picture
+#include <vlc/libvlc_picture.h>
+#endif
 #include <vlc/libvlc_media.h>
 
 #define INTPTR_PTR(x) reinterpret_cast<intptr_t>(x)

@@ -93,7 +93,11 @@ bool LibVLC::init()
     // The application is meant to manage this. Also, using the builtin
     // inhibitor may cause problems on shutdown if VLC tries to uninhibit too
     // late in the application lifecycle.
+#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(4, 0, 0, 0))
+    args << "--disable-screensaver=0";
+#else
     args << "--no-disable-screensaver";
+#endif
     // Allow multiple starts (one gets to wonder whether that makes a difference).
 #if !defined(Q_OS_MAC) && (defined(Q_OS_WIN) || !defined(PHONON_NO_DBUS))
     args << "--no-one-instance";
