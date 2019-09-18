@@ -3,7 +3,7 @@
     Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>
     Copyright (C) 2009 Fathi Boudra <fabo@kde.org>
     Copyright (C) 2009-2011 vlc-phonon AUTHORS <kde-multimedia@kde.org>
-    Copyright (C) 2011-2012 Harald Sitter <sitter@kde.org>
+    Copyright (C) 2011-2019 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -21,8 +21,9 @@
 
 #include "videowidget.h"
 
-#include <QtGui/QPainter>
-#include <QtGui/QPaintEvent>
+#include <QGuiApplication>
+#include <QPainter>
+#include <QPaintEvent>
 
 #include <vlc/vlc.h>
 
@@ -232,7 +233,11 @@ void VideoWidget::handleAddToMedia(Media *media)
 #if defined(Q_OS_MAC)
         m_player->setNsObject(cocoaView());
 #elif defined(Q_OS_UNIX)
-        m_player->setXWindow(winId());
+        if (QGuiApplication::platformName().contains(QStringLiteral("xcb"), Qt::CaseInsensitive)) {
+            m_player->setXWindow(winId());
+        } else {
+            enableSurfacePainter();
+        }
 #elif defined(Q_OS_WIN)
         m_player->setHwnd((HWND)winId());
 #endif
@@ -412,10 +417,7 @@ void VideoWidget::updateVideoSize(bool hasVideo)
 void VideoWidget::setVisible(bool visible)
 {
     if (window() && window()->testAttribute(Qt::WA_DontShowOnScreen) && !m_surfacePainter) {
-        debug() << "SURFACE PAINTING";
-        m_surfacePainter = new SurfacePainter;
-        m_surfacePainter->widget = this;
-        m_surfacePainter->setCallbacks(m_player);
+        enableSurfacePainter();
     }
     QWidget::setVisible(visible);
 }
@@ -501,6 +503,18 @@ QImage VideoWidget::snapshot() const
         return m_player->snapshot();
     else
         return QImage();
+}
+
+void VideoWidget::enableSurfacePainter()
+{
+    if (m_surfacePainter) {
+        return;
+    }
+
+    debug() << "ENABLING SURFACE PAINTING";
+    m_surfacePainter = new SurfacePainter;
+    m_surfacePainter->widget = this;
+    m_surfacePainter->setCallbacks(m_player);
 }
 
 } // namespace VLC
