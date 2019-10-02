@@ -23,7 +23,7 @@
 
 #include <QApplication>
 #include <QIcon>
-#include <QLatin1Literal>
+#include <QLatin1String>
 #include <QMessageBox>
 #include <QtPlugin>
 #include <QVariant>
