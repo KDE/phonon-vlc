@@ -210,7 +210,7 @@ void MediaPlayer::setChapter(int chapter)
 
 QImage MediaPlayer::snapshot() const
 {
-    QTemporaryFile tempFile(QDir::tempPath() % QDir::separator() % QLatin1String("phonon-vlc-snapshot"));
+    QTemporaryFile tempFile(QDir::tempPath() % QDir::separator() % QLatin1Literal("phonon-vlc-snapshot"));
     tempFile.open();
 
     // This function is sync.

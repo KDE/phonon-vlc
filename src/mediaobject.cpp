@@ -335,16 +335,16 @@ void MediaObject::setSource(const MediaSource &source)
             error() << Q_FUNC_INFO << "the MediaSource::Disc doesn't specify which one (Phonon::NoDisc)";
             return;
         case Phonon::Cd:
-            loadMedia(QLatin1String("cdda://") % m_mediaSource.deviceName());
+            loadMedia(QLatin1Literal("cdda://") % m_mediaSource.deviceName());
             break;
         case Phonon::Dvd:
-            loadMedia(QLatin1String("dvd://") % m_mediaSource.deviceName());
+            loadMedia(QLatin1Literal("dvd://") % m_mediaSource.deviceName());
             break;
         case Phonon::Vcd:
-            loadMedia(QLatin1String("vcd://") % m_mediaSource.deviceName());
+            loadMedia(QLatin1Literal("vcd://") % m_mediaSource.deviceName());
             break;
         case Phonon::BluRay:
-            loadMedia(QLatin1String("bluray://") % m_mediaSource.deviceName());
+            loadMedia(QLatin1Literal("bluray://") % m_mediaSource.deviceName());
             break;
         }
         break;
@@ -362,7 +362,7 @@ void MediaObject::setSource(const MediaSource &source)
         deviceName = source.deviceAccessList().first().second;
 
         if (driverName == QByteArray("v4l2")) {
-            loadMedia(QLatin1String("v4l2://") % deviceName);
+            loadMedia(QLatin1Literal("v4l2://") % deviceName);
         } else if (driverName == QByteArray("alsa")) {
             /*
              * Replace "default" and "plughw" and "x-phonon" with "hw" for capture device names, because
@@ -381,9 +381,9 @@ void MediaObject::setSource(const MediaSource &source)
                 deviceName.replace(0, 8, "hw");
             }
 
-            loadMedia(QLatin1String("alsa://") % deviceName);
+            loadMedia(QLatin1Literal("alsa://") % deviceName);
         } else if (driverName == "screen") {
-            loadMedia(QLatin1String("screen://") % deviceName);
+            loadMedia(QLatin1Literal("screen://") % deviceName);
 
             // Set the isScreen flag needed to add extra options in playInternal
             m_isScreen = true;
