@@ -54,6 +54,7 @@ MediaObject::MediaObject(QObject *parent)
     qRegisterMetaType<QMultiMap<QString, QString> >("QMultiMap<QString, QString>");
 
     m_player = new MediaPlayer(this);
+    Q_ASSERT(m_player);
     if (!m_player->libvlc_media_player())
         error() << "libVLC:" << LibVLC::errorMessage();
 
