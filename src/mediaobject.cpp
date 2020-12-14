@@ -26,6 +26,8 @@
 #include <QtCore/QStringBuilder>
 #include <QtCore/QUrl>
 
+#include <phonon/pulsesupport.h>
+
 #include <vlc/libvlc_version.h>
 #include <vlc/vlc.h>
 
@@ -76,6 +78,17 @@ MediaObject::MediaObject(QObject *parent)
 MediaObject::~MediaObject()
 {
     unloadMedia();
+    // Shutdown the pulseaudio mainloop before the MediaPlayer gets destroyed
+    // (it is a child of the MO). There appears to be a peculiar race condition
+    // between the pa_thread_mainloop used by VLC and the pa_glib_mainloop used
+    // by Phonon's PulseSupport where for a very short time frame after the
+    // former was stopped and freed the latter can run and fall over
+    //   Invalid read from eventfd: Bad file descriptor
+    //   Code should not be reached at pulsecore/fdsem.c:157, function flush(). Aborting.
+    // Since we don't use PulseSupport since VLC 2.2 we can simply force a
+    // loop shutdown even when the application isn't about to terminate.
+    // The instance gets created again anyway.
+    PulseSupport::shutdown();
 }
 
 void MediaObject::resetMembers()
