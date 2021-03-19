@@ -51,7 +51,7 @@ public:
         QPainter painter(widget);
         // When using OpenGL for the QPaintEngine drawing the same QImage twice
         // does not actually result in a texture change for one reason or another.
-        // So we simply create new iamges for every event. This is plenty cheap
+        // So we simply create new images for every event. This is plenty cheap
         // as the QImage only points to the plane data (it can't even make it
         // properly shared as it does not know that the data belongs to a QBA).
         painter.drawImage(drawFrameRect(),
