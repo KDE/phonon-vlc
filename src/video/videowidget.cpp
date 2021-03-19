@@ -3,7 +3,7 @@
     Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>
     Copyright (C) 2009 Fathi Boudra <fabo@kde.org>
     Copyright (C) 2009-2011 vlc-phonon AUTHORS <kde-multimedia@kde.org>
-    Copyright (C) 2011-2019 Harald Sitter <sitter@kde.org>
+    Copyright (C) 2011-2021 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -48,6 +48,11 @@ public:
         // Plus VLC can actually skip frames as necessary.
         QMutexLocker lock(&m_mutex);
         Q_UNUSED(event);
+
+        if (m_frame.isNull()) {
+            return;
+        }
+
         QPainter painter(widget);
         // When using OpenGL for the QPaintEngine drawing the same QImage twice
         // does not actually result in a texture change for one reason or another.
@@ -90,6 +95,7 @@ private:
                                     unsigned *pitches,
                                     unsigned *lines)
     {
+        QMutexLocker lock(&m_mutex);
         qstrcpy(chroma, "RV32");
         unsigned bufferSize = setPitchAndLines(vlc_fourcc_GetChromaDescription(VLC_CODEC_RGB32),
                                                *width, *height,
