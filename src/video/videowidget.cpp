@@ -3,7 +3,7 @@
     Copyright (C) 2008 Lukas Durfina <lukas.durfina@gmail.com>
     Copyright (C) 2009 Fathi Boudra <fabo@kde.org>
     Copyright (C) 2009-2011 vlc-phonon AUTHORS <kde-multimedia@kde.org>
-    Copyright (C) 2011-2019 Harald Sitter <sitter@kde.org>
+    Copyright (C) 2011-2021 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -48,16 +48,20 @@ public:
         // Plus VLC can actually skip frames as necessary.
         QMutexLocker lock(&m_mutex);
         Q_UNUSED(event);
+
+        if (m_frame.isNull()) {
+            return;
+        }
+
         QPainter painter(widget);
         // When using OpenGL for the QPaintEngine drawing the same QImage twice
         // does not actually result in a texture change for one reason or another.
-        // So we simply create new iamges for every event. This is plenty cheap
+        // So we simply create new images for every event. This is plenty cheap
         // as the QImage only points to the plane data (it can't even make it
         // properly shared as it does not know that the data belongs to a QBA).
-        painter.drawImage(drawFrameRect(),
-                          QImage(reinterpret_cast<const uchar *>(m_plane.constData()),
-                                 m_frame.width(), m_frame.height(),
-                                 m_frame.bytesPerLine(), m_frame.format()));
+        // TODO: investigate if this is still necessary. This was added for gwenview, but with Qt 5.15 the problem
+        //   can't be produced.
+        painter.drawImage(drawFrameRect(), QImage(m_frame));
         event->accept();
     }
 
@@ -67,7 +71,7 @@ private:
     virtual void *lockCallback(void **planes)
     {
         m_mutex.lock();
-        planes[0] = (void *) m_plane.data();
+        planes[0] = (void *) m_frame.bits();
         return 0;
     }
 
@@ -90,21 +94,42 @@ private:
                                     unsigned *pitches,
                                     unsigned *lines)
     {
+        QMutexLocker lock(&m_mutex);
+        // Surface rendering is a fallback system used when no efficient rendering implementation is available.
+        // As such we only support RGB32 for simplicity reasons and this will almost always mean software scaling.
+        // And since scaling is unavoidable anyway we take the canonical frame size and then scale it on our end via
+        // QPainter, again, greater simplicity at likely no real extra cost since this is all super inefficient anyway.
+        // Also, since aspect ratio can be change mid-playback by the user, doing the scaling on our end means we
+        // don't need to restart the entire player to retrigger format calculation.
+        // With all that in mind we simply use the canonical size and feed VLC the QImage's pitch and lines as
+        // effectively the VLC vout is the QImage so its constraints matter.
+
+        // per https://wiki.videolan.org/Hacker_Guide/Video_Filters/#Pitch.2C_visible_pitch.2C_planes_et_al.
+        // it would seem that we can use either real or visible pitches and lines as VLC generally will iterate the
+        // smallest value when moving data between two entities. i.e. since QImage will at most paint NxM anyway,
+        // we may just go with its values as calculating the real pitch/line of the VLC picture_t for RV32 wouldn't
+        // change the maximum pitch/lines we can paint on the output side.
+
         qstrcpy(chroma, "RV32");
-        unsigned bufferSize = setPitchAndLines(vlc_fourcc_GetChromaDescription(VLC_CODEC_RGB32),
-                                               *width, *height,
-                                               pitches, lines);
-        m_plane.resize(bufferSize);
-        m_frame = QImage(reinterpret_cast<const uchar *>(m_plane.constData()),
-                         *width, *height, pitches[0], QImage::Format_RGB32);
-        return bufferSize;
+        m_frame = QImage(*width, *height, QImage::Format_RGB32);
+        Q_ASSERT(!m_frame.isNull()); // ctor may construct null if allocation fails
+        m_frame.fill(0);
+        pitches[0] = m_frame.bytesPerLine();
+        lines[0] = m_frame.sizeInBytes() / m_frame.bytesPerLine();
+
+        return  m_frame.sizeInBytes();
     }
 
     virtual void formatCleanUpCallback()
     {
         // Lazy delete the object to avoid callbacks from VLC after deletion.
-        if (!widget)
+        if (!widget) {
+            // The widget member is set to null by the widget destructor, so when this condition is true the
+            // widget had already been destroyed and we can't possibly receive a paint event anymore, meaning
+            // we need no lock here. If it were any other way we'd have trouble with synchronizing deletion
+            // without deleting a locked mutex.
             delete this;
+        }
     }
 
     QRect scaleToAspect(QRect srcRect, int w, int h) const
@@ -165,9 +190,8 @@ private:
         return drawFrameRect;
     }
 
+    // Could ReadWriteLock two frames so VLC can write while we paint.
     QImage m_frame;
-    // We need an idependent plane as QImage needs to be forced to use the right stride/pitch.
-    QByteArray m_plane;
     QMutex m_mutex;
 };
 
