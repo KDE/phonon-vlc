@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2010-2012 Harald Sitter <apachelogger@ubuntu.com>
+    Copyright (C) 2010-2021 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -131,24 +131,24 @@ static VideoFrame2::Format fourccToFormat(const char *fourcc)
         return VideoFrame2::Format_Invalid;
 }
 
-static const vlc_chroma_description_t *setFormat(VideoFrame2::Format format, char **chroma)
+static uint32_t setFormat(VideoFrame2::Format format, char **chroma)
 {
     switch (format) {
     case VideoFrame2::Format_Invalid:
-        *chroma = 0;
+        *chroma = nullptr;
         return 0;
     case VideoFrame2::Format_RGB32:
         qstrcpy(*chroma, "RV32");
-        return vlc_fourcc_GetChromaDescription(VLC_CODEC_RGB32);
+        return VLC_CODEC_RGB32;
     case VideoFrame2::Format_RGB888:
         qstrcpy(*chroma, "RV24");
-        return vlc_fourcc_GetChromaDescription(VLC_CODEC_RGB24);
+        return VLC_CODEC_RGB24;
     case VideoFrame2::Format_YV12:
         qstrcpy(*chroma, "YV12");
-        return vlc_fourcc_GetChromaDescription(VLC_CODEC_YV12);
+        return VLC_CODEC_YV12;
     case VideoFrame2::Format_YUY2:
         qstrcpy(*chroma, "YUY2");
-        return vlc_fourcc_GetChromaDescription(VLC_CODEC_YUYV);
+        return VLC_CODEC_YUYV;
     }
     return 0;
 }
@@ -162,27 +162,27 @@ unsigned VideoDataOutput::formatCallback(char *chroma,
     m_frame.width = *width;
     m_frame.height = *height;
 
-    const vlc_chroma_description_t *chromaDesc = 0;
+    uint32_t fourcc = 0;
 
     QSet<VideoFrame2::Format> allowedFormats = m_frontend->allowedFormats();
     VideoFrame2::Format suggestedFormat = fourccToFormat(chroma);
     if (suggestedFormat != VideoFrame2::Format_Invalid
             && allowedFormats.contains(suggestedFormat)) { // Use suggested
-        chromaDesc = setFormat(suggestedFormat, &chroma);
+        fourcc = setFormat(suggestedFormat, &chroma);
         m_frame.format = suggestedFormat;
     } else { // Pick first and use that
         foreach (const VideoFrame2::Format &format, allowedFormats) {
-            chromaDesc = setFormat(format, &chroma);
-            if (chroma) {
+            fourcc = setFormat(format, &chroma);
+            if (fourcc > 0) {
                 m_frame.format = format;
                 break;
             }
         }
     }
 
-    Q_ASSERT(chromaDesc);
+    Q_ASSERT(fourcc > 0);
 
-    unsigned int bufferSize = setPitchAndLines(chromaDesc, *width, *height, pitches, lines);
+    unsigned int bufferSize = setPitchAndLines(fourcc, *width, *height, pitches, lines);
 
     m_frame.data0.resize(pitches[0] * lines[0]);
     m_frame.data1.resize(pitches[1] * lines[1]);

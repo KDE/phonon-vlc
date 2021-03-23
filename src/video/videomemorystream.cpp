@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012 Harald Sitter <sitter@kde.org>
+    Copyright (C) 2012-2021 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -17,7 +17,10 @@
 
 #include "videomemorystream.h"
 
+#include <vlc/plugins/vlc_picture.h>
+
 #include "mediaplayer.h"
+#include "utils/debug.h"
 
 namespace Phonon {
 namespace VLC {
@@ -34,58 +37,20 @@ VideoMemoryStream::~VideoMemoryStream()
 {
 }
 
-static inline qint64 gcd(qint64 a, qint64 b)
-{
-    while( b )
-    {
-        qint64 c = a % b;
-        a = b;
-        b = c;
-    }
-    return a;
-}
-
-static int lcm(int a, int b)
-{
-    return a * b / GCD( a, b );
-}
-
-unsigned VideoMemoryStream::setPitchAndLines(const vlc_chroma_description_t *desc,
+unsigned VideoMemoryStream::setPitchAndLines(uint32_t fourcc,
                                              unsigned width, unsigned height,
-                                             unsigned *pitches, unsigned *lines,
-                                             unsigned *visiblePitches, unsigned *visibleLines)
+                                             unsigned *pitches, unsigned *lines)
 {
-    // Mostly taken from vlc/src/misc/picture.c
-    // Simple alignment would be an option but I trust the VLC guys they know what they are doing.
-    int i_modulo_w = 1;
-    int i_modulo_h = 1;
-    unsigned int i_ratio_h  = 1;
-    for( unsigned i = 0; i < desc->plane_count; i++ )
-    {
-        i_modulo_w = lcm( i_modulo_w, 8 * desc->p[i].w.den );
-        i_modulo_h = lcm( i_modulo_h, 8 * desc->p[i].h.den );
-        if( i_ratio_h < desc->p[i].h.den )
-            i_ratio_h = desc->p[i].h.den;
+    // Fairly unclear what the last two arguments do, they seem to make no diff for the planes though, so I guess they can be anything in our case.
+    const auto picture = picture_New(fourcc, width, height, 0, 1);
 
-    }
-    i_modulo_h = lcm( i_modulo_h, 32 );
+    unsigned bufferSize = 0;
 
-    const int i_width_aligned  = ( width  + i_modulo_w - 1 ) / i_modulo_w * i_modulo_w;
-    const int i_height_aligned = ( height + i_modulo_h - 1 ) / i_modulo_h * i_modulo_h;
-    const int i_height_extra   = 2 * i_ratio_h; /* This one is a hack for some ASM functions */
-
-    unsigned int bufferSize = 0;
-    for(unsigned i = 0; i < desc->plane_count; ++i)
-    {
-        pitches[i] = i_width_aligned * desc->p[i].w.num / desc->p[i].w.den * desc->pixel_size;
-        if (visiblePitches)
-            visiblePitches[i] = width * desc->p[i].w.num / desc->p[i].w.den * desc->pixel_size;
-
-        lines[i] = (i_height_aligned + i_height_extra ) * desc->p[i].h.num / desc->p[i].h.den;
-        if (visibleLines)
-            visibleLines[i] = height * desc->p[i].h.num / desc->p[i].h.den;
-
-        bufferSize += pitches[i] * lines[i];
+    for (auto i = 0; i < picture->i_planes; ++i) {
+        const auto plane = picture->p[i];
+        pitches[i] = plane.i_visible_pitch;
+        lines[i] = plane.i_visible_lines;
+        bufferSize += (pitches[i] * lines[i]);
     }
 
     return bufferSize;

@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012 Harald Sitter <sitter@kde.org>
+    Copyright (C) 2012-2021 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -45,10 +45,9 @@ public:
     /**
      * @returns overall buffersize needed
      */
-    static unsigned setPitchAndLines(const vlc_chroma_description_t *chromaDescription,
+    static unsigned setPitchAndLines(uint32_t fourcc,
                                      unsigned width, unsigned height,
-                                     unsigned *pitches, unsigned *lines,
-                                     unsigned *visiblePitches = 0, unsigned *visibleLines = 0);
+                                     unsigned *pitches, unsigned *lines);
 
     void setCallbacks(Phonon::VLC::MediaPlayer *player);
     void unsetCallbacks(Phonon::VLC::MediaPlayer *player);
