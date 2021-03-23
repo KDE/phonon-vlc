@@ -100,7 +100,25 @@ unsigned VideoMemoryStream::formatCallbackInternal(void **opaque, char *chroma,
                                                    unsigned *width, unsigned *height,
                                                    unsigned *pitches, unsigned *lines)
 {
-    return P_THIS->formatCallback(chroma, width, height, pitches, lines);
+    auto ret = P_THIS->formatCallback(chroma, width, height, pitches, lines);
+
+    if (Debug::debugEnabled()) {
+        QStringList pitchValues;
+        QStringList lineValues;
+        unsigned *pitch = pitches;
+        unsigned *line = lines;
+        for (; *pitch != 0; ++pitch) {
+            Q_ASSERT(lines != 0); // pitch and line tables ought to be the same size
+            pitchValues << QString::number(*pitch);
+            lineValues << QString::number(*line);
+        }
+        const QString separator = QStringLiteral(", ");
+        debug() << "vmem-format[chroma:" << chroma << "w:" << *width << "h:" << *height
+                << "pitches:" << pitchValues.join(separator) << "lines:" << lineValues.join(separator)
+                << "size:" << ret << "]";
+    }
+
+    return ret;
 }
 
 void VideoMemoryStream::formatCleanUpCallbackInternal(void *opaque)
