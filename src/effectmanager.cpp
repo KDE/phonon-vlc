@@ -24,9 +24,7 @@
 #include <vlc/vlc.h>
 #include <vlc/libvlc_version.h>
 
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 2, 0, 0))
 #include "equalizereffect.h"
-#endif
 
 #include "utils/debug.h"
 #include "utils/libvlc.h"
@@ -80,12 +78,7 @@ const QList<EffectInfo> EffectManager::effects() const
 QObject *EffectManager::createEffect(int id, QObject *parent)
 {
     Q_UNUSED(id);
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 2, 0, 0))
     return new EqualizerEffect(parent);
-#else
-    Q_UNUSED(parent);
-#endif
-    return 0;
 }
 
 void EffectManager::updateEffects()
@@ -99,7 +92,6 @@ void EffectManager::updateEffects()
     // Generic effect activation etc is entirely kaput and equalizer has specific
     // API anyway, so we simply manually insert it \o/
 
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 2, 0, 0))
     const QString eqName = QString("equalizer-%1bands").arg(QString::number(libvlc_audio_equalizer_get_band_count()));
     m_audioEffectList.append(EffectInfo(
                                  eqName,
@@ -107,7 +99,6 @@ void EffectManager::updateEffects()
                                  QString(""),
                                  0,
                                  EffectInfo::AudioEffect));
-#endif
 
 //    int moduleCount = -1;
 //    VLC_FOREACH_MODULE(module, libvlc_audio_filter_list_get(libvlc)) {

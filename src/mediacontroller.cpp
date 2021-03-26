@@ -252,12 +252,7 @@ void MediaController::refreshAudioChannels()
 
     int idCount = 0;
     VLC_FOREACH_TRACK(it, m_player->audioTrackDescription()) {
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(3, 0, 0, 0))
         idCount= it->i_id;
-#else
-        // LibVLC's internal ID is broken, so we simply count up as internally
-        // the setter will simply go by position in list anyway.
-#endif
         GlobalAudioChannels::instance()->add(this, idCount, QString::fromUtf8(it->psz_name), "");
         if (idCount == currentChannelId) {
 #ifdef __GNUC__
@@ -439,18 +434,11 @@ void MediaController::refreshTitles()
 {
     m_availableTitles = 0;
 
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(3, 0, 0, 0))
     SharedTitleDescriptions list = m_player->titleDescription();
     for (unsigned int i = 0; i < list->size(); ++i) {
         ++m_availableTitles;
         emit availableTitlesChanged(m_availableTitles);
     }
-#else
-    VLC_FOREACH_TRACK(it, m_player->titleDescription()) {
-        ++m_availableTitles;
-        emit availableTitlesChanged(m_availableTitles);
-    }
-#endif
 }
 
 // -------------------------------- Chapter --------------------------------- //
@@ -476,18 +464,11 @@ void MediaController::refreshChapters(int title)
     m_availableChapters = 0;
 
     // Get the description of available chapters for specific title
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(3, 0, 0, 0))
     SharedChapterDescriptions list = m_player->videoChapterDescription(title);
     for (unsigned int i = 0; i < list->size(); ++i) {
         ++m_availableChapters;
         emit availableChaptersChanged(m_availableChapters);
     }
-#else
-    VLC_FOREACH_TRACK(it, m_player->videoChapterDescription(title)) {
-        ++m_availableChapters;
-        emit availableChaptersChanged(m_availableChapters);
-    }
-#endif
 }
 
 // --------------------------------- Angle ---------------------------------- //

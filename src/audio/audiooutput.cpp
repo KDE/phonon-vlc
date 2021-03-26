@@ -46,7 +46,6 @@ AudioOutput::~AudioOutput()
 {
 }
 
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(3, 0, 0, 0))
 static libvlc_media_player_role categoryToRole(Category category)
 {
     switch(category) {
@@ -67,7 +66,6 @@ static libvlc_media_player_role categoryToRole(Category category)
     }
     return libvlc_role_None;
 }
-#endif
 
 void AudioOutput::handleConnectToMediaObject(MediaObject *mediaObject)
 {
@@ -81,9 +79,7 @@ void AudioOutput::handleConnectToMediaObject(MediaObject *mediaObject)
                 this, SLOT(onVolumeChanged(float)));
         applyVolume();
     }
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(3, 0, 0, 0))
     libvlc_media_player_set_role(*m_player, categoryToRole(m_category));
-#endif
 }
 
 void AudioOutput::handleAddToMedia(Media *media)
@@ -107,10 +103,6 @@ void AudioOutput::setVolume(qreal volume)
         m_volume = volume;
         m_explicitVolume = true;
         applyVolume();
-
-#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 2, 2, 0))
-        emit volumeChanged(m_volume);
-#endif
     }
 }
 
@@ -174,7 +166,7 @@ void AudioOutput::setStreamUuid(QString uuid)
 void AudioOutput::setOutputDeviceImplementation()
 {
     Q_ASSERT(m_player);
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 2, 0, 0))
+
     // VLC 2.2 has the PulseSupport overrides always disabled because of
     // incompatibility. Also see backend.cpp for more detals.
     // To get access to the correct activity state we need to temporarily
@@ -183,9 +175,7 @@ void AudioOutput::setOutputDeviceImplementation()
     PulseSupport::getInstance()->enable(true);
     const bool pulseActive = PulseSupport::getInstance()->isActive();
     PulseSupport::getInstance()->enable(false);
-#else
-    const bool pulseActive = PulseSupport::getInstance()->isActive();
-#endif
+
     if (pulseActive) {
         m_player->setAudioOutput("pulse");
         debug() << "Setting aout to pulse";
@@ -224,11 +214,6 @@ void AudioOutput::applyVolume()
         const int preVolume = m_player->audioVolume();
         const int newVolume = m_volume * 100;
         m_player->setAudioVolume(newVolume);
-
-#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 2, 2, 0))
-        onMutedChanged(m_volume == 0.0);
-        onVolumeChanged(newVolume);
-#endif
 
         debug() << "Volume changed from" << preVolume << "to" << newVolume;
     }

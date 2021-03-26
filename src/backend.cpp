@@ -33,7 +33,6 @@
 #include <vlc/libvlc_version.h>
 
 #include "audio/audiooutput.h"
-#include "audio/audiodataoutput.h"
 #include "audio/volumefadereffect.h"
 #include "config.h"
 #include "devicemanager.h"
@@ -138,18 +137,8 @@ Backend::Backend(QObject *parent, const QVariantList &)
         fatal() << "Phonon::VLC::vlcInit: Failed to initialize VLC";
     }
 
-#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 2, 2, 0))
-    // VLC 2.2 changed the stream creation order around internally which breaks
-    // the Pulseaudio hijacking. Since VLC upstream doesn't feel like giving us
-    // any more property control we now consider this feature unsupported. As
-    // such whatever properties VLC sets will be what pulse knows about us.
-
-    // Initialise PulseAudio support
-    PulseSupport *pulse = PulseSupport::getInstance();
-    pulse->enable(true);
-    connect(pulse, SIGNAL(objectDescriptionChanged(ObjectDescriptionType)),
-            SIGNAL(objectDescriptionChanged(ObjectDescriptionType)));
-#endif
+    // Since VLC 2.2 PulseSupport is disabled since the "overlay" it implements clashes substantially with libvlc
+    // internals. Instead VLC has full control.
 
     m_deviceManager = new DeviceManager(this);
     m_effectManager = new EffectManager(this);
@@ -176,12 +165,11 @@ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const
         return new MediaObject(parent);
     case AudioOutputClass:
         return new AudioOutput(parent);
-#if (LIBVLC_VERSION_INT < LIBVLC_VERSION(2, 0, 0, 0))
-    // Broken >= 2.0
-    // https://trac.videolan.org/vlc/ticket/6992
     case AudioDataOutputClass:
-        return new AudioDataOutput(parent);
-#endif
+        // With VLC we can't have actual output and at the same time stream
+        // the data to memory. We therefore can't support ADO.
+        // https://trac.videolan.org/vlc/ticket/6992
+        return nullptr;
 #ifdef PHONON_EXPERIMENTAL
     case VideoDataOutputClass:
         return new VideoDataOutput(parent);

@@ -62,13 +62,11 @@ private:
     unsigned int m_size;
 };
 
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(3, 0, 0, 0))
 typedef Descriptions<libvlc_title_description_t> TitleDescriptions;
 typedef QSharedPointer<const TitleDescriptions> SharedTitleDescriptions;
 
 typedef Descriptions<libvlc_chapter_description_t> ChapterDescriptions;
 typedef QSharedPointer<ChapterDescriptions> SharedChapterDescriptions;
-#endif
 
 class MediaPlayer : public QObject
 {
@@ -151,7 +149,6 @@ public:
     int titleCount() const
     { return libvlc_media_player_get_title_count(m_player); }
 
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(3, 0, 0, 0))
     SharedTitleDescriptions titleDescription() const
     {
         libvlc_title_description_t **data;
@@ -163,17 +160,12 @@ public:
                         &libvlc_title_descriptions_release)
                     );
     }
-#else // deprecated
-    libvlc_track_description_t *titleDescription() const
-    { return libvlc_video_get_title_description(m_player); }
-#endif
 
     void setTitle(int title);
 
     int videoChapterCount() const
     { return libvlc_media_player_get_chapter_count(m_player); }
 
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(3, 0, 0, 0))
     SharedChapterDescriptions videoChapterDescription(int title) const
     {
         libvlc_chapter_description_t **data;
@@ -185,10 +177,6 @@ public:
                         &libvlc_chapter_descriptions_release)
                     );
     }
-#else // deprecated
-    libvlc_track_description_t *videoChapterDescription(int title) const
-    { return libvlc_video_get_chapter_description(m_player, title); }
-#endif
 
     void setChapter(int chapter);
 
@@ -239,9 +227,7 @@ public:
 
     void setCdTrack(int track);
 
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 2, 0, 0))
     void setEqualizer(libvlc_equalizer_t *equalizer);
-#endif
 
 Q_SIGNALS:
     void lengthChanged(qint64 length);

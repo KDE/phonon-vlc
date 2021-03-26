@@ -42,7 +42,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ECM_MODULE_PATH})
 include(MimeTypes.cmake)
 
 # LibVLC
-find_package(LIBVLC 2.1.0)
+find_package(LIBVLC 3.0.0)
 set_package_properties(LIBVLC PROPERTIES
     TYPE REQUIRED
     DESCRIPTION "VLC C library"

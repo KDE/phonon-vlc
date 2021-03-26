@@ -26,7 +26,6 @@ add_definitions(${BACKEND_VERSION_DEFINE}) # also automatically used for moc
 
 set(phonon_vlc_SRCS
     audio/audiooutput.cpp
-    audio/audiodataoutput.cpp
     audio/volumefadereffect.cpp
     backend.cpp
     devicemanager.cpp
@@ -45,7 +44,6 @@ set(phonon_vlc_SRCS
     utils/libvlc.cpp
 
     audio/audiooutput.h
-    audio/audiodataoutput.h
     audio/volumefadereffect.h
     backend.h
     devicemanager.h
@@ -64,9 +62,7 @@ set(phonon_vlc_SRCS
     utils/libvlc.h
 )
 
-if(NOT ${LIBVLC_VERSION} VERSION_LESS "2.2.0")
-    list(APPEND phonon_vlc_SRCS equalizereffect.cpp equalizereffect.h)
-endif()
+list(APPEND phonon_vlc_SRCS equalizereffect.cpp)
 
 if(PHONON_EXPERIMENTAL)
     list(APPEND phonon_vlc_SRCS video/videodataoutput.cpp video/videodataoutput.h)

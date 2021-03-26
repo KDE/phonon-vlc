@@ -242,7 +242,6 @@ void DeviceManager::updateDeviceList()
 
         // FIXME: there is a rather ungodly amount of code duplication going
         //        on here.
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 2, 0, 0))
         bool hasDevices = false;
         VLC_FOREACH(audio_output_device,
                     device,
@@ -268,35 +267,6 @@ void DeviceManager::updateDeviceList()
             info.setCapabilities(DeviceInfo::AudioOutput);
             newDeviceList.append(info);
         }
-#else
-        const int deviceCount = libvlc_audio_output_device_count(pvlc_libvlc, soundSystem);
-
-        for (int i = 0; i < deviceCount; i++) {
-            VString idName(libvlc_audio_output_device_id(libvlc, soundSystem, i));
-            VString longName(libvlc_audio_output_device_longname(pvlc_libvlc, soundSystem, i));
-
-            debug() << "found device" << soundSystem << idName << longName;
-
-            DeviceInfo info(longName, true);
-            info.addAccess(DeviceAccess(soundSystem, idName));
-            info.setCapabilities(DeviceInfo::AudioOutput);
-            newDeviceList.append(info);
-        }
-
-        // libVLC gives no devices for some sound systems, like OSS
-        if (deviceCount == 0) {
-            debug() << "manually injecting sound system" << soundSystem;
-            // NOTE: Do not mark manually injected devices as advanced.
-            //       libphonon filters advanced devices from the default
-            //       selection which on systems such as OSX or Windows can
-            //       lead to an empty device list as the injected device is
-            //       the only available one.
-            DeviceInfo info(QString::fromUtf8(soundSystem), false);
-            info.addAccess(DeviceAccess(soundSystem, ""));
-            info.setCapabilities(DeviceInfo::AudioOutput);
-            newDeviceList.append(info);
-        }
-#endif
     }
 
     /*

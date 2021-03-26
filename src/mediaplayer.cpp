@@ -79,14 +79,12 @@ MediaPlayer::MediaPlayer(QObject *parent)
         libvlc_MediaPlayerTitleChanged,
         libvlc_MediaPlayerSnapshotTaken,
         libvlc_MediaPlayerLengthChanged,
-        libvlc_MediaPlayerVout
-    #if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 2, 2, 0))
-        , libvlc_MediaPlayerCorked,
+        libvlc_MediaPlayerVout,
+        libvlc_MediaPlayerCorked,
         libvlc_MediaPlayerUncorked,
         libvlc_MediaPlayerMuted,
         libvlc_MediaPlayerUnmuted,
         libvlc_MediaPlayerAudioVolume
-    #endif
     };
     const int eventCount = sizeof(events) / sizeof(*events);
     for (int i = 0; i < eventCount; ++i) {
@@ -188,14 +186,10 @@ bool MediaPlayer::setSubtitle(int subtitle)
 
 bool MediaPlayer::setSubtitle(const QString &file)
 {
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(3, 0, 0, 0))
     return libvlc_media_player_add_slave(m_player,
                                          libvlc_media_slave_type_subtitle,
                                          file.toUtf8().data(),
                                          true) == 0;
-#else
-    return libvlc_video_set_subtitle_file(m_player, file.toUtf8().data()) == 1;
-#endif
 }
 
 void MediaPlayer::setTitle(int title)
@@ -303,7 +297,6 @@ void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
         break;
     case libvlc_MediaPlayerMediaChanged:
         break;
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 2, 2, 0))
     case libvlc_MediaPlayerCorked:
         that->pause();
         break;
@@ -328,7 +321,6 @@ void MediaPlayer::event_cb(const libvlc_event_t *event, void *opaque)
                     Qt::QueuedConnection,
                     Q_ARG(float, event->u.media_player_audio_volume.volume));
         break;
-#endif
     case libvlc_MediaPlayerForward:
     case libvlc_MediaPlayerBackward:
     case libvlc_MediaPlayerPositionChanged:
@@ -420,12 +412,10 @@ void MediaPlayer::setCdTrack(int track)
     libvlc_media_player_play(m_player);
 }
 
-#if (LIBVLC_VERSION_INT >= LIBVLC_VERSION(2, 2, 0, 0))
 void MediaPlayer::setEqualizer(libvlc_equalizer_t *equalizer)
 {
     libvlc_media_player_set_equalizer(m_player, equalizer);
 }
-#endif
 
 } // namespace VLC
 } // namespace Phonon
