@@ -4,7 +4,7 @@
     Copyright (C) 2009 Fathi Boudra <fabo@kde.org>
     Copyright (C) 2010 Ben Cooksley <sourtooth@gmail.com>
     Copyright (C) 2009-2011 vlc-phonon AUTHORS <kde-multimedia@kde.org>
-    Copyright (C) 2010-2015 Harald Sitter <sitter@kde.org>
+    Copyright (C) 2010-2021 Harald Sitter <sitter@kde.org>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -109,6 +109,10 @@ void MediaObject::resetMembers()
     m_stateAfterBuffering = ErrorState;
 
     resetMediaController();
+
+    // Forcefully shutdown plusesupport to prevent crashing between the PS PA glib mainloop
+    // and the VLC PA threaded mainloop. See destructor.
+    PulseSupport::shutdown();
 }
 
 void MediaObject::play()
