@@ -27,7 +27,7 @@ class Media;
 class MediaObject;
 class MediaPlayer;
 
-/** \brief The sink node is essentialy an output for a media object
+/** \brief The sink node is essentially an output for a media object
  *
  * This class handles connections for the sink to a media object. It remembers
  * the media object and the libVLC media player associated with it.

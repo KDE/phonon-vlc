@@ -196,7 +196,7 @@ private:
      * Converts a Phonon range to a VLC value range.
      *
      * A Phonon range is always a qreal between -1.0 and 1.0, a VLC range however
-     * can be any between 0 and 360. This functon maps the Phonon value to an
+     * can be any between 0 and 360. This function maps the Phonon value to an
      * appropriate value within a specified target range.
      *
      * \param phononValue the incoming Phonon specific value, should be -1.0:1.0

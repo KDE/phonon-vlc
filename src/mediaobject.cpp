@@ -243,7 +243,7 @@ void MediaObject::loadMedia(const QByteArray &mrl)
     debug() << "loading encoded:" << m_mrl;
 
     // We do not have a loading state generally speaking, usually the backend
-    // is exepected to go to loading state and then at some point reach stopped,
+    // is expected to go to loading state and then at some point reach stopped,
     // at which point playback can be started.
     // See state enum documentation for more information.
     changeState(Phonon::StoppedState);
@@ -314,7 +314,7 @@ void MediaObject::setSource(const MediaSource &source)
         m_streamReader->unlock();
         delete m_streamReader;
         m_streamReader = 0;
-        // For streamreaders we exchanage the player's seekability with the
+        // For streamreaders we exchange the player's seekability with the
         // reader's so here we change it back.
         // Note: the reader auto-disconnects due to destruction.
         connect(m_player, SIGNAL(seekableChanged(bool)), this, SIGNAL(seekableChanged(bool)));

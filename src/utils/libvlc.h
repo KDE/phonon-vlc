@@ -68,7 +68,7 @@ struct libvlc_instance_t;
  * an instance of libvlc. This instance is necessary to call various libvlc
  * functions (such as creating a new mediaplayer instance).
  *
- * To initialize the object call init(), this will create the actualy LibVLC
+ * To initialize the object call init(), this will create the actually LibVLC
  * instance and then try to initialize the libvlc instance itself.
  * init() returns false in case the libvlc instance could not be created.
  *

@@ -231,7 +231,7 @@ private slots:
      * Checks when the tick(), prefinishMarkReached(), aboutToFinish() signals need to
      * be emitted and emits them if necessary.
      *
-     * \param currentTime The current play time for the media, in miliseconds.
+     * \param currentTime The current play time for the media, in milliseconds.
      */
     void timeChanged(qint64 time);
     void emitTick(qint64 time);
