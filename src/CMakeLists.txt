@@ -69,14 +69,14 @@ target_include_directories(phonon_vlc
 )
 
 target_link_libraries(phonon_vlc
-    Phonon::phonon4qt5
-    Qt5::Core
-    Qt5::Widgets
+    Phonon::phonon4qt${QT_MAJOR_VERSION}
+    Qt::Core
+    Qt::Widgets
     LibVLC::Core
     LibVLC::LibVLC
 )
 if(PHONON_EXPERIMENTAL)
-    target_link_libraries(phonon_vlc Phonon::phonon4qt5experimental)
+    target_link_libraries(phonon_vlc Phonon::phonon4qt${QT_MAJOR_VERSION}experimental)
 endif()
 
 install(TARGETS phonon_vlc DESTINATION ${PHONON_BACKEND_DIR})

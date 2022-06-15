@@ -6,7 +6,8 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(FeatureSummary)
 
 # ECM
-find_package(ECM 5.60 NO_MODULE)
+find_package(ECM 5.90 NO_MODULE)
+set(KDE_COMPILERSETTINGS_LEVEL "5.82")
 set_package_properties(ECM PROPERTIES
     TYPE REQUIRED
     DESCRIPTION "Extra CMake Modules"
@@ -20,18 +21,18 @@ include(KDECompilerSettings)
 include(ECMSetupVersion)
 
 # Phonon
-find_package(Phonon4Qt5 4.10.60 NO_MODULE)
-set_package_properties(Phonon4Qt5 PROPERTIES
+find_package(Phonon4Qt${QT_MAJOR_VERSION} 4.10.60 NO_MODULE)
+set_package_properties(Phonon4Qt${QT_MAJOR_VERSION} PROPERTIES
     TYPE REQUIRED
     DESCRIPTION "Phonon core library"
     URL "https://api.kde.org/phonon/html/index.html")
 
-find_package(Phonon4Qt5Experimental 4.10.60 NO_MODULE)
-set_package_properties(Phonon4Qt5Experimental PROPERTIES
+find_package(Phonon4Qt${QT_MAJOR_VERSION}Experimental 4.10.60 NO_MODULE)
+set_package_properties(Phonon4Qt${QT_MAJOR_VERSION}Experimental PROPERTIES
     TYPE OPTIONAL
     DESCRIPTION "Phonon experimental library"
     URL "https://api.kde.org/phonon/html/index.html")
-if(Phonon4Qt5Experimental_FOUND)
+if(Phonon4Qt${QT_MAJOR_VERSION}Experimental_FOUND)
     set(PHONON_EXPERIMENTAL TRUE)
 endif()
 
