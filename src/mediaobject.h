@@ -91,25 +91,25 @@ public:
      * If the current state is paused, it resumes playing. Else, the playback
      * is commenced.
      */
-    void play();
+    void play() override;
 
     /// Pauses the playback for the media player.
-    void pause();
+    void pause() override;
 
     /// Sets the next media source to an empty one and stops playback.
-    void stop();
+    void stop() override;
 
     /// \returns \c true when there is a video available, \c false otherwise
-    bool hasVideo() const;
+    bool hasVideo() const override;
 
     /// \returns \c true when the MediaObject is seekable, \c false otherwise
-    bool isSeekable() const;
+    bool isSeekable() const override;
 
     /// \returns total time (length, duration) of the current MediaSource (-1 if unknown)
-    qint64 totalTime() const;
+    qint64 totalTime() const override;
 
     /// \returns An error message with the last libVLC error.
-    QString errorString() const;
+    QString errorString() const override;
 
     /**
      * Adds a sink for this media object. During playInternal(), all the sinks
@@ -127,35 +127,35 @@ public:
      * Pushes a seek command to the SeekStack for this media object. The SeekStack then
      * calls seekInternal() when it's popped.
      */
-    void seek(qint64 milliseconds);
+    void seek(qint64 milliseconds) override;
 
     /**
      * \return The interval between successive tick() signals. If set to 0, the emission
      * of these signals is disabled.
      */
-    qint32 tickInterval() const;
+    qint32 tickInterval() const override;
 
     /**
      * Sets the interval between successive tick() signals. If set to 0, it disables the
      * emission of these signals.
      */
-    void setTickInterval(qint32 tickInterval);
+    void setTickInterval(qint32 tickInterval) override;
 
     /**
      * \return The current time of the media, depending on the current state.
      * If the current state is stopped or loading, 0 is returned.
      * If the current state is error or unknown, -1 is returned.
      */
-    qint64 currentTime() const;
+    qint64 currentTime() const override;
 
     /// \return The current state for this media object.
-    Phonon::State state() const;
+    Phonon::State state() const override;
 
     /// All errors are categorized as normal errors.
-    Phonon::ErrorType errorType() const;
+    Phonon::ErrorType errorType() const override;
 
     /// \return The current media source for this media object.
-    MediaSource source() const;
+    MediaSource source() const override;
 
     /**
      * Sets the current media source for this media object. Depending on the source type,

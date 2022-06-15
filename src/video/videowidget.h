@@ -75,16 +75,16 @@ public:
      * \param mediaObject What media object to connect to
      * \reimp
      */
-    void handleConnectToMediaObject(MediaObject *mediaObject);
+    void handleConnectToMediaObject(MediaObject *mediaObject) override;
     /** \reimp */
-    void handleDisconnectFromMediaObject(MediaObject *mediaObject);
+    void handleDisconnectFromMediaObject(MediaObject *mediaObject) override;
     /** \reimp */
-    void handleAddToMedia(Media *media);
+    void handleAddToMedia(Media *media) override;
 
     /**
      * \return The aspect ratio previously set for the video widget
      */
-    Phonon::VideoWidget::AspectRatio aspectRatio() const;
+    Phonon::VideoWidget::AspectRatio aspectRatio() const override;
 
     /**
      * Set the aspect ratio of the video.
@@ -95,7 +95,7 @@ public:
     /**
      * \return The scale mode previously set for the video widget
      */
-    Phonon::VideoWidget::ScaleMode scaleMode() const;
+    Phonon::VideoWidget::ScaleMode scaleMode() const override;
 
     /**
      * Set how the video is scaled, keeping the aspect ratio into account when the video is resized.
@@ -104,59 +104,59 @@ public:
      * \li Phonon::VideoWidget::FitInView - the video will be fitted to fill the view keeping aspect ratio
      * \li Phonon::VideoWidget::ScaleAndCrop - the video is scaled
      */
-    void setScaleMode(Phonon::VideoWidget::ScaleMode scale);
+    void setScaleMode(Phonon::VideoWidget::ScaleMode scale) override;
 
     /**
      * \return The brightness previously set for the video widget
      */
-    qreal brightness() const;
+    qreal brightness() const override;
 
     /**
      * Set the brightness of the video
      */
-    Q_INVOKABLE void setBrightness(qreal brightness);
+    Q_INVOKABLE void setBrightness(qreal brightness) override;
 
     /**
      * \return The contrast previously set for the video widget
      */
-    qreal contrast() const;
+    qreal contrast() const override;
 
     /**
      * Set the contrast of the video
      */
-    Q_INVOKABLE void setContrast(qreal contrast);
+    Q_INVOKABLE void setContrast(qreal contrast) override;
 
     /**
      * \return The hue previously set for the video widget
      */
-    qreal hue() const;
+    qreal hue() const override;
 
     /**
      * Set the hue of the video
      */
-    Q_INVOKABLE void setHue(qreal hue);
+    Q_INVOKABLE void setHue(qreal hue) override;
 
     /**
      * \return The saturation previously set for the video widget
      */
-    qreal saturation() const;
+    qreal saturation() const override;
 
     /**
      * Set the saturation of the video
      */
-    Q_INVOKABLE void setSaturation(qreal saturation);
+    Q_INVOKABLE void setSaturation(qreal saturation) override;
 
     /**
      * \return The owned widget that is used for the actual draw.
      */
-    QWidget *widget();
+    QWidget *widget() override;
 
     /// \reimp
-    QSize sizeHint() const;
+    QSize sizeHint() const override;
 
-    void setVisible(bool visible);
+    void setVisible(bool visible) override;
 
-private slots:
+private Q_SLOTS:
     /// Updates the sizeHint to match the native size of the video.
     /// \param hasVideo \c true when there is a video, \c false otherwise
     void updateVideoSize(bool hasVideo);
@@ -176,7 +176,7 @@ private slots:
 
 protected:
     /// \reimp
-    void paintEvent(QPaintEvent *event);
+    void paintEvent(QPaintEvent *event) override;
 
 private:
     /**
@@ -217,7 +217,7 @@ private:
     /**
      * \return The snapshot of the current video frame.
      */
-    QImage snapshot() const;
+    QImage snapshot() const override;
 
     /**
      * Enables the mighty surface painter (qpaints frames).
