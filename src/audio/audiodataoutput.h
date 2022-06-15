@@ -66,12 +66,12 @@ public:
     explicit AudioDataOutput(QObject *parent);
     ~AudioDataOutput();
 
-    Phonon::AudioDataOutput *frontendObject() const
+    Phonon::AudioDataOutput *frontendObject() const override
     {
         return m_frontend;
     }
 
-    void setFrontendObject(Phonon::AudioDataOutput *frontend)
+    void setFrontendObject(Phonon::AudioDataOutput *frontend) override
     {
         m_frontend = frontend;
     }

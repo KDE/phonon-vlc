@@ -54,28 +54,28 @@ public:
      * \param p_parent A parent object
      */
     explicit AudioOutput(QObject *parent);
-    ~AudioOutput();
+    ~AudioOutput() override;
 
     /** \reimp */
-    void handleConnectToMediaObject(MediaObject *mediaObject);
+    void handleConnectToMediaObject(MediaObject *mediaObject) override;
     /** \reimp */
-    void handleAddToMedia(Media *media);
+    void handleAddToMedia(Media *media) override;
 
     /**
      * \return The current volume for this audio output.
      */
-    qreal volume() const;
+    qreal volume() const override;
 
     /**
      * Sets the volume of the audio output. See the Phonon::AudioOutputInterface::setVolume() documentation
      * for details.
      */
-    void setVolume(qreal volume);
+    void setVolume(qreal volume) override;
 
     /**
      * \return The index of the current audio output device from the list obtained from the backend object.
      */
-    int outputDevice() const;
+    int outputDevice() const override;
 
     /**
      * Sets the current output device for this audio output. The validity of the device index
@@ -85,7 +85,7 @@ public:
      * \return \c true if succeeded, or no change was made
      * \return \c false if failed
      */
-    bool setOutputDevice(int);
+    bool setOutputDevice(int) override;
 
     /**
      * Sets the current output device for this audio output.
@@ -94,9 +94,9 @@ public:
      * \return \c true if succeeded, or no change was made
      * \return \c false if failed
      */
-    bool setOutputDevice(const AudioOutputDevice &newDevice);
-    void setStreamUuid(QString uuid);
-    void setMuted(bool mute);
+    bool setOutputDevice(const AudioOutputDevice &newDevice) override;
+    void setStreamUuid(QString uuid) override;
+    void setMuted(bool mute) override;
 
     virtual void setCategory(Phonon::Category category);
 

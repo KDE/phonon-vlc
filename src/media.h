@@ -40,7 +40,7 @@ class Media : public QObject
 {
     Q_OBJECT
 public:
-    explicit Media(const QByteArray &mrl, QObject *parent = 0);
+    explicit Media(const QByteArray &mrl, QObject *parent = nullptr);
     ~Media();
 
     inline libvlc_media_t *libvlc_media() const { return m_media; }

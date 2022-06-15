@@ -57,14 +57,14 @@ public:
     ~Effect();
 
     void setupEffectParams();
-    QList<EffectParameter> parameters() const;
-    QVariant parameterValue(const EffectParameter &param) const;
-    void setParameterValue(const EffectParameter &param, const QVariant &newValue);
+    QList<EffectParameter> parameters() const override;
+    QVariant parameterValue(const EffectParameter &param) const override;
+    void setParameterValue(const EffectParameter &param, const QVariant &newValue) override;
 
     /** \reimp */
-    void handleConnectToMediaObject(MediaObject *p_media_object);
+    void handleConnectToMediaObject(MediaObject *p_media_object) override;
     /** \reimp */
-    void handleDisconnectFromMediaObject(MediaObject *p_media_object);
+    void handleDisconnectFromMediaObject(MediaObject *p_media_object) override;
 
 private:
 

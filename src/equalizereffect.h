@@ -35,14 +35,14 @@ class EqualizerEffect : public QObject, public SinkNode, public EffectInterface
     Q_OBJECT
     Q_INTERFACES(Phonon::EffectInterface)
 public:
-    explicit EqualizerEffect(QObject *parent = 0);
+    explicit EqualizerEffect(QObject *parent = nullptr);
     ~EqualizerEffect();
 
-    QList<EffectParameter> parameters() const;
-    QVariant parameterValue(const EffectParameter &parameter) const;
-    void setParameterValue(const EffectParameter &parameter, const QVariant &newValue);
+    QList<EffectParameter> parameters() const override;
+    QVariant parameterValue(const EffectParameter &parameter) const override;
+    void setParameterValue(const EffectParameter &parameter, const QVariant &newValue) override;
 
-    void handleConnectToMediaObject(MediaObject *mediaObject);
+    void handleConnectToMediaObject(MediaObject *mediaObject) override;
 
 private:
     libvlc_equalizer_t *m_equalizer;

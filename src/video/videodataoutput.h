@@ -44,22 +44,22 @@ public:
     explicit VideoDataOutput(QObject *parent);
     ~VideoDataOutput();
 
-    void handleConnectToMediaObject(MediaObject *mediaObject);
-    void handleDisconnectFromMediaObject(MediaObject *mediaObject);
-    void handleAddToMedia(Media *media);
+    void handleConnectToMediaObject(MediaObject *mediaObject) override;
+    void handleDisconnectFromMediaObject(MediaObject *mediaObject) override;
+    void handleAddToMedia(Media *media) override;
 
-    Experimental::AbstractVideoDataOutput *frontendObject() const;
-    void setFrontendObject(Experimental::AbstractVideoDataOutput *frontend);
+    Experimental::AbstractVideoDataOutput *frontendObject() const override;
+    void setFrontendObject(Experimental::AbstractVideoDataOutput *frontend) override;
 
-    virtual void *lockCallback(void **planes);
-    virtual void unlockCallback(void *picture,void *const *planes);
-    virtual void displayCallback(void *picture);
+    void *lockCallback(void **planes) override;
+    void unlockCallback(void *picture,void *const *planes) override;
+    void displayCallback(void *picture) override;
 
-    virtual unsigned formatCallback(char *chroma,
+    unsigned formatCallback(char *chroma,
                                     unsigned *width, unsigned *height,
                                     unsigned *pitches,
-                                    unsigned *lines);
-    virtual void formatCleanUpCallback();
+                                    unsigned *lines) override;
+    void formatCleanUpCallback() override;
 
 private:
     Experimental::AbstractVideoDataOutput *m_frontend;

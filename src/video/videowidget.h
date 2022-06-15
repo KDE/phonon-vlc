@@ -90,7 +90,7 @@ public:
      * Set the aspect ratio of the video.
      * VLC accepted formats are x:y (4:3, 16:9, etc...) expressing the global image aspect.
      */
-    void setAspectRatio(Phonon::VideoWidget::AspectRatio aspect);
+    void setAspectRatio(Phonon::VideoWidget::AspectRatio aspect) override;
 
     /**
      * \return The scale mode previously set for the video widget

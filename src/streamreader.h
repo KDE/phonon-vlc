@@ -77,7 +77,7 @@ public:
     static int seekCallback(void *data, const uint64_t pos);
 
     quint64 currentBufferSize() const;
-    void writeData(const QByteArray &data);
+    void writeData(const QByteArray &data) override;
     quint64 currentPos() const;
     void setCurrentPos(qint64 pos);
 
@@ -92,10 +92,10 @@ public:
      */
     bool read(quint64 offset, int *length, char *buffer);
 
-    void endOfData();
-    void setStreamSize(qint64 newSize);
+    void endOfData() override;
+    void setStreamSize(qint64 newSize) override;
     qint64 streamSize() const;
-    void setStreamSeekable(bool seekable);
+    void setStreamSeekable(bool seekable) override;
     bool streamSeekable() const;
 
 Q_SIGNALS:

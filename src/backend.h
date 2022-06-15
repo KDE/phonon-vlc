@@ -70,7 +70,7 @@ public:
      *
      * \param parent A parent object for the backend (passed to the QObject constructor)
      */
-    explicit Backend(QObject *parent = 0, const QVariantList & = QVariantList());
+    explicit Backend(QObject *parent = nullptr, const QVariantList & = QVariantList());
     virtual ~Backend();
 
     /// \return The device manager that is associated with this backend object
@@ -87,10 +87,10 @@ public:
      * \param args Optional arguments for the object creation
      * \return The desired object or NULL if the class is not implemented.
      */
-    QObject *createObject(BackendInterface::Class, QObject *parent, const QList<QVariant> &args);
+    QObject *createObject(BackendInterface::Class, QObject *parent, const QList<QVariant> &args) override;
 
     /// \returns a list of all available mimetypes (hardcoded)
-    QStringList availableMimeTypes() const;
+    QStringList availableMimeTypes() const override;
 
     /**
      * Returns a list of indexes for the desired object types. It specifies a list of objects
@@ -99,7 +99,7 @@ public:
      *
      * \param type The type of objects for the list
      */
-    QList<int> objectDescriptionIndexes(ObjectDescriptionType type) const;
+    QList<int> objectDescriptionIndexes(ObjectDescriptionType type) const override;
 
     /**
      * Returns a list of properties for a particular object of the desired category.
@@ -108,14 +108,14 @@ public:
      * \param index The index for the object of the desired type
      * \return The property list. If the object is inexistent, an empty list is returned.
      */
-    QHash<QByteArray, QVariant> objectDescriptionProperties(ObjectDescriptionType type, int index) const;
+    QHash<QByteArray, QVariant> objectDescriptionProperties(ObjectDescriptionType type, int index) const override;
 
     /**
      * Called when a connection between nodes is about to be changed
      *
      * \param objects A set of objects that will be involved in the change
      */
-    bool startConnectionChange(QSet<QObject *>);
+    bool startConnectionChange(QSet<QObject *>) override;
 
     /**
      * Connects two media nodes. The sink is informed that it should connect itself to the source.
@@ -124,7 +124,7 @@ public:
      * \param sink The sink media node for the connection
      * \return True if the connection was successful
      */
-    bool connectNodes(QObject *, QObject *);
+    bool connectNodes(QObject *, QObject *) override;
 
     /**
      * Disconnects two previously connected media nodes. It disconnects the sink node from the source node.
@@ -133,14 +133,14 @@ public:
      * \param sink The sink node for the disconnection
      * \return True if the disconnection was successful
      */
-    bool disconnectNodes(QObject *, QObject *);
+    bool disconnectNodes(QObject *, QObject *) override;
 
     /**
      * Called after a connection between nodes has been changed
      *
      * \param objects Nodes involved in the disconnection
      */
-    bool endConnectionChange(QSet<QObject *>);
+    bool endConnectionChange(QSet<QObject *>) override;
 
 Q_SIGNALS:
     void objectDescriptionChanged(ObjectDescriptionType);

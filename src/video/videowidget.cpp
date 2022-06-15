@@ -68,31 +68,31 @@ public:
     VideoWidget *widget;
 
 private:
-    virtual void *lockCallback(void **planes)
+    void *lockCallback(void **planes) override
     {
         m_mutex.lock();
         planes[0] = (void *) m_frame.bits();
         return 0;
     }
 
-    virtual void unlockCallback(void *picture,void *const *planes)
+    void unlockCallback(void *picture,void *const *planes) override
     {
         Q_UNUSED(picture);
         Q_UNUSED(planes);
         m_mutex.unlock();
     }
 
-    virtual void displayCallback(void *picture)
+    void displayCallback(void *picture) override
     {
         Q_UNUSED(picture);
         if (widget)
             widget->update();
     }
 
-    virtual unsigned formatCallback(char *chroma,
+    unsigned formatCallback(char *chroma,
                                     unsigned *width, unsigned *height,
                                     unsigned *pitches,
-                                    unsigned *lines)
+                                    unsigned *lines) override
     {
         QMutexLocker lock(&m_mutex);
         // Surface rendering is a fallback system used when no efficient rendering implementation is available.
@@ -120,7 +120,7 @@ private:
         return  m_frame.sizeInBytes();
     }
 
-    virtual void formatCleanUpCallback()
+    void formatCleanUpCallback() override
     {
         // Lazy delete the object to avoid callbacks from VLC after deletion.
         if (!widget) {
