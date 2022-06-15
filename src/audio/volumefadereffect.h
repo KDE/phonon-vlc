@@ -51,7 +51,7 @@ public:
     void setVolume(float v);
     QPointer<MediaObject> mediaObject() { return m_mediaObject; }
 
-private slots:
+private Q_SLOTS:
     void slotSetVolume(qreal v);
 
 private:

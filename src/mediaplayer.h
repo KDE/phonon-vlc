@@ -243,7 +243,7 @@ public:
     void setEqualizer(libvlc_equalizer_t *equalizer);
 #endif
 
-signals:
+Q_SIGNALS:
     void lengthChanged(qint64 length);
     void seekableChanged(bool seekable);
     void stateChanged(MediaPlayer::State state);

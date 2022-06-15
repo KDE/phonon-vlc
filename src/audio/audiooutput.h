@@ -100,12 +100,12 @@ public:
 
     virtual void setCategory(Phonon::Category category);
 
-signals:
+Q_SIGNALS:
     void volumeChanged(qreal volume);
     void audioDeviceFailed();
     void mutedChanged(bool mute);
 
-private slots:
+private Q_SLOTS:
     /**
      * Sets the volume to m_volume.
      */

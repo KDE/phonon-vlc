@@ -174,20 +174,20 @@ public:
      *
      * \see loadMedia()
      */
-    void setSource(const MediaSource &source);
+    void setSource(const MediaSource &source) override;
 
     /// Sets the media source that will replace the current one, after the playback for it finishes.
-    void setNextSource(const MediaSource &source);
+    void setNextSource(const MediaSource &source) override;
 
-    qint32 prefinishMark() const;
-    void setPrefinishMark(qint32 msecToEnd);
+    qint32 prefinishMark() const override;
+    void setPrefinishMark(qint32 msecToEnd) override;
 
-    qint32 transitionTime() const;
-    void setTransitionTime(qint32);
+    qint32 transitionTime() const override;
+    void setTransitionTime(qint32) override;
 
     void emitAboutToFinish();
 
-signals:
+Q_SIGNALS:
     // MediaController signals
     void availableSubtitlesChanged();
     void availableAudioChannelsChanged();
@@ -220,7 +220,7 @@ signals:
 
     void moveToNext();
 
-private slots:
+private Q_SLOTS:
     /**
      * If the new state is different from the current state, the current state is
      * changed and the corresponding signal is emitted.

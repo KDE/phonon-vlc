@@ -121,11 +121,11 @@ public:
      */
     const DeviceInfo *device(int id) const;
 
-signals:
+Q_SIGNALS:
     void deviceAdded(int);
     void deviceRemoved(int);
 
-public slots:
+public Q_SLOTS:
     /**
      * Update the current list of active devices. It probes for audio output devices,
      * audio capture devices, video capture devices. The methods depend on the

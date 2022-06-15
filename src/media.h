@@ -64,7 +64,7 @@ public:
 
     void setCdTrack(int track);
 
-signals:
+Q_SIGNALS:
     void durationChanged(qint64 duration);
     void metaDataChanged();
 

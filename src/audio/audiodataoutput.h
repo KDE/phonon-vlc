@@ -102,7 +102,7 @@ public Q_SLOTS:
      */
     void handleAddToMedia(Media *media);
 
-signals:
+Q_SIGNALS:
     void dataReady(const QMap<Phonon::AudioDataOutput::Channel, QVector<qint16> > &data);
     void dataReady(const QMap<Phonon::AudioDataOutput::Channel, QVector<float> > &data);
     void endOfMedia(int remainingSamples);

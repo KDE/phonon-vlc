@@ -98,7 +98,7 @@ public:
     void setStreamSeekable(bool seekable);
     bool streamSeekable() const;
 
-signals:
+Q_SIGNALS:
     void streamSeekableChanged(bool seekable);
 
 protected:
