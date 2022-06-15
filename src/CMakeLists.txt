@@ -43,14 +43,33 @@ set(phonon_vlc_SRCS
     video/videomemorystream.cpp
     utils/debug.cpp
     utils/libvlc.cpp
+
+    audio/audiooutput.h
+    audio/audiodataoutput.h
+    audio/volumefadereffect.h
+    backend.h
+    devicemanager.h
+    effect.h
+    effectmanager.h
+    media.h
+    mediacontroller.h
+    mediaobject.h
+    mediaplayer.h
+    sinknode.h
+    streamreader.h
+#    video/videodataoutput.cpp
+    video/videowidget.h
+    video/videomemorystream.h
+    utils/debug.h
+    utils/libvlc.h
 )
 
 if(NOT ${LIBVLC_VERSION} VERSION_LESS "2.2.0")
-    list(APPEND phonon_vlc_SRCS equalizereffect.cpp)
+    list(APPEND phonon_vlc_SRCS equalizereffect.cpp equalizereffect.h)
 endif()
 
 if(PHONON_EXPERIMENTAL)
-    list(APPEND phonon_vlc_SRCS video/videodataoutput.cpp)
+    list(APPEND phonon_vlc_SRCS video/videodataoutput.cpp video/videodataoutput.h)
 endif()
 
 if(APPLE)
