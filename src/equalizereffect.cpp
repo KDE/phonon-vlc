@@ -34,14 +34,14 @@ EqualizerEffect::EqualizerEffect(QObject *parent)
     // bands need to be xxHz
     // That way they can be consistently mapped to localized/formatted strings.
 
-    EffectParameter preamp(-1, "pre-amp", 0 /* hint */, 0.0f, -20.0f, 20.0f);
+    EffectParameter preamp(-1, "pre-amp", {} /* hint */, 0.0f, -20.0f, 20.0f);
     m_bands.append(preamp);
 
     const unsigned int bandCount = libvlc_audio_equalizer_get_band_count();
     for (unsigned int i = 0; i < bandCount; ++i) {
         const float frequency = libvlc_audio_equalizer_get_band_frequency(i);
         const QString name = QString("%1Hz").arg(QString::number(frequency));
-        EffectParameter parameter(i, name, 0 /* hint */, 0.0f, -20.0f, 20.0f);
+        EffectParameter parameter(i, name, {} /* hint */, 0.0f, -20.0f, 20.0f);
         m_bands.append(parameter);
     }
 }

@@ -73,7 +73,7 @@
  */
 namespace Debug
 {
-    extern QMutex mutex;
+    extern QRecursiveMutex mutex;
 
     enum DebugLevel {
         DEBUG_INFO  = 0,

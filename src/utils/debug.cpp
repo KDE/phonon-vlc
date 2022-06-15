@@ -36,7 +36,7 @@
 
 #define DEBUG_INDENT_OBJECTNAME QLatin1String("Debug_Indent_object")
 
-QMutex Debug::mutex( QMutex::Recursive );
+QRecursiveMutex Debug::mutex;
 
 using namespace Debug;
 
