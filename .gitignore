@@ -9,4 +9,4 @@ lib/
 *.o
 *.so
 *.user
-build
+build*
