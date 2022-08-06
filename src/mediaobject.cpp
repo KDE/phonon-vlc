@@ -546,8 +546,6 @@ void MediaObject::setupMedia()
 
     // Create a media with the given MRL
     m_media = new Media(m_mrl, this);
-    if (!m_media)
-        error() << "libVLC:" << LibVLC::errorMessage();
 
     if (m_isScreen) {
         m_media->addOption(QLatin1String("screen-fps=24.0"));
