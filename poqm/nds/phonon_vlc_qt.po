@@ -1,0 +1,54 @@
+# translation of phonon_vlc.po to Low Saxon
+# Copyright (C) YEAR This_file_is_part_of_KDE
+# This file is distributed under the same license as the PACKAGE package.
+# Manfred Wiese <m.j.wiese@web.de>, 2011.
+# Sönke Dibbern <s_dibbern@web.de>, 2014.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: phonon_vlc\n"
+"Report-Msgid-Bugs-To: https://bugs.kde.org\n"
+"POT-Creation-Date: 2019-07-01 01:43+0200\n"
+"PO-Revision-Date: 2014-02-26 23:44+0100\n"
+"Last-Translator: Sönke Dibbern <s_dibbern@web.de>\n"
+"Language-Team: Low Saxon <kde-i18n-nds@kde.org>\n"
+"Language: nds\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Lokalize 1.5\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Qt-Contexts: true\n"
+
+#: src/backend.cpp:131
+#, fuzzy
+#| msgid "LibVLC Failed to Initialize"
+msgctxt "Phonon::VLC::Backend|"
+msgid "LibVLC Failed to Initialize"
+msgstr "LibVLC lett sik nich torechtmaken"
+
+#: src/backend.cpp:132
+#, fuzzy
+#| msgid ""
+#| "Phonon's VLC backend failed to start.\n"
+#| "\n"
+#| "This usually means a problem with your VLC installation, please report a "
+#| "bug with your distributor."
+msgctxt "Phonon::VLC::Backend|"
+msgid ""
+"Phonon's VLC backend failed to start.\n"
+"\n"
+"This usually means a problem with your VLC installation, please report a bug "
+"with your distributor."
+msgstr ""
+"Phonon sien VLC-Hülpprogramm lett sik nich starten.\n"
+"\n"
+"Dat bedüüdt normalerwies, Dien VLC-Installatschoon is leeg. Bitte stüer den "
+"Maker vun Dien Distributschoon en Fehlerbericht to. mit Dien"
+
+#: src/devicemanager.cpp:214
+#, fuzzy
+#| msgid "Default"
+msgctxt "Phonon::VLC::DeviceManager|"
+msgid "Default"
+msgstr "Standard"

@@ -1,0 +1,42 @@
+# Copyright (C) YEAR This_file_is_part_of_KDE
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Stelios <sstavra@gmail.com>, 2011, 2019.
+msgid ""
+msgstr ""
+"Project-Id-Version: phonon_vlc\n"
+"Report-Msgid-Bugs-To: https://bugs.kde.org\n"
+"POT-Creation-Date: 2019-07-01 01:43+0200\n"
+"PO-Revision-Date: 2019-07-25 12:11+0300\n"
+"Last-Translator: Stelios <sstavra@gmail.com>\n"
+"Language-Team: Greek <kde-i18n-el@kde.org>\n"
+"Language: el\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Qt-Contexts: true\n"
+"X-Generator: Lokalize 18.12.3\n"
+
+#: src/backend.cpp:131
+msgctxt "Phonon::VLC::Backend|"
+msgid "LibVLC Failed to Initialize"
+msgstr "Αποτυχία αρχικοποίησης της LibVLC"
+
+#: src/backend.cpp:132
+msgctxt "Phonon::VLC::Backend|"
+msgid ""
+"Phonon's VLC backend failed to start.\n"
+"\n"
+"This usually means a problem with your VLC installation, please report a bug "
+"with your distributor."
+msgstr ""
+"Αποτυχία εκκίνησης του συστήματος υποστήριξης VLC του Phonon.\n"
+"\n"
+"Αυτό συνήθως είναι πρόβλημα εγκατάστασης του VLC, παρακαλούμε κάνετε αναφορά "
+"για πρόβλημα σφάλματος στον υπεύθυνο της διανομής σας."
+
+#: src/devicemanager.cpp:214
+msgctxt "Phonon::VLC::DeviceManager|"
+msgid "Default"
+msgstr "Προκαθορισμένο"
