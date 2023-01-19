@@ -1,0 +1,48 @@
+# Slovenian translation of phonon_vlc.
+# Copyright (C) 2011 Free Software Foundation, Inc.
+#
+#
+# Klemen Košir <klemen.kosir@gmx.com>, 2011.
+# Andrej Vernekar <andrej.vernekar@gmail.com>, 2012.
+# Andrej Mernik <andrejm@ubuntu.si>, 2013.
+# Matjaž Jeran <matjaz.jeran@amis.net>, 2019.
+msgid ""
+msgstr ""
+"Project-Id-Version: phonon_vlc\n"
+"Report-Msgid-Bugs-To: https://bugs.kde.org\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2021-03-19 15:54+0100\n"
+"Last-Translator: Matjaž Jeran <matjaz.jeran@amis.net>\n"
+"Language-Team: Slovenian <lugos-slo@lugos.si>\n"
+"Language: sl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Translator: Andrej Mernik <andrejm@ubuntu.si>\n"
+"Plural-Forms: nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100>=3 && n"
+"%100<=4 ? 2 : 3);\n"
+"X-Generator: Poedit 2.4.2\n"
+"X-Qt-Contexts: true\n"
+
+#: src/backend.cpp:132
+msgctxt "Phonon::VLC::Backend|"
+msgid "LibVLC Failed to Initialize"
+msgstr "Začetnih vrednosti knjižnice libVLC ni bilo mogoče nastaviti"
+
+#: src/backend.cpp:133
+msgctxt "Phonon::VLC::Backend|"
+msgid ""
+"Phonon's VLC backend failed to start.\n"
+"\n"
+"This usually means a problem with your VLC installation, please report a bug "
+"with your distributor."
+msgstr ""
+"Zaledja VLC za Phonon ni bilo mogoče zagnati.\n"
+"\n"
+"Razlog za to napako je ponavadi težava z namestitvijo programa VLC. Prosimo "
+"sporočite napako vašemu distributerju."
+
+#: src/devicemanager.cpp:214
+msgctxt "Phonon::VLC::DeviceManager|"
+msgid "Default"
+msgstr "Privzeto"

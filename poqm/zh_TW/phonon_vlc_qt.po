@@ -1,0 +1,36 @@
+# pan93412 <pan93412@gmail.com>, 2019.
+msgid ""
+msgstr ""
+"Project-Id-Version: pan 93412\n"
+"PO-Revision-Date: 2019-10-19 15:18+0800\n"
+"Last-Translator: pan93412 <pan93412@gmail.com>\n"
+"Language-Team: Chinese <zh-l10n@lists.linux.org.tw>\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Qt-Contexts: true\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Lokalize 19.08.2\n"
+
+#: src/backend.cpp:132
+msgctxt "Phonon::VLC::Backend|"
+msgid "LibVLC Failed to Initialize"
+msgstr "LibVLC 初始化失敗"
+
+#: src/backend.cpp:133
+msgctxt "Phonon::VLC::Backend|"
+msgid ""
+"Phonon's VLC backend failed to start.\n"
+"\n"
+"This usually means a problem with your VLC installation, please report a bug "
+"with your distributor."
+msgstr ""
+"Phonon 的 VLC 後端介面啟動失敗。\n"
+"\n"
+"通常這表示您的 VLC 安裝有問題。請向您的套件維護者回報。"
+
+#: src/devicemanager.cpp:214
+msgctxt "Phonon::VLC::DeviceManager|"
+msgid "Default"
+msgstr "預設"

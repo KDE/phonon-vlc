@@ -1,0 +1,37 @@
+# Giovanni Sora <g.sora@tiscali.it>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"PO-Revision-Date: 2021-04-09 23:15+0100\n"
+"Last-Translator: Giovanni Sora <g.sora@tiscali.it>\n"
+"Language-Team: Interlingua <kde-i18n-doc@kde.org>\n"
+"Language: ia\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Qt-Contexts: true\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Lokalize 2.0\n"
+
+#: src/backend.cpp:132
+msgctxt "Phonon::VLC::Backend|"
+msgid "LibVLC Failed to Initialize"
+msgstr "LibVLC Falleva a initialisar"
+
+#: src/backend.cpp:133
+msgctxt "Phonon::VLC::Backend|"
+msgid ""
+"Phonon's VLC backend failed to start.\n"
+"\n"
+"This usually means a problem with your VLC installation, please report a bug "
+"with your distributor."
+msgstr ""
+"Retro administration de VLC dePhonon falleva a initiar.\n"
+"\n"
+"Isto usualmente significa un problema con tu installation de VLC, pro favor "
+"reporta un bug con tu distributor."
+
+#: src/devicemanager.cpp:214
+msgctxt "Phonon::VLC::DeviceManager|"
+msgid "Default"
+msgstr "Predefinite"

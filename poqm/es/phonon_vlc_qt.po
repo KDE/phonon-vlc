@@ -1,0 +1,44 @@
+# Spanish translations for phonon_vlc.po package.
+# Copyright (C) 2017 This_file_is_part_of_KDE
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Automatically generated, 2017.
+# Eloy Cuadra <ecuadra@eloihr.net>, 2017, 2019.
+msgid ""
+msgstr ""
+"Project-Id-Version: phonon_vlc\n"
+"Report-Msgid-Bugs-To: https://bugs.kde.org\n"
+"POT-Creation-Date: 2019-07-01 01:50+0200\n"
+"PO-Revision-Date: 2019-07-09 19:06+0200\n"
+"Last-Translator: Eloy Cuadra <ecuadra@eloihr.net>\n"
+"Language-Team: Spanish <kde-l10n-es@kde.org>\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Lokalize 19.04.2\n"
+"X-Qt-Contexts: true\n"
+
+#: src/backend.cpp:132
+msgctxt "Phonon::VLC::Backend|"
+msgid "LibVLC Failed to Initialize"
+msgstr "Ha fallado la inicialización de LibVLC"
+
+#: src/backend.cpp:133
+msgctxt "Phonon::VLC::Backend|"
+msgid ""
+"Phonon's VLC backend failed to start.\n"
+"\n"
+"This usually means a problem with your VLC installation, please report a bug "
+"with your distributor."
+msgstr ""
+"Ha fallado el inicio del motor VLC de Phonon.\n"
+"\n"
+"Esto suele significar que hay un problema en su instalación de VLC. Por "
+"favor, informe del error a su distribuidor."
+
+#: src/devicemanager.cpp:214
+msgctxt "Phonon::VLC::DeviceManager|"
+msgid "Default"
+msgstr "Por omisión"

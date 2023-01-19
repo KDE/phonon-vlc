@@ -1,0 +1,37 @@
+# Luiz Fernando Ranghetti <elchevive@opensuse.org>, 2019.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"PO-Revision-Date: 2019-07-04 12:19-0300\n"
+"Last-Translator: Luiz Fernando Ranghetti <elchevive@opensuse.org>\n"
+"Language-Team: Portuguese <kde-i18n-pt_BR@kde.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Qt-Contexts: true\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 19.04.2\n"
+
+#: src/backend.cpp:132
+msgctxt "Phonon::VLC::Backend|"
+msgid "LibVLC Failed to Initialize"
+msgstr "Falha ao inicializar a LibVLC"
+
+#: src/backend.cpp:133
+msgctxt "Phonon::VLC::Backend|"
+msgid ""
+"Phonon's VLC backend failed to start.\n"
+"\n"
+"This usually means a problem with your VLC installation, please report a bug "
+"with your distributor."
+msgstr ""
+"Não foi possível iniciar a infraestrutura VLC do Phonon.\n"
+"\n"
+"Isto normalmente significa que há um problema na sua instalação do VLC. "
+"Comunique este erro à sua distribuição."
+
+#: src/devicemanager.cpp:214
+msgctxt "Phonon::VLC::DeviceManager|"
+msgid "Default"
+msgstr "Padrão"

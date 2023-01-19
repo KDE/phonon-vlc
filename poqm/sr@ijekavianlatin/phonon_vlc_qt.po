@@ -1,0 +1,54 @@
+# Translation of phonon_vlc.po into Serbian.
+# Dalibor Djuric <daliborddjuric@gmail.com>, 2011.
+# Chusslove Illich <caslav.ilic@gmx.net>, 2011, 2012.
+msgid ""
+msgstr ""
+"Project-Id-Version: phonon_vlc\n"
+"Report-Msgid-Bugs-To: http://bugs.kde.org\n"
+"POT-Creation-Date: 2018-03-01 02:54+0100\n"
+"PO-Revision-Date: 2012-06-17 13:22+0200\n"
+"Last-Translator: Chusslove Illich <caslav.ilic@gmx.net>\n"
+"Language-Team: Serbian <kde-i18n-sr@kde.org>\n"
+"Language: sr@ijekavianlatin\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Accelerator-Marker: &\n"
+"X-Text-Markup: qtrich\n"
+"X-Environment: kde\n"
+"X-Qt-Contexts: true\n"
+
+#: src/backend.cpp:132
+#, fuzzy
+#| msgid "LibVLC Failed to Initialize"
+msgctxt "Phonon::VLC::Backend|"
+msgid "LibVLC Failed to Initialize"
+msgstr "Neuspjelo pripremanje biblioteke VLC‑a"
+
+#: src/backend.cpp:133
+#, fuzzy
+#| msgid ""
+#| "Phonon's VLC backend failed to start.\n"
+#| "\n"
+#| "This usually means a problem with your VLC installation, please report a "
+#| "bug with your distributor."
+msgctxt "Phonon::VLC::Backend|"
+msgid ""
+"Phonon's VLC backend failed to start.\n"
+"\n"
+"This usually means a problem with your VLC installation, please report a bug "
+"with your distributor."
+msgstr ""
+"Neuspjelo pokretanje VLC‑a kao Phononove pozadine.\n"
+"\n"
+"Ovo obično znači da postoje problemi sa instalacijom VLC‑a, prijavite grešku "
+"distributeru."
+
+#: src/devicemanager.cpp:214
+#, fuzzy
+#| msgid "Default"
+msgctxt "Phonon::VLC::DeviceManager|"
+msgid "Default"
+msgstr "Podrazumevano"
