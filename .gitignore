@@ -1,4 +1,7 @@
+# Ignore the following files
+*.[oa]
 .svn
+*.user
 Makefile
 CMakeTmp
 CMakeCache.txt
@@ -6,7 +9,6 @@ CMakeFiles/
 cmake_install.cmake
 cmake_uninstall.cmake
 lib/
-*.o
 *.so
-*.user
 build*
+/compile_commands.json
