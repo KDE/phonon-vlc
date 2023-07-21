@@ -79,26 +79,28 @@ if(APPLE)
 endif()
 
 ecm_create_qm_loader(phonon_vlc_SRCS phonon_vlc_qt)
-add_library(phonon_vlc MODULE ${phonon_vlc_SRCS})
-
-target_include_directories(phonon_vlc
+add_library(phonon_vlc_qt${QT_MAJOR_VERSION} MODULE ${phonon_vlc_SRCS})
+if(QT_MAJOR_VERSION STREQUAL 5)
+    set_target_properties(phonon_vlc_qt${QT_MAJOR_VERSION} PROPERTIES INSTALL_NAME "phonon_vlc")
+endif()
+target_include_directories(phonon_vlc_qt${QT_MAJOR_VERSION}
     PRIVATE
         # Extra include. We use some internal stuff for easy chroma conversion.
         ${LIBVLC_INCLUDE_DIR}/vlc/plugins
 )
 
-target_link_libraries(phonon_vlc
+target_link_libraries(phonon_vlc_qt${QT_MAJOR_VERSION}
     Phonon::phonon4qt${QT_MAJOR_VERSION}
-    Qt::Core
-    Qt::Widgets
+    Qt${QT_MAJOR_VERSION}::Core
+    Qt${QT_MAJOR_VERSION}::Widgets
     LibVLC::Core
     LibVLC::LibVLC
 )
 if(PHONON_EXPERIMENTAL)
-    target_link_libraries(phonon_vlc Phonon::phonon4qt${QT_MAJOR_VERSION}experimental)
+    target_link_libraries(phonon_vlc_qt${QT_MAJOR_VERSION} Phonon::phonon4qt${QT_MAJOR_VERSION}experimental)
 endif()
 
-install(TARGETS phonon_vlc DESTINATION ${PHONON_BACKEND_DIR})
+install(TARGETS phonon_vlc_qt${QT_MAJOR_VERSION} DESTINATION ${PHONON_BACKEND_DIR})
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
                ${CMAKE_CURRENT_BINARY_DIR}/config.h @ONLY)
