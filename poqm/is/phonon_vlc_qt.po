@@ -13,12 +13,12 @@ msgstr ""
 "Plural-Forms: Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Lokalize 21.12.3\n"
 
-#: src/backend.cpp:131
+#: src/backend.cpp:130
 msgctxt "Phonon::VLC::Backend|"
 msgid "LibVLC Failed to Initialize"
 msgstr "Mistókst að frumstilla LibVLC"
 
-#: src/backend.cpp:132
+#: src/backend.cpp:131
 msgctxt "Phonon::VLC::Backend|"
 msgid ""
 "Phonon's VLC backend failed to start.\n"

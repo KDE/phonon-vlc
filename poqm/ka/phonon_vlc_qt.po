@@ -13,12 +13,12 @@ msgstr ""
 "X-Qt-Contexts: true\n"
 "X-Generator: Poedit 3.0.1\n"
 
-#: src/backend.cpp:131
+#: src/backend.cpp:130
 msgctxt "Phonon::VLC::Backend|"
 msgid "LibVLC Failed to Initialize"
 msgstr "LibVLC-ის ინიციალიზაციის შეცდომა"
 
-#: src/backend.cpp:132
+#: src/backend.cpp:131
 msgctxt "Phonon::VLC::Backend|"
 msgid ""
 "Phonon's VLC backend failed to start.\n"

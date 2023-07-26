@@ -18,14 +18,14 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Qt-Contexts: true\n"
 
-#: src/backend.cpp:131
+#: src/backend.cpp:130
 #, fuzzy
 #| msgid "LibVLC Failed to Initialize"
 msgctxt "Phonon::VLC::Backend|"
 msgid "LibVLC Failed to Initialize"
 msgstr "LibVLC инициализация жаңылысы"
 
-#: src/backend.cpp:132
+#: src/backend.cpp:131
 #, fuzzy
 #| msgid ""
 #| "Phonon's VLC backend failed to start.\n"
