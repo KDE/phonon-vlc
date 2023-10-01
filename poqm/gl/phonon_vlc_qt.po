@@ -21,7 +21,7 @@ msgstr ""
 #: src/backend.cpp:130
 msgctxt "Phonon::VLC::Backend|"
 msgid "LibVLC Failed to Initialize"
-msgstr "Non se puido inicializar LibVLC"
+msgstr "Non foi posíbel inicializar LibVLC"
 
 #: src/backend.cpp:131
 msgctxt "Phonon::VLC::Backend|"
@@ -31,7 +31,7 @@ msgid ""
 "This usually means a problem with your VLC installation, please report a bug "
 "with your distributor."
 msgstr ""
-"Non se puido iniciar a infraestrutura de VLC para Phonon.\n"
+"Non foi posíbel iniciar a infraestrutura de VLC para Phonon.\n"
 "\n"
 "Xeralmente isto indica que hai algún problema coa instalación do VLC. Envíe "
 "un informe do fallo ao distribuidor."
