@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
-project(PhononVLC VERSION 0.11.3)
+project(PhononVLC VERSION 0.12.0)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
@@ -58,13 +58,13 @@ foreach(version ${VERSIONS})
     include(ECMSetupVersion)
 
     # Phonon
-    find_package(Phonon4Qt${QT_MAJOR_VERSION} 4.10.60 NO_MODULE)
+    find_package(Phonon4Qt${QT_MAJOR_VERSION} 4.12.0 NO_MODULE)
     set_package_properties(Phonon4Qt${QT_MAJOR_VERSION} PROPERTIES
         TYPE REQUIRED
         DESCRIPTION "Phonon core library"
         URL "https://api.kde.org/phonon/html/index.html")
 
-    find_package(Phonon4Qt${QT_MAJOR_VERSION}Experimental 4.10.60 NO_MODULE)
+    find_package(Phonon4Qt${QT_MAJOR_VERSION}Experimental 4.12.0 NO_MODULE)
     set_package_properties(Phonon4Qt${QT_MAJOR_VERSION}Experimental PROPERTIES
         TYPE OPTIONAL
         DESCRIPTION "Phonon experimental library"
