@@ -48,7 +48,7 @@ set_package_properties(LIBVLC PROPERTIES
     DESCRIPTION "VLC C library"
     URL "http://git.videolan.org")
 
-foreach(version ${VERSIONS})
+function(build_Qt version)
     set(QT_MAJOR_VERSION ${version})
 
     include(KDEInstallDirs${QT_MAJOR_VERSION})
@@ -77,8 +77,10 @@ foreach(version ${VERSIONS})
     add_subdirectory(src src${version})
 
     unset(QUERY_EXECUTABLE CACHE)
-endforeach()
+endfunction()
 
-ecm_install_po_files_as_qm(poqm)
+foreach(version ${VERSIONS})
+    build_Qt(${version})
+endforeach()
 
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
