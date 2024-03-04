@@ -74,7 +74,7 @@ if(APPLE)
         video/mac/vlcmacwidget.mm)
 endif()
 
-ecm_create_qm_loader(phonon_vlc_SRCS phonon_vlc_qt)
+ecm_create_qm_loader(phonon_vlc_${QT_MAJOR_VERSION} phonon_vlc_qt)
 add_library(phonon_vlc_qt${QT_MAJOR_VERSION} MODULE ${phonon_vlc_SRCS})
 if(QT_MAJOR_VERSION STREQUAL 5)
     set_target_properties(phonon_vlc_qt${QT_MAJOR_VERSION} PROPERTIES INSTALL_NAME "phonon_vlc")
@@ -110,3 +110,5 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/utils/mime.h.cmake
 # Also see qtplugin/Q_PLUGIN_METADATA documentation.
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/phonon-vlc.json.in
                 ${CMAKE_CURRENT_BINARY_DIR}/phonon-vlc.json @ONLY)
+
+ecm_install_po_files_as_qm(poqm)
