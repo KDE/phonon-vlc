@@ -24,7 +24,9 @@ if(${PHONON_VERSION} VERSION_GREATER "4.9.50")
 endif()
 add_definitions(${BACKEND_VERSION_DEFINE}) # also automatically used for moc
 
-set(phonon_vlc_SRCS
+add_library(phonon_vlc_qt${QT_MAJOR_VERSION} MODULE)
+
+target_sources(phonon_vlc_qt${QT_MAJOR_VERSION} PRIVATE
     audio/audiooutput.cpp
     audio/volumefadereffect.cpp
     backend.cpp
@@ -60,22 +62,25 @@ set(phonon_vlc_SRCS
     video/videomemorystream.h
     utils/debug.h
     utils/libvlc.h
+    equalizereffect.cpp
 )
 
-list(APPEND phonon_vlc_SRCS equalizereffect.cpp)
-
 if(PHONON_EXPERIMENTAL)
-    list(APPEND phonon_vlc_SRCS video/videodataoutput.cpp video/videodataoutput.h)
+    target_sources(phonon_vlc_qt${QT_MAJOR_VERSION} PRIVATE
+        video/videodataoutput.cpp
+        video/videodataoutput.h
+    )
 endif()
 
 if(APPLE)
-    list(APPEND phonon_vlc_SRCS
+    target_sources(phonon_vlc_qt${QT_MAJOR_VERSION} PRIVATE
         video/mac/nsvideoview.mm
-        video/mac/vlcmacwidget.mm)
+        video/mac/vlcmacwidget.mm
+    )
 endif()
 
-ecm_create_qm_loader(phonon_vlc_${QT_MAJOR_VERSION} phonon_vlc_qt)
-add_library(phonon_vlc_qt${QT_MAJOR_VERSION} MODULE ${phonon_vlc_SRCS})
+ecm_create_qm_loader(phonon_vlc_qt${QT_MAJOR_VERSION} phonon_vlc_qt)
+
 if(QT_MAJOR_VERSION STREQUAL 5)
     set_target_properties(phonon_vlc_qt${QT_MAJOR_VERSION} PROPERTIES INSTALL_NAME "phonon_vlc")
 endif()
@@ -111,4 +116,4 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/utils/mime.h.cmake
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/phonon-vlc.json.in
                 ${CMAKE_CURRENT_BINARY_DIR}/phonon-vlc.json @ONLY)
 
-ecm_install_po_files_as_qm(poqm)
+ecm_install_po_files_as_qm(../poqm)
