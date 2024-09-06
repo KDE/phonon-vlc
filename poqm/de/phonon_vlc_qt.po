@@ -2,7 +2,7 @@
 # Burkhard Lück <lueck@hube-lueck.de>, 2019.
 msgid ""
 msgstr ""
-"Project-Id-Version: phonon_vlc\n"
+"Project-Id-Version: phonon_vlc_qt\n"
 "Report-Msgid-Bugs-To: https://bugs.kde.org\n"
 "POT-Creation-Date: 2019-07-01 01:43+0200\n"
 "PO-Revision-Date: 2019-07-04 05:16+0200\n"
