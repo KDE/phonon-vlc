@@ -99,7 +99,7 @@ bool LibVLC::init()
     args << "--no-disable-screensaver";
 #endif
     // Allow multiple starts (one gets to wonder whether that makes a difference).
-#if !defined(Q_OS_MAC) && (defined(Q_OS_WIN) || !defined(PHONON_NO_DBUS))
+#if !defined(Q_OS_MAC) && !defined(Q_OS_HAIKU) && (defined(Q_OS_WIN) || !defined(PHONON_NO_DBUS))
     args << "--no-one-instance";
 #endif
     args << "--no-audio";
