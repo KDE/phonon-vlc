@@ -1,5 +1,5 @@
-# Frederik Schwarzer <schwarzer@kde.org>, 2011, 2012.
-# Burkhard Lück <lueck@hube-lueck.de>, 2019.
+# SPDX-FileCopyrightText: 2011, 2012 Frederik Schwarzer <schwarzer@kde.org>
+# SPDX-FileCopyrightText: 2019 Burkhard Lück <lueck@hube-lueck.de>
 msgid ""
 msgstr ""
 "Project-Id-Version: phonon_vlc_qt\n"
