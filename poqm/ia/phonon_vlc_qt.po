@@ -1,8 +1,8 @@
-# giovanni <g.sora@tiscali.it>, 2020.
+# Giovanni Sora <g.sora@tiscali.it>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"PO-Revision-Date: 2020-02-27 22:56+0100\n"
+"PO-Revision-Date: 2021-04-09 23:15+0100\n"
 "Last-Translator: Giovanni Sora <g.sora@tiscali.it>\n"
 "Language-Team: Interlingua <kde-i18n-doc@kde.org>\n"
 "Language: ia\n"
@@ -28,7 +28,7 @@ msgid ""
 msgstr ""
 "Retro administration de VLC dePhonon falleva a initiar.\n"
 "\n"
-"Isto usualmente significa un problema contu installation de VLC, pro favor "
+"Isto usualmente significa un problema con tu installation de VLC, pro favor "
 "reporta un bug con tu distributor."
 
 #: src/devicemanager.cpp:214

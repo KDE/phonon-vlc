@@ -5,10 +5,6 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: phonon_vlc\n"
-"Report-Msgid-Bugs-To: https://bugs.kde.org\n"
-"POT-Creation-Date: 2019-07-01 01:43+0200\n"
-"PO-Revision-Date: 2011-12-28 12:28-0500\n"
-"Last-Translator: Kevin Scannell <kscanne@gmail.com>\n"
 "Language-Team: Irish <gaeilge-gnulinux@lists.sourceforge.net>\n"
 "Language: ga\n"
 "MIME-Version: 1.0\n"
@@ -19,19 +15,11 @@ msgstr ""
 "X-Qt-Contexts: true\n"
 
 #: src/backend.cpp:130
-#, fuzzy
-#| msgid "LibVLC Failed to Initialize"
 msgctxt "Phonon::VLC::Backend|"
 msgid "LibVLC Failed to Initialize"
-msgstr "Níorbh fhéidir le LibVLC túsú"
+msgstr ""
 
 #: src/backend.cpp:131
-#, fuzzy
-#| msgid ""
-#| "Phonon's VLC backend failed to start.\n"
-#| "\n"
-#| "This usually means a problem with your VLC installation, please report a "
-#| "bug with your distributor."
 msgctxt "Phonon::VLC::Backend|"
 msgid ""
 "Phonon's VLC backend failed to start.\n"
@@ -39,14 +27,8 @@ msgid ""
 "This usually means a problem with your VLC installation, please report a bug "
 "with your distributor."
 msgstr ""
-"Níor thosaigh inneall VLC Phonon.\n"
-"\n"
-"De ghnáth, tarlaíonn sé seo mar gheall ar fhadhb éigin leis an tsuiteáil "
-"VLC. Ba chóir duit tuairisc a dhéanamh le do dháileadh."
 
 #: src/devicemanager.cpp:214
-#, fuzzy
-#| msgid "Default"
 msgctxt "Phonon::VLC::DeviceManager|"
 msgid "Default"
-msgstr "Réamhshocrú"
+msgstr ""
