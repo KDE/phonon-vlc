@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # André Marcelo Alvarenga <alvarenga@kde.org>, 2011, 2012.
-# Marcus Gama <marcus.gama@gmail.com>, 2011.
+# Marcus Gama <marcus.gama@kde.org>, 2011.
 # Luiz Fernando Ranghetti <elchevive@opensuse.org>, 2019.
 msgid ""
 msgstr ""
